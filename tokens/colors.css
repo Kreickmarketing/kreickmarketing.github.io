@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,100..900;1,100..900&family=Courier+Prime:wght@400;700&display=swap');
+@import url('../figma-source/fig-tokens.css');
+
+:root {
+  /* Semantic aliases onto the real Figma primitives (see figma-source/fig-tokens.css) */
+  --color-brand-primary: var(--orange-crush);
+  --color-brand-primary-hover: var(--burnt-sienna);
+  --color-surface-page: var(--color-white);
+  --color-surface-dark: var(--midnight);
+  --color-surface-card: var(--color-white);
+  --color-text-heading: var(--midnight);
+  --color-text-body: var(--charcoal);
+  --color-text-muted: var(--dusty-sage);
+  --color-text-inverse: var(--color-white);
+  --color-border-default: var(--sage-veil);
+  --color-border-inverse: var(--iron-pine);
+  --color-focus-ring: var(--tidal-azure);
+}
