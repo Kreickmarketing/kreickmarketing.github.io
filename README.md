@@ -10,7 +10,7 @@ A simple ClearMark landing page that tests the whole setup: a nav, a hero, a "Bo
    - your Calendly link
 3. **Run it on your computer.** In this folder, run `npm install`, then `npm run dev`. Open http://localhost:3000.
 4. **Test the form.** Sign up with your own name. In Supabase, open **Table Editor**, then **signups**. Your name should be there.
-5. **Put it live.** In Vercel, click **Add New**, then **Project**, and pick this repository. Set **Root Directory** to `clearmark-site`. Under **Environment Variables**, add the same three settings from `.env.local`. Click **Deploy**.
+5. **Put it live.** In Vercel, click **Add New**, then **Project**, and pick this repository. Leave **Root Directory** as `./`. Under **Environment Variables**, add the same three settings from `.env.local`. Click **Deploy**.
 
 ## Where things live
 
