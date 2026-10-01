@@ -1,0 +1,61 @@
+/*
+  ClearMark color system.
+  Primaries use the exact hex values from the style guide.
+  Neutrals and secondaries marked "approx" were sampled from screenshots;
+  replace them with the exact values from Figma when you have them.
+*/
+:root {
+  /* Primaries: core brand colors */
+  --white: #FFFFFF;
+  --clay-light: #F6F5F2;
+  --clay: #E1DDD5;
+  --midnight: #1C2026;
+  --rogue-cherry: #DB1F3D;
+  --tidal-azure: #0099CE;
+
+  /* Neutrals: human earth colors, light to dark (approx) */
+  --sage-veil: #C9C6BE;
+  --sage-mist: #B2AFA7;
+  --dusty-sage: #9C998F;
+  --deep-taupe: #858278;
+  --bistre: #6E675A;
+  --mossy-pewter: #656862;
+  --iron-pine: #444D4D;
+  --charcoal: #2C3139;
+
+  /* Secondaries: warm and green (approx) */
+  --tangerine-burst: #E48F46;
+  --honey-brass: #C8A74B;
+  --solar-flare: #F5DE73;
+  --pine-shadow: #2D4332;
+  --iron-moss: #336A4E;
+  --emerald-tide: #469C6F;
+  --frosted-mint: #ABCFA1;
+  --deep-aubergine: #4C1F50;
+  --magenta-orchid: #874084;
+  --amethyst-veil: #9679B2;
+  --lavender-mist: #C6B7E1;
+
+  /* Secondaries: cool (approx) */
+  --cobalt-wave: #294079;
+  --aegean: #2D6AA5;
+  --glacial-cyan: #56B7C3;
+  --oxblood: #661823;
+  --merlot: #91272B;
+  --coral-rush: #DC4F58;
+  --orange-crush: #E8714B;
+  --burnt-sienna: #DB6931;
+
+  /* What each color is used for on the site */
+  --color-page: var(--clay-light);
+  --color-surface: var(--white);
+  --color-surface-dark: var(--midnight);
+  --color-text: var(--midnight);
+  --color-text-muted: var(--iron-pine);
+  --color-text-inverse: var(--white);
+  --color-border: var(--clay);
+  --color-action: var(--rogue-cherry);
+  --color-action-hover: var(--merlot);
+  --color-link: var(--aegean);
+  --color-focus: var(--tidal-azure);
+}
