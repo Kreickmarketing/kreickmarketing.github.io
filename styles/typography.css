@@ -475,7 +475,7 @@ h6 {
 /* ═════════════════════════════════════════════════════════════════ */
 /* Headlines only (H1–H6 + Tagline). Sizes start at h6 = 32px and step up ×1.22,
    rounded to the nearest 4px; line height is 0.9 × size, rounded to the nearest px. */
-/* Body text sizes remain unchanged on mobile */
+/* Body text sizes remain unchanged on mobile. Tagline drops to 14px. */
 
 @media (max-width: 767px) {
   h1 {
@@ -515,8 +515,8 @@ h6 {
   }
 
   .tagline {
-    font-size: 16px;      /* No reduction */
-    line-height: 16px;    /* No reduction */
+    font-size: 14px;      /* Deliberate exception to the 4px steps: 12px is too small for caps on phones */
+    line-height: 14px;    /* Matches size, as on desktop */
     letter-spacing: 3px;  /* No reduction */
   }
 }
