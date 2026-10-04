@@ -3,10 +3,11 @@
 import { useActionState } from "react";
 import { signIn, type LoginState } from "../actions";
 
-export default function LoginForm() {
+export default function LoginForm({ next }: { next: string }) {
   const [state, action, pending] = useActionState<LoginState, FormData>(signIn, { error: "" });
   return (
     <form action={action} className="crm-login-form">
+      <input type="hidden" name="next" value={next} />
       <div className="field">
         <label htmlFor="username" className="text-sm-semi-bold">Username</label>
         <input id="username" name="username" autoComplete="username" autoCapitalize="none" required />

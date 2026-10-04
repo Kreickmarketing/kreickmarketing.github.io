@@ -26,7 +26,10 @@ export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isPublic = ["/clrcrm/login", "/clrcrm/forgot", "/clrcrm/auth"].some((p) => path.startsWith(p));
   if (!user && !isPublic) {
-    return NextResponse.redirect(new URL("/clrcrm/login", request.url));
+    // Remember the page they asked for, so logging in takes them straight there.
+    const login = new URL("/clrcrm/login", request.url);
+    if (path !== "/clrcrm") login.searchParams.set("next", path + request.nextUrl.search);
+    return NextResponse.redirect(login);
   }
 
   // Keep the CRM out of search engines.

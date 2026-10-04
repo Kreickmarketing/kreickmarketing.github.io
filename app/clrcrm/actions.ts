@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerSupabase } from "@/lib/supabase-server";
+import { safeNext } from "./next-path";
 
 export type LoginState = { error: string };
 export type ResetState = { error: string; sent?: boolean };
@@ -26,7 +27,7 @@ export async function signIn(_prev: LoginState, formData: FormData): Promise<Log
   // Same message for every failure, so it doesn't reveal which usernames exist.
   if (error) return { error: "That username and password don't match." };
 
-  redirect("/clrcrm");
+  redirect(safeNext(formData.get("next")));
 }
 
 export async function signOut() {
