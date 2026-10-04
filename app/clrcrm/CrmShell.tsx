@@ -4,8 +4,7 @@ import { signOut } from "./actions";
 const tools = [
   { key: "crm", label: "CRM", href: "/clrcrm/crm", external: false },
   { key: "playbook", label: "Playbook", href: "/clrcrm", external: false },
-  // The interview drill lives in a Claude app; it opens in a new tab.
-  { key: "interview", label: "Interview app", href: "https://claude.ai/artifact/2UaLS69xqFrg1cWCPKjD1M", external: true },
+  { key: "interview", label: "Interview app", href: "/clrcrm/interview", external: false },
 ] as const;
 
 export type CrmTool = (typeof tools)[number]["key"];
