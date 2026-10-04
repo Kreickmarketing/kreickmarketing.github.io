@@ -2,8 +2,7 @@ import Image from "next/image";
 import { signOut } from "./actions";
 
 const tools = [
-  // The CRM itself lives in a Claude app, so its records stay in one place.
-  { key: "crm", label: "CRM", href: "https://claude.ai/artifact/1sFGYEMrhg7cAioUdKRNvK", external: true },
+  { key: "crm", label: "CRM", href: "/clrcrm/crm", external: false },
   { key: "playbook", label: "Playbook", href: "/clrcrm", external: false },
   { key: "interview", label: "Interview app", href: "/clrcrm/interview", external: false },
 ] as const;

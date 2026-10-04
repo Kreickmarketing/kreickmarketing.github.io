@@ -1,5 +1,5 @@
 -- CRM tables for clearmark.bz/clrcrm: clients (the sales pipeline) and products.
--- Already applied to clearmark-test. Kept here so the setup can be repeated.
+-- Applied to clearmark-test on Oct 4, 2026. For a new project: paste into Supabase > SQL Editor and run (needs clrcrm.sql first). Safe to re-run.
 -- Only people on public.crm_members (see clrcrm.sql) can read or change these rows.
 
 create table if not exists public.clients (
@@ -46,6 +46,9 @@ create table if not exists public.products (
   funnel_url text,
   description text,
   status text,
+  quickbooks_item_id text,
+  paypal_product_id text,
+  stripe_price_id text,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -59,6 +62,21 @@ begin
   return new;
 end;
 $$;
+
+-- When a lead changes stage, record the day it moved (unless the edit sets the date itself).
+create or replace function public.stamp_stage_entered() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  if new.stage is distinct from old.stage and new.stage_entered_date is not distinct from old.stage_entered_date then
+    new.stage_entered_date = current_date;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists clients_stage_entered on public.clients;
+create trigger clients_stage_entered before update on public.clients
+  for each row execute function public.stamp_stage_entered();
 
 drop trigger if exists clients_updated_at on public.clients;
 create trigger clients_updated_at before update on public.clients
@@ -82,3 +100,7 @@ create policy "CRM members manage products" on public.products
   for all to authenticated
   using (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())))
   with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));
+
+-- The website only ever uses the logged-in (authenticated) role for these tables.
+revoke all on public.clients, public.products from anon;
+grant select, insert, update, delete on public.clients, public.products to authenticated;
