@@ -43,7 +43,42 @@
   background: var(--color-surface-dark);
   color: var(--color-text-inverse);
 }
-.crm-bar-user { display: flex; align-items: center; gap: 16px; }
+.crm-bar { position: relative; z-index: 30; }
+
+/* ── Menu (hamburger) ── */
+.crm-menu summary {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--color-text-inverse);
+}
+.crm-menu summary::-webkit-details-marker { display: none; }
+.crm-menu summary svg { width: 28px; height: 28px; }
+.crm-menu .crm-menu-close, .crm-menu[open] .crm-menu-open { display: none; }
+.crm-menu[open] .crm-menu-close { display: block; }
+.crm-menu-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  padding: 8px var(--gutter) 24px;
+  background: var(--color-surface-dark);
+  color: var(--color-text-inverse);
+  border-top: 1px solid var(--charcoal);
+}
+.crm-menu-panel ul { list-style: none; margin: 0; padding: 0; }
+.crm-menu-panel a {
+  display: block;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--charcoal);
+  color: var(--color-text-inverse);
+  text-decoration: none;
+}
+.crm-menu-panel a[aria-current="page"] { color: var(--tidal-azure); }
+.crm-menu-user { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; }
 .button-outline { background: transparent; color: var(--color-text-inverse); border-color: var(--color-text-inverse); }
 .button-outline:hover { background: var(--color-text-inverse); color: var(--midnight); }
 
@@ -119,6 +154,47 @@ nav.crm-sections a {
   background: var(--pb-surface);
 }
 nav.crm-sections a[aria-current="true"] { background: var(--midnight); color: var(--white); border-color: var(--midnight); }
+nav.crm-sections svg { display: none; }
+
+/* Phones: the section buttons become a bottom tab bar (icon + label), like the Kreick site */
+@media (max-width: 767px) {
+  nav.crm-sections {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: var(--color-surface-dark);
+    border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  nav.crm-sections ul { padding: 6px 4px; gap: 0; }
+  nav.crm-sections li { flex: 1 1 0; }
+  nav.crm-sections a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-height: 56px;
+    justify-content: center;
+    padding: 6px 2px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text-inverse);
+    font-family: var(--font-body);
+    font-size: var(--text-xs-size);
+    line-height: var(--text-xs-lh);
+    letter-spacing: 0;
+    font-weight: var(--font-weight-semi-bold);
+    overflow: visible;
+  }
+  nav.crm-sections svg { display: block; width: 24px; height: 24px; }
+  nav.crm-sections a[aria-current="true"] { background: transparent; color: var(--tidal-azure); }
+  .crm:has(nav.crm-sections) { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  .crm section.part { scroll-margin-top: 16px; }
+}
 
 /* ── Sections ── */
 .crm section.part { padding: 48px 0 12px; scroll-margin-top: 64px; }

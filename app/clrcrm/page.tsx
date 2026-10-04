@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getCrmMember } from "@/lib/supabase-server";
-import { signOut } from "./actions";
+import CrmShell from "./CrmShell";
 import { playbookHtml } from "./playbook-content";
 import PlaybookControls from "./PlaybookControls";
 import "./clrcrm.css";
@@ -17,19 +16,10 @@ export default async function ClrCrmPage() {
   if (!member) redirect("/clrcrm/login?denied=1");
 
   return (
-    <div className="crm">
-      <header className="crm-bar">
-        <Image src="/logo-white.png" alt="ClearMark" width={128} height={32} />
-        <div className="crm-bar-user">
-          <span className="text-sm-normal">{member.username}</span>
-          <form action={signOut}>
-            <button type="submit" className="button button-outline">Log out</button>
-          </form>
-        </div>
-      </header>
+    <CrmShell current="playbook" username={member.username}>
       {/* Our own fixed content, not visitor input, so rendering it as HTML is safe. */}
       <div id="playbook" dangerouslySetInnerHTML={{ __html: playbookHtml }} />
       <PlaybookControls />
-    </div>
+    </CrmShell>
   );
 }
