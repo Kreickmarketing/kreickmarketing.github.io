@@ -1,0 +1,272 @@
+/*
+  /clrcrm: the team-only Brand Playbook and its login page.
+  Everything is scoped under .crm or .crm-login so it can't affect the public site.
+  Colors and type come only from styles/colors.css and styles/typography.css.
+*/
+
+/* ── Playbook color roles, mapped to ClearMark tokens ── */
+.crm, .crm-login {
+  --pb-paper: var(--color-page);
+  --pb-surface: var(--color-surface);
+  --pb-ink: var(--color-text);
+  --pb-ink-2: var(--color-text-muted);
+  --pb-line: var(--color-border);
+  --pb-accent: var(--tidal-azure);
+  --pb-accent-soft: color-mix(in srgb, var(--tidal-azure) 12%, var(--white));
+  --pb-mark: var(--rogue-cherry);
+  --pb-fill: color-mix(in srgb, var(--solar-flare) 45%, var(--white));
+  --pb-fill-ink: var(--bistre);
+  --pb-ok: var(--iron-moss);
+  --pb-ok-soft: color-mix(in srgb, var(--frosted-mint) 40%, var(--white));
+  --pb-muted-soft: var(--clay);
+}
+
+.crm {
+  min-height: 100vh;
+  background: var(--pb-paper);
+  color: var(--pb-ink);
+  font-size: var(--text-sm-size);
+  line-height: 1.5; /* long-form reading needs more air than the display line heights */
+  letter-spacing: var(--text-sm-ls);
+}
+.crm .wrap { max-width: 760px; margin: 0 auto; padding: 0 var(--gutter); }
+.crm a { color: var(--color-link); }
+.crm p { margin: 0 0 0.8em; }
+
+/* ── Top bar ── */
+.crm-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px var(--gutter);
+  background: var(--color-surface-dark);
+  color: var(--color-text-inverse);
+}
+.crm-bar-user { display: flex; align-items: center; gap: 16px; }
+.button-outline { background: transparent; color: var(--color-text-inverse); border-color: var(--color-text-inverse); }
+.button-outline:hover { background: var(--color-text-inverse); color: var(--midnight); }
+
+/* ── Headings: brand type tokens, sized for a reading page ── */
+.crm h1, .crm h2, .crm h3, .crm h4 { font-family: var(--font-heading); margin: 0; }
+.crm h1 {
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-lh);
+  letter-spacing: var(--text-h4-ls);
+  font-weight: var(--font-weight-light);
+}
+.crm h2 {
+  font-size: var(--text-h6-size);
+  line-height: var(--text-h6-lh);
+  letter-spacing: var(--text-h6-ls);
+  font-weight: var(--font-weight-light);
+  margin-bottom: 12px;
+}
+.crm h3 {
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-semi-bold);
+}
+.crm h4 {
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-semi-bold);
+}
+
+/* ── Hero ── */
+.crm .crm-hero { padding-top: 48px; padding-bottom: 32px; }
+.crm-hero .who {
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-tagline-ls);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  color: var(--pb-ink-2);
+  margin-bottom: 24px;
+}
+.crm-hero .tag {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-bold);
+  color: var(--pb-mark);
+}
+.crm-hero .purpose { margin-top: 24px; color: var(--pb-ink-2); max-width: 34em; font-size: var(--text-md-size); line-height: var(--text-md-lh); }
+
+/* ── Sticky section nav: pill buttons ── */
+nav.crm-sections { position: sticky; top: 0; z-index: 10; background: var(--pb-paper); border-bottom: 1px solid var(--pb-line); }
+nav.crm-sections ul { list-style: none; margin: 0 auto; padding: 10px var(--gutter); display: flex; gap: 6px; max-width: 760px; }
+nav.crm-sections li { flex: 1 1 auto; min-width: 0; }
+nav.crm-sections a {
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  color: var(--pb-ink);
+  font-family: var(--font-button);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-xs-size);
+  letter-spacing: 0;
+  padding: 8px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--pb-line);
+  background: var(--pb-surface);
+}
+nav.crm-sections a[aria-current="true"] { background: var(--midnight); color: var(--white); border-color: var(--midnight); }
+
+/* ── Sections ── */
+.crm section.part { padding: 48px 0 12px; scroll-margin-top: 64px; }
+.crm .lede { color: var(--pb-ink-2); max-width: 36em; }
+.crm .subhead { margin: 36px 0 8px; scroll-margin-top: 72px; }
+.crm .subnote { color: var(--pb-ink-2); font-size: var(--text-xs-size); margin-bottom: 14px; }
+
+/* ── Copy blocks ── */
+.crm .block { position: relative; }
+.crm .block-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.crm .block-head h3, .crm .block-head h4 {
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-tagline-ls);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  color: var(--pb-ink-2);
+  padding-top: 10px;
+}
+.crm button.copy {
+  flex: none;
+  font-family: var(--font-button);
+  font-size: var(--text-xs-size);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+  color: var(--midnight);
+  background: var(--pb-accent-soft);
+  border: 1px solid var(--pb-accent);
+  border-radius: 999px;
+  padding: 6px 14px;
+  min-height: 34px;
+  cursor: pointer;
+}
+.crm button.copy:hover { background: var(--pb-accent); color: var(--white); }
+.crm button.copy.done { color: var(--pb-ok); background: var(--pb-ok-soft); border-color: var(--pb-ok); }
+.crm .copytext { white-space: pre-wrap; margin: 0; font: inherit; user-select: text; }
+.crm .copytext strong { font-weight: var(--font-weight-bold); }
+.crm .fill { background: var(--pb-fill); color: var(--pb-fill-ink); border-radius: 4px; padding: 0 3px; font-weight: var(--font-weight-semi-bold); }
+.crm .gap { font-size: var(--text-xs-size); color: var(--pb-ink-2); margin: 8px 0 0; padding-left: 10px; border-left: 2px solid var(--pb-mark); }
+
+/* ── Messaging cascade ── */
+.crm .cascade { list-style: none; margin: 28px 0 0; padding: 0 0 0 36px; position: relative; counter-reset: lvl; }
+.crm .cascade::before { content: ""; position: absolute; left: 13px; top: 8px; bottom: 8px; width: 2px; background: var(--pb-line); }
+.crm .level { position: relative; counter-increment: lvl; margin-bottom: 36px; }
+.crm .level::before {
+  content: counter(lvl);
+  position: absolute; left: -36px; top: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--midnight); color: var(--white);
+  font-family: var(--font-button); font-weight: var(--font-weight-bold); font-size: var(--text-xs-size);
+  display: grid; place-items: center;
+}
+.crm .level-name { font-weight: var(--font-weight-bold); font-size: var(--text-md-size); line-height: var(--text-md-lh); margin: 2px 0; }
+.crm .level-desc { font-size: var(--text-xs-size); color: var(--pb-ink-2); margin-bottom: 12px; }
+.crm .node { background: var(--pb-surface); border: 1px solid var(--pb-line); padding: 14px 16px 16px; margin-bottom: 12px; border-radius: 12px; }
+.crm .l1 .node.parent { background: var(--midnight); color: var(--white); border-color: var(--midnight); }
+.crm .l1 .node.parent .block-head h3 { color: var(--clay); }
+.crm .l1 .node.parent .big { font-size: var(--text-xl-size); line-height: var(--text-xl-lh); font-weight: var(--font-weight-bold); }
+.crm .l1 .node.parent .big-tag { font-size: var(--text-lg-size); line-height: var(--text-lg-lh); font-weight: var(--font-weight-bold); color: var(--rogue-cherry); }
+.crm .l1 .node.parent button.copy { background: transparent; color: var(--white); border-color: var(--white); }
+.crm .l3 .node { background: var(--pb-accent-soft); border-color: transparent; }
+.crm .claim { font-size: var(--text-md-size); line-height: var(--text-md-lh); font-weight: var(--font-weight-bold); }
+.crm .children { margin: 14px 0 0; padding: 0 0 0 14px; border-left: 3px solid var(--pb-mark); list-style: none; }
+.crm .children li { margin: 0 0 12px; }
+.crm .proofline { font-size: var(--text-xs-size); color: var(--pb-ink-2); }
+.crm .proofline b { color: var(--pb-ink); font-weight: var(--font-weight-semi-bold); }
+
+/* ── Channels ── */
+.crm .group { margin-top: 32px; }
+.crm .group > p { color: var(--pb-ink-2); font-size: var(--text-xs-size); margin: 4px 0 10px; }
+.crm .chan { border-top: 1px solid var(--pb-line); padding: 14px 0; }
+.crm .chan:last-child { border-bottom: 1px solid var(--pb-line); }
+.crm .chan-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.crm .chan-name { font-weight: var(--font-weight-bold); }
+.crm .status {
+  font-family: var(--font-button);
+  font-size: var(--text-xs-size);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+  border-radius: 999px;
+  padding: 2px 10px;
+  white-space: nowrap;
+}
+.crm .s-ready { background: var(--pb-ok-soft); color: var(--pb-ok); }
+.crm .s-fill { background: var(--pb-fill); color: var(--pb-fill-ink); }
+.crm .s-build { background: var(--pb-accent-soft); color: var(--aegean); }
+.crm .s-later, .crm .s-parked { background: var(--pb-muted-soft); color: var(--pb-ink-2); }
+.crm .chan dl { margin: 8px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: var(--text-xs-size); line-height: 1.5; }
+.crm .chan dt { color: var(--pb-ink-2); }
+.crm .chan dd { margin: 0; }
+.crm .chan .jump { font-size: var(--text-xs-size); font-weight: var(--font-weight-semi-bold); display: inline-block; margin-top: 6px; }
+
+/* ── Content drawers ── */
+.crm details.channel { background: var(--pb-surface); border: 1px solid var(--pb-line); border-radius: 12px; margin: 0 0 12px; scroll-margin-top: 72px; }
+.crm details.channel > summary { list-style: none; cursor: pointer; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.crm details.channel > summary::-webkit-details-marker { display: none; }
+.crm details.channel > summary .t { font-weight: var(--font-weight-bold); }
+.crm details.channel > summary .chev { flex: none; width: 12px; height: 12px; border-right: 2px solid var(--pb-ink-2); border-bottom: 2px solid var(--pb-ink-2); transform: rotate(45deg); transition: transform 0.2s; margin-right: 4px; }
+.crm details.channel[open] > summary .chev { transform: rotate(-135deg); }
+.crm .channel-body { padding: 0 16px 8px; }
+.crm .channel-body .use { font-size: var(--text-xs-size); color: var(--pb-ink-2); margin-bottom: 14px; }
+.crm .channel-body .block { border-top: 1px solid var(--pb-line); padding: 12px 0; }
+.crm .rules { background: var(--pb-surface); border-left: 4px solid var(--pb-mark); border-radius: 12px; padding: 14px 16px; margin: 18px 0 22px; }
+.crm .rules h3 { margin-bottom: 6px; }
+.crm .rules ul, .crm .parked { margin: 0; padding-left: 18px; font-size: var(--text-xs-size); }
+.crm .rules li, .crm .parked li { margin-bottom: 6px; }
+
+/* ── Timeline ── */
+.crm .weeks { list-style: none; margin: 20px 0 0; padding: 0; counter-reset: wk; }
+.crm .week { position: relative; padding: 0 0 28px 44px; counter-increment: wk; }
+.crm .week::before {
+  content: counter(wk);
+  position: absolute; left: 0; top: 0;
+  width: 30px; height: 30px; border-radius: 999px;
+  background: var(--rogue-cherry); color: var(--white);
+  font-family: var(--font-button); font-weight: var(--font-weight-bold);
+  display: grid; place-items: center;
+}
+.crm .week::after { content: ""; position: absolute; left: 14px; top: 36px; bottom: 4px; width: 2px; background: var(--pb-line); }
+.crm .week:last-child::after { display: none; }
+.crm .week h3 { padding-top: 2px; }
+.crm .week .when { font-size: var(--text-xs-size); color: var(--pb-ink-2); margin-bottom: 8px; }
+.crm .task { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--pb-line); cursor: pointer; }
+.crm .task input { margin-top: 3px; width: 20px; height: 20px; flex: none; accent-color: var(--midnight); }
+.crm .task .who { display: block; font-size: var(--text-xs-size); color: var(--pb-ink-2); }
+.crm .task input:checked + span { color: var(--pb-ink-2); text-decoration: line-through; }
+.crm .progress { font-size: var(--text-xs-size); color: var(--pb-ink-2); margin-top: 6px; }
+.crm footer.wrap { padding-top: 32px; padding-bottom: 56px; color: var(--pb-ink-2); font-size: var(--text-xs-size); }
+
+/* ── Login page ── */
+.crm-login {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px var(--gutter);
+  background: var(--pb-paper);
+}
+.crm-login-card { width: 100%; max-width: 420px; background: var(--pb-surface); border: 1px solid var(--pb-line); }
+.crm-login-head { background: var(--color-surface-dark); padding: 20px 24px; }
+.crm-login-logo { display: block; width: 160px; height: auto; }
+.crm-login-body { display: flex; flex-direction: column; gap: 16px; padding: 28px 24px 32px; }
+.crm-login-body .tagline { color: var(--rogue-cherry); }
+.crm-login-form { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
+.crm-login-form .button { align-self: stretch; }
+
+@media (max-width: 767px) {
+  .crm h1 { font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); }
+  .crm h2 { font-size: var(--text-xl-size); line-height: var(--text-xl-lh); letter-spacing: var(--text-xl-ls); }
+  nav.crm-sections ul { gap: 4px; }
+  nav.crm-sections a { padding: 8px 4px; }
+}
