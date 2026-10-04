@@ -263,6 +263,7 @@ nav.crm-sections a[aria-current="true"] { background: var(--midnight); color: va
 .crm-login-body .tagline { color: var(--rogue-cherry); }
 .crm-login-form { display: flex; flex-direction: column; gap: 16px; margin-top: 8px; }
 .crm-login-form .button { align-self: stretch; }
+.crm-login-link { align-self: center; color: var(--pb-ink-2); }
 
 @media (max-width: 767px) {
   .crm h1 { font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); }

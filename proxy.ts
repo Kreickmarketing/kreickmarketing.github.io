@@ -21,8 +21,11 @@ export async function proxy(request: NextRequest) {
   });
 
   const { data: { user } } = await supabase.auth.getUser();
-  const onLogin = request.nextUrl.pathname.startsWith("/clrcrm/login");
-  if (!user && !onLogin) {
+  // Pages a logged-out visitor may open: log in, ask for a reset email, and the
+  // link that email contains.
+  const path = request.nextUrl.pathname;
+  const isPublic = ["/clrcrm/login", "/clrcrm/forgot", "/clrcrm/auth"].some((p) => path.startsWith(p));
+  if (!user && !isPublic) {
     return NextResponse.redirect(new URL("/clrcrm/login", request.url));
   }
 

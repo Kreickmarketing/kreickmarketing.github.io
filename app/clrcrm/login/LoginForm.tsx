@@ -19,6 +19,7 @@ export default function LoginForm() {
       <button type="submit" className="button button-action" disabled={pending}>
         {pending ? "Logging in…" : "Log in"}
       </button>
+      <a href="/clrcrm/forgot" className="crm-login-link text-sm-normal">Forgot password?</a>
     </form>
   );
 }
