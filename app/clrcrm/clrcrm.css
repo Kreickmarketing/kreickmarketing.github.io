@@ -78,6 +78,7 @@
   text-decoration: none;
 }
 .crm-menu-panel a[aria-current="page"] { color: var(--tidal-azure); }
+.crm-menu-ext { color: var(--sage-mist); }
 .crm-menu-user { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; }
 .button-outline { background: transparent; color: var(--color-text-inverse); border-color: var(--color-text-inverse); }
 .button-outline:hover { background: var(--color-text-inverse); color: var(--midnight); }

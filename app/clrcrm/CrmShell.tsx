@@ -2,9 +2,10 @@ import Image from "next/image";
 import { signOut } from "./actions";
 
 const tools = [
-  { key: "crm", label: "CRM", href: "/clrcrm/crm" },
-  { key: "playbook", label: "Playbook", href: "/clrcrm" },
-  { key: "interview", label: "Interview app", href: "/clrcrm/interview" },
+  // The CRM itself lives in a Claude app, so its records stay in one place.
+  { key: "crm", label: "CRM", href: "https://claude.ai/artifact/1sFGYEMrhg7cAioUdKRNvK", external: true },
+  { key: "playbook", label: "Playbook", href: "/clrcrm", external: false },
+  { key: "interview", label: "Interview app", href: "/clrcrm/interview", external: false },
 ] as const;
 
 export type CrmTool = (typeof tools)[number]["key"];
@@ -32,7 +33,15 @@ export default function CrmShell({ current, username, children }: { current: Crm
             <ul>
               {tools.map((t) => (
                 <li key={t.key}>
-                  <a href={t.href} className="text-lg-semi-bold" aria-current={t.key === current ? "page" : undefined}>{t.label}</a>
+                  <a
+                    href={t.href}
+                    className="text-lg-semi-bold"
+                    aria-current={t.key === current ? "page" : undefined}
+                    {...(t.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  >
+                    {t.label}
+                    {t.external && <span className="crm-menu-ext" aria-label="(opens in a new tab)"> ↗</span>}
+                  </a>
                 </li>
               ))}
             </ul>
