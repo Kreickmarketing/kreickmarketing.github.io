@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import SignupForm from "@/components/SignupForm";
 
 const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL || "https://calendly.com";
@@ -30,6 +31,7 @@ export default function Home() {
           <SignupForm />
         </section>
       </main>
+      <Footer />
     </>
   );
 }

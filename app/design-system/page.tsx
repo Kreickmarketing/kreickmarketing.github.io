@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 import { Card, CardImageText, CARD_WIDTHS } from "@/components/Card";
 import { BODY_SIZES, BODY_WEIGHTS, COLOR_GROUPS, FIELDS, FIELD_MAP, HEADINGS, SAMPLE } from "./content";
 import "./design-system.css";
@@ -259,6 +260,7 @@ export default function DesignSystemPage() {
           ))}
         </section>
       </main>
+      <Footer />
     </>
   );
 }
