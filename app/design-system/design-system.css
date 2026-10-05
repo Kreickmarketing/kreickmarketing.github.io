@@ -61,7 +61,10 @@
 .ds-pair { display: flex; gap: 8px; }
 .ds figcaption { color: var(--iron-pine); }
 .ds figcaption b { color: var(--midnight); }
-.ds-frame { overflow-x: auto; padding-bottom: 8px; }
+.ds-frame { overflow-x: auto; padding-bottom: 8px; display: flex; }
+/* Card-1920 breaks out of the page column so it can fill wide screens */
+.ds { overflow-x: clip; }
+.ds-bleed { width: 100vw; max-width: none !important; margin-inline: calc(50% - 50vw); padding-inline: var(--gutter); }
 
 @media (max-width: 1060px) {
   .ds-colors { grid-template-columns: repeat(2, minmax(0, 1fr)); }

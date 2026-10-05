@@ -35,6 +35,21 @@ const MEDIUM: Scale = { ct100: "h5", ct200: "h6", ct300: "md", cp: "h5", cpdt: "
 const LARGE: Scale = { ct100: "h2", ct200: "h5", ct300: "md", cp: "h4", cpdt: "sm" };
 const PANEL: Scale = { ct100: "h4", ct200: "h6", ct300: "md", cp: "h4", cpdt: "sm" };
 
+// Responsive sizing: each card fills its container, from the next card size
+// down (its minimum) up to its own size, keeping its shape. Card-160 has no
+// smaller size. Card-1920 has no maximum: it stretches to fill the container
+// and stops getting taller at 960.
+function cardSize(w: CardWidth): React.CSSProperties {
+  const smaller = CARD_WIDTHS[CARD_WIDTHS.indexOf(w) - 1];
+  return {
+    width: "100%",
+    minWidth: smaller,
+    maxWidth: w === 1920 ? undefined : w,
+    aspectRatio: `${w} / ${HEIGHT[w]}`,
+    maxHeight: w === 1920 ? HEIGHT[w] : undefined,
+  };
+}
+
 function layout(w: CardWidth) {
   if (w === 160) return { tier: "s", scale: SMALL };
   if (w === 320) return { tier: "s", scale: PHONE };
@@ -87,8 +102,8 @@ export function Card({ width, content: c }: { width: CardWidth; content: CardCon
     </div>
   );
   return (
-    <article className={`card card-${width} card-tier-${tier}`} style={{ width, height: HEIGHT[width] }}>
-      <Image src={c.image} alt={c.imageAlt ?? ""} fill sizes={`${width}px`} className="card-image" />
+    <article className={`card card-${width} card-tier-${tier}`} style={cardSize(width)}>
+      <Image src={c.image} alt={c.imageAlt ?? ""} fill sizes={width === 1920 ? "100vw" : `(max-width: ${width}px) 100vw, ${width}px`} className="card-image" />
       {tier === "l" ? (
         <>
           <div className="card-panel">

@@ -213,10 +213,10 @@ export default function DesignSystemPage() {
           </div>
 
           <h3 className="as-h5 ds-device">Tablet, laptop and desktop</h3>
-          <p className="text-xs-normal ds-note">Shown at actual size. Scroll sideways inside a card&apos;s frame to see all of it.</p>
+          <p className="text-xs-normal ds-note">Every card is responsive: it fills the space it&apos;s given, from the next card size down up to its own size, and keeps its shape. Card-1920 has no maximum and stretches to fill its container. Make your browser window narrower or wider to see it. When the window is smaller than a card&apos;s minimum, the card scrolls sideways.</p>
           {large.map((w) => (
-            <figure key={w} className="ds-large">
-              <figcaption className="text-xs-normal"><b>Card-{w}</b></figcaption>
+            <figure key={w} className={`ds-large${w === 1920 ? " ds-bleed" : ""}`}>
+              <figcaption className="text-xs-normal"><b>Card-{w}</b> · {w === 1920 ? "1760 and wider" : `${CARD_WIDTHS[CARD_WIDTHS.indexOf(w) - 1]} to ${w} wide`}</figcaption>
               <div className="ds-frame"><Card width={w} content={SAMPLE} /></div>
             </figure>
           ))}

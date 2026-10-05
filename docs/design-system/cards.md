@@ -60,6 +60,8 @@ Tags replace the fixed HT100 to HT300 fields, so content can have as many as it 
 
 ## 3. The 13 cards
 
+**Every card is responsive.** It fills the space it's given, from the next card size down up to its own size, and keeps its shape. For example, Card-800 goes from 640 to 800 wide. **Card-1920** is the exception: it has no maximum, so it stretches to fill its container (it stops getting taller at 960).
+
 ### Mobile (3 cards)
 
 | Card | Size (w × h) | Other name in the notes | Padding | How it looks |

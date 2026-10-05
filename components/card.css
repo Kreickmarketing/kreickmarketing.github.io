@@ -1,5 +1,7 @@
 /*
   ClearMark cards (components/Card.tsx).
+  Cards are responsive: each fills its container between the next card size
+  down and its own size (Card-1920 has no maximum). See cardSize() in Card.tsx.
   Spacing follows the 32px site grid (32 / 64; 16 and 8 inside small parts).
   Sizes come only from the type tokens in styles/typography.css;
   colors only from styles/colors.css.
@@ -29,7 +31,7 @@
 /* ── Photo cards ── */
 .card {
   position: relative;
-  flex: none;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -100,9 +102,9 @@
 
 /* ── Card-Image-Text (mobile) ── */
 .card-it {
-  width: 352px;
-  max-width: 100%;
-  flex: none;
+  width: 100%;
+  max-width: 352px;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
