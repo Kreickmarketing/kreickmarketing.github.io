@@ -1,4 +1,4 @@
-# Project status (updated Oct 5, 2026)
+# Project status (updated Oct 5, 2026, after Studio step 1)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer.
@@ -11,7 +11,8 @@
 - `components/`: Card (13 sizes), Hero, SectionHeader, Credibility, Platforms, SiteNav (+ SiteTabBar), Footer. All size themselves by their own width.
 - `app/design-system/`: the design system page and its sample content.
 - `app/clrcrm/`: team area (login, CRM, playbook, interview).
-- `supabase/`: SQL for signups, crm_members, clients, products (project clearmark-test only).
+- `supabase/`: SQL for signups, crm_members, clients, products, and Studio (`studio.sql`: sites, pages, collections, items, media, tags, versions). Project clearmark-test only.
+- `lib/studio.ts`: the shape of a Studio page (sections → components or a card grid).
 - `docs/design-system/`: text-styles.md, cards.md (content fields, card specs).
 - `docs/studio-plan.md`: the Studio plan.
 - `uploads/`, `assets/`: Andrew's image uploads (hero-poppies.jpg, platforms-bg.jpg, avatars, platform-logo-01–10, certification logos, reference screenshots). Not yet wired into the components; components still show placeholders.
@@ -20,7 +21,7 @@
 ## Next moves
 1. Swap the real images from uploads/ and assets/ into Hero, Credibility and Platforms.
 2. Andrew: add NEXT_PUBLIC_CALENDLY_URL = https://calendly.com/andrew-clearmark/15min in Vercel.
-3. Studio step 1 (see docs/studio-plan.md).
+3. Studio step 2: My Sites and Pages screens (step 1, the Supabase tables, done Oct 5; see docs/studio-plan.md).
 
 ## Rules to remember
 - Never name Chevrolet or MediaMonks on ClearMark. Kreick site must not link to ClearMark.

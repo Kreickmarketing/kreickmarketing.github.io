@@ -61,7 +61,7 @@ CT100, CT200, CT300 (titles) · CS Content Short ≤144 words · CL Content Long
 
 ## Build order (each step ≈ one 1-hour session)
 
-1. Sites, pages, sections, CMS collections in Supabase; ClearMark Home first.
+1. ✅ Sites, pages, sections, CMS collections in Supabase; ClearMark Home first. (Done Oct 5: `supabase/studio.sql`, page shape in `lib/studio.ts`.)
 2. My Sites and Pages screens.
 3. Page editor: edit text and links; Save draft → Publish.
 4. Insert panel + move sections, components and cards.
@@ -70,6 +70,13 @@ CT100, CT200, CT300 (titles) · CS Content Short ≤144 words · CL Content Long
 7. Image and video uploads (Supabase Storage).
 8. Page settings, Versions with restore, Domains.
 Then: connect the Kreick site (separate Vercel project; needs the Supabase URL and publishable key added there).
+
+## Progress log
+
+- **Oct 5, 2026: step 1 done.** In clearmark-test: tables `sites`, `pages`, `collections`, `items`, `media`, `tags`, `item_tags`, `versions`, all with RLS. CRM members can do everything (`is_crm_member()`); visitors read only published pages and items, never a page's draft or the versions. Seeded: ClearMark (live) and Kreick Marketing (coming); Products and Portfolio collections; one sample product (CPO→CIO Leadership Track, still a draft) with its image and 3 tags; ClearMark Home as a **draft** with 5 sections (Hero, Credibility, Platforms, Solutions header, a card grid). Nothing is published yet, so the live site is unchanged.
+  - Note for Claude: the Supabase MCP `apply_migration` hangs (60s timeout) on any statement with `drop … if exists` or other "destructive" SQL because it waits for a confirmation. On a fresh table use `create or replace trigger` and plain `create policy` instead.
+  - The CMS `items` are separate from the CRM `products` table (that one is for sales: prices, Stripe IDs). Linking them can come later.
+- **Next: step 2**, My Sites and Pages screens (log in through /clrcrm, list sites as cards, then the pages of a site).
 
 ## First draft scope (agreed)
 
