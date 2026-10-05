@@ -29,3 +29,8 @@
 - Never put secret keys in the code; use environment variables (`.env.local`, see `.env.example`).
 - Turn on Row Level Security for every Supabase table.
 - Only work on the dev Supabase project unless I say otherwise.
+
+## Current work: Studio
+- Before anything else in a new session, read `docs/project-status.md` (what's live, where things are, next moves) and `docs/studio-plan.md` (the Studio plan and build order).
+- When I say "continue Studio" or "start Studio", pick up at the next unfinished step in `docs/studio-plan.md`.
+- Update both files at the end of each session so the next one knows where we stopped.
