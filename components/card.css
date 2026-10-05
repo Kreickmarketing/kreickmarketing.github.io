@@ -1,5 +1,6 @@
 /*
   ClearMark cards (components/Card.tsx).
+  Spacing follows the 32px site grid (32 / 64; 16 and 8 inside small parts).
   Sizes come only from the type tokens in styles/typography.css;
   colors only from styles/colors.css.
 */
@@ -23,7 +24,7 @@
 .card-cs { font-weight: var(--font-weight-light); }
 .card-cp { font-family: var(--font-heading); font-weight: var(--font-weight-extra-bold); }
 .card-cpdt { font-weight: var(--font-weight-semi-bold); }
-.card-titles { display: flex; flex-direction: column; gap: 4px; }
+.card-titles { display: flex; flex-direction: column; gap: 8px; }
 
 /* ── Photo cards ── */
 .card {
@@ -33,20 +34,20 @@
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 32px;
   padding: 32px;
   color: var(--white);
   background: var(--midnight);
 }
 .card > :not(.card-image) { position: relative; z-index: 1; }
 .card-image { object-fit: cover; }
-.card-160 { border-radius: 12px; padding: 14px; }
-.card-160 .card-titles { gap: 2px; }
+.card-160 { border-radius: 16px; padding: 16px; }
+.card-160 .card-titles { gap: 0; }
 .card-800, .card-960, .card-1120 { padding: 64px; }
 .card-tier-l { padding: 64px; justify-content: flex-end; }
 
-.card-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
-.card-divider { border-top: 1px solid currentColor; padding-top: 24px; }
+.card-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.card-divider { border-top: 1px solid currentColor; padding-top: 32px; }
 .card-160 .card-foot { justify-content: flex-end; }
 .card-price { margin-left: auto; text-align: right; flex: none; }
 .card-tier-m .card-ct300, .card-tier-l .card-ct300 { font-weight: var(--font-weight-semi-bold); }
@@ -57,25 +58,24 @@
   left: 64px;
   top: 50%;
   transform: translateY(-50%);
-  width: 432px;
-  padding: 48px;
-  border-radius: 24px;
+  width: 448px;
+  padding: 64px;
+  border-radius: 32px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
   background: color-mix(in srgb, var(--midnight) 55%, transparent);
   backdrop-filter: blur(16px);
 }
-.card-panel .card-titles { gap: 12px; }
-.card-panel .card-ct200 { margin-top: -8px; }
+.card-panel .card-titles { gap: 8px; }
 
 /* Tags: outlined "+" pills */
-.card-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; min-width: 0; }
+.card-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
 .card-tags li {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px 6px 10px;
+  padding: 8px 16px 8px 8px;
   border: 1px solid currentColor;
   border-radius: 999px;
   font-size: var(--text-xs-size);
@@ -100,22 +100,21 @@
 
 /* ── Card-Image-Text (mobile) ── */
 .card-it {
-  width: 360px;
+  width: 352px;
   max-width: 100%;
   flex: none;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 24px;
-  border-radius: 24px;
+  padding: 32px;
+  border-radius: 32px;
   background: var(--white);
   color: var(--midnight);
 }
-.card-it-image { position: relative; aspect-ratio: 312 / 186; border-radius: 16px; overflow: hidden; }
-.card-it .card-ct300 { margin-top: 4px; }
+.card-it-image { position: relative; aspect-ratio: 288 / 192; border-radius: 16px; overflow: hidden; }
 .card-it .card-cs { color: var(--iron-pine); font-weight: var(--font-weight-normal); }
 .card-it .card-cb { color: var(--aegean); font-weight: var(--font-weight-normal); }
-.card-it .card-foot { flex-direction: column; align-items: stretch; gap: 24px; }
+.card-it .card-foot { flex-direction: column; align-items: stretch; gap: 32px; }
 .card-it .card-tags li { font-size: var(--text-xs-size); }
 .card-it .card-cp { font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); }
 .card-it .card-cpdt { font-size: var(--text-xs-size); line-height: var(--text-xs-lh); font-weight: var(--font-weight-bold); }

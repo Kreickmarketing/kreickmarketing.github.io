@@ -13,27 +13,48 @@ Each field has a short code. The code tells a card which field to show.
 | Field | Code | Rule / note |
 | --- | --- | --- |
 | Content Title 100 | CT100 | Main title |
-| Slug | — | The page address: yoursite.url/cms/[lowercase] |
 | Content Title 200 | CT200 | Second title |
 | Content Title 300 | CT300 | Third title |
 | Content Short | CS | Up to 144 words |
-| Content Long | CL | Up to 2,500 words (?) (could be 1,500) |
-| Content Button Link | CBL | Where the button goes |
+| Content Long | CL | Up to 1,500 words |
+| Slug | — | The page address: yoursite.url/cms/[lowercase] |
 | Content Button | CB | The button's text |
+| Content Button Link | CBL | Where the button goes |
 | Content Price | CP | |
-| Hashtag 100 | HT100 | Written "HF100" in the notes; probably HT100 |
-| Hashtag 200 | HT200 | |
-| Hashtag 300 | HT300 | |
-| Content Images (+) | CI-01, CI-02 … | Add as many as needed |
-| Content Videos (+) | CV-01, CV-02 … | Add as many as needed |
-| Content Price Description | CPD | |
-| Content Price Subtitle | CPS | |
 | Content Price Title | CPT | |
+| Content Price Subtitle | CPS | |
+| Content Price Description | CPD | |
 | Content Price Dates | CPDT | e.g. "Starting on Wednesday January 28, 2026" |
+| Content Image 01, 02 … | CI-01 … | Kept outside the content fields (see below). Add as many as needed. |
+| Content Video 01, 02 … | CV-01 … | Kept outside the content fields (see below). Add as many as needed. |
+| Hashtags (tags) | Tags | Typed comma-separated. Each tag has a link (see below). |
+
+### Images and videos
+
+Images and videos are **not stored in the database**, so they never interrupt the content fields.
+
+- The content itself is **one row** of text fields that never changes shape.
+- **Images** are files in Supabase Storage.
+- **Videos** are a Vimeo or YouTube link (or a short file under 50MB in Storage).
+- A separate **media list** links each file to its content. Each entry holds:
+  - its number (CI-01, CI-02 … or CV-01 …)
+  - the file or link
+  - a short description for screen readers
+  - its order
+- Adding one image or thirty adds lines to the media list only.
+
+### Hashtags (tags)
+
+Tags replace the fixed HT100 to HT300 fields, so content can have as many as it needs. The "+" pills on the cards are tags.
+
+1. Type them comma-separated: `Hybrid course, Leadership upskilling`.
+2. Each tag is created once and reused across all content.
+3. Each tag links to its own page automatically, e.g. `/tags/hybrid-course`, listing everything with that tag.
+4. On the Tags screen, any tag can be given a custom link instead, e.g. a Calendly or landing page.
 
 ## 2. Grid and card sizes
 
-- **Site grid:** 32px
+- **Site grid:** 32px. All spacing (padding, gaps, margins) is 32, 64 or 96. Only small parts inside a component, like tag pills, use 16 or 8.
 - **Card widths** go up in steps of 160px: 160 / 320 / 480 / 640 / 800 / 960 / 1120 / 1280 / 1440 / 1600 / 1760 / 1920
 - **Phone screen** the mobile cards are designed for: 360px wide
 
@@ -43,9 +64,9 @@ Each field has a short code. The code tells a card which field to show.
 
 | Card | Size (w × h) | Other name in the notes | Padding | How it looks |
 | --- | --- | --- | --- | --- |
-| **Card-160** | 160 × 240 | Card-Mobile-50% | 14 on all sides | Half the phone's width, so two can sit side by side. Text on top of the photo. |
+| **Card-160** | 160 × 240 | Card-Mobile-50% | 16 on all sides (notes said 14; snapped to the grid) | Half the phone's width, so two can sit side by side. Text on top of the photo. |
 | **Card-320** | 320 × 480 | Card-Mobile-320 | 32 on all sides | Full phone width. Text on top of the photo, with a 1px white divider above the price. |
-| **Card-Image-Text** | about 368 × 840 (?) | — | about 24 (?) | Photo on top, with dark text below on a light background. The only card where the text isn't on the photo. |
+| **Card-Image-Text** | 352 wide (?) | — | 32 | Photo on top, with dark text below on a light background. The only card where the text isn't on the photo. |
 
 ### Tablet, laptop and desktop (10 cards)
 
@@ -94,7 +115,7 @@ In every card the price (CP) and dates (CPDT) sit at the **bottom right**, and t
 
 ## 5. Mobile card drawings
 
-### Card-160 (Card-Mobile-50%): padding 14
+### Card-160 (Card-Mobile-50%): padding 16
 
 ```
 ┌──────────────┐
@@ -170,13 +191,9 @@ The notebook also has an empty square box with no name or fields. It may be a ca
 
 ## Things to check
 
-1. **Content Long:** is it 1,500 or 2,500 words?
-2. **HF100:** should it be HT100, to match HT200 and HT300?
-3. **Card-320 width:** the name says 320, but "340" is written above the drawing. Which one is right?
-4. **Card-160 padding:** 14px isn't on the 32px site grid or the 4px grid. Should it be 16px?
-5. **Card-Image-Text size:** I measured about 368 × 840 from the screenshot, but the phone screen is 360px wide. What is the exact size?
-6. **Tags:** the five "+" pills aren't in the field list. Are they the hashtags? There are 5 pills but only 3 hashtag fields (HT100–HT300).
-7. **CS or CT300 on mobile:** your drawings mark the third line on Card-160 and Card-320 as CS, but the designs show the CT300 sentence there. Which field should it be?
-8. **Devices:** which of the 10 larger cards are for tablet, which for laptop and which for desktop?
-9. **Unused fields:** CL, CV-01, CPD, CPS and CPT don't appear on any card yet. Are they for full pages rather than cards?
-10. **Sample text typos:** "prescribes in" (perhaps "parachutes in"), "We're operation" ("We're operators") and "the mass" ("the mess").
+1. **Card-320 width:** the name says 320, but "340" is written above the drawing. Which one is right?
+2. **Card-Image-Text width:** set to 352 (11 × 32) with 32 padding. Your design measured about 368. Is 352 right?
+3. **CS or CT300 on mobile:** your drawings mark the third line on Card-160 and Card-320 as CS, but the designs show the CT300 sentence there. Which field should it be?
+4. **Devices:** which of the 10 larger cards are for tablet, which for laptop and which for desktop?
+5. **Unused fields:** CL, CV-01, CPD, CPS and CPT don't appear on any card yet. Are they for full pages rather than cards?
+6. **Sample text typos:** "prescribes in" (perhaps "parachutes in"), "We're operation" ("We're operators") and "the mass" ("the mess").

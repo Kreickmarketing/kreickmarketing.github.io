@@ -119,7 +119,7 @@ export function CardImageText({ content: c }: { content: CardContent }) {
   return (
     <article className="card-it">
       <div className="card-it-image">
-        <Image src={c.image} alt={c.imageAlt ?? ""} fill sizes="312px" className="card-image" />
+        <Image src={c.image} alt={c.imageAlt ?? ""} fill sizes="288px" className="card-image" />
       </div>
       <div className="card-titles">
         <h3 className="t-h6 card-ct100">{c.ct100}</h3>

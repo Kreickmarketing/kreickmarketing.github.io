@@ -1,6 +1,6 @@
 /*
   /design-system: laid out like the Figma "Typography" and "Color" sheets.
-  Sizes come from styles/typography.css classes; colors from styles/colors.css.
+  Spacing follows the 32px site grid. Sizes come from styles/typography.css classes; colors from styles/colors.css.
 */
 
 .ds { background: var(--clay-light); color: var(--midnight); padding-bottom: 96px; }
@@ -9,7 +9,7 @@
 .ds-intro { display: flex; flex-direction: column; gap: 16px; padding-block: 64px 32px; }
 .ds-intro .tagline { color: var(--rogue-cherry); }
 .ds-intro > .text-md-light { max-width: 36em; }
-.ds-toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 16px; }
+.ds-toc { display: flex; flex-wrap: wrap; gap: 8px 32px; margin-top: 16px; }
 .ds-toc a { color: var(--midnight); }
 .ds-section { display: flex; flex-direction: column; gap: 32px; padding-block: 64px; border-top: 1px solid var(--sage-veil); scroll-margin-top: 16px; }
 .ds-lede { max-width: 44em; }
@@ -18,7 +18,7 @@
 .ds code { font-family: var(--font-button); letter-spacing: 0; }
 
 /* ── Color ── */
-.ds-colors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 48px; align-items: start; }
+.ds-colors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 64px; align-items: start; }
 .ds-group { margin-bottom: 16px; }
 .ds-swatches { list-style: none; margin: 0; padding: 0; }
 .ds-swatches li { display: grid; grid-template-columns: 20px minmax(0, 1fr) 44px; align-items: center; gap: 12px; padding-block: 10px; border-bottom: 1px solid var(--midnight); }
@@ -30,14 +30,14 @@
 /* ── Typography ── */
 .ds-specimen { display: flex; flex-direction: column; gap: 8px; }
 .ds-saira { font-family: var(--font-heading); font-weight: var(--font-weight-light); font-size: var(--text-h2-size); line-height: var(--text-h2-lh); letter-spacing: var(--text-h2-ls); }
-.ds-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
+.ds-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 64px; }
 .ds-two > div { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .ds-row { display: flex; flex-direction: column; gap: 12px; padding-top: 16px; }
 .ds-label { color: var(--iron-pine); padding-bottom: 6px; border-bottom: 1px solid var(--sage-mist); }
 .ds-fixed { overflow-wrap: anywhere; }
 .ds-body-wrap { overflow-x: auto; }
-.ds-body { display: grid; grid-template-columns: repeat(6, minmax(140px, 1fr)); gap: 24px; min-width: 900px; }
-.ds-body-col { display: flex; flex-direction: column; gap: 20px; }
+.ds-body { display: grid; grid-template-columns: repeat(6, minmax(128px, 1fr)); gap: 32px; min-width: 928px; }
+.ds-body-col { display: flex; flex-direction: column; gap: 16px; }
 .ds-body-col .text-xxs-light, .ds-body-col .text-xs-light, .ds-body-col .text-sm-light,
 .ds-body-col .text-md-light, .ds-body-col .text-lg-light, .ds-body-col .text-xl-light { color: var(--dusty-sage); }
 .ds-link { text-decoration: underline; text-underline-offset: 3px; }
@@ -59,8 +59,8 @@
 .ds-table tr:last-child td { border-bottom: 0; }
 
 /* ── Cards ── */
-.ds-mobile { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; }
-.ds-mobile figure, .ds-large { margin: 0; display: flex; flex-direction: column; gap: 12px; min-width: 0; max-width: 100%; }
+.ds-mobile { display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start; }
+.ds-mobile figure, .ds-large { margin: 0; display: flex; flex-direction: column; gap: 16px; min-width: 0; max-width: 100%; }
 .ds-pair { display: flex; gap: 8px; }
 .ds figcaption { color: var(--iron-pine); }
 .ds figcaption b { color: var(--midnight); }
@@ -70,8 +70,8 @@
   .ds-colors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 767px) {
-  .ds-intro { padding-top: 40px; }
-  .ds-section { padding-block: 48px; }
+  .ds-intro { padding-top: 32px; }
+  .ds-section { padding-block: 64px; }
   .ds-colors, .ds-two { grid-template-columns: 1fr; }
   .ds-saira { font-size: var(--text-h4-size); line-height: var(--text-h4-lh); }
 }

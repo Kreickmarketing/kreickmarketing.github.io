@@ -38,23 +38,21 @@ export const BODY_WEIGHTS = [
 
 export const FIELDS: [string, string, string][] = [
   ["Content Title 100", "CT100", "Main title"],
-  ["Slug", "—", "Page address: yoursite.url/cms/[lowercase]"],
   ["Content Title 200", "CT200", "Second title"],
   ["Content Title 300", "CT300", "Third title"],
   ["Content Short", "CS", "Up to 144 words"],
-  ["Content Long", "CL", "Up to 2,500 words"],
-  ["Content Button Link", "CBL", "Where the button goes"],
+  ["Content Long", "CL", "Up to 1,500 words"],
+  ["Slug", "—", "Page address: yoursite.url/cms/[lowercase]"],
   ["Content Button", "CB", "The button's text"],
+  ["Content Button Link", "CBL", "Where the button goes"],
   ["Content Price", "CP", ""],
-  ["Hashtag 100", "HT100", ""],
-  ["Hashtag 200", "HT200", ""],
-  ["Hashtag 300", "HT300", ""],
-  ["Content Images (+)", "CI-01 …", "Add as many as needed"],
-  ["Content Videos (+)", "CV-01 …", "Add as many as needed"],
-  ["Content Price Description", "CPD", ""],
-  ["Content Price Subtitle", "CPS", ""],
   ["Content Price Title", "CPT", ""],
+  ["Content Price Subtitle", "CPS", ""],
+  ["Content Price Description", "CPD", ""],
   ["Content Price Dates", "CPDT", "e.g. Starting on Wednesday January 28, 2026"],
+  ["Content Image 01, 02 …", "CI-01 …", "Kept outside the content fields: files in storage, listed in order. Add as many as needed."],
+  ["Content Video 01, 02 …", "CV-01 …", "Kept outside the content fields: a Vimeo or YouTube link (or a short file). Add as many as needed."],
+  ["Hashtags (tags)", "Tags", "Typed comma-separated. Each tag links to its own page, or to a link you choose."],
 ];
 
 // Which fields each card shows: [card, device, CI, CT100, CT200, CT300, CS, CB, Tags, Divider, CP+CPDT]

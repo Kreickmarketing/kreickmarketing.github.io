@@ -151,7 +151,7 @@ export default function DesignSystemPage() {
         {/* ── Grid ── */}
         <section id="grid" className="ds-wrap ds-section">
           <h2 className="as-h3">Grid</h2>
-          <p className="text-md-light ds-lede">Site grid: <strong>32px</strong>. Card widths go up in steps of 160px.</p>
+          <p className="text-md-light ds-lede">The site is set up on a <strong>32px grid</strong>: spacing is 32, 64 or 96, with 16 and 8 only inside small parts like tags. Card widths go up in steps of 160px.</p>
           <div className="ds-widths">
             {CARD_WIDTHS.map((w) => (
               <div key={w} className="ds-width">
@@ -201,7 +201,7 @@ export default function DesignSystemPage() {
                 <Card width={160} content={SAMPLE} />
                 <Card width={160} content={SAMPLE} />
               </div>
-              <figcaption className="text-xs-normal"><b>Card-160</b> (Card-Mobile-50%) · 160 × 240 · padding 14 · two side by side</figcaption>
+              <figcaption className="text-xs-normal"><b>Card-160</b> (Card-Mobile-50%) · 160 × 240 · padding 16 · two side by side</figcaption>
             </figure>
             <figure>
               <Card width={320} content={SAMPLE} />
@@ -209,7 +209,7 @@ export default function DesignSystemPage() {
             </figure>
             <figure>
               <CardImageText content={SAMPLE} />
-              <figcaption className="text-xs-normal"><b>Card-Image-Text</b> · 360 wide · padding 24</figcaption>
+              <figcaption className="text-xs-normal"><b>Card-Image-Text</b> · 352 wide · padding 32</figcaption>
             </figure>
           </div>
 
