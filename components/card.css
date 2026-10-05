@@ -1,0 +1,121 @@
+/*
+  ClearMark cards (components/Card.tsx).
+  Sizes come only from the type tokens in styles/typography.css;
+  colors only from styles/colors.css.
+*/
+
+/* Type-scale steps, sized from the tokens. Weights are set per field below. */
+.card .t-xxs, .card-it .t-xxs { font-size: var(--text-xxs-size); line-height: var(--text-xxs-lh); letter-spacing: var(--text-xxs-ls); }
+.card .t-xs, .card-it .t-xs { font-size: var(--text-xs-size); line-height: var(--text-xs-lh); letter-spacing: var(--text-xs-ls); }
+.card .t-sm, .card-it .t-sm { font-size: var(--text-sm-size); line-height: var(--text-sm-lh); letter-spacing: var(--text-sm-ls); }
+.card .t-md, .card-it .t-md { font-size: var(--text-md-size); line-height: var(--text-md-lh); letter-spacing: var(--text-md-ls); }
+.card .t-lg, .card-it .t-lg { font-size: var(--text-lg-size); line-height: var(--text-lg-lh); letter-spacing: var(--text-lg-ls); }
+.card .t-xl, .card-it .t-xl { font-size: var(--text-xl-size); line-height: var(--text-xl-lh); letter-spacing: var(--text-xl-ls); }
+.card .t-h6, .card-it .t-h6 { font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); }
+.card .t-h5 { font-size: var(--text-h5-size); line-height: var(--text-h5-lh); letter-spacing: var(--text-h5-ls); }
+.card .t-h4 { font-size: var(--text-h4-size); line-height: var(--text-h4-lh); letter-spacing: var(--text-h4-ls); }
+.card .t-h3 { font-size: var(--text-h3-size); line-height: var(--text-h3-lh); letter-spacing: var(--text-h3-ls); }
+.card .t-h2 { font-size: var(--text-h2-size); line-height: var(--text-h2-lh); letter-spacing: var(--text-h2-ls); }
+
+.card p, .card h3, .card-it p, .card-it h3 { margin: 0; }
+.card-ct100, .card-ct200 { font-family: var(--font-heading); font-weight: var(--font-weight-bold); }
+.card-ct300 { font-weight: var(--font-weight-normal); }
+.card-cs { font-weight: var(--font-weight-light); }
+.card-cp { font-family: var(--font-heading); font-weight: var(--font-weight-extra-bold); }
+.card-cpdt { font-weight: var(--font-weight-semi-bold); }
+.card-titles { display: flex; flex-direction: column; gap: 4px; }
+
+/* ── Photo cards ── */
+.card {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 32px;
+  color: var(--white);
+  background: var(--midnight);
+}
+.card > :not(.card-image) { position: relative; z-index: 1; }
+.card-image { object-fit: cover; }
+.card-160 { border-radius: 12px; padding: 14px; }
+.card-160 .card-titles { gap: 2px; }
+.card-800, .card-960, .card-1120 { padding: 64px; }
+.card-tier-l { padding: 64px; justify-content: flex-end; }
+
+.card-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.card-divider { border-top: 1px solid currentColor; padding-top: 24px; }
+.card-160 .card-foot { justify-content: flex-end; }
+.card-price { margin-left: auto; text-align: right; flex: none; }
+.card-tier-m .card-ct300, .card-tier-l .card-ct300 { font-weight: var(--font-weight-semi-bold); }
+
+/* Wide cards: titles, text and button in a see-through panel on the left */
+.card-panel {
+  position: absolute !important;
+  left: 64px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 432px;
+  padding: 48px;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: color-mix(in srgb, var(--midnight) 55%, transparent);
+  backdrop-filter: blur(16px);
+}
+.card-panel .card-titles { gap: 12px; }
+.card-panel .card-ct200 { margin-top: -8px; }
+
+/* Tags: outlined "+" pills */
+.card-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; min-width: 0; }
+.card-tags li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 10px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-semi-bold);
+  white-space: nowrap;
+}
+.card-tags svg, .card-cb svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* Text button with an arrow */
+.card-cb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  color: inherit;
+  text-decoration: none;
+  font-weight: var(--font-weight-light);
+}
+.card-cb:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* ── Card-Image-Text (mobile) ── */
+.card-it {
+  width: 360px;
+  max-width: 100%;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--white);
+  color: var(--midnight);
+}
+.card-it-image { position: relative; aspect-ratio: 312 / 186; border-radius: 16px; overflow: hidden; }
+.card-it .card-ct300 { margin-top: 4px; }
+.card-it .card-cs { color: var(--iron-pine); font-weight: var(--font-weight-normal); }
+.card-it .card-cb { color: var(--aegean); font-weight: var(--font-weight-normal); }
+.card-it .card-foot { flex-direction: column; align-items: stretch; gap: 24px; }
+.card-it .card-tags li { font-size: var(--text-xs-size); }
+.card-it .card-cp { font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); }
+.card-it .card-cpdt { font-size: var(--text-xs-size); line-height: var(--text-xs-lh); font-weight: var(--font-weight-bold); }

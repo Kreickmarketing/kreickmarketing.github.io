@@ -471,6 +471,33 @@ h6 {
 }
 
 /* ═════════════════════════════════════════════════════════════════ */
+/* HEADING SIZES AS CLASSES (.as-h1 – .as-h6) */
+/* ═════════════════════════════════════════════════════════════════ */
+/* Same values as h1–h6, for when the right tag and the right size differ
+   (e.g. a page's one <h1> that should look like an h6). */
+
+.as-h1 { font-family: var(--font-heading); font-size: var(--text-h1-size); line-height: var(--text-h1-lh); letter-spacing: var(--text-h1-ls); font-weight: 200; margin: 0; }
+.as-h2 { font-family: var(--font-heading); font-size: var(--text-h2-size); line-height: var(--text-h2-lh); letter-spacing: var(--text-h2-ls); font-weight: 200; margin: 0; }
+.as-h3 { font-family: var(--font-heading); font-size: var(--text-h3-size); line-height: var(--text-h3-lh); letter-spacing: var(--text-h3-ls); font-weight: 200; margin: 0; }
+.as-h4 { font-family: var(--font-heading); font-size: var(--text-h4-size); line-height: var(--text-h4-lh); letter-spacing: var(--text-h4-ls); font-weight: 300; margin: 0; }
+.as-h5 { font-family: var(--font-heading); font-size: var(--text-h5-size); line-height: var(--text-h5-lh); letter-spacing: var(--text-h5-ls); font-weight: 300; margin: 0; }
+.as-h6 { font-family: var(--font-heading); font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); font-weight: 300; margin: 0; }
+
+/* ═════════════════════════════════════════════════════════════════ */
+/* WEIGHT MODIFIERS */
+/* ═════════════════════════════════════════════════════════════════ */
+/* Change only the weight of any type style, e.g. class="as-h6 weight-bold".
+   Placed after the styles above so they win. */
+
+.weight-thin { font-weight: var(--font-weight-thin); }
+.weight-light { font-weight: var(--font-weight-light); }
+.weight-normal { font-weight: var(--font-weight-normal); }
+.weight-medium { font-weight: var(--font-weight-medium); }
+.weight-semi-bold { font-weight: var(--font-weight-semi-bold); }
+.weight-bold { font-weight: var(--font-weight-bold); }
+.weight-extra-bold { font-weight: var(--font-weight-extra-bold); }
+
+/* ═════════════════════════════════════════════════════════════════ */
 /* MOBILE STYLES (max-width: 767px) */
 /* ═════════════════════════════════════════════════════════════════ */
 /* Headlines only (H1–H6 + Tagline). Sizes start at h6 = 32px and step up ×1.22,
@@ -478,37 +505,37 @@ h6 {
 /* Body text sizes remain unchanged on mobile. Tagline drops to 12px. */
 
 @media (max-width: 767px) {
-  h1 {
+  h1, .as-h1 {
     font-size: 88px;
     line-height: 79px;  /* 88 × 0.9 = 79.2 */
     letter-spacing: -4px;
   }
 
-  h2 {
+  h2, .as-h2 {
     font-size: 72px;
     line-height: 65px;  /* 72 × 0.9 = 64.8 */
     letter-spacing: -4px;
   }
 
-  h3 {
+  h3, .as-h3 {
     font-size: 60px;
     line-height: 54px;  /* 60 × 0.9 = 54 */
     letter-spacing: -4px;
   }
 
-  h4 {
+  h4, .as-h4 {
     font-size: 48px;
     line-height: 43px;  /* 48 × 0.9 = 43.2 */
     letter-spacing: -3px;
   }
 
-  h5 {
+  h5, .as-h5 {
     font-size: 40px;
     line-height: 36px;  /* 40 × 0.9 = 36 */
     letter-spacing: -2px;
   }
 
-  h6 {
+  h6, .as-h6 {
     font-size: 32px;
     line-height: 29px;  /* 32 × 0.9 = 28.8 */
     letter-spacing: -2px;
