@@ -1,0 +1,67 @@
+/*
+  Platforms section (components/Platforms.tsx). White text over a photo;
+  Midnight shows until a photo is added. Breakpoints use the section's width.
+*/
+
+.plat-wrap { container-type: inline-size; }
+.plat {
+  --plat-pad: 96px;
+  position: relative;
+  overflow: hidden;
+  min-height: 1400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 64px;
+  padding: var(--plat-pad);
+  color: var(--white);
+  background: linear-gradient(to bottom, var(--charcoal), var(--midnight));
+}
+.plat > :not(.plat-image) { position: relative; z-index: 1; }
+.plat-image { object-fit: cover; }
+
+
+.plat-bottom { display: flex; flex-direction: column; gap: 64px; }
+.plat-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 32px; }
+/* Large tag for this section: 56px tall, 20px text */
+.plat-tag { height: 56px; padding: 0 24px 0 16px; gap: 16px; font-size: var(--text-md-size); line-height: var(--text-md-lh); letter-spacing: var(--text-md-ls); font-weight: var(--font-weight-light); }
+.plat-tag svg { width: 20px; height: 20px; }
+
+.plat-logos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 64px 96px; align-items: center; }
+.plat-logo { display: block; width: 100%; max-width: 160px; height: auto; }
+.plat-placeholder {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px dashed var(--sage-mist);
+  border-radius: 8px;
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-semi-bold);
+}
+
+/* Laptop (the 1280 design): small tags, tighter grid */
+@container (max-width: 1439px) {
+  .plat { min-height: 1000px; }
+  .plat-tags { gap: 16px 32px; }
+  .plat-tag { height: 32px; padding: 0 12px 0 8px; gap: 4px; font-size: var(--text-xs-size); line-height: var(--text-xs-lh); letter-spacing: var(--text-xs-ls); }
+  .plat-tag svg { width: 12px; height: 12px; }
+  .plat-logos { gap: 32px 64px; }
+  .plat-placeholder { font-size: var(--text-sm-size); line-height: var(--text-sm-lh); }
+}
+/* Tablet (the 800 design) */
+@container (max-width: 1023px) {
+  .plat { --plat-pad: 40px; min-height: 900px; }
+  .plat-logos { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 32px; }
+}
+/* Phone (the 375 design): headline under the label, tags stacked, 3 logo columns */
+@container (max-width: 767px) {
+  .plat { --plat-pad: 32px; min-height: 800px; justify-content: flex-start; gap: 24px; }
+  .plat-bottom { gap: 32px; }
+  .plat-tags { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .plat-tag { font-weight: var(--font-weight-semi-bold); }
+  .plat-logos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .plat-placeholder { font-size: var(--text-xs-size); line-height: var(--text-xs-lh); padding: 0 8px; }
+}

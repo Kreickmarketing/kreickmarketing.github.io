@@ -1,0 +1,24 @@
+/*
+  Section header (components/SectionHeader.tsx). Iron Pine text on light
+  backgrounds, white with .sh-light. No outer padding: the section supplies it.
+*/
+
+.sh-wrap { container-type: inline-size; }
+.sh { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; color: var(--iron-pine); }
+.sh-light { color: var(--white); }
+.sh p { margin: 0; }
+.sh-main { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
+.sh-title { display: flex; flex-direction: column; margin: 0; }
+.sh-body { max-width: 46em; font-size: var(--text-md-size); line-height: 1.5; letter-spacing: var(--text-md-ls); font-weight: var(--font-weight-light); }
+
+/* Tablet (the 800 design): smaller headline and text */
+@container (max-width: 1023px) {
+  /* Phone h6 from text-styles.md: 32px / 29px */
+  .sh-title { font-size: 32px; line-height: 29px; letter-spacing: var(--text-h6-ls); }
+  .sh-main { gap: 16px; }
+  .sh-body { font-size: var(--text-sm-size); line-height: var(--text-sm-lh); letter-spacing: var(--text-sm-ls); }
+}
+/* Phone (the 375 design): tagline above the headline */
+@container (max-width: 767px) {
+  .sh { grid-template-columns: 1fr; gap: 40px; }
+}

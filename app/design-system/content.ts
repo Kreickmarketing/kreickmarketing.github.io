@@ -1,4 +1,6 @@
 import type { CardContent } from "@/components/Card";
+import type { HeroContent } from "@/components/Hero";
+import type { CredLogo } from "@/components/Credibility";
 
 // Color groups, in the order of the Figma "Primitive Variables" sheet.
 // Names match the variables in styles/colors.css.
@@ -79,4 +81,43 @@ export const SAMPLE: CardContent = {
   tags: ["Hybrid course", "Leadership upskilling", "Digital transformation", "6-week executive program", "Hands-on Execution workshop"],
   image: "/design-system/poppies.webp",
   imageAlt: "A woman working at a laptop in a field of orange poppies",
+};
+
+// Sample nav, hero and credibility content (from the hero and credibility designs).
+export const NAV_LINKS = ["About", "Solutions", "Platforms", "Why", "The Engine", "Pricing"].map((label) => ({ label, href: "#components" }));
+export const NAV_CTA = { label: "Enroll Today", href: "#components" };
+
+export const HERO_SAMPLE: HeroContent = {
+  title: "Turning your AI investment into a visible, predictable, performing asset.",
+  cta: { label: "Enroll Today", href: "#components" },
+  image: "/design-system/poppies.webp",
+  imageAlt: "A woman working at a laptop in a field of orange poppies",
+  testimonial: {
+    name: "Pete J. Morgan",
+    quote: "Clearmark pulled our entire team in with a direct, dynamic experience. It wasn't just a deck—we left with a roadmap we actually wanted to execute. We're still talking about it weeks later and implemented what we learned.",
+  },
+  stat: {
+    kicker: "Seven steps in seven days",
+    value: "300% ROI",
+    bars: [["Mon", 0.08], ["Tue", 0.18], ["Wed", 0.3], ["Thu", 0.4], ["Fri", 0.3], ["Sat", 0.5], ["Sun", 0.3]].map(([label, value]) => ({ label: label as string, value: value as number })),
+  },
+};
+
+export const CRED_LABEL = "Speaker & certifications:";
+export const CRED_LOGOS: CredLogo[] = [
+  { name: "The Alliance Canada" },
+  { name: "Ambrose University" },
+  { name: "Clear mark" },
+  { name: "LaPalabra.ca" },
+];
+
+export const PLATFORMS_LABEL = "Platforms";
+export const PLATFORMS_TITLE = ["For any business.", "On any platform."];
+export const PLATFORMS_TAGS = ["Growth & Sales", "Marketing & Content", "HR & People Operations", "IT & Service Operations", "Executive & Strategy", "Operations (cross-functional)", "Legal & Compliance", "R&D / Innovation", "Data Analytics"];
+export const PLATFORMS_LOGOS: CredLogo[] = ["Airtable", "Oracle NetSuite", "Einstein", "Gemini", "Notion", "Workday", "Slack", "ServiceNow", "Copilot", "SAP"].map((name) => ({ name }));
+
+export const SECTION_HEADER_SAMPLE = {
+  tagline: "The team",
+  title: ["Real minds,", "scaling AI naturally"],
+  body: "Our team is built on multifaceted expertise transforming creative and business outcomes. We offer expertise in the following key areas:",
 };

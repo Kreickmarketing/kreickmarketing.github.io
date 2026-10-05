@@ -1,69 +1,113 @@
 /*
-  Global nav (components/SiteNav.tsx). Rules from the uploaded NavBar:
-  16px / 32px padding, logo 32px tall, links 16px with 24px gaps,
-  outlined pill buttons in Courier Prime (20px / 32px padding), 12px apart.
+  Global nav (components/SiteNav.tsx), from the hero designs.
+  Breakpoints use the nav's own width (container queries).
   Colors from styles/colors.css, sizes from styles/typography.css.
 */
 
+.site-nav-wrap { container-type: inline-size; }
 .site-nav {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 32px;
-  padding: 16px 32px;
+  padding: 32px 96px;
   background: var(--midnight);
   color: var(--white);
   font-family: var(--font-body);
 }
 .site-nav-photo { background: transparent; }
 .site-nav-logo { flex: none; display: block; }
-.site-nav-logo img { display: block; height: 32px; width: auto; }
+.site-nav-logo img { display: block; width: 160px; height: auto; }
 
-.site-nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; }
+.site-nav-right { display: flex; align-items: center; gap: 48px; }
+.site-nav-links { display: flex; gap: 48px; }
+.site-nav a { color: inherit; text-decoration: none; }
 .site-nav-links a {
-  color: inherit;
-  text-decoration: none;
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-light);
+  white-space: nowrap;
+}
+.site-nav-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* White "Enroll Today →" pill */
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--midnight);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--midnight) !important;
   font-size: var(--text-sm-size);
   line-height: var(--text-sm-lh);
   letter-spacing: var(--text-sm-ls);
   font-weight: var(--font-weight-normal);
   white-space: nowrap;
 }
-.site-nav-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.nav-cta:hover { background: var(--clay-light); }
+.nav-arrow { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-.site-nav-actions { flex: none; display: flex; gap: 12px; }
-.nav-pill {
-  display: inline-flex;
+/* Menu (☰), shown on tablet and phone */
+.site-nav-menu { display: none; }
+.site-nav-menu summary { list-style: none; cursor: pointer; display: grid; place-items: center; width: 44px; height: 44px; }
+.site-nav-menu summary::-webkit-details-marker { display: none; }
+.site-nav-menu summary svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.site-nav-menu .nav-menu-close, .site-nav-menu[open] .nav-menu-open { display: none; }
+.site-nav-menu[open] .nav-menu-close { display: block; }
+.site-nav-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 32px;
+  background: var(--midnight);
+  color: var(--white);
+}
+.site-nav-panel a:not(.nav-cta) {
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-light);
+}
+.site-nav-panel .nav-cta { margin-top: 16px; }
+
+@container (max-width: 1439px) {
+  .site-nav { padding: 32px 64px; }
+  .site-nav-right, .site-nav-links { gap: 32px; }
+}
+@container (max-width: 1023px) {
+  .site-nav-right { display: none; }
+  .site-nav-menu { display: block; }
+}
+@container (max-width: 767px) {
+  .site-nav { padding: 24px 32px; }
+  .site-nav-logo img { width: 120px; }
+}
+
+/* Phone tab bar: icon above label */
+.site-tabbar { display: flex; justify-content: space-between; gap: 8px; color: var(--white); }
+.site-tabbar a {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 20px 32px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
   color: inherit;
   text-decoration: none;
-  font-family: var(--font-button);
-  font-weight: var(--font-weight-bold);
   font-size: var(--text-sm-size);
   line-height: var(--text-sm-lh);
-  letter-spacing: 0;
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-light);
   white-space: nowrap;
 }
-.nav-pill svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.nav-pill-short { display: none; }
-.nav-pill:hover { background: var(--white); color: var(--midnight); }
-
-/* Smaller laptops: tighter buttons */
-@media (max-width: 1279px) {
-  .nav-pill { padding: 12px 20px; }
-}
-/* Tablet and phone: links hidden until the phone rules are confirmed */
-@media (max-width: 1023px) {
-  .site-nav-links { display: none; }
-}
-@media (max-width: 767px) {
-  .site-nav { padding: 16px; gap: 16px; }
-  .site-nav-logo img { height: 24px; }
-  .nav-pill { padding: 8px 16px; font-size: var(--text-xs-size); line-height: var(--text-xs-lh); }
-  .nav-pill-long, .nav-pill-login { display: none; }
-  .nav-pill-short { display: inline; }
-}
+.site-tabbar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }

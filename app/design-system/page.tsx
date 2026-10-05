@@ -6,7 +6,11 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { Card, CardImageText, CARD_WIDTHS } from "@/components/Card";
 import SiteNav from "@/components/SiteNav";
-import { BODY_SIZES, BODY_WEIGHTS, COLOR_GROUPS, FIELDS, FIELD_MAP, HEADINGS, SAMPLE } from "./content";
+import Hero from "@/components/Hero";
+import Credibility from "@/components/Credibility";
+import Platforms from "@/components/Platforms";
+import SectionHeader from "@/components/SectionHeader";
+import { SECTION_HEADER_SAMPLE, PLATFORMS_LABEL, PLATFORMS_LOGOS, PLATFORMS_TAGS, PLATFORMS_TITLE, BODY_SIZES, BODY_WEIGHTS, COLOR_GROUPS, CRED_LABEL, CRED_LOGOS, FIELDS, FIELD_MAP, HEADINGS, HERO_SAMPLE, NAV_CTA, NAV_LINKS, SAMPLE } from "./content";
 import "./design-system.css";
 
 export const metadata: Metadata = {
@@ -31,7 +35,15 @@ function readColors() {
 
 const title = (name: string) => name.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 
-const SECTIONS = [["color", "Color"], ["typography", "Typography"], ["buttons", "Buttons"], ["nav", "Navigation"], ["footer", "Footer"], ["grid", "Grid"], ["fields", "Content fields"], ["cards", "Cards"]];
+const tabIcon = (d: string) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>;
+const TABS = [
+  { label: "Solutions", href: "#components", icon: tabIcon("M4 4h6v6H4zM14 4l3 3-3 3-3-3zM4 14h6v6H4zM14 14h6v6h-6z") },
+  { label: "Platforms", href: "#components", icon: tabIcon("M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3") },
+  { label: "The Engine", href: "#components", icon: tabIcon("M12 4a2 2 0 1 0 0 .01M5 18a2 2 0 1 0 0 .01M19 18a2 2 0 1 0 0 .01M12 6v5M12 11l-6 6M12 11l6 6") },
+  { label: "Pricing", href: "#components", icon: tabIcon("M6 3h9l3 3v15H6zM14 9.5c-.5-.7-1.3-1-2.2-1-1.3 0-2.3.7-2.3 1.7 0 2.4 4.8 1.2 4.8 3.6 0 1-1 1.7-2.4 1.7-1 0-1.9-.4-2.4-1.1M12 7v1.5M12 15.5V17") },
+];
+
+const SECTIONS = [["color", "Color"], ["typography", "Typography"], ["buttons", "Buttons"], ["nav", "Navigation"], ["footer", "Footer"], ["components", "Components"], ["grid", "Grid"], ["fields", "Content fields"], ["cards", "Cards"]];
 
 export default function DesignSystemPage() {
   const colors = readColors();
@@ -189,28 +201,25 @@ export default function DesignSystemPage() {
         {/* ── Navigation ── */}
         <section id="nav" className="ds-wrap ds-section">
           <h2 className="as-h3">Navigation</h2>
-          <p className="text-md-light ds-lede">Logo on the left, links in the middle, two outlined pill buttons on the right. On Midnight by default; over a photo it turns transparent with white text.</p>
+          <p className="text-md-light ds-lede">Logo on the left. On desktop, the links and a white &quot;Enroll Today →&quot; pill sit on the right. On tablet and phone they move into a menu (☰), and phones add an icon tab bar at the bottom of the hero.</p>
           <figure className="ds-large">
-            <figcaption className="text-xs-normal"><b>On Midnight</b> · &lt;SiteNav /&gt;</figcaption>
-            <div className="ds-nav-frame"><SiteNav links={[{ label: "About", href: "#nav" }, { label: "Solutions", href: "#nav" }, { label: "Platforms", href: "#nav" }, { label: "Why", href: "#nav" }, { label: "The Engine", href: "#nav" }, { label: "Pricing", href: "#nav" }]} cta={{ label: "Contact Us & Enroll Today", short: "Enroll Today", href: "#nav" }} login={{ label: "Login", href: "#nav" }} /></div>
+            <figcaption className="text-xs-normal"><b>Desktop, on Midnight</b> · &lt;SiteNav /&gt;</figcaption>
+            <div className="ds-nav-frame"><SiteNav links={NAV_LINKS} cta={NAV_CTA} /></div>
           </figure>
           <figure className="ds-large">
-            <figcaption className="text-xs-normal"><b>Over a photo</b> · &lt;SiteNav overPhoto /&gt;</figcaption>
-            <div className="ds-nav-frame ds-nav-photo">
-              <Image src="/design-system/poppies.webp" alt="" fill sizes="1440px" className="ds-btn-photo" />
-              <SiteNav overPhoto links={[{ label: "About", href: "#nav" }, { label: "Solutions", href: "#nav" }, { label: "Platforms", href: "#nav" }, { label: "Why", href: "#nav" }, { label: "The Engine", href: "#nav" }, { label: "Pricing", href: "#nav" }]} cta={{ label: "Contact Us & Enroll Today", short: "Enroll Today", href: "#nav" }} login={{ label: "Login", href: "#nav" }} />
-            </div>
+            <figcaption className="text-xs-normal"><b>Phone, menu closed</b> · tap ☰ to open it</figcaption>
+            <div className="ds-nav-frame ds-phone-frame"><SiteNav links={NAV_LINKS} cta={NAV_CTA} /></div>
           </figure>
           <div className="ds-table-wrap">
             <table className="ds-table text-sm-normal">
               <thead><tr><th>Part</th><th>Rule</th></tr></thead>
               <tbody>
-                <tr><td>Bar</td><td>16px top and bottom, 32px sides</td></tr>
-                <tr><td>Logo</td><td>White ClearMark Training logo, 32px tall</td></tr>
-                <tr><td>Links</td><td>16px Saira, 24px apart</td></tr>
-                <tr><td>Buttons</td><td>Outlined pills in Courier Prime, 20px / 32px padding, 12px apart. The first has an arrow.</td></tr>
-                <tr><td>Tablet</td><td>Links are hidden (a menu for them is still to be confirmed)</td></tr>
-                <tr><td>Phone</td><td>Logo 24px tall. The first button shortens to &quot;Enroll Today →&quot; and Login hides.</td></tr>
+                <tr><td>Bar</td><td>32px top and bottom; sides 96 (wide), 64 (laptop), 32 (phone)</td></tr>
+                <tr><td>Logo</td><td>White ClearMark Training logo, 160px wide (120 on phone)</td></tr>
+                <tr><td>Links</td><td>16px Saira Light, 48px apart (32 on laptop)</td></tr>
+                <tr><td>Button</td><td>White pill, Midnight text, 32px tall, with an arrow</td></tr>
+                <tr><td>Tablet and phone</td><td>Links and button move into the ☰ menu</td></tr>
+                <tr><td>Phone tab bar</td><td>Solutions, Platforms, The Engine, Pricing: a 24px icon above each label</td></tr>
               </tbody>
             </table>
           </div>
@@ -240,6 +249,56 @@ export default function DesignSystemPage() {
             <div className="ds-foot-frame ds-foot-phone"><Footer /></div>
           </figure>
           <p className="text-xs-normal ds-note">The footer changes layout based on its own width, so it fits wherever it&apos;s placed. components/Footer.tsx</p>
+        </section>
+
+        {/* ── Components ── */}
+        <section id="components" className="ds-wrap ds-section">
+          <h2 className="as-h3">Components</h2>
+          <p className="text-md-light ds-lede">Page building blocks. Each one is designed here and filled with content per page. They change layout based on their own width, so the desktop and phone versions can sit side by side.</p>
+
+          <h3 className="as-h5 ds-device">Section header</h3>
+          <p className="text-xs-normal ds-note">&lt;SectionHeader /&gt; · sits at the top of every section: tagline left, light headline and paragraph right. Add <code>light</code> for photos and dark backgrounds (as in Platforms below).</p>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Desktop</b></figcaption>
+            <div className="ds-comp-frame ds-sh-frame"><SectionHeader {...SECTION_HEADER_SAMPLE} /></div>
+          </figure>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Phone</b> · 375px wide</figcaption>
+            <div className="ds-comp-frame ds-sh-frame ds-phone-frame"><SectionHeader {...SECTION_HEADER_SAMPLE} /></div>
+          </figure>
+
+          <h3 className="as-h5 ds-device">Hero</h3>
+          <p className="text-xs-normal ds-note">&lt;Hero /&gt; · photo, nav, headline, button, testimonial and stat card. On phones the testimonial and stat card hide and the tab bar appears.</p>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Desktop</b></figcaption>
+            <div className="ds-comp-frame ds-hero-desktop"><Hero content={HERO_SAMPLE} nav={NAV_LINKS} navCta={NAV_CTA} tabs={TABS} /></div>
+          </figure>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Phone</b> · 375px wide</figcaption>
+            <div className="ds-comp-frame ds-hero-phone"><Hero content={HERO_SAMPLE} nav={NAV_LINKS} navCta={NAV_CTA} tabs={TABS} /></div>
+          </figure>
+
+          <h3 className="as-h5 ds-device">Credibility</h3>
+          <p className="text-xs-normal ds-note">&lt;Credibility /&gt; · a label and partner logos on Charcoal. Dashed boxes are placeholders until the logo files are added.</p>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Desktop</b></figcaption>
+            <div className="ds-comp-frame"><Credibility label={CRED_LABEL} logos={CRED_LOGOS} /></div>
+          </figure>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Phone</b> · 375px wide</figcaption>
+            <div className="ds-comp-frame ds-phone-frame"><Credibility label={CRED_LABEL} logos={CRED_LOGOS} /></div>
+          </figure>
+
+          <h3 className="as-h5 ds-device">Platforms</h3>
+          <p className="text-xs-normal ds-note">&lt;Platforms /&gt; · label, headline, &quot;+&quot; tags and platform logos over a full-bleed photo. Placeholders show until the photo and logo files are added.</p>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Desktop</b></figcaption>
+            <div className="ds-comp-frame"><Platforms label={PLATFORMS_LABEL} title={PLATFORMS_TITLE} tags={PLATFORMS_TAGS} logos={PLATFORMS_LOGOS} /></div>
+          </figure>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Phone</b> · 375px wide</figcaption>
+            <div className="ds-comp-frame ds-phone-frame"><Platforms label={PLATFORMS_LABEL} title={PLATFORMS_TITLE} tags={PLATFORMS_TAGS} logos={PLATFORMS_LOGOS} /></div>
+          </figure>
         </section>
 
         {/* ── Grid ── */}

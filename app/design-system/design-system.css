@@ -72,8 +72,14 @@
 .ds figcaption b { color: var(--midnight); }
 .ds-foot-frame { overflow: hidden; border-radius: 16px; }
 .ds-foot-phone { width: 360px; max-width: 100%; }
+.ds-comp-frame { overflow: hidden; border-radius: 16px; }
+.ds-phone-frame { width: 375px; max-width: 100%; }
+.ds-sh-frame { background: var(--white); padding: 96px 64px; }
+.ds-sh-frame.ds-phone-frame { padding: 32px; }
+.ds-hero-desktop .hero-x { --hero-h: 900px; }
+.ds-hero-phone { width: 375px; max-width: 100%; }
+.ds-hero-phone .hero-x { --hero-h: 700px; }
 .ds-nav-frame { position: relative; overflow: hidden; border-radius: 16px; }
-.ds-nav-photo { min-height: 160px; }
 .ds-nav-frame .site-nav { position: relative; z-index: 1; }
 .ds-table td { white-space: normal; min-width: 120px; }
 .ds-frame { overflow-x: auto; padding-bottom: 8px; display: flex; }
