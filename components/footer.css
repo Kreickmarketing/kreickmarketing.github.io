@@ -2,13 +2,16 @@
   Site footer (components/Footer.tsx). Charcoal background, white text.
   Desktop (1024px+): logo and tagline left, meeting link and address right,
   a hairline, then copyright, Privacy, Terms and a back-to-top button.
-  Tablet and phone: one column. Sizes from styles/typography.css.
+  Tablet and phone: one column. Breakpoints use the footer's own width. Sizes from styles/typography.css.
 */
 
 .site-footer {
-  --footer-pad: 96px;
+  container-type: inline-size;
   background: var(--charcoal);
   color: var(--white);
+}
+.site-footer-inner {
+  --footer-pad: 96px;
   padding: var(--footer-pad);
   display: flex;
   flex-direction: column;
@@ -31,7 +34,7 @@
 
 .site-footer-legal {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
+  grid-template-columns: minmax(max-content, 2fr) 1fr 1fr auto;
   align-items: center;
   gap: 32px;
   padding-top: 64px;
@@ -41,13 +44,13 @@
 .site-footer-top-link svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Smaller desktops: tighter margins (the 60px design) */
-@media (max-width: 1439px) {
-  .site-footer { --footer-pad: 64px; }
+@container (max-width: 1439px) {
+  .site-footer-inner { --footer-pad: 64px; }
 }
 
 /* Tablet and phone: one column, back-to-top dropped */
-@media (max-width: 1023px) {
-  .site-footer {
+@container (max-width: 1023px) {
+  .site-footer-inner {
     --footer-pad: 40px;
     gap: 48px;
     font-size: var(--text-sm-size);
@@ -60,7 +63,7 @@
   .site-footer-copy { order: 3; }
   .site-footer-top-link { display: none; }
 }
-@media (max-width: 767px) {
-  .site-footer { --footer-pad: 32px; }
+@container (max-width: 767px) {
+  .site-footer-inner { --footer-pad: 32px; }
   .site-footer-br { display: inline; }
 }

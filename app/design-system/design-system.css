@@ -70,6 +70,8 @@
 .ds-pair { display: flex; gap: 8px; }
 .ds figcaption { color: var(--iron-pine); }
 .ds figcaption b { color: var(--midnight); }
+.ds-foot-frame { overflow: hidden; border-radius: 16px; }
+.ds-foot-phone { width: 360px; max-width: 100%; }
 .ds-nav-frame { position: relative; overflow: hidden; border-radius: 16px; }
 .ds-nav-photo { min-height: 160px; }
 .ds-nav-frame .site-nav { position: relative; z-index: 1; }

@@ -219,7 +219,7 @@ export default function DesignSystemPage() {
         {/* ── Footer ── */}
         <section id="footer" className="ds-wrap ds-section">
           <h2 className="as-h3">Footer</h2>
-          <p className="text-md-light ds-lede">The same footer on every public page: Charcoal background, white text. It is shown live at the bottom of this page.</p>
+          <p className="text-md-light ds-lede">The same footer on every public page: Charcoal background, white text.</p>
           <div className="ds-table-wrap">
             <table className="ds-table text-sm-normal">
               <thead><tr><th>Screen</th><th>Layout</th><th>Side margins</th><th>Text</th></tr></thead>
@@ -231,7 +231,15 @@ export default function DesignSystemPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs-normal ds-note">&lt;Footer /&gt; · components/Footer.tsx</p>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Desktop</b> · &lt;Footer /&gt;</figcaption>
+            <div className="ds-foot-frame"><Footer /></div>
+          </figure>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Phone</b> · the same footer at 360px wide</figcaption>
+            <div className="ds-foot-frame ds-foot-phone"><Footer /></div>
+          </figure>
+          <p className="text-xs-normal ds-note">The footer changes layout based on its own width, so it fits wherever it&apos;s placed. components/Footer.tsx</p>
         </section>
 
         {/* ── Grid ── */}
