@@ -69,3 +69,54 @@ a.tag-white:hover { background: color-mix(in srgb, var(--white) 12%, transparent
 .text-button:hover svg { transform: translateX(4px); }
 .text-button-white { color: var(--white); }
 @media (prefers-reduced-motion: reduce) { .text-button svg { transition: none; } }
+
+/* Call-to-action button: large outlined pill with an arrow ("Enroll Today →"
+   in the hero). 60px tall, 20px bold text. Dark by default; white version for photos. */
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 60px;
+  padding: 0 28px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--midnight);
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cta-button svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s; }
+.cta-button:hover { background: color-mix(in srgb, var(--midnight) 8%, transparent); }
+.cta-button:hover svg { transform: translateX(4px); }
+.cta-button-white { color: var(--white); }
+.cta-button-white:hover { background: color-mix(in srgb, var(--white) 12%, transparent); }
+
+/* Call-to-action pill: small white pill with an arrow ("Enroll Today →" in the nav).
+   32px tall, 16px text, Midnight text and outline. */
+.cta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--midnight);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--midnight);
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-normal);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.cta-pill svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cta-pill:hover { background: var(--clay-light); }
+@media (prefers-reduced-motion: reduce) { .cta-button svg { transition: none; } }

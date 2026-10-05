@@ -30,7 +30,7 @@ export default function Hero({ content: c, nav, navCta, tabs }: { content: HeroC
 
         <div className="hero-x-body">
           <h1 className="as-h6 weight-bold hero-x-title">{c.title}</h1>
-          <Link href={c.cta.href} className="hero-x-cta">
+          <Link href={c.cta.href} className="cta-button cta-button-white hero-x-cta">
             {c.cta.label}
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
           </Link>

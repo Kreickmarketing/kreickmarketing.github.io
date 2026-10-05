@@ -166,6 +166,32 @@ export default function DesignSystemPage() {
           </div>
 
           <div className="ds-btn-group">
+            <h3 className="as-h6 ds-group">Call-to-action buttons</h3>
+            <p className="text-md-light ds-lede">From the hero: the large outlined button, and the small white pill in the nav. Both are set in Saira with an arrow.</p>
+            <div className="ds-btn-grid">
+              {[false, true].map((white) => (
+                <div key={String(white)} className={`ds-btn-panel${white ? " ds-btn-panel-photo" : ""}`}>
+                  {white && <Image src="/design-system/poppies.webp" alt="" fill sizes="720px" className="ds-btn-photo" />}
+                  <div className="ds-btn-row">
+                    <span className={`cta-button${white ? " cta-button-white" : ""}`}>
+                      Enroll Today
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </span>
+                    <code className="text-xs-normal">.cta-button{white ? " .cta-button-white" : ""} · 60px tall</code>
+                  </div>
+                  <div className="ds-btn-row">
+                    <span className="cta-pill">
+                      Enroll Today
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </span>
+                    <code className="text-xs-normal">.cta-pill · 32px tall</code>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="ds-btn-group">
             <h3 className="as-h6 ds-group">Tags, text buttons and labels</h3>
             <p className="text-md-light ds-lede">Each comes in two versions: dark text for light backgrounds, and white for photos and dark backgrounds.</p>
             <div className="ds-btn-grid">

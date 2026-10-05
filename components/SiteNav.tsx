@@ -26,7 +26,7 @@ export default function SiteNav({ links, cta, overPhoto = false }: { links: NavL
           <nav aria-label="Main" className="site-nav-links">
             {links.map((l) => <Link key={l.label} href={l.href}>{l.label}</Link>)}
           </nav>
-          {cta && <Link href={cta.href} className="nav-cta">{cta.label}<Arrow /></Link>}
+          {cta && <Link href={cta.href} className="cta-pill nav-cta">{cta.label}<Arrow /></Link>}
         </div>
         <details className="site-nav-menu">
           <summary aria-label="Menu">
@@ -35,7 +35,7 @@ export default function SiteNav({ links, cta, overPhoto = false }: { links: NavL
           </summary>
           <nav aria-label="Main" className="site-nav-panel">
             {links.map((l) => <Link key={l.label} href={l.href}>{l.label}</Link>)}
-            {cta && <Link href={cta.href} className="nav-cta">{cta.label}<Arrow /></Link>}
+            {cta && <Link href={cta.href} className="cta-pill nav-cta">{cta.label}<Arrow /></Link>}
           </nav>
         </details>
       </header>

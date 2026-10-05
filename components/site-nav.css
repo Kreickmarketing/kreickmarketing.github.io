@@ -22,7 +22,7 @@
 
 .site-nav-right { display: flex; align-items: center; gap: 48px; }
 .site-nav-links { display: flex; gap: 48px; }
-.site-nav a { color: inherit; text-decoration: none; }
+.site-nav a:not(.cta-pill) { color: inherit; text-decoration: none; }
 .site-nav-links a {
   font-size: var(--text-sm-size);
   line-height: var(--text-sm-lh);
@@ -32,24 +32,7 @@
 }
 .site-nav-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-/* White "Enroll Today →" pill */
-.nav-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 32px;
-  padding: 0 16px;
-  border: 1px solid var(--midnight);
-  border-radius: 999px;
-  background: var(--white);
-  color: var(--midnight) !important;
-  font-size: var(--text-sm-size);
-  line-height: var(--text-sm-lh);
-  letter-spacing: var(--text-sm-ls);
-  font-weight: var(--font-weight-normal);
-  white-space: nowrap;
-}
-.nav-cta:hover { background: var(--clay-light); }
+/* The "Enroll Today →" pill is .cta-pill from styles/buttons.css */
 .nav-arrow { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Menu (☰), shown on tablet and phone */

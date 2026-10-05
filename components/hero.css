@@ -26,24 +26,9 @@
   line-height: var(--text-h4-lh);
   letter-spacing: var(--text-h4-ls);
 }
-.hero-x-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  height: 60px;
-  padding: 0 28px;
-  border: 2px solid var(--white);
-  border-radius: 999px;
-  color: var(--white);
-  text-decoration: none;
-  font-size: var(--text-md-size);
-  line-height: var(--text-md-lh);
-  letter-spacing: var(--text-md-ls);
-  font-weight: var(--font-weight-bold);
-}
-.hero-x-cta:hover { background: color-mix(in srgb, var(--white) 12%, transparent); }
-.hero-x-cta svg, .hero-x-stat-head svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hero-x-stat-head svg { width: 24px; height: 24px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* The button is .cta-button from styles/buttons.css */
 
 /* Bottom row: testimonial panel and stat card */
 .hero-x-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; padding: 0 var(--hero-pad) var(--hero-pad); }
