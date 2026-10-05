@@ -70,6 +70,10 @@
 .ds-pair { display: flex; gap: 8px; }
 .ds figcaption { color: var(--iron-pine); }
 .ds figcaption b { color: var(--midnight); }
+.ds-nav-frame { position: relative; overflow: hidden; border-radius: 16px; }
+.ds-nav-photo { min-height: 160px; }
+.ds-nav-frame .site-nav { position: relative; z-index: 1; }
+.ds-table td { white-space: normal; min-width: 120px; }
 .ds-frame { overflow-x: auto; padding-bottom: 8px; display: flex; }
 /* Card-1920 breaks out of the page column so it can fill wide screens */
 .ds { overflow-x: clip; }

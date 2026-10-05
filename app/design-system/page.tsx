@@ -5,6 +5,7 @@ import Image from "next/image";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { Card, CardImageText, CARD_WIDTHS } from "@/components/Card";
+import SiteNav from "@/components/SiteNav";
 import { BODY_SIZES, BODY_WEIGHTS, COLOR_GROUPS, FIELDS, FIELD_MAP, HEADINGS, SAMPLE } from "./content";
 import "./design-system.css";
 
@@ -30,7 +31,7 @@ function readColors() {
 
 const title = (name: string) => name.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 
-const SECTIONS = [["color", "Color"], ["typography", "Typography"], ["buttons", "Buttons"], ["grid", "Grid"], ["fields", "Content fields"], ["cards", "Cards"]];
+const SECTIONS = [["color", "Color"], ["typography", "Typography"], ["buttons", "Buttons"], ["nav", "Navigation"], ["footer", "Footer"], ["grid", "Grid"], ["fields", "Content fields"], ["cards", "Cards"]];
 
 export default function DesignSystemPage() {
   const colors = readColors();
@@ -183,6 +184,54 @@ export default function DesignSystemPage() {
               ))}
             </div>
           </div>
+        </section>
+
+        {/* ── Navigation ── */}
+        <section id="nav" className="ds-wrap ds-section">
+          <h2 className="as-h3">Navigation</h2>
+          <p className="text-md-light ds-lede">Logo on the left, links in the middle, two outlined pill buttons on the right. On Midnight by default; over a photo it turns transparent with white text.</p>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>On Midnight</b> · &lt;SiteNav /&gt;</figcaption>
+            <div className="ds-nav-frame"><SiteNav links={[{ label: "About", href: "#nav" }, { label: "Solutions", href: "#nav" }, { label: "Platforms", href: "#nav" }, { label: "Why", href: "#nav" }, { label: "The Engine", href: "#nav" }, { label: "Pricing", href: "#nav" }]} cta={{ label: "Contact Us & Enroll Today", short: "Enroll Today", href: "#nav" }} login={{ label: "Login", href: "#nav" }} /></div>
+          </figure>
+          <figure className="ds-large">
+            <figcaption className="text-xs-normal"><b>Over a photo</b> · &lt;SiteNav overPhoto /&gt;</figcaption>
+            <div className="ds-nav-frame ds-nav-photo">
+              <Image src="/design-system/poppies.webp" alt="" fill sizes="1440px" className="ds-btn-photo" />
+              <SiteNav overPhoto links={[{ label: "About", href: "#nav" }, { label: "Solutions", href: "#nav" }, { label: "Platforms", href: "#nav" }, { label: "Why", href: "#nav" }, { label: "The Engine", href: "#nav" }, { label: "Pricing", href: "#nav" }]} cta={{ label: "Contact Us & Enroll Today", short: "Enroll Today", href: "#nav" }} login={{ label: "Login", href: "#nav" }} />
+            </div>
+          </figure>
+          <div className="ds-table-wrap">
+            <table className="ds-table text-sm-normal">
+              <thead><tr><th>Part</th><th>Rule</th></tr></thead>
+              <tbody>
+                <tr><td>Bar</td><td>16px top and bottom, 32px sides</td></tr>
+                <tr><td>Logo</td><td>White ClearMark Training logo, 32px tall</td></tr>
+                <tr><td>Links</td><td>16px Saira, 24px apart</td></tr>
+                <tr><td>Buttons</td><td>Outlined pills in Courier Prime, 20px / 32px padding, 12px apart. The first has an arrow.</td></tr>
+                <tr><td>Tablet</td><td>Links are hidden (a menu for them is still to be confirmed)</td></tr>
+                <tr><td>Phone</td><td>Logo 24px tall. The first button shortens to &quot;Enroll Today →&quot; and Login hides.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* ── Footer ── */}
+        <section id="footer" className="ds-wrap ds-section">
+          <h2 className="as-h3">Footer</h2>
+          <p className="text-md-light ds-lede">The same footer on every public page: Charcoal background, white text. It is shown live at the bottom of this page.</p>
+          <div className="ds-table-wrap">
+            <table className="ds-table text-sm-normal">
+              <thead><tr><th>Screen</th><th>Layout</th><th>Side margins</th><th>Text</th></tr></thead>
+              <tbody>
+                <tr><td>1440px and wider</td><td>Logo and tagline left, meeting link and address right. A 1px white line, then copyright, Privacy, Terms and a back-to-top button.</td><td>96</td><td>20px (md)</td></tr>
+                <tr><td>1024 to 1439</td><td>Same two rows</td><td>64</td><td>20px (md)</td></tr>
+                <tr><td>Tablet</td><td>One column: logo, tagline, meeting link, address, line, Privacy, Terms, copyright. No back-to-top.</td><td>40</td><td>16px (sm)</td></tr>
+                <tr><td>Phone</td><td>One column, with fixed line breaks in the address and copyright</td><td>32</td><td>16px (sm)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs-normal ds-note">&lt;Footer /&gt; · components/Footer.tsx</p>
         </section>
 
         {/* ── Grid ── */}

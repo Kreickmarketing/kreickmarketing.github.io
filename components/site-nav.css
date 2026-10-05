@@ -1,0 +1,69 @@
+/*
+  Global nav (components/SiteNav.tsx). Rules from the uploaded NavBar:
+  16px / 32px padding, logo 32px tall, links 16px with 24px gaps,
+  outlined pill buttons in Courier Prime (20px / 32px padding), 12px apart.
+  Colors from styles/colors.css, sizes from styles/typography.css.
+*/
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 16px 32px;
+  background: var(--midnight);
+  color: var(--white);
+  font-family: var(--font-body);
+}
+.site-nav-photo { background: transparent; }
+.site-nav-logo { flex: none; display: block; }
+.site-nav-logo img { display: block; height: 32px; width: auto; }
+
+.site-nav-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 24px; }
+.site-nav-links a {
+  color: inherit;
+  text-decoration: none;
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-normal);
+  white-space: nowrap;
+}
+.site-nav-links a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.site-nav-actions { flex: none; display: flex; gap: 12px; }
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 32px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+  font-family: var(--font-button);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+.nav-pill svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-pill-short { display: none; }
+.nav-pill:hover { background: var(--white); color: var(--midnight); }
+
+/* Smaller laptops: tighter buttons */
+@media (max-width: 1279px) {
+  .nav-pill { padding: 12px 20px; }
+}
+/* Tablet and phone: links hidden until the phone rules are confirmed */
+@media (max-width: 1023px) {
+  .site-nav-links { display: none; }
+}
+@media (max-width: 767px) {
+  .site-nav { padding: 16px; gap: 16px; }
+  .site-nav-logo img { height: 24px; }
+  .nav-pill { padding: 8px 16px; font-size: var(--text-xs-size); line-height: var(--text-xs-lh); }
+  .nav-pill-long, .nav-pill-login { display: none; }
+  .nav-pill-short { display: inline; }
+}
