@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Nav from "@/components/Nav";
 import { Card, CardImageText, CARD_WIDTHS } from "@/components/Card";
 import { BODY_SIZES, BODY_WEIGHTS, COLOR_GROUPS, FIELDS, FIELD_MAP, HEADINGS, SAMPLE } from "./content";
@@ -139,12 +140,48 @@ export default function DesignSystemPage() {
         {/* ── Buttons ── */}
         <section id="buttons" className="ds-wrap ds-section">
           <h2 className="as-h3">Buttons</h2>
-          <p className="text-md-light ds-lede">Pill shaped, set in Courier Prime. Rogue Cherry for the main action.</p>
-          <div className="ds-buttons">
-            <span className="button button-action">Book a call</span>
-            <span className="button button-dark">Secondary</span>
+
+          <div className="ds-btn-group">
+            <h3 className="as-h6 ds-group">Pill buttons</h3>
+            <p className="text-md-light ds-lede">Set in Courier Prime. Rogue Cherry for the main action.</p>
+            <div className="ds-buttons">
+              <span className="button button-action">Book a call</span>
+              <span className="button button-dark">Secondary</span>
+            </div>
+            <p className="text-xs-normal ds-note">.button .button-action · .button .button-dark</p>
           </div>
-          <p className="text-xs-normal ds-note">.button .button-action · .button .button-dark</p>
+
+          <div className="ds-btn-group">
+            <h3 className="as-h6 ds-group">Tags, text buttons and labels</h3>
+            <p className="text-md-light ds-lede">Each comes in two versions: dark text for light backgrounds, and white for photos and dark backgrounds.</p>
+            <div className="ds-btn-grid">
+              {[false, true].map((white) => (
+                <div key={String(white)} className={`ds-btn-panel${white ? " ds-btn-panel-photo" : ""}`}>
+                  {white && <Image src="/design-system/poppies.webp" alt="" fill sizes="720px" className="ds-btn-photo" />}
+                  {[
+                    { cls: `tag${white ? " tag-white" : ""}`, name: "Tag, large · 40px tall", plus: true },
+                    { cls: `tag tag-sm${white ? " tag-white" : ""}`, name: "Tag, small · 32px tall", plus: true },
+                    { cls: `tag-label${white ? " tag-label-white" : ""}`, name: "Tag label", plus: false },
+                  ].map((t) => (
+                    <div key={t.name} className="ds-btn-row">
+                      <span className={t.cls}>
+                        {t.plus && <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>}
+                        Hybrid course
+                      </span>
+                      <code className="text-xs-normal">.{t.cls.replaceAll(" ", " .")}</code>
+                    </div>
+                  ))}
+                  <div className="ds-btn-row">
+                    <span className={`text-button${white ? " text-button-white" : ""}`}>
+                      Button Text Here
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                    </span>
+                    <code className="text-xs-normal">.text-button{white ? " .text-button-white" : ""}</code>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* ── Grid ── */}

@@ -1,0 +1,71 @@
+/*
+  Tags and text buttons (the pill buttons live in app/globals.css).
+  Each comes in two versions: dark text for light backgrounds, and white
+  for photos and dark backgrounds. Sizes come from styles/typography.css.
+*/
+
+/* Tag: "+ label" pill. Large is 40px tall, small (.tag-sm) is 32px. */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px 0 12px;
+  border: 1px solid var(--clay);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--midnight);
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.tag svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.tag-sm {
+  gap: 4px;
+  height: 32px;
+  padding: 0 12px 0 8px;
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+}
+.tag-sm svg { width: 12px; height: 12px; }
+/* White version: outline only, for photos and dark backgrounds */
+.tag-white { background: transparent; border-color: var(--white); color: var(--white); }
+a.tag:hover { border-color: currentColor; }
+a.tag-white:hover { background: color-mix(in srgb, var(--white) 12%, transparent); }
+
+/* Tag label: the tag's words alone, small and bold, no pill */
+.tag-label {
+  font-family: var(--font-body);
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-bold);
+  color: var(--midnight);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.tag-label-white { color: var(--white); }
+
+/* Text button: words and an arrow, no pill */
+.text-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-light);
+  color: var(--midnight);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.text-button svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.15s; }
+.text-button:hover svg { transform: translateX(4px); }
+.text-button-white { color: var(--white); }
+@media (prefers-reduced-motion: reduce) { .text-button svg { transition: none; } }

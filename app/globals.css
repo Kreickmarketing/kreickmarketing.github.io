@@ -1,5 +1,6 @@
 @import "../styles/colors.css";
 @import "../styles/typography.css";
+@import "../styles/buttons.css";
 
 /* Connect the brand fonts (loaded in layout.tsx) to the typography rules */
 :root {
