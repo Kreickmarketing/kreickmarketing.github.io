@@ -124,7 +124,6 @@ export default function DesignSystemPage() {
                   {BODY_WEIGHTS.map((w) => (
                     <p key={w.key} className={`text-${s.key}-${w.key}`}>{s.label}<br />{w.label}</p>
                   ))}
-                  <p className={`text-${s.key}-bold ds-link`}>{s.label}<br />Link</p>
                 </div>
               ))}
             </div>

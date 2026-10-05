@@ -38,9 +38,6 @@
 .ds-body-wrap { overflow-x: auto; }
 .ds-body { display: grid; grid-template-columns: repeat(6, minmax(128px, 1fr)); gap: 32px; min-width: 928px; }
 .ds-body-col { display: flex; flex-direction: column; gap: 16px; }
-.ds-body-col .text-xxs-light, .ds-body-col .text-xs-light, .ds-body-col .text-sm-light,
-.ds-body-col .text-md-light, .ds-body-col .text-lg-light, .ds-body-col .text-xl-light { color: var(--dusty-sage); }
-.ds-link { text-decoration: underline; text-underline-offset: 3px; }
 .ds-weights { display: flex; flex-direction: column; gap: 8px; }
 
 /* ── Buttons ── */
