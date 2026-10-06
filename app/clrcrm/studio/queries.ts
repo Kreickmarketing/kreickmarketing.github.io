@@ -1,6 +1,6 @@
 import { getServerSupabase } from "@/lib/supabase-server";
 import type { PageContent, SiteSettings } from "@/lib/studio";
-import { loadCards } from "@/lib/studio-cards";
+import { loadAllCards } from "@/lib/studio-cards";
 
 // Studio reads as the logged-in CRM member, so Row Level Security lets it see
 // drafts as well as published pages.
@@ -88,6 +88,10 @@ export async function getPageForEditing(pageId: string) {
   if (error) throw new Error(error.message);
   if (!data) return null;
   const { sites, ...page } = data as unknown as PageRow & { sites: Omit<SiteRow, "pages" | "updated_at"> };
-  const cards = await loadCards(supabase, sites.id, page.draft);
-  return { page, site: sites, cards };
+  const [cards, collections] = await Promise.all([
+    loadAllCards(supabase, sites.id),
+    supabase.from("collections").select("slug, name").eq("site_id", sites.id).order("sort_order"),
+  ]);
+  if (collections.error) throw new Error(collections.error.message);
+  return { page, site: sites, cards, collections: (collections.data ?? []) as { slug: string; name: string }[] };
 }

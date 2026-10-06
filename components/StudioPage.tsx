@@ -3,7 +3,7 @@ import SectionHeader from "./SectionHeader";
 import Credibility from "./Credibility";
 import Platforms from "./Platforms";
 import SiteNav from "./SiteNav";
-import { Card, type CardContent } from "./Card";
+import { Card, CardImageText, type CardContent } from "./Card";
 import type { PageContent, SiteSettings, StudioComponent } from "@/lib/studio";
 import "./studio-page.css";
 
@@ -25,8 +25,12 @@ export default function StudioPage({ content, settings, cards }: { content: Page
           {s.cards && (
             <ul className="sp-cards">
               {s.cards.items.map((slug) => {
-                const item = cards[`${s.cards!.collection}/${slug}`];
-                return item ? <li key={slug} style={{ maxWidth: s.cards!.width }}><Card width={s.cards!.width} content={item} /></li> : null;
+                const g = s.cards!;
+                const item = cards[`${g.collection}/${slug}`];
+                if (!item) return null;
+                return g.width === "image-text"
+                  ? <li key={slug} style={{ maxWidth: 352 }}><CardImageText content={item} /></li>
+                  : <li key={slug} style={{ maxWidth: g.width }}><Card width={g.width} content={item} /></li>;
               })}
             </ul>
           )}

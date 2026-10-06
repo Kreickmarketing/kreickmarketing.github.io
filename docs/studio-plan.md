@@ -64,7 +64,7 @@ CT100, CT200, CT300 (titles) · CS Content Short ≤144 words · CL Content Long
 1. ✅ Sites, pages, sections, CMS collections in Supabase; ClearMark Home first. (Done Oct 5: `supabase/studio.sql`, page shape in `lib/studio.ts`.)
 2. ✅ My Sites and Pages screens. (Done Oct 6: `app/clrcrm/studio/`.)
 3. ✅ Page editor: edit text and links; Save draft → Publish. (Done Oct 6.)
-4. Insert panel + move sections, components and cards.
+4. ✅ Insert panel + move sections, components and cards. (Done Oct 6.)
 5. CMS screens (Products, Portfolio) with "Also on" notice.
 6. Change component type.
 7. Image and video uploads (Supabase Storage).
@@ -81,7 +81,10 @@ Then: connect the Kreick site (separate Vercel project; needs the Supabase URL a
 - **Oct 6, 2026: step 3 done.** Page editor at `/clrcrm/studio/<site>/<page id>` (open from "Edit →" on the Pages list). Left: fields for every text and link, built from the component's content (labels and reading order in `PageEditor.tsx`). Right: live preview in a frame (`/clrcrm/preview/<page id>`, kept outside the Studio styles), Desktop (1280px, shrunk to fit) or Phone (390px). Phones: Edit / Preview switch. Save draft → `saveDraft`; Publish → `publishPage` → database function `publish_page` (copies draft live, saves a `versions` row with the optional "What changed?" note, publishes the CMS items its cards show), then refreshes the live page. Every save is checked by `lib/studio-validate.ts` (known component types, card widths, safe links only, images must be files in public/).
   - Live site: `app/page.tsx` shows the published Studio Home (plus the mailing-list form and footer) once Home has been published; until then it shows the old hand-built homepage. Shared renderer: `components/StudioPage.tsx`; visitor-side loading: `lib/studio-public.ts`, `lib/studio-cards.ts`.
   - Not yet: images (step 7), adding/removing/reordering sections (step 4), the Kreick site.
-- **Next: step 4**, the Insert panel (drag components and cards onto the page) and moving sections, components and cards up and down.
+- **Oct 6, 2026: step 4 done.** The editor's left panel has two tabs. **+ Insert**: the 4 components and 13 cards (incl. Card-Image-Text, now supported in card grids as width `"image-text"`), with small drawings; tap to add after the open section, or drag onto the Layers list (laptop). **Layers**: one bar per section; drag the bar (laptop) or ↑ ↓ (phone) to move, × to remove; open a section to edit its link name (#anchor, used by nav links; must be unique), its fields, move components within the section or "Into section above/below", and for card grids: card size, add a card from the collection, ↑ ↓ ×. Lists inside components (tags, logos, headline lines) have + Add and ×. **Undo** takes back layout changes (last 30). The preview scrolls to and outlines the section you open.
+  - Code: `page-ops.ts` (pure layout changes, unit-tested), `blocks.tsx` (Insert catalogue, starting text, drawings), `Fields.tsx` (edit boxes). Editor and preview now load every item in the site (`loadAllCards`).
+  - Note for Claude: in Chrome, changing the page inside `dragstart` cancels the drag, so drag state is set in a `setTimeout`; both panels stay mounted (one `hidden`) so a drag from Insert survives the switch to Layers.
+- **Next: step 5**, CMS screens (Products, Portfolio): edit items' content fields and tags, publish/unpublish, with an "Also on: /…" notice listing pages that show the item.
 
 ## First draft scope (agreed)
 

@@ -12,3 +12,5 @@
   gap: 32px;
 }
 .sp-cards > li { flex: 1 1 320px; display: flex; justify-content: center; }
+/* Studio preview only: the section being edited, outlined for a moment. */
+.sp-focus { outline: 4px solid var(--tidal-azure); outline-offset: -4px; transition: outline-color 0.3s; }

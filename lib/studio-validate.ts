@@ -20,8 +20,11 @@ export function validatePageContent(input: unknown): { ok: true; content: PageCo
     const c = input as PageContent;
     if (!c || !Array.isArray(c.sections) || c.sections.length > 100) return { ok: false, error: "The page has no sections list." };
 
+    const ids = new Set<string>();
     for (const s of c.sections) {
-      if (!ID.test(s?.id)) return { ok: false, error: "A section has a bad id." };
+      if (!ID.test(s?.id)) return { ok: false, error: "A section's link name can only use small letters, numbers and dashes." };
+      if (ids.has(s.id)) return { ok: false, error: `Two sections are both called "#${s.id}". Give one a different link name.` };
+      ids.add(s.id);
       if (s.components) {
         if (!Array.isArray(s.components) || s.components.length > 20) return { ok: false, error: `Section "${s.id}" has a bad component list.` };
         for (const comp of s.components) {
@@ -33,7 +36,7 @@ export function validatePageContent(input: unknown): { ok: true; content: PageCo
       } else if (s.cards) {
         const g = s.cards;
         if (!ID.test(g.collection) || !Array.isArray(g.items) || g.items.length > 50 || !g.items.every((i) => ID.test(i))
-          || !(CARD_WIDTHS as readonly number[]).includes(g.width)) {
+          || !(g.width === "image-text" || (CARD_WIDTHS as readonly number[]).includes(g.width))) {
           return { ok: false, error: `Section "${s.id}" has a bad card grid.` };
         }
       } else {

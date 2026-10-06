@@ -7,13 +7,17 @@ export default async function EditPage({ params }: { params: Promise<{ site: str
   const { site: siteSlug, pageId } = await params;
   const data = await getPageForEditing(pageId);
   if (!data || data.site.slug !== siteSlug) notFound();
-  const { page, site, cards } = data;
+  const { page, site, cards, collections } = data;
 
   return (
     <PageEditor
       page={{ id: page.id, slug: page.slug, title: page.title, draft: page.draft, published: page.published }}
-      site={{ slug: site.slug, name: site.name }}
-      cardNames={Object.fromEntries(Object.entries(cards).map(([k, c]) => [k, c.ct100]))}
+      site={{ slug: site.slug, name: site.name, bookingUrl: site.settings.calendlyUrl ?? site.settings.navCta?.href ?? "#" }}
+      collections={collections}
+      items={Object.entries(cards).map(([key, c]) => {
+        const [collection, slug] = key.split("/");
+        return { collection, slug, title: [c.ct100, c.ct200].filter(Boolean).join(" ") };
+      })}
     />
   );
 }

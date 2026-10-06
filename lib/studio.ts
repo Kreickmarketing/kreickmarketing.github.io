@@ -15,7 +15,7 @@ export type StudioComponent =
 export type CardGrid = {
   collection: string;  // collection slug, e.g. "products"
   items: string[];     // item slugs, in order
-  width: CardWidth;
+  width: CardWidth | "image-text";  // a photo card width, or Card-Image-Text
 };
 
 export type StudioSection =

@@ -21,7 +21,7 @@ export type CardContent = {
 export const CARD_WIDTHS = [160, 320, 480, 640, 800, 960, 1120, 1280, 1440, 1600, 1760, 1920] as const;
 export type CardWidth = (typeof CARD_WIDTHS)[number];
 
-const HEIGHT: Record<CardWidth, number> = {
+export const CARD_HEIGHTS: Record<CardWidth, number> = {
   160: 240, 320: 480, 480: 640, 640: 640, 800: 960, 960: 800,
   1120: 800, 1280: 800, 1440: 800, 1600: 960, 1760: 960, 1920: 960,
 };
@@ -45,8 +45,8 @@ function cardSize(w: CardWidth): React.CSSProperties {
     width: "100%",
     minWidth: smaller,
     maxWidth: w === 1920 ? undefined : w,
-    aspectRatio: `${w} / ${HEIGHT[w]}`,
-    maxHeight: w === 1920 ? HEIGHT[w] : undefined,
+    aspectRatio: `${w} / ${CARD_HEIGHTS[w]}`,
+    maxHeight: w === 1920 ? CARD_HEIGHTS[w] : undefined,
   };
 }
 
