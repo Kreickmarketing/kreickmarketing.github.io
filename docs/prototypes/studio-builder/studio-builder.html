@@ -1,0 +1,857 @@
+<title>ClearMark Studio Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@300;400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Layout: three working panes (page preview · content cards · sources), page thumbnails under the preview.
+   Studio chrome is dark (decided Oct 6); the page inside the preview uses ClearMark's own colors. */
+:root {
+  color-scheme: dark;
+  /* Studio chrome */
+  --ink: #FFFFFF;
+  --ink-2: #B2AFA7;          /* sage-mist */
+  --ink-3: #858278;          /* deep-taupe */
+  --ground: #1C2026;         /* midnight */
+  --panel: #2C3139;          /* charcoal */
+  --panel-2: #23282F;
+  --line: #444D4D;           /* iron-pine */
+  --accent: #0099CE;         /* tidal-azure */
+  --accent-soft: color-mix(in srgb, #0099CE 22%, transparent);
+  --empty: #9C998F;          /* dusty-sage */
+  --draft: #F5DE73;          /* solar-flare */
+  --placed: #ABCFA1;         /* frosted-mint */
+  --bad: #DC4F58;            /* coral-rush */
+  /* ClearMark site (preview) */
+  --cm-white: #FFFFFF; --cm-clay-light: #F6F5F2; --cm-clay: #E1DDD5; --cm-midnight: #1C2026;
+  --cm-charcoal: #2C3139; --cm-cherry: #DB1F3D; --cm-azure: #0099CE; --cm-iron: #444D4D; --cm-taupe: #858278;
+  --f-display: "Saira", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "Courier Prime", "Courier New", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--ground); color: var(--ink); font: 14px/1.45 var(--f-display); padding-inline: 16px; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+.mono { font-family: var(--f-mono); letter-spacing: 0; }
+
+/* ── Top bar ── */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--ground); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding-block: 16px 12px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; flex-direction: column; min-width: 0; }
+.brand h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+.brand p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 16px; font-family: var(--f-mono); font-size: 13px; }
+.btn:hover:not(:disabled) { border-color: var(--ink-2); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--ground); font-weight: 700; }
+.btn-small { padding: 3px 10px; font-size: 12px; }
+.meter { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 180px; }
+.meter b { font-size: 26px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.meter span { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+.meter-bar { width: 180px; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.meter-bar i { display: block; height: 100%; background: var(--placed); transition: width 0.3s; }
+.note { margin: 12px 0 0; padding: 8px 16px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--ink-2); font-size: 13px; }
+.note b { color: var(--ink); }
+
+/* ── Panes ── */
+.panes { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr) minmax(240px, 0.7fr); gap: 16px; padding-block: 16px 32px; align-items: start; }
+.pane { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.pane-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; min-height: 32px; }
+.pane-head h2 { font-size: 15px; font-weight: 700; }
+.hint { color: var(--ink-3); font-size: 12px; }
+.seg { display: inline-flex; gap: 4px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 2px; }
+.seg button { border: 0; background: none; border-radius: 999px; padding: 3px 12px; font-family: var(--f-mono); font-size: 12px; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+.switch { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+.switch input { accent-color: var(--accent); }
+.tabs-phone { display: none; }
+
+/* Preview */
+.status-line { padding: 8px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); color: var(--ink-2); font-size: 13px; display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.status-line b { color: var(--ink); }
+.canvas-wrap { position: relative; background: #3a4048; border-radius: 12px; padding: 16px; overflow: hidden; }
+.canvas-scale { transform-origin: 0 0; }
+.canvas-wrap.phone .canvas-scale { margin-inline: auto; }
+
+/* Page thumbnails */
+.pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 8px; }
+.page-thumb { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 8px; text-align: left; display: flex; flex-direction: column; gap: 8px; }
+.page-thumb[aria-current="page"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.thumb-box { height: 150px; overflow: hidden; border-radius: 6px; background: var(--cm-clay-light); position: relative; }
+.thumb-box > div { position: absolute; top: 0; left: 0; width: 1280px; transform-origin: 0 0; pointer-events: none; }
+.page-thumb span { font-size: 12px; color: var(--ink-2); display: flex; justify-content: space-between; gap: 8px; }
+.page-thumb span b { color: var(--ink); font-weight: 600; }
+
+/* Content cards */
+.cards { display: flex; flex-direction: column; gap: 8px; }
+.group-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin: 8px 0 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ccard { background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--line); border-radius: 10px; }
+.ccard.is-draft { border-left-color: var(--draft); }
+.ccard.is-placed { border-left-color: var(--placed); }
+.ccard.is-selected { border-color: var(--accent); border-left-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ccard.drop-ok { background: color-mix(in srgb, var(--accent) 14%, var(--panel)); border-style: dashed; }
+.ccard-head { width: 100%; display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: none; border: 0; text-align: left; }
+.ccard-head .chev { color: var(--ink-3); transition: transform 0.15s; flex: none; }
+.ccard[open-card] .chev { transform: rotate(90deg); }
+.ccard-title { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip { flex: none; font-family: var(--f-mono); font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; color: var(--ink-2); text-transform: uppercase; }
+.pill { flex: none; font-family: var(--f-mono); font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 10px; }
+.pill-empty { color: var(--empty); border: 1px solid var(--line); }
+.pill-draft { color: var(--ground); background: var(--draft); }
+.pill-placed { color: var(--ground); background: var(--placed); }
+.pill-opt { color: var(--ink-3); border: 1px dashed var(--line); }
+.ccard-body { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px; }
+.ccard-body .about { margin: 0; color: var(--ink-2); font-size: 13px; }
+.ccard-body .source { margin: 0; font-size: 12px; color: var(--ink-3); }
+.ccard-body .source b { color: var(--ink-2); font-weight: 600; }
+.dropzone { border: 1.5px dashed var(--line); border-radius: 8px; padding: 10px; text-align: center; color: var(--ink-3); font-size: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; position: relative; }
+.field label { font-size: 11px; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+.input { width: 100%; background: var(--ground); border: 1px solid var(--line); border-radius: 6px; padding: 7px 56px 7px 10px; }
+textarea.input { resize: vertical; min-height: 72px; line-height: 1.4; }
+.count { position: absolute; right: 8px; bottom: 8px; font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; pointer-events: none; }
+.count.over { color: var(--bad); font-weight: 700; }
+.rows { display: flex; flex-direction: column; gap: 6px; }
+.row { display: grid; grid-template-columns: 20px repeat(var(--cols), minmax(0, 1fr)) 28px; gap: 6px; align-items: start; }
+.row-n { font-family: var(--f-mono); color: var(--draft); font-weight: 700; padding-top: 7px; font-size: 12px; }
+.row .input { padding-right: 44px; }
+.x { width: 28px; height: 32px; border: 1px solid var(--line); background: var(--panel-2); border-radius: 6px; color: var(--ink-2); }
+.x:hover { color: var(--ink); border-color: var(--ink-2); }
+.add-row { border: 1px solid var(--line); background: var(--panel-2); border-radius: 6px; padding: 6px; font-family: var(--f-mono); font-size: 12px; }
+.card-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
+.pick-grid figure { margin: 0; position: relative; border: 1px solid var(--line); border-radius: 6px; background: var(--ground); aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; }
+.pick-grid img { max-width: 90%; max-height: 90%; object-fit: contain; }
+.pick-grid figure.photo img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
+.pick-grid .x { position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; font-size: 12px; padding: 0; }
+.item-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.item-list li { display: flex; align-items: center; gap: 4px; background: var(--ground); border-radius: 6px; padding: 4px 4px 4px 10px; }
+.item-list li span { flex: 1; min-width: 0; }
+.item-list .x { height: 26px; }
+select.input { padding-right: 10px; }
+
+/* Sources */
+.sources { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; position: sticky; top: 96px; max-height: calc(100vh - 112px); overflow: auto; }
+.src-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.src-img { margin: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--ground); cursor: grab; display: flex; flex-direction: column; }
+.src-img .im { aspect-ratio: 4 / 3; display: grid; place-items: center; background: var(--panel-2); }
+.src-img .im img { width: 100%; height: 100%; object-fit: cover; }
+.src-img.logo .im img { width: auto; height: auto; max-width: 80%; max-height: 60%; object-fit: contain; }
+.src-img figcaption { font-size: 11px; color: var(--ink-2); padding: 4px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.src-img.is-picked { outline: 2px solid var(--accent); }
+.src-text { border: 1px solid var(--line); border-radius: 8px; background: var(--ground); padding: 8px 10px; cursor: grab; display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.src-text b { font-size: 11px; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; }
+.src-text span { font-size: 13px; }
+.src-text.is-picked { outline: 2px solid var(--accent); }
+.src-text .flag { color: var(--draft); font-size: 11px; }
+.upload { display: flex; flex-direction: column; gap: 6px; border: 1.5px dashed var(--line); border-radius: 8px; padding: 10px; color: var(--ink-3); font-size: 12px; text-align: center; }
+.upload input { font-size: 12px; max-width: 100%; }
+.picked-bar { font-size: 12px; color: var(--ink-2); background: var(--accent-soft); border-radius: 6px; padding: 6px 8px; display: flex; justify-content: space-between; gap: 6px; align-items: center; }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--ground); padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 13px; z-index: 50; }
+
+/* ── The ClearMark page inside the preview ── */
+.site { width: 1280px; background: var(--cm-clay-light); color: var(--cm-midnight); font-family: var(--f-display); container-type: inline-size; position: relative; }
+.site * { box-sizing: border-box; }
+.sec { position: relative; }
+.guides .sec { outline: 2px dashed rgba(0, 153, 206, 0.55); outline-offset: -8px; }
+.sec-tag { display: none; position: absolute; top: 12px; left: 12px; z-index: 5; font-family: var(--f-mono); font-size: 20px; font-weight: 700; background: var(--cm-azure); color: #fff; padding: 2px 10px; border-radius: 999px; }
+.guides .sec-tag { display: block; }
+.sec-off { opacity: 0.35; }
+.slot { border: 2px dashed rgba(28, 32, 38, 0.35); border-radius: 10px; background: rgba(225, 221, 213, 0.45); color: var(--cm-taupe); display: grid; place-items: center; text-align: center; padding: 12px; font-size: 15px; cursor: pointer; min-height: 48px; }
+.on-dark .slot, .slot.on-dark { border-color: rgba(255, 255, 255, 0.55); background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.8); }
+.slot:hover, [data-slot]:hover { outline: 3px solid var(--cm-azure); outline-offset: 2px; }
+.slot.is-sel, .filled.is-sel { outline: 3px solid var(--cm-azure); outline-offset: 2px; }
+.slot.drop-ok { background: rgba(0, 153, 206, 0.18); border-color: var(--cm-azure); color: var(--cm-azure); }
+.filled { cursor: pointer; }
+.site-nav { position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; padding: 32px 64px; color: #fff; }
+.site-nav img { height: 40px; }
+.site-nav ul { display: flex; gap: 32px; list-style: none; margin: 0; padding: 0; align-items: center; font-size: 17px; }
+.site-nav .pill-cta { border: 1.5px solid #fff; border-radius: 999px; padding: 6px 18px; }
+.nav-in-std { position: relative; background: var(--cm-midnight); margin-inline: -64px; }
+.site-nav .burger { display: none; width: 32px; height: 3px; background: #fff; box-shadow: 0 9px 0 #fff, 0 -9px 0 #fff; }
+.chrome-note { font-family: var(--f-mono); font-size: 12px; opacity: 0.7; }
+
+.hero { min-height: 760px; color: #fff; background: var(--cm-midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+.hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
+.hero-bg .slot { position: absolute; inset: 24px; z-index: 1; min-height: 0; font-size: 18px; }
+.hero > *:not(.hero-bg):not(.sec-tag) { position: relative; z-index: 2; }
+.hero-main { display: flex; flex-direction: column; gap: 32px; max-width: 760px; }
+.hero h1 { font-size: 72px; line-height: 0.95; letter-spacing: -3px; font-weight: 700; margin: 0; }
+.cta { display: inline-flex; align-items: center; gap: 12px; background: #fff; color: var(--cm-midnight); border-radius: 999px; padding: 14px 28px; font-family: var(--f-mono); font-size: 18px; font-weight: 700; align-self: flex-start; }
+.cta-red { background: var(--cm-cherry); color: #fff; }
+.hero-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
+.glass { background: rgba(255,255,255,0.14); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 24px; max-width: 520px; display: flex; flex-direction: column; gap: 12px; font-size: 17px; }
+.glass b { font-size: 15px; }
+.stat-card { background: #fff; color: var(--cm-midnight); border-radius: 18px; padding: 24px; width: 260px; display: flex; flex-direction: column; gap: 6px; }
+.stat-card small { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cm-iron); font-weight: 700; }
+.stat-card b { font-size: 44px; line-height: 1; letter-spacing: -2px; }
+
+.cred { background: var(--cm-charcoal); color: #fff; padding: 48px 64px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: center; }
+.tagline { font-size: 14px; letter-spacing: 0.24em; text-transform: uppercase; font-weight: 700; margin: 0; }
+.logo-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-end; }
+.logo-row img { height: 44px; width: auto; max-width: 200px; object-fit: contain; }
+
+.std { padding: 96px 64px; display: flex; flex-direction: column; gap: 48px; }
+.sh { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start; }
+.sh h2 { font-size: 56px; line-height: 1; letter-spacing: -2.5px; font-weight: 300; margin: 0; }
+.sh h2 span { display: block; }
+.sh p.body { font-size: 20px; line-height: 1.45; color: var(--cm-iron); margin: 16px 0 0; max-width: 640px; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.split img.photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--cm-clay); }
+.split .slot.photo { aspect-ratio: 4 / 5; }
+.points { display: flex; flex-direction: column; gap: 24px; }
+.point { border-top: 1px solid var(--cm-clay); padding-top: 16px; display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+.point b { font-size: 22px; letter-spacing: -0.5px; line-height: 1.1; }
+.point p { margin: 0; color: var(--cm-iron); font-size: 17px; }
+.point .stat { font-size: 15px; color: var(--cm-azure); font-weight: 700; display: block; margin-top: 6px; }
+
+.plat { color: #fff; background: var(--cm-midnight); overflow: hidden; }
+.plat .hero-bg::after { background: rgba(28,32,38,0.55); }
+.plat > *:not(.hero-bg):not(.sec-tag) { position: relative; z-index: 2; }
+.tag-pills { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.tag-pills li { border: 1.5px solid currentColor; border-radius: 999px; padding: 6px 16px; font-size: 15px; }
+.tag-pills li::before { content: "+ "; }
+.plat-logos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 32px; align-items: center; }
+.plat-logos img { max-width: 100%; height: 36px; object-fit: contain; }
+
+.offer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
+.offer { position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 5; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 32px; background: var(--cm-midnight); }
+.offer img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.offer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.55), rgba(28,32,38,0.1) 45%, rgba(28,32,38,0.75)); }
+.offer > * { position: relative; z-index: 1; }
+.offer h3 { font-size: 36px; line-height: 1; letter-spacing: -1.5px; font-weight: 700; margin: 0; }
+.offer p { margin: 8px 0 0; font-size: 17px; }
+.offer .foot { border-top: 1px solid rgba(255,255,255,0.7); padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.offer .price { font-size: 30px; font-weight: 700; letter-spacing: -1px; text-align: right; }
+.offer .price small { display: block; font-size: 12px; font-weight: 400; letter-spacing: 0; }
+.offer .slot { aspect-ratio: auto; }
+.offer-slot { aspect-ratio: 4 / 5; }
+
+.quote-sec { background: var(--cm-clay); }
+.quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
+.quote-sec cite { font-style: normal; font-size: 17px; color: var(--cm-iron); }
+
+.mail { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 96px 64px; background: var(--cm-white); }
+.mail h2 { font-size: 52px; line-height: 1; letter-spacing: -2px; font-weight: 700; margin: 8px 0 16px; }
+.mail p { font-size: 20px; color: var(--cm-iron); margin: 0; }
+.fake-form { display: flex; flex-direction: column; gap: 16px; }
+.fake-form div { border: 1px solid var(--cm-clay); border-radius: 8px; padding: 14px 16px; color: var(--cm-taupe); }
+
+.site-footer { background: var(--cm-midnight); color: #fff; padding: 48px 64px; display: flex; justify-content: space-between; align-items: center; gap: 32px; }
+.site-footer img { height: 34px; }
+
+.page-hero { min-height: 520px; }
+.calendly { border: 1px solid var(--cm-clay); border-radius: 18px; background: #fff; padding: 48px; text-align: center; color: var(--cm-iron); font-size: 18px; }
+
+/* Phone-width page: same blocks, stacked. */
+@container (max-width: 700px) {
+  .site-nav { padding: 20px; }
+  .nav-in-std { margin-inline: -20px; }
+  .site-nav ul { display: none; }
+  .site-nav .burger { display: block; }
+  .site-nav img { height: 30px; }
+  .hero { min-height: 680px; padding: 120px 20px 32px; }
+  .hero h1 { font-size: 40px; letter-spacing: -1.5px; }
+  .hero-bottom, .stat-card { display: none; }
+  .cta { align-self: stretch; justify-content: center; }
+  .cred { grid-template-columns: 1fr; padding: 32px 20px; }
+  .logo-row { justify-content: flex-start; display: grid; grid-template-columns: 1fr 1fr; }
+  .std, .mail { padding: 64px 20px; }
+  .sh, .split, .mail, .point { grid-template-columns: 1fr; }
+  .sh h2 { font-size: 36px; letter-spacing: -1.5px; }
+  .plat-logos { grid-template-columns: repeat(2, 1fr); }
+  .offer-grid { grid-template-columns: 1fr; }
+  .quote-sec blockquote { font-size: 28px; }
+  .mail h2 { font-size: 36px; }
+  .site-footer { flex-direction: column; align-items: flex-start; padding: 32px 20px; }
+}
+
+/* ── Studio on smaller screens ── */
+@media (max-width: 1180px) {
+  .panes { grid-template-columns: minmax(0, 1.3fr) minmax(300px, 1fr); }
+  .pane-sources { grid-column: 1 / -1; }
+  .sources { position: static; max-height: none; }
+  .src-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+}
+@media (max-width: 760px) {
+  .top { position: static; }
+  .meter { margin-left: 0; align-items: flex-start; }
+  .tabs-phone { display: flex; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--ground); padding-block: 8px; border: 0; border-radius: 0; }
+  .panes { grid-template-columns: minmax(0, 1fr); }
+  .panes[data-tab="preview"] .pane-cards, .panes[data-tab="preview"] .pane-sources,
+  .panes[data-tab="cards"] .pane-preview, .panes[data-tab="cards"] .pane-sources,
+  .panes[data-tab="sources"] .pane-preview, .panes[data-tab="sources"] .pane-cards { display: none; }
+  .canvas-wrap { padding: 8px; }
+  .row { grid-template-columns: 16px minmax(0, 1fr) 28px; }
+  .row .field + .field { grid-column: 2; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<header class="top" id="top">
+  <div class="brand">
+    <h1>Studio Builder</h1>
+    <p>ClearMark · clearmark.bz · <span id="page-name">Home</span></p>
+  </div>
+  <div class="top-actions">
+    <button class="btn" id="place-all" type="button">Place all drafts</button>
+    <button class="btn" id="reset" type="button">Reset prototype</button>
+    <button class="btn btn-primary" id="publish" type="button">Publish</button>
+  </div>
+  <div class="meter" aria-live="polite">
+    <span>Spots placed · this page</span>
+    <b id="meter-num">0 / 0</b>
+    <div class="meter-bar"><i id="meter-bar" style="width:0"></i></div>
+  </div>
+</header>
+<p class="note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Nothing here touches the live site.</p>
+
+<div class="seg tabs-phone" role="tablist" aria-label="Show">
+  <button type="button" data-tab="preview" aria-pressed="true">Preview</button>
+  <button type="button" data-tab="cards" aria-pressed="false">Cards</button>
+  <button type="button" data-tab="sources" aria-pressed="false">Sources</button>
+</div>
+
+<main class="panes" id="panes" data-tab="preview">
+  <section class="pane pane-preview" aria-labelledby="pv-title">
+    <div class="pane-head">
+      <h2 id="pv-title">Preview</h2>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <label class="switch"><input type="checkbox" id="guides" checked> Show sections</label>
+        <div class="seg" role="group" aria-label="Preview width">
+          <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
+          <button type="button" data-device="phone" aria-pressed="false">Phone</button>
+        </div>
+      </div>
+    </div>
+    <div class="status-line" id="status-line">Pick a card, or click a dotted box, to fill that spot.</div>
+    <div class="canvas-wrap" id="canvas-wrap"><div class="canvas-scale" id="canvas-scale"><div class="site guides" id="site"></div></div></div>
+    <div class="group-label">Pages <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">Each page has a fixed layout, designed in code. You fill its spots.</span></div>
+    <div class="pages" id="pages"></div>
+  </section>
+
+  <section class="pane pane-cards" aria-labelledby="cc-title">
+    <div class="pane-head">
+      <h2 id="cc-title">Content cards · <span id="cc-page">Home</span></h2>
+      <div class="seg" role="group" aria-label="Filter cards">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="todo" aria-pressed="false">To do</button>
+      </div>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <aside class="pane pane-sources" aria-labelledby="src-title">
+    <div class="pane-head">
+      <h2 id="src-title">Sources</h2>
+      <div class="seg" role="group" aria-label="Source">
+        <button type="button" data-src="images" aria-pressed="true">Images</button>
+        <button type="button" data-src="playbook" aria-pressed="false">Playbook</button>
+        <button type="button" data-src="offers" aria-pressed="false">Offers</button>
+      </div>
+    </div>
+    <div class="sources" id="sources"></div>
+  </aside>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+// ── Sources: real ClearMark material ──────────────────────────────────────────
+const IMAGES = [
+  { id: "poppies", src: "media/poppies.jpg", name: "Hero poppies", kind: "photo" },
+  { id: "platforms-bg", src: "media/platforms-bg.jpg", name: "Platforms background", kind: "photo" },
+  { id: "engine", src: "media/engine.jpg", name: "Engine background", kind: "photo" },
+  { id: "flowers", src: "media/flowers.jpg", name: "Flowers background", kind: "photo" },
+  { id: "rock-climb", src: "media/rock-climb.jpg", name: "Rock climb", kind: "photo" },
+  { id: "bridge", src: "media/bridge.jpg", name: "Bridge", kind: "photo" },
+  { id: "founder", src: "media/founder.webp", name: "Founder photo", kind: "photo" },
+  { id: "certs", src: "media/certifications.png", name: "Certification logos", kind: "logo" },
+  ...Array.from({ length: 10 }, (_, i) => ({ id: `plat-${i + 1}`, src: `media/platform-${String(i + 1).padStart(2, "0")}.png`, name: `Platform logo ${i + 1}`, kind: "logo" })),
+];
+const PLAYBOOK = [
+  { id: "headline", label: "Headline", text: "Your single source of truth shouldn't be a person." },
+  { id: "tagline", label: "Tagline", text: "Make it visible." },
+  { id: "promise", label: "Brand promise", text: "Your agency keeps delivering when your best creative is out of the room, and your clients can see the work well enough to buy more of it." },
+  { id: "value", label: "Value proposition", text: "ClearMark builds AI production systems your agency's team can see and run. They work because the system comes first, and a creative director with 26 years inside agencies builds it." },
+  { id: "pitch", label: "How we work", text: "We build one pilot at a time: a working prototype in three weeks, one live cycle to prove it, and then your team runs it." },
+  { id: "sp1", label: "Selling point 1", text: "One board your client can see" },
+  { id: "sp1p", label: "Proof 1", text: "For PayPal in 2024, 300+ creatives on one board led to a new email strategy that lifted click-through from 17% to 54%." },
+  { id: "sp2", label: "Selling point 2", text: "The AI you sold, actually built" },
+  { id: "sp2p", label: "Proof 2", text: "For a client's retail advertising program, we rebuilt 500+ ads from Photoshop and After Effects into one live system in under three months." },
+  { id: "sp3", label: "Selling point 3", text: "Two people, 480 assets, 49 hours" },
+  { id: "sp3p", label: "Proof 3", text: "For La Palabra's 30-day campaign, we shipped 240 posts, 240 reels, a 50-page PDF and a 32-page print devotional." },
+  { id: "pillar2", label: "Pillar 2", text: "Your agency runs on a system, not one person" },
+  { id: "quote", label: "Supporting quote", text: "Most people selling AI to agencies have never run production. Andrew has. He builds the system first, and that's why the AI actually works.", flag: "Needs James Kinney's approval before use" },
+  { id: "quote-by", label: "Quote by", text: "James Kinney, Chief AI Officer, INVNT", flag: "Needs approval" },
+  { id: "signoff", label: "Sign-off", text: "ClearMark. Make it visible." },
+];
+const OFFERS = [
+  { id: "agency", title: "Agency Systems", sub: "Pilot in three weeks, then a live cycle", price: "$2,500+", note: "setup · then $500–$1,500/mo", image: "media/poppies.jpg", status: "Ready" },
+  { id: "content", title: "Content System", sub: "AI content calendar and video scripts", price: "$125+", note: "a month · up to $500", image: "media/flowers.jpg", status: "Draft" },
+  { id: "publishing", title: "Publishing System", sub: "Book relaunch calendar and launch sprint", price: "$1,500+", note: "project · up to $5,000", image: "media/bridge.jpg", status: "Draft" },
+  { id: "leadgen", title: "Working Interview", sub: "A fast proof-of-work build, money-back", price: "$37", note: "one-time", image: "media/rock-climb.jpg", status: "Draft" },
+];
+
+// ── Pages: fixed layouts, each made of sections with named spots ─────────────
+// kind: text (limit) · link · image · logos (max) · list (max rows, columns with limits) · offers (max)
+const PAGES = [
+  { id: "home", name: "Home", path: "/", sections: [
+    { id: "hero", name: "Hero", type: "hero", slots: [
+      { id: "hero-image", label: "Hero image", kind: "image", about: "Full-width photo behind the headline.", source: "Images" },
+      { id: "hero-headline", label: "Headline", kind: "text", limit: 80, about: "The one line every visitor reads.", source: "Playbook · Headline" },
+      { id: "hero-button", label: "Button text", kind: "text", limit: 22, about: "What the white button says.", source: "Usually “Book a call”" },
+      { id: "hero-link", label: "Button link", kind: "link", about: "Where the button goes.", source: "Your Calendly link" },
+      { id: "hero-quote", label: "Testimonial", kind: "list", max: 1, cols: [{ key: "name", label: "Name", limit: 40 }, { key: "quote", label: "Quote", limit: 220, long: true }], optional: true, about: "See-through panel, bottom left. Hidden on phones.", source: "A client quote you have permission to use" },
+      { id: "hero-stat", label: "Stat card", kind: "list", max: 1, cols: [{ key: "kicker", label: "Small title", limit: 32 }, { key: "value", label: "Number", limit: 10 }], optional: true, about: "White card, bottom right. Hidden on phones.", source: "Playbook · Proof 1 (17% → 54%)" },
+    ]},
+    { id: "credibility", name: "Credibility", type: "cred", slots: [
+      { id: "cred-label", label: "Label", kind: "text", limit: 30, about: "Short label, left of the logos.", source: "e.g. “Speaker & certifications:”" },
+      { id: "cred-logos", label: "Logos", kind: "logos", max: 4, about: "White logos on Charcoal.", source: "Images · logos" },
+    ]},
+    { id: "why", name: "Why ClearMark", type: "why", slots: [
+      { id: "why-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Why ClearMark”" },
+      { id: "why-headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Playbook · Pillar 2" },
+      { id: "why-body", label: "Paragraph", kind: "text", limit: 260, long: true, source: "Playbook · Value proposition" },
+      { id: "why-points", label: "Selling points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Proof", limit: 160, long: true }], source: "Playbook · Selling points 1–3" },
+      { id: "why-photo", label: "Founder photo", kind: "image", source: "Images · Founder photo" },
+    ]},
+    { id: "platforms", name: "Platforms", type: "plat", slots: [
+      { id: "plat-image", label: "Background image", kind: "image", source: "Images · Platforms background" },
+      { id: "plat-headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "e.g. “For any business. / On any platform.”" },
+      { id: "plat-tags", label: "+ Tags", kind: "list", max: 9, cols: [{ key: "tag", label: "Tag", limit: 30 }], source: "Business areas you serve" },
+      { id: "plat-logos", label: "Platform logos", kind: "logos", max: 10, source: "Images · Platform logos" },
+    ]},
+    { id: "solutions", name: "Solutions", type: "offers", slots: [
+      { id: "sol-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Solutions”" },
+      { id: "sol-headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Playbook · How we work" },
+      { id: "sol-cards", label: "Offer cards", kind: "offers", max: 3, about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Offers" },
+    ]},
+    { id: "quote", name: "Quote", type: "quote", optional: true, slots: [
+      { id: "quote-text", label: "Quote", kind: "text", limit: 200, long: true, source: "Playbook · Supporting quote (needs approval)" },
+      { id: "quote-by", label: "Name and title", kind: "text", limit: 60, source: "Playbook · Quote by" },
+    ]},
+    { id: "mailing", name: "Mailing list", type: "mail", slots: [
+      { id: "mail-headline", label: "Headline", kind: "text", limit: 32, source: "e.g. “Stay in the loop”" },
+      { id: "mail-intro", label: "Intro", kind: "text", limit: 120, long: true, source: "One sentence on what people get" },
+    ]},
+  ]},
+  { id: "about", name: "About", path: "/about", sections: [
+    { id: "about-hero", name: "Page hero", type: "pagehero", slots: [
+      { id: "ab-image", label: "Hero image", kind: "image", source: "Images" },
+      { id: "ab-headline", label: "Headline", kind: "text", limit: 60, source: "e.g. “26 years inside agencies”" },
+    ]},
+    { id: "story", name: "Story", type: "story", slots: [
+      { id: "ab-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “About”" },
+      { id: "ab-title", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Your own words" },
+      { id: "ab-body", label: "Story", kind: "text", limit: 600, long: true, source: "Playbook · Positioning statement" },
+      { id: "ab-photo", label: "Photo", kind: "image", source: "Images · Founder photo" },
+    ]},
+    { id: "team", name: "How the team works", type: "points", slots: [
+      { id: "ab-points", label: "Team members", kind: "list", max: 3, cols: [{ key: "title", label: "Name and role", limit: 40 }, { key: "proof", label: "What they do", limit: 160, long: true }], source: "Playbook · How the team works" },
+    ]},
+  ]},
+  { id: "pricing", name: "Pricing", path: "/pricing", sections: [
+    { id: "pr-head", name: "Header", type: "header", slots: [
+      { id: "pr-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Pricing”" },
+      { id: "pr-title", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Your own words" },
+      { id: "pr-body", label: "Paragraph", kind: "text", limit: 200, long: true, source: "Playbook · How we work" },
+    ]},
+    { id: "pr-cards", name: "Offers", type: "offersonly", slots: [
+      { id: "pr-offers", label: "Offer cards", kind: "offers", max: 4, source: "Offers" },
+    ]},
+  ]},
+  { id: "book", name: "Book a call", path: "/book", sections: [
+    { id: "bk-head", name: "Header", type: "header", slots: [
+      { id: "bk-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Book a call”" },
+      { id: "bk-title", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Your own words" },
+      { id: "bk-body", label: "Paragraph", kind: "text", limit: 200, long: true, source: "What happens on the call" },
+    ]},
+    { id: "bk-cal", name: "Calendly", type: "calendly", slots: [] },
+  ]},
+];
+const SLOTS = {};
+for (const p of PAGES) for (const s of p.sections) for (const sl of s.slots) SLOTS[sl.id] = { ...sl, page: p.id, section: s.id };
+
+// ── State: each spot holds what's typed (value) and what's on the page (placed) ──
+const KEY = "clearmark-studio-builder-v1";
+const blank = (sl) => (sl.kind === "list" || sl.kind === "logos" || sl.kind === "offers") ? [] : "";
+function seed() {
+  const v = {};
+  for (const id in SLOTS) v[id] = { value: blank(SLOTS[id]), placed: blank(SLOTS[id]) };
+  const set = (id, value, placed = true) => { v[id] = { value, placed: placed ? structuredClone(value) : blank(SLOTS[id]) }; };
+  set("hero-image", "media/poppies.jpg");
+  set("hero-headline", "Your single source of truth shouldn't be a person.");
+  set("hero-button", "Book a call");
+  set("hero-link", "https://calendly.com/andrew-clearmark/15min");
+  set("cred-label", "Speaker & certifications:", false);
+  set("plat-headline", [{ line: "For any business." }, { line: "On any platform." }]);
+  set("sol-cards", ["agency", "content"], false);
+  return { slots: v, page: "home", sectionsOff: { quote: true }, device: "desktop", guides: true };
+}
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
+if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
+for (const id in SLOTS) if (!S.slots[id]) S.slots[id] = { value: blank(SLOTS[id]), placed: blank(SLOTS[id]) };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+
+let selected = null, openCard = null, filter = "all", srcTab = "images", picked = null;
+
+// ── Helpers ──
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (t) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const isEmpty = (v) => Array.isArray(v) ? v.length === 0 || v.every((r) => typeof r === "object" ? Object.values(r).every((x) => !String(x).trim()) : !String(r).trim()) : !String(v).trim();
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+function status(id) {
+  const st = S.slots[id];
+  if (isEmpty(st.value) && isEmpty(st.placed)) return "empty";
+  return same(st.value, st.placed) && !isEmpty(st.placed) ? "placed" : "draft";
+}
+const P = (id) => { const st = S.slots[id]; return isEmpty(st.placed) ? null : st.placed; };
+function overLimit(id) {
+  const sl = SLOTS[id], v = S.slots[id].value;
+  if (sl.kind === "text") return v.length > sl.limit;
+  if (sl.kind === "list") return v.some((r) => sl.cols.some((c) => (r[c.key] || "").length > c.limit));
+  return false;
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
+
+// ── Rendering the ClearMark page ──
+// A spot shows its placed content, or a dotted box with its name.
+function slotBox(id, extra = "", style = "") {
+  const sl = SLOTS[id];
+  return `<div class="slot ${extra}${selected === id ? " is-sel" : ""}" data-slot="${id}" style="${style}" role="button" tabindex="0">${esc(sl.label)}${sl.kind === "text" ? ` · ${sl.limit}` : ""}${sl.optional ? " (optional)" : ""}</div>`;
+}
+const filledAttr = (id) => `data-slot="${id}" class="filled${selected === id ? " is-sel" : ""}"`;
+const text = (id, tag, cls = "", extraSlotCls = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${esc(v)}</${tag}>` : slotBox(id, extraSlotCls); };
+const lines = (id, tag, cls = "", extra = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${v.map((r) => `<span>${esc(r.line)}</span>`).join("")}</${tag}>` : slotBox(id, extra); };
+const offerById = (oid) => OFFERS.find((o) => o.id === oid);
+const offerCard = (o) => `<article class="offer"><img src="${esc(o.image)}" alt=""><div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span class="mono" style="font-size:13px">+ ${esc(o.status === "Ready" ? "Agency pilot" : "In the pipeline")}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`;
+function offersBlock(id, max) {
+  const v = P(id);
+  const items = v ? v.map(offerById).filter(Boolean) : [];
+  const cells = items.map(offerCard);
+  // Empty card spots stay dotted, so you can see how many cards fit.
+  for (let i = items.length; i < (v ? items.length : Math.min(max, 3)); i++) cells.push(slotBox(id, "offer-slot", "").replace(esc(SLOTS[id].label), `Offer card ${i + 1}`));
+  return v ? `<div class="offer-grid ${filledAttr(id).match(/class="([^"]*)"/)[1]}" data-slot="${id}">${cells.join("")}</div>` : `<div class="offer-grid">${cells.join("")}</div>`;
+}
+const navChrome = () => `<nav class="site-nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li><li class="pill-cta">Book a call →</li></ul><span class="burger" aria-hidden="true"></span></nav>`;
+
+const SECTION_HTML = {
+  hero: () => {
+    const img = P("hero-image"), q = P("hero-quote"), st = P("hero-stat"), btn = P("hero-button");
+    return `<div class="hero-bg">${img ? `<img ${filledAttr("hero-image")} src="${esc(img)}" alt="">` : slotBox("hero-image", "on-dark")}</div>
+      ${navChrome()}
+      <div class="hero-main">${text("hero-headline", "h1", "", "on-dark")}
+        ${btn ? `<span ${filledAttr("hero-button").replace('class="', 'class="cta ')}>${esc(btn)} →</span>` : slotBox("hero-button", "on-dark", "align-self:flex-start;min-width:220px")}
+        ${P("hero-link") ? "" : `<div style="max-width:320px">${slotBox("hero-link", "on-dark")}</div>`}</div>
+      <div class="hero-bottom">
+        ${q ? `<figure ${filledAttr("hero-quote").replace('class="', 'class="glass ')} style="margin:0"><b>${esc(q[0].name)}</b><span>${esc(q[0].quote)}</span></figure>` : `<div style="width:520px">${slotBox("hero-quote", "on-dark", "min-height:140px")}</div>`}
+        ${st ? `<aside ${filledAttr("hero-stat").replace('class="', 'class="stat-card ')}><small>${esc(st[0].kicker)}</small><b>${esc(st[0].value)}</b></aside>` : `<div style="width:260px">${slotBox("hero-stat", "on-dark", "min-height:140px")}</div>`}
+      </div>`;
+  },
+  cred: () => {
+    const logos = P("cred-logos");
+    return `${text("cred-label", "p", "tagline", "on-dark")}
+      ${logos ? `<div ${filledAttr("cred-logos").replace('class="', 'class="logo-row ')}>${logos.map((s) => `<img src="${esc(s)}" alt="">`).join("")}</div>` : `<div class="logo-row">${slotBox("cred-logos", "on-dark", "flex:1;min-height:72px")}</div>`}`;
+  },
+  why: () => {
+    const pts = P("why-points"), photo = P("why-photo");
+    return `<div class="sh">${text("why-tagline", "p", "tagline")}<div>${lines("why-headline", "h2")}${P("why-body") ? `<p ${filledAttr("why-body").replace('class="', 'class="body ')}>${esc(P("why-body"))}</p>` : `<div style="margin-top:16px">${slotBox("why-body", "", "min-height:96px")}</div>`}</div></div>
+      <div class="split">${photo ? `<img ${filledAttr("why-photo").replace('class="', 'class="photo ')} src="${esc(photo)}" alt="Andrew Kreick">` : slotBox("why-photo", "photo")}
+        ${pts ? `<div ${filledAttr("why-points").replace('class="', 'class="points ')}>${pts.map((r) => `<div class="point"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("")}</div>` : `<div class="points">${[1, 2, 3].map((n) => slotBox("why-points", "", "min-height:110px").replace(esc(SLOTS["why-points"].label), `Selling point ${n}`)).join("")}</div>`}</div>`;
+  },
+  plat: () => {
+    const img = P("plat-image"), tags = P("plat-tags"), logos = P("plat-logos");
+    return `<div class="hero-bg">${img ? `<img ${filledAttr("plat-image")} src="${esc(img)}" alt="">` : slotBox("plat-image", "on-dark")}</div>
+      <div class="sh"><p class="tagline">Platforms</p>${lines("plat-headline", "h2", "", "on-dark")}</div>
+      ${tags ? `<ul ${filledAttr("plat-tags").replace('class="', 'class="tag-pills ')}>${tags.map((t) => `<li>${esc(t.tag)}</li>`).join("")}</ul>` : slotBox("plat-tags", "on-dark")}
+      ${logos ? `<div ${filledAttr("plat-logos").replace('class="', 'class="plat-logos ')}>${logos.map((s) => `<img src="${esc(s)}" alt="">`).join("")}</div>` : slotBox("plat-logos", "on-dark", "min-height:120px")}`;
+  },
+  offers: () => `<div class="sh">${text("sol-tagline", "p", "tagline")}${lines("sol-headline", "h2")}</div>${offersBlock("sol-cards", 3)}`,
+  quote: () => `${P("quote-text") ? `<blockquote ${filledAttr("quote-text")}>“${esc(P("quote-text"))}”</blockquote>` : slotBox("quote-text", "", "min-height:120px")}${text("quote-by", "cite")}`,
+  mail: () => `<div>${P("mail-headline") ? "" : ""}<p class="tagline">Mailing list</p>${text("mail-headline", "h2")}${text("mail-intro", "p")}</div>
+      <div class="fake-form"><div>Name</div><div>Email</div><span class="cta cta-red" style="align-self:flex-start">Sign up</span><span class="chrome-note">The form itself is part of the design, not a spot.</span></div>`,
+  pagehero: () => { const img = P("ab-image"); return `<div class="hero-bg">${img ? `<img ${filledAttr("ab-image")} src="${esc(img)}" alt="">` : slotBox("ab-image", "on-dark")}</div>${navChrome()}<div class="hero-main">${text("ab-headline", "h1", "", "on-dark")}</div>`; },
+  story: () => { const photo = P("ab-photo"); return `<div class="sh">${text("ab-tagline", "p", "tagline")}<div>${lines("ab-title", "h2")}</div></div>
+      <div class="split">${photo ? `<img ${filledAttr("ab-photo").replace('class="', 'class="photo ')} src="${esc(photo)}" alt="">` : slotBox("ab-photo", "photo")}${P("ab-body") ? `<p ${filledAttr("ab-body").replace('class="', 'class="body ')} style="font-size:20px;line-height:1.5;color:var(--cm-iron)">${esc(P("ab-body"))}</p>` : slotBox("ab-body", "", "min-height:240px")}</div>`; },
+  points: () => { const pts = P("ab-points"); return pts ? `<div ${filledAttr("ab-points").replace('class="', 'class="points ')}>${pts.map((r) => `<div class="point"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("")}</div>` : `<div class="points">${slotBox("ab-points", "", "min-height:160px")}</div>`; },
+  header: (sec) => { const pre = sec.slots[0].id.split("-")[0]; return `${navChromeDark()}<div class="sh" style="margin-top:64px">${text(`${pre}-tagline`, "p", "tagline")}<div>${lines(`${pre}-title`, "h2")}${P(`${pre}-body`) ? `<p ${filledAttr(`${pre}-body`).replace('class="', 'class="body ')}>${esc(P(`${pre}-body`))}</p>` : `<div style="margin-top:16px">${slotBox(`${pre}-body`, "", "min-height:80px")}</div>`}</div></div>`; },
+  offersonly: () => offersBlock("pr-offers", 4),
+  calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
+};
+const navChromeDark = () => navChrome().replace('class="site-nav"', 'class="site-nav nav-in-std"');
+const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", why: "std", plat: "std plat on-dark", offers: "std", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", calendly: "std" };
+
+function pageHtml(page) {
+  return page.sections.map((sec) => {
+    const off = sec.optional && S.sectionsOff[sec.id];
+    return `<section class="sec ${SECTION_CLASS[sec.type]}${off ? " sec-off" : ""}" id="sec-${sec.id}" style="${sec.type === "header" ? "padding-top:0" : ""}">
+      <span class="sec-tag">${esc(sec.name)}${sec.optional ? (off ? " · off" : " · optional") : ""}</span>${SECTION_HTML[sec.type](sec)}</section>`;
+  }).join("") + `<footer class="site-footer"><img src="media/logo-white.png" alt="ClearMark Training"><span>Built for real people, in real jobs, right now.</span><span class="chrome-note">Footer: same on every page</span></footer>`;
+}
+
+// ── Preview sizing: draw at 1280 (desktop) or 390 (phone) and shrink to fit ──
+function fit() {
+  const wrap = $("#canvas-wrap"), sc = $("#canvas-scale"), site = $("#site");
+  const w = S.device === "phone" ? 390 : 1280;
+  site.style.width = w + "px";
+  const avail = wrap.clientWidth - 32;
+  const k = Math.min(1, avail / w);
+  sc.style.transform = `scale(${k})`;
+  sc.style.width = w + "px";
+  sc.style.height = site.offsetHeight + "px";
+  wrap.style.height = site.offsetHeight * k + 32 + "px";
+  wrap.classList.toggle("phone", S.device === "phone");
+  if (S.device === "phone") sc.style.marginLeft = Math.max(0, (avail - w * k) / 2) + "px"; else sc.style.marginLeft = "0";
+}
+
+// ── Content cards ──
+function cardBody(id) {
+  const sl = SLOTS[id], st = S.slots[id], v = st.value;
+  const counter = (n, lim) => `<span class="count${n > lim ? " over" : ""}">${n}/${lim}</span>`;
+  let ed = "";
+  if (sl.kind === "text") {
+    ed = `<div class="field"><label for="in-${id}">Content · up to ${sl.limit} characters</label>${sl.long
+      ? `<textarea class="input" id="in-${id}" data-edit="${id}" rows="3">${esc(v)}</textarea>`
+      : `<input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}">`}${counter(v.length, sl.limit)}</div>`;
+  } else if (sl.kind === "link") {
+    const ok = !v || /^(https?:\/\/\S+|\/\S*|#\S*|mailto:\S+)$/i.test(v);
+    ed = `<div class="field"><label for="in-${id}">Link</label><input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}" inputmode="url" placeholder="https://… or /page or #section"></div>${ok ? "" : `<p class="source" style="color:var(--bad)">Use https://…, /page or #section.</p>`}`;
+  } else if (sl.kind === "image") {
+    ed = `<div class="dropzone">${v ? `<img src="${esc(v)}" alt="" style="max-height:120px;border-radius:6px">` : "Drop an image here, or tap one in Sources, then “Use selected”."}</div>`;
+  } else if (sl.kind === "logos") {
+    ed = `<div class="field"><label>Logos · ${v.length}/${sl.max}</label><div class="pick-grid">${v.map((s, i) => `<figure><img src="${esc(s)}" alt=""><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove logo ${i + 1}">×</button></figure>`).join("")}</div></div><div class="dropzone">Drop logos here, or tap them in Sources.</div>`;
+  } else if (sl.kind === "offers") {
+    const left = OFFERS.filter((o) => !v.includes(o.id));
+    ed = `<div class="field"><label>Cards · ${v.length}/${sl.max}</label><ul class="item-list">${v.map((oid, i) => `<li><span>${esc(offerById(oid)?.title)}</span>
+      <button type="button" class="x" data-move="${id}:${i}:-1" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+      <button type="button" class="x" data-move="${id}:${i}:1" aria-label="Move down" ${i === v.length - 1 ? "disabled" : ""}>↓</button>
+      <button type="button" class="x" data-del="${id}:${i}" aria-label="Remove">×</button></li>`).join("")}</ul></div>
+      ${left.length && v.length < sl.max ? `<select class="input" data-addoffer="${id}" aria-label="Add an offer card"><option value="">+ Add an offer card…</option>${left.map((o) => `<option value="${o.id}">${esc(o.title)} · ${esc(o.price)}</option>`).join("")}</select>` : ""}`;
+  } else if (sl.kind === "list") {
+    const rows = v.length ? v : [];
+    ed = `<div class="field"><label>Content · up to ${sl.max} ${sl.max === 1 ? "row" : "rows"}</label><div class="rows">${rows.map((r, i) => `<div class="row" style="--cols:${sl.cols.length}"><span class="row-n">${i + 1}</span>
+      ${sl.cols.map((c) => { const val = r[c.key] || ""; return `<div class="field">${c.long ? `<textarea class="input" rows="2" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}">${esc(val)}</textarea>` : `<input class="input" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}" value="${esc(val)}">`}${counter(val.length, c.limit)}</div>`; }).join("")}
+      <button type="button" class="x" data-del="${id}:${i}" aria-label="Remove row ${i + 1}">×</button></div>`).join("")}</div></div>
+      ${rows.length < sl.max ? `<button type="button" class="add-row" data-addrow="${id}">+ Add row (${rows.length}/${sl.max})</button>` : ""}`;
+  }
+  const s = status(id);
+  return `${sl.about ? `<p class="about">${esc(sl.about)}</p>` : ""}<p class="source"><b>Best source:</b> ${esc(sl.source || "Your own words")}</p>
+    ${picked && accepts(sl, picked) ? `<div class="picked-bar"><span>Selected: ${esc(pickedName())}</span><button type="button" class="btn btn-small" data-use="${id}">Use selected</button></div>` : ""}
+    ${ed}
+    <div class="card-actions">
+      <button type="button" class="btn btn-small btn-primary" data-place="${id}" ${s === "draft" && !isEmpty(st.value) && !overLimit(id) ? "" : "disabled"}>Place in preview</button>
+      <button type="button" class="btn btn-small" data-unplace="${id}" ${isEmpty(st.placed) ? "disabled" : ""}>Remove from preview</button>
+      <button type="button" class="btn btn-small" data-clear="${id}" ${isEmpty(st.value) && isEmpty(st.placed) ? "disabled" : ""}>Clear card</button>
+    </div>${overLimit(id) ? `<p class="source" style="color:var(--bad)">Over the limit. Shorten it to place it.</p>` : ""}`;
+}
+const KIND_CHIP = (sl) => sl.kind === "text" ? `text · ${sl.limit}` : sl.kind === "list" ? `list · ${sl.max}` : sl.kind === "logos" ? `logos · ${sl.max}` : sl.kind === "offers" ? `cards · ${sl.max}` : sl.kind;
+
+function renderCards() {
+  const page = PAGES.find((p) => p.id === S.page);
+  const html = page.sections.map((sec) => {
+    const off = sec.optional && S.sectionsOff[sec.id];
+    const cards = sec.slots.filter((sl) => filter === "all" || status(sl.id) !== "placed").map((slb) => {
+      const sl = SLOTS[slb.id], s = status(sl.id), isOpen = openCard === sl.id;
+      return `<div class="ccard is-${s}${selected === sl.id ? " is-selected" : ""}" data-card="${sl.id}" ${isOpen ? "open-card" : ""}>
+        <button type="button" class="ccard-head" data-toggle="${sl.id}" aria-expanded="${isOpen}">
+          <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          <span class="ccard-title">${esc(sl.label)}</span>${sl.optional ? `<span class="pill pill-opt">Optional</span>` : ""}
+          <span class="chip">${KIND_CHIP(sl)}</span><span class="pill pill-${s}">${s[0].toUpperCase() + s.slice(1)}</span>
+        </button>${isOpen ? `<div class="ccard-body">${cardBody(sl.id)}</div>` : ""}</div>`;
+    }).join("");
+    if (!cards && !sec.optional && sec.slots.length) return "";
+    const toggle = sec.optional ? `<label class="switch"><input type="checkbox" data-secoff="${sec.id}" ${off ? "" : "checked"}> Show on page</label>` : "";
+    const fixed = sec.slots.length ? "" : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`;
+    return `<div class="group-label">${esc(sec.name)}${toggle}</div>${cards}${fixed}`;
+  }).join("");
+  $("#cards").innerHTML = html || `<p class="hint">Every spot on this page is placed.</p>`;
+}
+
+// ── Sources pane ──
+const accepts = (sl, p) => (p.type === "image" && (sl.kind === "image" || sl.kind === "logos")) || (p.type === "text" && (sl.kind === "text" || sl.kind === "list")) || (p.type === "offer" && sl.kind === "offers");
+const pickedName = () => picked.type === "image" ? IMAGES.find((i) => i.src === picked.value)?.name || "Uploaded image" : picked.type === "offer" ? offerById(picked.value).title : `“${picked.value.slice(0, 40)}${picked.value.length > 40 ? "…" : ""}”`;
+function renderSources() {
+  const el = $("#sources");
+  if (srcTab === "images") {
+    el.innerHTML = `<p class="hint" style="margin:0">Drag onto a card or a dotted box. Or tap to select, then “Use selected” on a card.</p>
+      <div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0"><div class="im"><img src="${esc(im.src)}" alt=""></div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
+      <label class="upload" for="upload">Add your own image (stays in this browser)<input type="file" id="upload" accept="image/*"></label>`;
+  } else if (srcTab === "playbook") {
+    el.innerHTML = `<p class="hint" style="margin:0">Lines from the ClearMark Brand Playbook (v3). Drag onto a text card or dotted box.</p>
+      ${PLAYBOOK.map((p) => `<button type="button" class="src-text${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</button>`).join("")}`;
+  } else {
+    el.innerHTML = `<p class="hint" style="margin:0">Offers from the CMS (offer ladder in the Playbook; prices are estimates to validate). Drag onto an Offer cards spot.</p>
+      ${OFFERS.map((o) => `<button type="button" class="src-text${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}"><b>${esc(o.status)} · ${esc(o.price)}</b><span>${esc(o.title)}</span><span class="hint">${esc(o.sub)}</span></button>`).join("")}`;
+  }
+}
+
+// ── Putting content into a spot ──
+function fill(id, p, place) {
+  const sl = SLOTS[id], st = S.slots[id];
+  if (!accepts(sl, p)) { toast(`${sl.label} takes ${sl.kind === "offers" ? "offer cards" : sl.kind === "image" || sl.kind === "logos" ? "images" : "text"}.`); return; }
+  if (sl.kind === "image") st.value = p.value;
+  else if (sl.kind === "logos") { if (st.value.length >= sl.max) return toast(`${sl.label} holds up to ${sl.max}.`); if (!st.value.includes(p.value)) st.value = [...st.value, p.value]; }
+  else if (sl.kind === "offers") { if (st.value.length >= sl.max) return toast(`${sl.label} holds up to ${sl.max}.`); if (!st.value.includes(p.value)) st.value = [...st.value, p.value]; }
+  else if (sl.kind === "text") st.value = p.value;
+  else if (sl.kind === "list") {
+    const key = sl.cols[sl.cols.length - 1].key;
+    if (st.value.length >= sl.max) return toast(`${sl.label} holds up to ${sl.max} rows.`);
+    st.value = [...st.value, Object.fromEntries(sl.cols.map((c) => [c.key, c.key === key ? p.value : ""]))];
+  }
+  if (place && !overLimit(id)) st.placed = structuredClone(st.value);
+  if (place && overLimit(id)) toast("Added as a draft: it's over the limit, so shorten it to place it.");
+  selected = id; openCard = id; picked = null;
+  save(); render();
+}
+
+// ── Draw everything ──
+function render() {
+  const page = PAGES.find((p) => p.id === S.page);
+  $("#site").innerHTML = pageHtml(page);
+  $("#site").classList.toggle("guides", S.guides);
+  $("#guides").checked = S.guides;
+  $("#page-name").textContent = page.name;
+  $("#cc-page").textContent = page.name;
+  document.querySelectorAll("[data-device]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.device === S.device));
+  renderCards();
+  renderSources();
+  // meter: spots on visible sections
+  const ids = page.sections.filter((s) => !(s.optional && S.sectionsOff[s.id])).flatMap((s) => s.slots.map((x) => x.id));
+  const placed = ids.filter((id) => status(id) === "placed").length;
+  $("#meter-num").textContent = `${placed} / ${ids.length}`;
+  $("#meter-bar").style.width = ids.length ? (placed / ids.length) * 100 + "%" : "0";
+  const drafts = Object.keys(SLOTS).filter((id) => SLOTS[id].page === S.page && status(id) === "draft" && !overLimit(id)).length;
+  $("#place-all").disabled = !drafts;
+  $("#place-all").textContent = drafts ? `Place all drafts (${drafts})` : "Place all drafts";
+  const sl = selected && SLOTS[selected];
+  $("#status-line").innerHTML = sl ? `<span><b>${esc(sl.label)}</b> · ${esc(PAGES.find((p) => p.id === sl.page).sections.find((s) => s.id === sl.section).name)} · ${status(selected)}</span><span class="hint">${esc(sl.source || "")}</span>` : "Pick a card, or click a dotted box, to fill that spot.";
+  renderPages();
+  requestAnimationFrame(fit);
+  save();
+}
+function renderPages() {
+  $("#pages").innerHTML = PAGES.map((p) => {
+    const ids = p.sections.filter((s) => !(s.optional && S.sectionsOff[s.id])).flatMap((s) => s.slots.map((x) => x.id));
+    const n = ids.filter((id) => status(id) === "placed").length;
+    return `<button type="button" class="page-thumb" data-page="${p.id}" ${p.id === S.page ? 'aria-current="page"' : ""}><div class="thumb-box"><div class="site" style="transform:scale(${150 / 1280 * 1.0 * 1.02})">${pageHtml(p)}</div></div><span><b>${esc(p.name)}</b><span class="mono">${n}/${ids.length}</span></span></button>`;
+  }).join("");
+  // scale thumbs to their box width
+  document.querySelectorAll(".thumb-box").forEach((b) => { const inner = b.firstElementChild; inner.style.transform = `scale(${b.clientWidth / 1280})`; });
+}
+
+// ── Events ──
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, [data-slot], [data-pick], [data-page]");
+  if (!t) return;
+  const d = t.dataset;
+  if (d.slot && t.closest("#site")) {
+    selected = d.slot; openCard = d.slot;
+    if (picked && accepts(SLOTS[d.slot], picked)) return fill(d.slot, picked, true);
+    render();
+    const card = document.querySelector(`[data-card="${d.slot}"]`);
+    if (matchMedia("(max-width: 760px)").matches) setTab("cards");
+    card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return;
+  }
+  if (d.toggle) { openCard = openCard === d.toggle ? null : d.toggle; selected = d.toggle; render(); scrollToSlot(d.toggle); return; }
+  if (d.page) { S.page = d.page; selected = openCard = null; render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  if (d.place) { S.slots[d.place].placed = structuredClone(S.slots[d.place].value); toast("Placed in preview."); render(); scrollToSlot(d.place); return; }
+  if (d.unplace) { S.slots[d.unplace].placed = blank(SLOTS[d.unplace]); render(); return; }
+  if (d.clear) { S.slots[d.clear] = { value: blank(SLOTS[d.clear]), placed: blank(SLOTS[d.clear]) }; render(); return; }
+  if (d.addrow) { const sl = SLOTS[d.addrow]; S.slots[d.addrow].value.push(Object.fromEntries(sl.cols.map((c) => [c.key, ""]))); render(); focusLast(d.addrow); return; }
+  if (d.del) { const [id, i] = d.del.split(":"); S.slots[id].value.splice(+i, 1); render(); return; }
+  if (d.move) { const [id, i, dir] = d.move.split(":"); const v = S.slots[id].value; const j = +i + +dir; [v[i], v[j]] = [v[j], v[i]]; render(); return; }
+  if (d.use) return fill(d.use, picked, false);
+  if (d.pick) {
+    const [type, ...rest] = d.pick.split("|"); const value = rest.join("|");
+    picked = picked?.value === value ? null : { type, value };
+    if (picked && openCard && accepts(SLOTS[openCard], picked)) toast("Selected. Press “Use selected” on the open card, or click a dotted box.");
+    else if (picked) toast("Selected. Click a dotted box or open a card to use it.");
+    render(); return;
+  }
+  if (d.device) { S.device = d.device; render(); return; }
+  if (d.filter) { filter = d.filter; document.querySelectorAll("[data-filter]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.filter === filter)); renderCards(); return; }
+  if (d.src) { srcTab = d.src; document.querySelectorAll("[data-src]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.src === srcTab)); renderSources(); return; }
+  if (d.tab) { setTab(d.tab); return; }
+});
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("#site [data-slot], [data-pick]")) { e.preventDefault(); e.target.click(); } });
+function scrollToSlot(id) { requestAnimationFrame(() => document.querySelector(`#site [data-slot="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" })); }
+function focusLast(id) { requestAnimationFrame(() => { const all = document.querySelectorAll(`[data-cell^="${id}:"]`); all[all.length - Math.max(1, SLOTS[id].cols.length)]?.focus(); }); }
+
+// Typing: update the card in place (no full redraw, so the cursor stays put).
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.dataset.edit) { S.slots[t.dataset.edit].value = t.value; refreshCard(t.dataset.edit, t); }
+  else if (t.dataset.cell) { const [id, i, key] = t.dataset.cell.split(":"); S.slots[id].value[+i][key] = t.value; refreshCard(id, t); }
+});
+function refreshCard(id, input) {
+  const c = input.parentElement.querySelector(".count");
+  if (c) { const lim = SLOTS[id].kind === "text" ? SLOTS[id].limit : SLOTS[id].cols.find((x) => x.key === input.dataset.cell.split(":")[2]).limit; c.textContent = `${input.value.length}/${lim}`; c.classList.toggle("over", input.value.length > lim); }
+  const card = document.querySelector(`[data-card="${id}"]`), s = status(id);
+  card.className = `ccard is-${s} is-selected`;
+  const pill = card.querySelector(".ccard-head .pill:last-child"); pill.className = `pill pill-${s}`; pill.textContent = s[0].toUpperCase() + s.slice(1);
+  const place = card.querySelector("[data-place]"); place.disabled = !(s === "draft" && !isEmpty(S.slots[id].value) && !overLimit(id));
+  save();
+}
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.dataset.addoffer && t.value) { S.slots[t.dataset.addoffer].value.push(t.value); render(); }
+  if (t.dataset.secoff) { S.sectionsOff[t.dataset.secoff] = !t.checked; render(); }
+  if (t.id === "guides") { S.guides = t.checked; render(); }
+  if (t.id === "upload" && t.files[0]) {
+    const f = t.files[0];
+    if (f.size > 3e6) return toast("Pick an image under 3 MB for the prototype.");
+    const r = new FileReader();
+    r.onload = () => { IMAGES.unshift({ id: "up-" + Date.now(), src: r.result, name: f.name, kind: "photo" }); renderSources(); toast("Added to Images. Drag it onto a spot."); };
+    r.readAsDataURL(f);
+  }
+});
+
+// Drag and drop from Sources onto a card (draft) or a dotted box (placed).
+let dragging = null;
+document.addEventListener("dragstart", (e) => {
+  const t = e.target.closest?.("[data-drag]"); if (!t) return;
+  const [type, ...rest] = t.dataset.drag.split("|"); dragging = { type, value: rest.join("|") };
+  e.dataTransfer.setData("text/plain", dragging.value); e.dataTransfer.effectAllowed = "copy";
+});
+document.addEventListener("dragend", () => { dragging = null; document.querySelectorAll(".drop-ok").forEach((x) => x.classList.remove("drop-ok")); });
+const dropTarget = (e) => e.target.closest?.("#site [data-slot], [data-card]");
+document.addEventListener("dragover", (e) => {
+  const t = dropTarget(e); if (!t || !dragging) return;
+  const id = t.dataset.slot || t.dataset.card;
+  if (accepts(SLOTS[id], dragging)) { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; t.classList.add("drop-ok"); }
+});
+document.addEventListener("dragleave", (e) => { const t = dropTarget(e); if (t && !t.contains(e.relatedTarget)) t.classList.remove("drop-ok"); });
+document.addEventListener("drop", (e) => {
+  const t = dropTarget(e); if (!t || !dragging) return;
+  e.preventDefault();
+  const id = t.dataset.slot || t.dataset.card;
+  fill(id, dragging, !!t.dataset.slot);
+  toast(t.dataset.slot ? "Placed in preview." : "Added to the card as a draft.");
+});
+
+// Top bar
+$("#place-all").onclick = () => {
+  let n = 0;
+  for (const id in SLOTS) if (SLOTS[id].page === S.page && status(id) === "draft" && !overLimit(id) && !isEmpty(S.slots[id].value)) { S.slots[id].placed = structuredClone(S.slots[id].value); n++; }
+  toast(`Placed ${n} ${n === 1 ? "spot" : "spots"}.`); render();
+};
+let resetArmed = false;
+$("#reset").onclick = () => {
+  if (!resetArmed) { resetArmed = true; $("#reset").textContent = "Tap again to reset"; setTimeout(() => { resetArmed = false; $("#reset").textContent = "Reset prototype"; }, 3000); return; }
+  resetArmed = false; S = seed(); selected = openCard = picked = null; $("#reset").textContent = "Reset prototype"; render(); toast("Back to the starting example.");
+};
+$("#publish").onclick = () => toast("Prototype: Publish goes live once this design moves into the real Studio.");
+function setTab(tab) { $("#panes").dataset.tab = tab; document.querySelectorAll("[data-tab]").forEach((b) => b.tagName === "BUTTON" && b.setAttribute("aria-pressed", b.dataset.tab === tab)); }
+new ResizeObserver(() => { fit(); document.querySelectorAll(".thumb-box").forEach((b) => (b.firstElementChild.style.transform = `scale(${b.clientWidth / 1280})`)); document.documentElement.style.setProperty("--top-h", $("#top").offsetHeight + "px"); }).observe(document.body);
+// Images load after the first draw; refit when they arrive.
+document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.target.closest("#site")) fit(); }, true);
+
+openCard = "cred-label"; selected = "cred-label";
+render();
+</script>
