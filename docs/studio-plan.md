@@ -62,7 +62,7 @@ CT100, CT200, CT300 (titles) · CS Content Short ≤144 words · CL Content Long
 ## Build order (each step ≈ one 1-hour session)
 
 1. ✅ Sites, pages, sections, CMS collections in Supabase; ClearMark Home first. (Done Oct 5: `supabase/studio.sql`, page shape in `lib/studio.ts`.)
-2. My Sites and Pages screens.
+2. ✅ My Sites and Pages screens. (Done Oct 6: `app/clrcrm/studio/`.)
 3. Page editor: edit text and links; Save draft → Publish.
 4. Insert panel + move sections, components and cards.
 5. CMS screens (Products, Portfolio) with "Also on" notice.
@@ -76,7 +76,9 @@ Then: connect the Kreick site (separate Vercel project; needs the Supabase URL a
 - **Oct 5, 2026: step 1 done.** In clearmark-test: tables `sites`, `pages`, `collections`, `items`, `media`, `tags`, `item_tags`, `versions`, all with RLS. CRM members can do everything (`is_crm_member()`); visitors read only published pages and items, never a page's draft or the versions. Seeded: ClearMark (live) and Kreick Marketing (coming); Products and Portfolio collections; one sample product (CPO→CIO Leadership Track, still a draft) with its image and 3 tags; ClearMark Home as a **draft** with 5 sections (Hero, Credibility, Platforms, Solutions header, a card grid). Nothing is published yet, so the live site is unchanged.
   - Note for Claude: the Supabase MCP `apply_migration` hangs (60s timeout) on any statement with `drop … if exists` or other "destructive" SQL because it waits for a confirmation. On a fresh table use `create or replace trigger` and plain `create policy` instead.
   - The CMS `items` are separate from the CRM `products` table (that one is for sales: prices, Stripe IDs). Linking them can come later.
-- **Next: step 2**, My Sites and Pages screens (log in through /clrcrm, list sites as cards, then the pages of a site).
+- **Oct 6, 2026: step 2 done.** Decision: Studio uses **dark panels** (Midnight/Charcoal, like Figma and Framer). New "Studio" item in the team menu. `/clrcrm/studio` = My Sites (a card per site; ClearMark opens, Kreick shows "Coming"). `/clrcrm/studio/clearmark` = the site: Pages list (status Draft / Published / Unpublished changes, section count) and its CMS collections with item counts; CMS, Settings and Versions tabs say "soon". Card thumbnail comes from `sites.settings.thumbnail`. `CrmShell` takes an optional `className` for the dark theme.
+  - Note for Claude: `next dev` appends a Next.js block to CLAUDE.md; revert it (`git checkout CLAUDE.md`) before committing. Screenshots: global Playwright via `require(npm root -g + '/playwright')`.
+- **Next: step 3**, the page editor: open Home from the Pages list, edit text and links, Save draft → Publish (copies draft to published, saves a row in `versions`, revalidates the live page).
 
 ## First draft scope (agreed)
 
@@ -84,6 +86,6 @@ ClearMark only (Kreick shown as "coming"), Home page, Insert panel with the 4 co
 
 ## Decisions still open
 
-1. Studio's look: dark panels like Figma/Framer (recommended) or ClearMark colors.
+1. ~~Studio's look~~: decided Oct 6, dark panels.
 2. Where the 6 nav links go (About, Solutions, Platforms, Why, The Engine, Pricing). Editable in Studio, so not blocking.
 3. Which credibility logos: the 4 in the design (Alliance Canada, Ambrose, Clear mark, LaPalabra) or the repo's Harvard/MIT/Berkeley/Wharton.

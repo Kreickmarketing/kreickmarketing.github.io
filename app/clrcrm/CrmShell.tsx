@@ -2,6 +2,7 @@ import Image from "next/image";
 import { signOut } from "./actions";
 
 const tools = [
+  { key: "studio", label: "Studio", href: "/clrcrm/studio", external: false },
   { key: "crm", label: "CRM", href: "/clrcrm/crm", external: false },
   { key: "playbook", label: "Playbook", href: "/clrcrm", external: false },
   { key: "interview", label: "Interview app", href: "/clrcrm/interview", external: false },
@@ -12,9 +13,9 @@ export type CrmTool = (typeof tools)[number]["key"];
 // Top bar for every logged-in /clrcrm page: logo, and a menu (hamburger) with
 // the team tools, who is logged in, and Log out. Built on <details>, so it
 // opens and closes without any JavaScript.
-export default function CrmShell({ current, username, children }: { current: CrmTool; username: string; children: React.ReactNode }) {
+export default function CrmShell({ current, username, className, children }: { current: CrmTool; username: string; className?: string; children: React.ReactNode }) {
   return (
-    <div className="crm">
+    <div className={className ? `crm ${className}` : "crm"}>
       <header className="crm-bar">
         <a href="/clrcrm" aria-label="ClearMark team home">
           <Image src="/logo-white.png" alt="ClearMark" width={128} height={32} />
