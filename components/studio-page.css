@@ -1,0 +1,14 @@
+/* Sections of a Studio page (components/StudioPage.tsx). The components inside
+   size themselves; this only spaces the card grids on the 32px site grid. */
+.sp-section { scroll-margin-top: 32px; }
+.sp-cards {
+  list-style: none;
+  margin: 0 auto;
+  padding: 32px var(--gutter) 64px;
+  max-width: var(--max-width);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+}
+.sp-cards > li { flex: 1 1 320px; display: flex; justify-content: center; }

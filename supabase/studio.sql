@@ -287,3 +287,49 @@ select s.id, '/', 'Home', 'ClearMark turns your AI investment into a visible, pr
       'collection', 'products', 'items', jsonb_build_array('cpo-cio-leadership-track'), 'width', 640))))
 from public.sites s where s.slug = 'clearmark'
 on conflict (site_id, slug) do nothing;
+
+-- ─── Publish (Studio step 3) ──────────────────────────────────────────────────
+-- One call does it all, so a Publish can't half-happen: copies the draft to
+-- published, saves a version, and publishes the CMS items the page's cards show.
+-- Runs as the caller, so RLS still applies.
+
+create or replace function public.publish_page(p_page uuid, p_summary text default null)
+returns timestamptz
+language plpgsql security invoker set search_path = '' as $$
+declare
+  v_draft jsonb;
+  v_site uuid;
+  v_now timestamptz := now();
+begin
+  if not public.is_crm_member() then
+    raise exception 'Only CRM members can publish';
+  end if;
+
+  update public.pages
+     set published = draft, published_at = v_now
+   where id = p_page
+  returning draft, site_id into v_draft, v_site;
+  if v_draft is null then
+    raise exception 'Page not found';
+  end if;
+
+  insert into public.versions (page_id, published, published_at, published_by, summary)
+  values (p_page, v_draft, v_now, (select auth.uid()), nullif(left(trim(p_summary), 300), ''));
+
+  -- Cards on the page must be readable by visitors, so publish the items they show.
+  update public.items i
+     set status = 'published'
+    from public.collections c,
+         jsonb_path_query(v_draft, '$.sections[*].cards') as g
+   where c.site_id = v_site
+     and c.slug = g->>'collection'
+     and i.collection_id = c.id
+     and i.status <> 'published'
+     and (g->'items') ? i.slug;
+
+  return v_now;
+end;
+$$;
+
+revoke execute on function public.publish_page(uuid, text) from public, anon;
+grant execute on function public.publish_page(uuid, text) to authenticated;

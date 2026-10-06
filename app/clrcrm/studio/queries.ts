@@ -1,5 +1,6 @@
 import { getServerSupabase } from "@/lib/supabase-server";
 import type { PageContent, SiteSettings } from "@/lib/studio";
+import { loadCards } from "@/lib/studio-cards";
 
 // Studio reads as the logged-in CRM member, so Row Level Security lets it see
 // drafts as well as published pages.
@@ -73,4 +74,20 @@ export function pageStatus(p: PageRow) {
 
 export function shortDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" });
+}
+
+// One page with its site, for the editor and its preview.
+export async function getPageForEditing(pageId: string) {
+  if (!/^[0-9a-f-]{36}$/.test(pageId)) return null;
+  const supabase = await getServerSupabase();
+  const { data, error } = await supabase
+    .from("pages")
+    .select("id, slug, title, draft, published, published_at, updated_at, sites(id, slug, name, domain, status, settings)")
+    .eq("id", pageId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  const { sites, ...page } = data as unknown as PageRow & { sites: Omit<SiteRow, "pages" | "updated_at"> };
+  const cards = await loadCards(supabase, sites.id, page.draft);
+  return { page, site: sites, cards };
 }

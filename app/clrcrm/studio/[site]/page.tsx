@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getSite, pageStatus, shortDate } from "../queries";
 
 // One site: its pages, plus the CMS collections its cards pull from.
-// Opening a page in the editor arrives in Studio step 3.
 export default async function SitePages({ params }: { params: Promise<{ site: string }> }) {
   const { site: slug } = await params;
   const data = await getSite(slug);
@@ -40,17 +39,17 @@ export default async function SitePages({ params }: { params: Promise<{ site: st
               return (
                 <li key={p.id}>
                   <div className="studio-row-main">
-                    <span className="studio-row-title">{p.title}</span>
+                    <Link href={`/clrcrm/studio/${site.slug}/${p.id}`} className="studio-row-title">{p.title}</Link>
                     <span className="studio-code">{p.slug}</span>
                   </div>
                   <span className="studio-meta">{sections} {sections === 1 ? "section" : "sections"} · Edited {shortDate(p.updated_at)}</span>
                   <span className={`studio-pill studio-pill-${status.key}`}>{status.label}</span>
+                  <Link href={`/clrcrm/studio/${site.slug}/${p.id}`} className="studio-open" aria-label={`Edit ${p.title}`}>Edit →</Link>
                 </li>
               );
             })}
           </ul>
         )}
-        <p className="studio-hint">Editing a page comes next (Studio step 3).</p>
       </section>
 
       <section className="studio-panel" aria-labelledby="cms-title">

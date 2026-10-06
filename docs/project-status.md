@@ -1,9 +1,9 @@
-# Project status (updated Oct 6, 2026, after Studio step 2)
+# Project status (updated Oct 6, 2026, after Studio step 3)
 
 ## Live
-- ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer.
+- ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
 - Design system: /design-system (colors, type, buttons, nav, footer, components, grid, content fields, 13 cards).
-- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio (Studio: My Sites and page list, dark theme), /clrcrm/crm (CRM: 6 leads, 11 products in Supabase), /clrcrm/interview (interview drill).
+- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio (Studio: My Sites, page list, page editor with Save draft and Publish), /clrcrm/crm (CRM: 6 leads, 11 products in Supabase), /clrcrm/interview (interview drill).
 - Kreick Marketing site (separate repo kreickmarketing-site): https://kreickmarketing.vercel.app (Gigs, 6 case studies, AI Explorations).
 
 ## Where things live in this repo
@@ -21,7 +21,8 @@
 ## Next moves
 1. Swap the real images from uploads/ and assets/ into Hero, Credibility and Platforms.
 2. Andrew: add NEXT_PUBLIC_CALENDLY_URL = https://calendly.com/andrew-clearmark/15min in Vercel.
-3. Studio step 3: the page editor (steps 1–2 done Oct 5–6; see docs/studio-plan.md).
+3. Andrew: open Studio → ClearMark → Home → Edit, check the preview, then Publish. The first Publish replaces the old hand-built homepage.
+4. Studio step 4: Insert panel and moving sections (steps 1–3 done Oct 5–6; see docs/studio-plan.md).
 
 ## Rules to remember
 - Never name Chevrolet or MediaMonks on ClearMark. Kreick site must not link to ClearMark.

@@ -63,7 +63,7 @@ CT100, CT200, CT300 (titles) · CS Content Short ≤144 words · CL Content Long
 
 1. ✅ Sites, pages, sections, CMS collections in Supabase; ClearMark Home first. (Done Oct 5: `supabase/studio.sql`, page shape in `lib/studio.ts`.)
 2. ✅ My Sites and Pages screens. (Done Oct 6: `app/clrcrm/studio/`.)
-3. Page editor: edit text and links; Save draft → Publish.
+3. ✅ Page editor: edit text and links; Save draft → Publish. (Done Oct 6.)
 4. Insert panel + move sections, components and cards.
 5. CMS screens (Products, Portfolio) with "Also on" notice.
 6. Change component type.
@@ -78,7 +78,10 @@ Then: connect the Kreick site (separate Vercel project; needs the Supabase URL a
   - The CMS `items` are separate from the CRM `products` table (that one is for sales: prices, Stripe IDs). Linking them can come later.
 - **Oct 6, 2026: step 2 done.** Decision: Studio uses **dark panels** (Midnight/Charcoal, like Figma and Framer). New "Studio" item in the team menu. `/clrcrm/studio` = My Sites (a card per site; ClearMark opens, Kreick shows "Coming"). `/clrcrm/studio/clearmark` = the site: Pages list (status Draft / Published / Unpublished changes, section count) and its CMS collections with item counts; CMS, Settings and Versions tabs say "soon". Card thumbnail comes from `sites.settings.thumbnail`. `CrmShell` takes an optional `className` for the dark theme.
   - Note for Claude: `next dev` appends a Next.js block to CLAUDE.md; revert it (`git checkout CLAUDE.md`) before committing. Screenshots: global Playwright via `require(npm root -g + '/playwright')`.
-- **Next: step 3**, the page editor: open Home from the Pages list, edit text and links, Save draft → Publish (copies draft to published, saves a row in `versions`, revalidates the live page).
+- **Oct 6, 2026: step 3 done.** Page editor at `/clrcrm/studio/<site>/<page id>` (open from "Edit →" on the Pages list). Left: fields for every text and link, built from the component's content (labels and reading order in `PageEditor.tsx`). Right: live preview in a frame (`/clrcrm/preview/<page id>`, kept outside the Studio styles), Desktop (1280px, shrunk to fit) or Phone (390px). Phones: Edit / Preview switch. Save draft → `saveDraft`; Publish → `publishPage` → database function `publish_page` (copies draft live, saves a `versions` row with the optional "What changed?" note, publishes the CMS items its cards show), then refreshes the live page. Every save is checked by `lib/studio-validate.ts` (known component types, card widths, safe links only, images must be files in public/).
+  - Live site: `app/page.tsx` shows the published Studio Home (plus the mailing-list form and footer) once Home has been published; until then it shows the old hand-built homepage. Shared renderer: `components/StudioPage.tsx`; visitor-side loading: `lib/studio-public.ts`, `lib/studio-cards.ts`.
+  - Not yet: images (step 7), adding/removing/reordering sections (step 4), the Kreick site.
+- **Next: step 4**, the Insert panel (drag components and cards onto the page) and moving sections, components and cards up and down.
 
 ## First draft scope (agreed)
 
