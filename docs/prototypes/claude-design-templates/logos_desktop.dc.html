@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logo row · desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700&amp;family=Courier+Prime:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2D6AA5}a:hover{color:#294079}
+</style>
+</helmet>
+<section data-template="logos" style="width: 1280px; height: 160px; box-sizing: border-box; padding: 48px 64px; background: #2C3139; color: #FFFFFF; font-family: 'Saira', sans-serif; display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-content: center; align-items: center">
+<p data-spot="label" style="margin: 0; font-size: 16px; line-height: 16px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase">Make it visible.</p>
+<div data-spot="logos" style="display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-end">
+<img src="/_blob/8276061cbc52697b7d10d1be376e779c" alt="Airtable" style="height: 44px; width: auto; max-width: 100%; object-fit: contain; object-position: left center">
+<img src="/_blob/355a4a2a558ac0e57bf29f52277cbf69" alt="Copilot" style="height: 44px; width: auto; max-width: 100%; object-fit: contain; object-position: left center">
+<img src="/_blob/3f323baadc5aa9e33a91992e95607611" alt="ServiceNow" style="height: 44px; width: auto; max-width: 100%; object-fit: contain; object-position: left center">
+<img src="/_blob/6932e2f70d0b2755c2f46734b7b83a1e" alt="Gemini" style="height: 44px; width: auto; max-width: 100%; object-fit: contain; object-position: left center">
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":160}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

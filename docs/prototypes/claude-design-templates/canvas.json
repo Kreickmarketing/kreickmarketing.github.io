@@ -1,139 +1,159 @@
 {
-  "v": 3,
   "attachments": {},
   "boards": {
     "Main.dc.html": {
       "h": 720,
-      "title": "Templates · index",
+      "title": "Templates \u00b7 index",
       "w": 1280,
       "x": 0,
       "y": 0
     },
     "heading_desktop.dc.html": {
       "h": 360,
-      "title": "heading · desktop 1280",
+      "title": "heading \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 2240
+      "y": 2800
     },
     "heading_phone.dc.html": {
       "h": 400,
-      "title": "heading · phone 390",
+      "title": "heading \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 2240
+      "y": 2800
     },
     "heading_tablet.dc.html": {
       "h": 360,
-      "title": "heading · tablet 768",
+      "title": "heading \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 2240
+      "y": 2800
     },
     "hero_desktop.dc.html": {
       "h": 760,
-      "title": "hero · desktop 1280",
+      "title": "hero \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
       "y": 1100
     },
     "hero_phone.dc.html": {
       "h": 720,
-      "title": "hero · phone 390",
+      "title": "hero \u00b7 phone 390",
       "w": 390,
       "x": 2208,
       "y": 1100
     },
     "hero_tablet.dc.html": {
       "h": 720,
-      "title": "hero · tablet 768",
+      "title": "hero \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
       "y": 1100
     },
-    "mailing_desktop.dc.html": {
-      "h": 440,
-      "title": "mailing · desktop 1280",
+    "logos_desktop.dc.html": {
+      "h": 160,
+      "title": "logos \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 8160
+      "y": 2240
+    },
+    "logos_phone.dc.html": {
+      "h": 280,
+      "title": "logos \u00b7 phone 390",
+      "w": 390,
+      "x": 2208,
+      "y": 2240
+    },
+    "logos_tablet.dc.html": {
+      "h": 200,
+      "title": "logos \u00b7 tablet 768",
+      "w": 768,
+      "x": 1360,
+      "y": 2240
+    },
+    "mailing_desktop.dc.html": {
+      "h": 440,
+      "title": "mailing \u00b7 desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 8720
     },
     "mailing_phone.dc.html": {
       "h": 700,
-      "title": "mailing · phone 390",
+      "title": "mailing \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 8160
+      "y": 8720
     },
     "mailing_tablet.dc.html": {
       "h": 640,
-      "title": "mailing · tablet 768",
+      "title": "mailing \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 8160
+      "y": 8720
     },
     "offers_desktop.dc.html": {
       "h": 720,
-      "title": "offers · desktop 1280",
+      "title": "offers \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 6080
+      "y": 6640
     },
     "offers_phone.dc.html": {
       "h": 1700,
-      "title": "offers · phone 390",
+      "title": "offers \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 6080
+      "y": 6640
     },
     "offers_tablet.dc.html": {
       "h": 1180,
-      "title": "offers · tablet 768",
+      "title": "offers \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 6080
+      "y": 6640
     },
     "photo-points_desktop.dc.html": {
       "h": 780,
-      "title": "photo-points · desktop 1280",
+      "title": "photo-points \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 2980
+      "y": 3540
     },
     "photo-points_phone.dc.html": {
       "h": 1260,
-      "title": "photo-points · phone 390",
+      "title": "photo-points \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 2980
+      "y": 3540
     },
     "photo-points_tablet.dc.html": {
       "h": 1180,
-      "title": "photo-points · tablet 768",
+      "title": "photo-points \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 2980
+      "y": 3540
     },
     "photo-tags_desktop.dc.html": {
       "h": 760,
-      "title": "photo-tags · desktop 1280",
+      "title": "photo-tags \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 4620
+      "y": 5180
     },
     "photo-tags_phone.dc.html": {
       "h": 1080,
-      "title": "photo-tags · phone 390",
+      "title": "photo-tags \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 4620
+      "y": 5180
     },
     "photo-tags_tablet.dc.html": {
       "h": 860,
-      "title": "photo-tags · tablet 768",
+      "title": "photo-tags \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 4620
+      "y": 5180
     }
   },
   "createdOnFiles": {
@@ -149,7 +169,7 @@
       "fill": "orange",
       "maxH": 720,
       "size": 24,
-      "text": "How this canvas works\n\n1. One row per Studio template, at Desktop 1280 · Tablet 768 · Phone 390.\n\n2. Change anything. Keep the board names and the spot names (shown in each element's data-spot) so Claude can match your changes back to Studio.\n\n3. Colors and type: use the ClearMark values. Anything off-system is snapped to the nearest ClearMark color, text style or 32px step on the way back, and listed for you.\n\n4. When a template is done: leave a comment on its row starting with READY, e.g. \"READY hero\", and send it to Claude.\n\n5. Claude brings it into Studio. You check it in Design view, then Publish.",
+      "text": "How this canvas works\n\n1. One row per Studio template, at Desktop 1280 \u00b7 Tablet 768 \u00b7 Phone 390.\n\n2. Change anything. Keep the board names and the spot names (shown in each element's data-spot) so Claude can match your changes back to Studio.\n\n3. Colors and type: use the ClearMark values. Anything off-system is snapped to the nearest ClearMark color, text style or 32px step on the way back, and listed for you.\n\n4. When a template is done: leave a comment on its row starting with READY, e.g. \"READY hero\", and send it to Claude.\n\n5. Claude brings it into Studio. You check it in Design view, then Publish.",
       "w": 420,
       "x": 1360,
       "y": 0
@@ -160,7 +180,7 @@
       "text": "Heading",
       "w": 240,
       "x": 0,
-      "y": 1980
+      "y": 2540
     },
     "t-hero": {
       "kind": "title1",
@@ -170,13 +190,21 @@
       "x": 0,
       "y": 840
     },
+    "t-logos": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Logo row",
+      "w": 240,
+      "x": 0,
+      "y": 1980
+    },
     "t-mailing": {
       "kind": "title1",
       "maxW": 2598,
       "text": "Mailing list",
       "w": 240,
       "x": 0,
-      "y": 7900
+      "y": 8460
     },
     "t-offers": {
       "kind": "title1",
@@ -184,7 +212,7 @@
       "text": "Offer cards",
       "w": 240,
       "x": 0,
-      "y": 5820
+      "y": 6380
     },
     "t-photo-points": {
       "kind": "title1",
@@ -192,7 +220,7 @@
       "text": "Photo + points",
       "w": 240,
       "x": 0,
-      "y": 2720
+      "y": 3280
     },
     "t-photo-tags": {
       "kind": "title1",
@@ -200,7 +228,7 @@
       "text": "Photo background + tags",
       "w": 240,
       "x": 0,
-      "y": 4360
+      "y": 4920
     }
   },
   "order": [
@@ -208,6 +236,9 @@
     "hero_desktop.dc.html",
     "hero_tablet.dc.html",
     "hero_phone.dc.html",
+    "logos_desktop.dc.html",
+    "logos_tablet.dc.html",
+    "logos_phone.dc.html",
     "heading_desktop.dc.html",
     "heading_tablet.dc.html",
     "heading_phone.dc.html",
@@ -225,5 +256,6 @@
     "mailing_phone.dc.html"
   ],
   "pages": [],
-  "title": "ClearMark Studio Templates"
+  "title": "ClearMark Studio Templates",
+  "v": 3
 }
