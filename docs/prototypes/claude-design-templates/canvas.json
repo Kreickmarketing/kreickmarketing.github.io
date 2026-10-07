@@ -136,6 +136,7 @@
     },
     "nav_phone.dc.html": {
       "h": 72,
+      "is_interactive": true,
       "title": "nav \u00b7 phone 390",
       "w": 390,
       "x": 2208,
@@ -143,6 +144,7 @@
     },
     "nav_tablet.dc.html": {
       "h": 104,
+      "is_interactive": true,
       "title": "nav \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
@@ -246,7 +248,7 @@
     },
     "nav-note": {
       "fill": "orange",
-      "text": "Global nav: same on every page\n\nShown on its Midnight bar (pages that start without a photo). Over a photo (Home) the bar is see-through: see the Hero boards.\n\nPhone: logo and Book a call only.",
+      "text": "Global nav: same on every page\n\nShown on its Midnight bar (pages that start without a photo). Over a photo (Home) the bar is see-through: see the Hero boards.\n\nTablet and phone: logo and a menu button. Press Play on those boards and click it: the three lines turn into an X, and back.",
       "w": 380,
       "x": 2680,
       "y": 10220
