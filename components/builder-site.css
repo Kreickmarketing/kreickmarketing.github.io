@@ -22,7 +22,7 @@
 .site .bnav .pill-cta { border: 1.5px solid var(--white); border-radius: 999px; padding: 6px 18px; }
 .site .bnav .pill-cta:hover { text-decoration: none; background: rgba(255, 255, 255, 0.14); }
 .site .hero { min-height: 760px; color: var(--white); background: var(--midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
-.site .hero-bg { position: absolute; inset: 0; z-index: 0; }
+.site .hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .site .hero-bg img { width: 100%; height: 100%; object-fit: cover; }
 .site .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
 .site .hero-main { display: flex; flex-direction: column; gap: 32px; max-width: 760px; }
@@ -48,6 +48,8 @@
 .site .sh p.body { font-size: 20px; line-height: 1.45; color: var(--iron-pine); margin: 16px 0 0; max-width: 640px; }
 .site .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
 .site .split img.photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--clay); }
+/* Holds a zoomed photo inside its frame (Studio crop). */
+.site .crop-clip { display: block; overflow: hidden; border-radius: 18px; }
 .site .points { display: flex; flex-direction: column; gap: 24px; }
 .site .point { border-top: 1px solid var(--clay); padding-top: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
 .site .point b { font-size: 22px; letter-spacing: -0.5px; line-height: 1.1; }

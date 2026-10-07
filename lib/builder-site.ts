@@ -47,7 +47,7 @@ export type BuilderState = {
   pages?: Record<string, { uid: string; t: string; name?: string }[]>;
   slots?: Record<string, { placed?: unknown }>;
   flip?: Record<string, boolean>;
-  crop?: Record<string, { x?: unknown; y?: unknown }>;  // image focus points, % from top-left
+  crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown }>;  // image focus points (% from top-left) and zoom (1–3×)
   pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
 };
 
@@ -84,7 +84,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
   const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
   const bg = (key: string) => { const src = safeImage(P(key)); return `<div class="hero-bg">${src ? `<img data-slot=".${key}" src="${esc(src)}"${crop(key)} alt="">` : ""}</div>`; };
-  const photo = (key: string) => { const src = safeImage(P(key)); return src ? `<img class="photo" data-slot=".${key}" src="${esc(src)}"${crop(key)} alt="">` : "<div></div>"; };
+  const photo = (key: string) => { const src = safeImage(P(key)); return src ? `<div class="crop-clip"><img class="photo" data-slot=".${key}" src="${esc(src)}"${crop(key)} alt=""></div>` : "<div></div>"; };
   const points = (key: string) => { const v = rows(P(key)).filter(hasText); return v.length ? `<div class="points" data-slot=".${key}">${v.map((r) => `<div class="point"><b>${esc(str(r.title))}</b><p>${esc(str(r.proof))}</p></div>`).join("")}</div>` : ""; };
   const logos = (key: string, cls: string) => { const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean); return v.length ? `<div class="${cls}" data-slot=".${key}">${v.map((src) => `<img src="${esc(src)}" alt="">`).join("")}</div>` : ""; };
 
@@ -115,11 +115,14 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
   }
 }
 
-// Crop focus point → a style attribute. Only whole numbers 0–100 get through.
+// Crop focus point and zoom → a style attribute. Only numbers in range get through
+// (x, y: 0–100; zoom: 1–3).
 function cropStyle(c: unknown): string {
-  const o = c && typeof c === "object" ? (c as { x?: unknown; y?: unknown }) : null;
-  const ok = (n: unknown) => typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100;
-  return o && ok(o.x) && ok(o.y) ? ` style="object-position:${Math.round(o.x as number)}% ${Math.round(o.y as number)}%"` : "";
+  const o = c && typeof c === "object" ? (c as { x?: unknown; y?: unknown; z?: unknown }) : null;
+  const ok = (n: unknown, lo: number, hi: number) => typeof n === "number" && Number.isFinite(n) && n >= lo && n <= hi;
+  if (!o || !ok(o.x, 0, 100) || !ok(o.y, 0, 100)) return "";
+  const x = Math.round(o.x as number), y = Math.round(o.y as number), z = ok(o.z, 1, 3) ? Math.round((o.z as number) * 100) / 100 : 1;
+  return ` style="object-position:${x}% ${y}%${z > 1 ? `;transform:scale(${z});transform-origin:${x}% ${y}%` : ""}"`;
 }
 
 // ── A whole live page ──

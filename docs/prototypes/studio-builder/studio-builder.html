@@ -563,6 +563,10 @@ body.drag-image .bg-drop { display: flex; }
 body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0, 153, 206, 0.8); outline-offset: 2px; }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
 .crop-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
+.crop-hint { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 32, 38, 0.78); color: #fff; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; pointer-events: none; }
+.crop-hint b { font-family: var(--f-mono); }
+.crop-clip { display: block; overflow: hidden; border-radius: 18px; }
+.hero-bg { overflow: hidden; }
 .crop-dot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--accent), 0 2px 8px rgba(0,0,0,0.5); pointer-events: none; }
 .empty-state { border: 1.5px dashed var(--line); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--ink-2); }
 
@@ -904,10 +908,12 @@ const navChrome = () => `<nav class="site-nav"><img src="media/logo-white.png" a
 // Each template's drawing. `k(key)` is the full id of one of this section's spots.
 const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${id}:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("");
 // Crop: which part of a photo stays in view when it's cut to fit (a focus point; none = centre).
+// Zoom (z, 1–3×) scales the photo around that point; the photo sits in a clipping frame so it never spills out.
 const cropOf = (id) => { const c = S.crop?.[id]; return c && Number.isFinite(c.x) && Number.isFinite(c.y) ? c : null; };
-const cropCss = (id) => { const c = cropOf(id); return c ? `object-position:${c.x}% ${c.y}%` : ""; };
+const zoomOf = (c) => (c && Number.isFinite(c.z) ? Math.min(3, Math.max(1, c.z)) : 1);
+const cropCss = (id) => { const c = cropOf(id); if (!c) return ""; const z = zoomOf(c); return `object-position:${c.x}% ${c.y}%` + (z > 1 ? `;transform:scale(${z});transform-origin:${c.x}% ${c.y}%` : ""); };
 const cropAttr = (id) => cropCss(id) ? ` style="${cropCss(id)}"` : "";
-const photoBox = (sec, id, alt = "") => { const photo = P(id); return photo ? `<img ${filledAttr(id).replace('class="', 'class="photo ')}${cropAttr(id)} src="${esc(photo)}" alt="${esc(alt)}" data-photoflip="${sec.id}" draggable="false">` : slotBox(id, "photo").replace("<div ", `<div data-photoflip="${sec.id}" `); };
+const photoBox = (sec, id, alt = "") => { const photo = P(id); return photo ? `<div class="crop-clip"><img ${filledAttr(id).replace('class="', 'class="photo ')}${cropAttr(id)} src="${esc(photo)}" alt="${esc(alt)}" data-photoflip="${sec.id}" draggable="false"></div>` : slotBox(id, "photo").replace("<div ", `<div data-photoflip="${sec.id}" `); };
 const SECTION_HTML = {
   hero: (sec, k) => {
     const img = P(k("image")), q = P(k("quote")), st = P(k("stat")), btn = P(k("button"));
@@ -1001,9 +1007,9 @@ function cardBody(id) {
   } else if (sl.kind === "image") {
     const c = cropOf(id), bgShape = sl.key === "image";
     ed = v ? `<div class="field"><label>Crop · ${c ? "your focus point" : "auto (centre)"}</label>
-        <div class="crop-frame" data-crop="${id}" style="aspect-ratio:${bgShape ? "16 / 9" : "4 / 5"}"><img src="${esc(v)}" alt="" style="${cropCss(id)}" draggable="false"><span class="crop-dot" style="left:${c ? c.x : 50}%;top:${c ? c.y : 50}%"></span></div>
-        <p class="source">Click or drag on the photo to choose what stays in view at every screen size.</p>
-        <div><button type="button" class="btn btn-small" data-cropauto="${id}" ${c ? "" : "disabled"}>Auto (centre)</button></div></div>`
+        <div class="crop-frame" data-crop="${id}" style="${bgShape ? "aspect-ratio:16 / 9" : "aspect-ratio:4 / 5;width:auto;height:280px;margin-inline:auto"}"><img src="${esc(v)}" alt="" style="${cropCss(id)}" draggable="false"><span class="crop-dot" style="left:${c ? c.x : 50}%;top:${c ? c.y : 50}%"></span><span class="crop-hint">⇕ Mouse wheel to zoom · <b class="crop-z">${zoomOf(c).toFixed(1)}×</b></span></div>
+        <p class="source">Click or drag on the photo to choose what stays in view at every screen size. Scroll the mouse wheel over it to zoom in or out.</p>
+        <div class="card-actions"><button type="button" class="btn btn-small" data-zoom="${id}:-1" aria-label="Zoom out" ${zoomOf(c) <= 1 ? "disabled" : ""}>−</button><button type="button" class="btn btn-small" data-zoom="${id}:1" aria-label="Zoom in" ${zoomOf(c) >= 3 ? "disabled" : ""}>+</button><button type="button" class="btn btn-small" data-cropauto="${id}" ${c ? "" : "disabled"}>Auto (centre, no zoom)</button></div></div>`
       : `<div class="dropzone">Drop an image here, or on the preview.</div>`;
   } else if (sl.kind === "logos") {
     ed = `<div class="field"><label>Logos · ${v.length}/${sl.max}</label><div class="pick-grid">${v.map((s, i) => `<figure><img src="${esc(s)}" alt=""><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove logo ${i + 1}">×</button></figure>`).join("")}</div></div><div class="dropzone">Drop logos here, or tap them in Sources.</div>`;
@@ -1256,6 +1262,7 @@ document.addEventListener("click", (e) => {
   if (d.flip) { S.flip[d.flip] = !S.flip[d.flip]; render(); scrollToSection(d.flip); toast(S.flip[d.flip] ? "Photo on the right." : "Photo on the left."); return; }
   if (d.secmove) { const [id, dir] = d.secmove.split(":"); moveSectionBy(id, +dir); return; }
   if (d.revert) return revert(d.revert);
+  if (d.zoom) { const [id, dir] = d.zoom.split(":"); zoomBy(id, +dir * 0.25); return; }
   if (d.cropauto) { snap(d.cropauto); delete S.crop?.[d.cropauto]; render(); toast("Crop set back to auto (centre)."); return; }
   if (d.place || d.clear || d.addrow) snap(d.place || d.clear || d.addrow);
   if (d.del || d.move) snap((d.del || d.move).split(":")[0]);
@@ -1948,12 +1955,34 @@ function setCrop(e) {
   const r = cropping.el.getBoundingClientRect();
   const x = Math.round(Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100)));
   const y = Math.round(Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100)));
-  (S.crop ||= {})[cropping.id] = { x, y };
-  const pos = `${x}% ${y}%`;
-  cropping.el.querySelector("img").style.objectPosition = pos;
-  Object.assign(cropping.el.querySelector(".crop-dot").style, { left: x + "%", top: y + "%" });
-  document.querySelectorAll(`#site img[data-slot="${cropping.id}"]`).forEach((im) => (im.style.objectPosition = pos));
+  (S.crop ||= {})[cropping.id] = { x, y, z: zoomOf(cropOf(cropping.id)) };
+  applyCrop(cropping.id);
 }
+// Show the current crop on the Edit pane photo and in the preview, without redrawing everything.
+function applyCrop(id) {
+  const css = cropCss(id), c = cropOf(id), frame = document.querySelector(`[data-crop="${id}"]`);
+  const set = (im) => { im.style.objectPosition = ""; im.style.transform = ""; im.style.transformOrigin = ""; im.style.cssText += ";" + css; };
+  if (frame) {
+    set(frame.querySelector("img"));
+    Object.assign(frame.querySelector(".crop-dot").style, { left: (c ? c.x : 50) + "%", top: (c ? c.y : 50) + "%" });
+    frame.querySelector(".crop-z").textContent = zoomOf(c).toFixed(1) + "×";
+  }
+  document.querySelectorAll(`#site img[data-slot="${id}"]`).forEach(set);
+}
+// Zoom: mouse wheel over the photo (or the − + buttons). Each pause counts as one change for Revert.
+let zoomT = null, zoomSnapped = false;
+function zoomBy(id, dz) {
+  if (!zoomSnapped) { snap(id); zoomSnapped = true; }
+  const c = cropOf(id) || { x: 50, y: 50 };
+  (S.crop ||= {})[id] = { x: c.x, y: c.y, z: Math.round(Math.min(3, Math.max(1, zoomOf(c) + dz)) * 100) / 100 };
+  applyCrop(id);
+  clearTimeout(zoomT); zoomT = setTimeout(() => { zoomSnapped = false; save(); renderCards(); }, 600);
+}
+document.addEventListener("wheel", (e) => {
+  const el = e.target.closest?.("[data-crop]"); if (!el) return;
+  e.preventDefault();
+  zoomBy(el.dataset.crop, -e.deltaY * 0.0015);
+}, { passive: false });
 document.addEventListener("pointerdown", (e) => {
   const el = e.target.closest("[data-crop]"); if (!el || e.button > 0) return;
   e.preventDefault(); snap(el.dataset.crop); cropping = { id: el.dataset.crop, el }; el.setPointerCapture?.(e.pointerId); setCrop(e);
