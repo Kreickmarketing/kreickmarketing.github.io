@@ -1012,7 +1012,9 @@ function offersBlock(id, max) {
   for (let i = items.length; i < (v ? items.length : Math.min(max, 3)); i++) cells.push(slotBox(id, "offer-slot", "").replace(esc(SLOTS[id].label), `Offer card ${i + 1}`));
   return v ? `<div class="offer-grid ${filledAttr(id).match(/class="([^"]*)"/)[1]}" data-slot="${id}">${cells.join("")}</div>` : `<div class="offer-grid">${cells.join("")}</div>`;
 }
-const navChrome = () => `<nav class="site-nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li><li class="pill-cta">Book a call →</li></ul><button type="button" class="burger" aria-label="Open menu" aria-expanded="false" data-navmenu><span></span><span></span><span></span></button><div class="nav-menu"><div class="nav-menu-inner"><ol><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li></ol><span class="nav-menu-cta">Book a call →</span></div></div></nav>`;
+// The menu control is a <span role="button">, not a <button>: Pages-panel thumbnails are
+// buttons that contain this nav, and a button inside a button breaks the HTML.
+const navChrome = () => `<nav class="site-nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li><li class="pill-cta">Book a call →</li></ul><span class="burger" role="button" tabindex="0" aria-label="Open menu" aria-expanded="false" data-navmenu><span></span><span></span><span></span></span><div class="nav-menu"><div class="nav-menu-inner"><ol><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li></ol><span class="nav-menu-cta">Book a call →</span></div></div></nav>`;
 
 // Each template's drawing. `k(key)` is the full id of one of this section's spots.
 const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${id}:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("");
@@ -1616,6 +1618,7 @@ document.addEventListener("click", (e) => {
   const nav = b.closest(".site-nav"), open = !nav.classList.contains("is-open");
   nav.classList.toggle("is-open", open); b.setAttribute("aria-expanded", open); b.setAttribute("aria-label", open ? "Close menu" : "Open menu");
 }, true);
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.closest?.("#site [data-navmenu]")) { e.preventDefault(); e.target.click(); } });
 
 // Drag and drop from Sources onto a card (draft) or a dotted box (placed).
 let dragging = null;
