@@ -417,14 +417,9 @@ html[data-docked="false"] .side { box-shadow: 12px 0 32px rgba(0, 0, 0, 0.45); }
 .side .hint { padding: 0 8px; }
 .side .btn-wide { width: 100%; }
 
-/* Modules: coloured categories, thumbnails fly out beside the panel */
+/* Modules: coloured groups (Pages panel → Modules) */
 .mod-ico { flex: none; width: 40px; height: 40px; border-radius: 9px; display: grid; place-items: center; color: #fff; }
 .mod-ico svg { width: 22px; height: 22px; color: #fff; }
-.fly { position: fixed; top: 0; bottom: 0; left: calc(var(--rail-w) + var(--side-w)); width: 320px; z-index: 34; background: var(--ground); border-right: 1px solid var(--line); box-shadow: 12px 0 32px rgba(0, 0, 0, 0.4); overflow: auto; padding: 16px 12px; display: flex; flex-direction: column; gap: 10px; }
-.fly[hidden] { display: none; }
-.fly .tpl { grid-template-columns: 112px minmax(0, 1fr); gap: 8px 12px; }
-.fly .tpl-thumb { width: 112px; height: 68px; background: var(--panel-2); border-radius: 6px; }
-.fly .tpl .btn { grid-column: 2; justify-self: start; }
 
 /* Popovers: logo menu and sidebar control */
 .pop { position: fixed; z-index: 55; min-width: 240px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5); padding: 6px; display: flex; flex-direction: column; }
@@ -563,6 +558,15 @@ body.drag-image .bg-drop { display: flex; }
 body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0, 153, 206, 0.8); outline-offset: 2px; }
 .link-ed .seg { align-self: flex-start; }
 .link-ed .input + .input { margin-top: 6px; }
+.mod-ico-sm { width: 24px; height: 24px; border-radius: 6px; }
+.mod-ico-sm svg { width: 15px; height: 15px; }
+.mod-item { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; cursor: grab; touch-action: none; user-select: none; }
+.mod-item:hover { background: var(--panel); border-color: var(--line); }
+.mod-item .tpl-thumb { width: 56px; height: 34px; flex: none; }
+.mod-item .grow { display: flex; flex-direction: column; min-width: 0; }
+.mod-item .grow b { font-size: 13px; font-weight: 600; }
+.mod-item .grow span { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mod-item .btn { flex: none; }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
 .crop-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
 .crop-hint { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 32, 38, 0.78); color: #fff; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; pointer-events: none; }
@@ -582,7 +586,6 @@ body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0,
   .rail-btn { width: auto; flex: 1; }
   .side { top: 15vh; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; width: auto; border-right: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5); }
   .side-close { display: inline-flex; }
-  .fly { top: 15vh; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; width: auto; border-radius: 16px 16px 0 0; z-index: 37; }
   .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
 }
 </style>
@@ -590,7 +593,6 @@ body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0,
 <nav class="rail" id="rail" aria-label="Studio">
   <button type="button" class="rail-logo" id="rail-logo" aria-haspopup="menu" aria-expanded="false" aria-label="Sites and dashboard" title="Sites and dashboard">AI</button>
   <button type="button" class="rail-btn" data-rail="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>Pages</button>
-  <button type="button" class="rail-btn" data-rail="modules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><path d="M17 13v8M13 17h8" stroke-linecap="round"/></svg>Modules</button>
   <button type="button" class="rail-btn" data-rail="cms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>CMS</button>
   <button type="button" class="rail-btn" data-rail="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5l2 2.6 3.2-.6.9 3.1 3 1.3-1.2 3 1.2 3-3 1.3-.9 3.1-3.2-.6-2 2.6-2-2.6-3.2.6-.9-3.1-3-1.3 1.2-3-1.2-3 3-1.3.9-3.1 3.2.6z"/></svg>Settings</button>
   <span class="rail-spacer"></span>
@@ -598,7 +600,6 @@ body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0,
 </nav>
 <aside class="side" id="side" aria-label="Panel" hidden></aside>
 <div class="side-resize" id="side-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel" title="Drag to resize. Drag far left to close." hidden></div>
-<div class="fly" id="fly" hidden></div>
 <div class="pop" id="logo-menu" role="menu" hidden></div>
 <div class="pop" id="sidebar-menu" role="menu" hidden>
   <div class="side-label">Sidebar control</div><hr>
@@ -964,7 +965,7 @@ function pageHtml(page, live = true) {
   const secs = page.sections;
   // The nav is part of the design: over the photo when the page starts with one, otherwise a dark bar.
   const nav = navChrome().replace('class="site-nav"', `class="site-nav${secs[0] && PHOTO_TOP.includes(secs[0].type) ? "" : " nav-bar"}"`);
-  const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections yet. Open Modules in the side nav to add one.</div></div>` : "";
+  const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections yet. Add one from Modules in the left panel.</div></div>` : "";
   return nav + empty + secs.map((sec) => {
     const k = (key) => `${sec.id}.${key}`;
     const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
@@ -1198,6 +1199,16 @@ function sourceItems(id) {
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
   return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0"><img src="${esc(o.image)}" alt=""><span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
+const modulesInner = () => {
+  const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
+  const where = after ? `Adds after ${after.name}` : "Adds at the end of the page";
+  return `<div class="side-label" data-blockdrag="modules"><span><span class="lay-grip" aria-hidden="true">⠿</span> Modules</span></div>${modCats().map((c) => {
+    const open = UI.mods.has(c.id);
+    return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-modgroup="${c.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}<span class="mod-ico mod-ico-sm" style="background:${c.color}">${svg(MOD_ICON[c.id])}</span><span class="grow">${esc(c.name)}</span><span class="sub">${c.tpls.length}</span></button>
+      ${open ? `<div class="src-body">${c.tpls.map((id) => TPL[id]).map((t) => `<div class="mod-item" data-tpldrag="${t.id}" title="Drag onto the page">${tplThumb(t.type)}<span class="grow"><b>${esc(t.name)}</b><span>${esc(t.about)}</span></span><button type="button" class="btn btn-small btn-outline" data-addtpl="${t.id}" title="${esc(where)}">+ Add</button></div>`).join("")}</div>` : ""}</div>`;
+  }).join("")}`;
+};
+function renderModules() { const box = document.getElementById("side-modules"); if (box) box.innerHTML = modulesInner(); }
 const sourcesInner = () => `<div class="side-label" data-blockdrag="sources"><span><span class="lay-grip" aria-hidden="true">⠿</span> Sources</span></div>${SRC_GROUPS.map((g) => {
   const open = UI.src.has(g.id);
   return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-srcgroup="${g.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}${svg(g.icon, "lay-ico")}<span class="grow">${g.name}</span><span class="sub">${g.count()}</span></button>
@@ -1599,11 +1610,16 @@ document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.t
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "sources"], w: 280 };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "modules", "sources"], mods: new Set(), w: 280 };
 try {
   const u = JSON.parse(localStorage.getItem(UI_KEY));
   if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k];
-  if (Array.isArray(u?.blocks) && u.blocks.length === 3 && ["pages", "layers", "sources"].every((b) => u.blocks.includes(b))) UI.blocks = u.blocks;
+  if (Array.isArray(u?.blocks)) {
+    const all = ["pages", "layers", "modules", "sources"], kept = [...new Set(u.blocks.filter((b) => all.includes(b)))];
+    for (const b of all) if (!kept.includes(b)) kept.splice(b === "modules" && kept.includes("sources") ? kept.indexOf("sources") : kept.length, 0, b);
+    UI.blocks = kept;
+  }
+  if (UI.rail === "modules") UI.rail = "pages";
   if (typeof u?.w === "number") UI.w = Math.min(520, Math.max(220, u.w));
 } catch {}
 document.documentElement.style.setProperty("--side-w", UI.w + "px");
@@ -1649,7 +1665,6 @@ function applyNav() {
   document.querySelectorAll("[data-rail]").forEach((b) => b.setAttribute("aria-current", b.dataset.rail === UI.rail));
   $("#side").hidden = !UI.open;
   $("#side-resize").hidden = !UI.open || isPhone();
-  $("#fly").hidden = !(UI.open && UI.rail === "modules" && UI.cat);
   document.querySelectorAll("[data-sidebar]").forEach((b) => { b.setAttribute("aria-checked", b.dataset.sidebar === UI.sidebar); b.innerHTML = `<span class="dot${b.dataset.sidebar === UI.sidebar ? " placed" : ""}" style="${b.dataset.sidebar === UI.sidebar ? "" : "visibility:hidden"}"></span>${{ expanded: "Expanded", collapsed: "Collapsed", hover: "Expand on hover" }[b.dataset.sidebar]}`; });
   renderSide();
   if (NAV_VIEW === "cms") renderCms();
@@ -1669,18 +1684,12 @@ function renderSide() {
         return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span><span class="dot ${pageIsLive(p) ? "placed" : "draft"}" title="${pageIsLive(p) ? "Live" : "Work in progress"}"></span></button>`;
       }).join("")}</div>`,
       layers: `<div class="side-sec layers" data-block="layers"><div class="side-label" data-blockdrag="layers"><span><span class="lay-grip" aria-hidden="true">⠿</span> Layers · ${esc(page.name)}</span></div>${page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")}
-        <button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`,
+        <button type="button" class="side-row" data-mods-focus>${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`,
+      modules: `<div class="side-sec sources-sec" data-block="modules" id="side-modules">${modulesInner()}</div>`,
       sources: `<div class="side-sec sources-sec" data-block="sources" id="side-sources">${sourcesInner()}</div>`,
     };
     el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>${pubActions(curPage())}</div>`
       + UI.blocks.map((b) => blocks[b]).join("");
-  } else if (UI.rail === "modules") {
-    const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
-    el.innerHTML = `<div class="side-head"><h2>Modules ${closeX}</h2><p>Pick a group, then <b>+ Add</b> or drag a module onto the page. It goes ${after ? `after <b>${esc(after.name)}</b>` : "at the end"} on <b>${esc(pageView(S.page).name)}</b>.</p></div>
-      <div class="side-sec">${modCats().map((c) => `<button type="button" class="side-row" data-modcat="${c.id}" aria-current="${UI.cat === c.id}"><span class="mod-ico" style="background:${c.color}">${svg(MOD_ICON[c.id])}</span><span class="grow">${esc(c.name)}</span><span class="sub">${c.tpls.length}</span>${svg('<path d="m9 6 6 6-6 6"/>')}</button>`).join("")}</div>`;
-    const cat = modCats().find((c) => c.id === UI.cat);
-    $("#fly").innerHTML = cat ? `<div class="side-label" style="padding-inline:4px">${esc(cat.name)} <button type="button" class="x" data-modcat="" aria-label="Close">×</button></div>
-      ${cat.tpls.map((id) => TPL[id]).map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">${tplThumb(t.type)}<div class="tpl-text"><b>${esc(t.name)}</b><span>${esc(t.about)}</span></div><button type="button" class="btn btn-small btn-primary" data-addtpl="${t.id}">+ Add</button></div>`).join("")}` : "";
   } else if (UI.rail === "cms") {
     el.innerHTML = `<div class="side-head"><h2>CMS ${closeX}</h2><p>Databases. Cards on your pages pull from these, so an edit shows everywhere the card is used.</p></div>
       <div class="side-sec"><div class="side-label">Databases</div>
@@ -1888,13 +1897,17 @@ document.addEventListener("click", (e) => {
   if (d.addpage != null) return addPage();
   if (d.delpage) return deletePage(d.delpage);
   if (d.rail) return railGo(d.rail, false);
-  if (d.railOpen) { UI.rail = d.railOpen; UI.open = true; UI.cat = null; NAV_VIEW = "editor"; saveUI(); applyNav(); return; }
+  // "Add a section": open the Modules block in the Pages panel and bring it into view.
+  if (d.modsFocus != null) {
+    UI.rail = "pages"; UI.open = true; NAV_VIEW = "editor"; if (!UI.mods.size) UI.mods.add("heroes");
+    saveUI(); applyNav(); document.querySelector('#side [data-block="modules"]')?.scrollIntoView({ behavior: "smooth", block: "start" }); return;
+  }
   if (d.navClose != null) { UI.open = false; UI.cat = null; applyNav(); return; }
   if (d.navBack != null) { NAV_VIEW = "editor"; if (UI.rail === "cms" || UI.rail === "settings") UI.rail = "pages"; saveUI(); applyNav(); return; }
   if (d.pub != null) return publishPage();
   if (d.savework != null) return saveWork();
   if (d.unpub != null) return unpublishPage();
-  if (d.modcat != null) { UI.cat = UI.cat === d.modcat || !d.modcat ? null : d.modcat; applyNav(); return; }
+  if (d.modgroup) { UI.mods.has(d.modgroup) ? UI.mods.delete(d.modgroup) : UI.mods.add(d.modgroup); renderModules(); return; }
   if (d.cmsdb) { UI.cms = d.cmsdb; NAV_VIEW = "cms"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
   if (d.setnav) { UI.set = d.setnav; NAV_VIEW = "settings"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
   if (d.navsec) {
@@ -1905,7 +1918,7 @@ document.addEventListener("click", (e) => {
     NAV_VIEW = "editor"; render(); applyNav(); if (curSec) scrollToSection(sec.id); return;
   }
   if (d.page && t.closest("#side")) { NAV_VIEW = "editor"; applyNav(); closeIfFloating(); return; }
-  if (d.addtpl && t.closest("#fly")) { if (isPhone()) setTab("preview"); closeIfFloating(); return; }
+  if (d.addtpl && !t.isConnected) { if (isPhone()) setTab("preview"); closeIfFloating(); return; }
 });
 // Clicking outside closes popovers, and a floating panel.
 document.addEventListener("pointerdown", (e) => {
