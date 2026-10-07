@@ -331,8 +331,33 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .mail-thanks::before { content: "After sign-up: "; color: var(--cm-taupe); }
 .fake-form div { border: 1px solid var(--cm-clay); border-radius: 8px; padding: 14px 16px; color: var(--cm-taupe); }
 
-.site-footer { background: var(--cm-midnight); color: #fff; padding: 48px 64px; display: flex; justify-content: space-between; align-items: center; gap: 32px; }
-.site-footer img { height: 34px; }
+.site-footer { background: var(--cm-charcoal); color: #fff; padding: 64px; display: flex; flex-direction: column; gap: 64px; font-size: 20px; line-height: 24px; letter-spacing: -1px; }
+.site-footer img { width: 136px; height: auto; display: block; }
+.site-footer p { margin: 0; }
+.foot-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
+.foot-col { display: flex; flex-direction: column; gap: 16px; }
+.foot-col .u { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.foot-legal { display: grid; grid-template-columns: minmax(max-content, 2fr) 1fr 1fr auto; align-items: center; gap: 32px; padding-top: 64px; border-top: 1px solid #fff; }
+.foot-top-link { width: 32px; height: 32px; display: grid; place-items: center; }
+.foot-top-link svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+#site [data-chrome] { cursor: pointer; }
+#site.guides [data-chrome]:hover { outline: 2px dashed var(--cm-azure); outline-offset: -2px; }
+#site [data-chrome].is-current { outline: 3px solid var(--cm-azure); outline-offset: -3px; }
+/* Global nav / Footer editor */
+.lay-pinned .lay-head { cursor: pointer; }
+.lay-pinned .chip { font-size: 10px; padding: 1px 6px; }
+.chrome-ed { display: flex; flex-direction: column; gap: 14px; }
+.chrome-ed h3 { margin: 0; font-size: 15px; }
+.chrome-ed .note { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
+.chrome-ed .row-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.clink { border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: var(--panel-2); }
+.clink-head { display: flex; gap: 6px; align-items: center; }
+.clink-head .input { flex: 1; }
+.clink .field { margin: 0; }
+.chrome-ed .source { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-3); overflow-wrap: anywhere; }
+.chrome-ed .field > label { display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+.chrome-ed .seg + .note { margin-top: -4px; }
+.chrome-ed .group-label { margin: 6px 0 0; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
 
 .page-hero { min-height: 520px; }
 .calendly { border: 1px solid var(--cm-clay); border-radius: 18px; background: #fff; padding: 48px; text-align: center; color: var(--cm-iron); font-size: 18px; }
@@ -341,6 +366,12 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 @container (max-width: 1000px) {
   .split { grid-template-columns: 1fr; gap: 32px; }
   .site-nav { padding: 32px; }
+  .site-footer { padding: 40px; gap: 48px; font-size: 16px; line-height: 20px; }
+  .foot-top { flex-direction: column; align-items: flex-start; gap: 48px; }
+  .foot-col { gap: 12px; }
+  .foot-legal { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; padding-top: 48px; }
+  .foot-legal .foot-copy { order: 3; }
+  .foot-top-link { display: none; }
   .site-nav ul { display: none; }
   .site-nav .burger, .site-nav .nav-menu { display: block; }
   .cred { grid-template-columns: 1fr; padding: 48px 32px; }
@@ -378,7 +409,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .offer-grid { grid-template-columns: 1fr; }
   .quote-sec blockquote { font-size: 28px; }
   .mail h2 { font-size: 36px; }
-  .site-footer { flex-direction: column; align-items: flex-start; padding: 32px 20px; }
+  .site-footer { padding: 32px; }
 }
 
 /* ── Studio on smaller screens ── */
@@ -956,6 +987,18 @@ for (const [sid, st] of Object.entries(S.slots || {})) if (sid.endsWith(".cards"
 for (const m of (Array.isArray(S.media) ? S.media : []).slice().reverse()) if (m?.src && !IMAGES.some((i) => i.src === m.src)) IMAGES.unshift({ id: "up-" + IMAGES.length, src: m.src, name: m.name || "Upload", kind: m.kind === "video" ? "video" : "photo" });
 // Open a page straight from a link: /clrcrm/studio/builder?page=about
 { const want = new URLSearchParams(location.search).get("page"); if (want && PAGE_LIST.some((p) => p.id === want)) S.page = want; }
+const CAL_URL = "https://calendly.com/andrew-clearmark/15min";
+const CHROME_DEFAULT = {
+  nav: { links: [{ label: "About", link: "page:about" }, { label: "Solutions", link: "page:home#solutions" }, { label: "Platforms", link: "page:home#platforms" }, { label: "Pricing", link: "page:pricing" }], cta: { label: "Book a call →", link: CAL_URL } },
+  footer: { tagline: "Built for real people, in real jobs, right now.", meetLabel: "Set up a meeting", meetLink: CAL_URL, address: "Address: Eastern Ontario, Canada—Working Globally",
+    copyright: "Copyright © {year} Clearmark Training. All rights reserved. Clearmark.bz", privacyLabel: "Privacy Policy", privacyLink: "/privacy", termsLabel: "Terms & Conditions", termsLink: "/terms" },
+};
+// Global nav and Footer: the same design on every page; their words and links are content.
+// S.chrome.nav / S.chrome.footer = the site's default. S.chromePage[pageId].nav | .footer = a
+// page's own version ("Only this page"). Links use the button format ("page:<id>#<ref>",
+// a web address, or a site path like /privacy).
+S.chrome ||= {}; S.chrome.nav ||= structuredClone(CHROME_DEFAULT.nav); S.chrome.footer ||= structuredClone(CHROME_DEFAULT.footer);
+S.chromePage ||= {};
 rebuildSlots();
 const save = () => { if (LIVE) return queueSync(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
@@ -1019,9 +1062,6 @@ function offersBlock(id, max) {
   for (let i = items.length; i < (v ? items.length : Math.min(max, 3)); i++) cells.push(slotBox(id, "offer-slot", "").replace(esc(SLOTS[id].label), `Offer card ${i + 1}`));
   return v ? `<div class="offer-grid ${filledAttr(id).match(/class="([^"]*)"/)[1]}" data-slot="${id}">${cells.join("")}</div>` : `<div class="offer-grid">${cells.join("")}</div>`;
 }
-// The menu control is a <span role="button">, not a <button>: Pages-panel thumbnails are
-// buttons that contain this nav, and a button inside a button breaks the HTML.
-const navChrome = () => `<nav class="site-nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li><li class="pill-cta">Book a call →</li></ul><span class="burger" role="button" tabindex="0" aria-label="Open menu" aria-expanded="false" data-navmenu><span></span><span></span><span></span></span><div class="nav-menu"><div class="nav-menu-inner"><ol><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li></ol><span class="nav-menu-cta">Book a call →</span></div></div></nav>`;
 
 // Each template's drawing. `k(key)` is the full id of one of this section's spots.
 const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${id}:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("");
@@ -1118,10 +1158,27 @@ const SECTION_HTML = {
 const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", video: "std", calendly: "std" };
 
 const PHOTO_TOP = ["hero", "pagehero", "plat"];
+const CHROME_MAX = { links: 7, label: 30, text: 140 };
+const chromeOwn = (kind, pid = S.page) => S.chromePage?.[pid]?.[kind] || null;
+const chromeFor = (kind, pid = S.page) => chromeOwn(kind, pid) || S.chrome[kind];
+const CHROME_NAME = { nav: "Global nav", footer: "Footer" };
+// The preview's nav, from the page's nav content. The menu control is a <span role="button">,
+// not a <button>: Pages-panel thumbnails are buttons that contain this nav.
+function navHtml(pid, overPhoto) {
+  const n = chromeFor("nav", pid), links = (n.links || []).filter((l) => l.label);
+  const cta = n.cta?.label ? `<li class="pill-cta">${esc(n.cta.label)}</li>` : "";
+  return `<nav class="site-nav${overPhoto ? "" : " nav-bar"}${curSec === "@nav" && pid === S.page ? " is-current" : ""}" data-chrome="nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul>${links.map((l) => `<li>${esc(l.label)}</li>`).join("")}${cta}</ul><span class="burger" role="button" tabindex="0" aria-label="Open menu" aria-expanded="false" data-navmenu><span></span><span></span><span></span></span><div class="nav-menu"><div class="nav-menu-inner"><ol>${links.map((l) => `<li>${esc(l.label)}</li>`).join("")}</ol>${n.cta?.label ? `<span class="nav-menu-cta">${esc(n.cta.label)}</span>` : ""}</div></div></nav>`;
+}
+function footerHtml(pid) {
+  const f = chromeFor("footer", pid), year = new Date().getFullYear();
+  return `<footer class="site-footer${curSec === "@footer" && pid === S.page ? " is-current" : ""}" data-chrome="footer"><div class="foot-top"><div class="foot-col"><img src="media/logo-white.png" alt="ClearMark Training"><p>${esc(f.tagline)}</p></div>
+    <div class="foot-col">${f.meetLabel ? `<span class="u">${esc(f.meetLabel)}</span>` : ""}<p>${esc(f.address)}</p></div></div>
+    <div class="foot-legal"><p class="foot-copy">${esc(String(f.copyright || "").replace("{year}", year))}</p><span>${esc(f.privacyLabel)}</span><span>${esc(f.termsLabel)}</span><span class="foot-top-link"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5"/><path d="M8 13.5l4-4 4 4"/></svg></span></div></footer>`;
+}
 function pageHtml(page, live = true) {
   const secs = page.sections;
   // The nav is part of the design: over the photo when the page starts with one, otherwise a dark bar.
-  const nav = navChrome().replace('class="site-nav"', `class="site-nav${secs[0] && PHOTO_TOP.includes(secs[0].type) ? "" : " nav-bar"}"`);
+  const nav = navHtml(page.id, !!(secs[0] && PHOTO_TOP.includes(secs[0].type)));
   const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections yet. Add one from Modules in the left panel.</div></div>` : "";
   return nav + empty + secs.map((sec) => {
     const k = (key) => `${sec.id}.${key}`;
@@ -1129,7 +1186,7 @@ function pageHtml(page, live = true) {
     // While an image is being dragged, sections with a photo behind them show a "Background image" box to drop on.
     const bgDrop = live && PHOTO_TOP.includes(sec.type) && SLOTS[k("image")] ? `<div class="bg-drop" data-slot="${k("image")}">Background image<small>drop to replace</small></div>` : "";
     return `<section class="sec t-${sec.template} ${SECTION_CLASS[sec.type]}" data-secid="${sec.id}">${tools}${bgDrop}${SECTION_HTML[sec.type](sec, k)}</section>`;
-  }).join("") + `<footer class="site-footer"><img src="media/logo-white.png" alt="ClearMark Training"><span>Built for real people, in real jobs, right now.</span><span class="chrome-note">Footer: same on every page</span></footer>`;
+  }).join("") + footerHtml(page.id);
 }
 
 // ── Preview sizing: draw at 1280 (desktop) or 390 (phone) and shrink to fit ──
@@ -1213,7 +1270,7 @@ function cardBody(id) {
 // ── Links: a page on this site (kept as "page:<id>", optionally "#<section>", so it follows
 // the page if its address changes) or a web address (https://… or mailto:…). Links apply at once.
 const linkMode = {};
-const URL_OK = (u) => /^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(u) || /^mailto:[^\s"'<>@]+@[^\s"'<>]+$/i.test(u);
+const URL_OK = (u) => /^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(u) || /^mailto:[^\s"'<>@]+@[^\s"'<>]+$/i.test(u) || (/^\/[a-z0-9._\/#?=&-]*$/i.test(u) && !u.startsWith("//"));
 // Link names (#anchors): a section, or one element in it, can be given a name so links can
 // jump straight to it (clearmark.bz/#solutions). Names live in S.anchors, keyed by the
 // section's id ("<uid>") or the element's spot id ("<uid>.<key>"). Links store that key, not
@@ -1315,12 +1372,13 @@ function renderTemplates() {
 // Line the Edit pane up with the spot (or section) being edited; sticky keeps it in view while you scroll.
 function placeEdit() {
   const box = $("#edit-float"); if (!box) return;
-  const target = (selected && document.querySelector(`#site [data-slot="${selected}"]`)) || (curSec && document.querySelector(`#site [data-secid="${curSec}"]`));
+  const target = (selected && document.querySelector(`#site [data-slot="${selected}"]`)) || (curSec?.startsWith("@") && document.querySelector(`#site [data-chrome="${curSec.slice(1)}"]`)) || (curSec && document.querySelector(`#site [data-secid="${curSec}"]`));
   if (!target || matchMedia("(max-width: 760px)").matches) { box.style.marginTop = "0"; return; }
   const pane = box.parentElement, top = target.getBoundingClientRect().top - pane.getBoundingClientRect().top - 40;
   box.style.marginTop = Math.max(0, Math.min(top, pane.clientHeight - box.offsetHeight)) + "px";
 }
 function renderCards() {
+  if (curSec?.startsWith("@")) { $("#cards").innerHTML = chromeEditor(curSec.slice(1)); $("#panes").classList.remove("no-edit"); requestAnimationFrame(placeEdit); return; }
   const page = pageView(S.page), sl = selected && SLOTS[selected];
   const sec = sl ? page.sections.find((x) => x.id === sl.section) : page.sections.find((x) => x.id === curSec);
   if (sl && sec) {
@@ -1336,6 +1394,92 @@ function renderCards() {
   $("#panes").classList.toggle("no-edit", !sec);
   requestAnimationFrame(placeEdit);
 }
+
+// ── Global nav / Footer editor ──
+// Edits go to the page's own version if it has one, otherwise to the site default.
+const chromeTarget = (kind) => chromeOwn(kind) || S.chrome[kind];
+function chromeSet(kind, path, val) {
+  const parts = path.split("."); let o = chromeTarget(kind);
+  for (const k of parts.slice(0, -1)) o = o[k];
+  o[parts.at(-1)] = val;
+}
+const chromeGet = (kind, path) => path.split(".").reduce((o, k) => o?.[k], chromeTarget(kind));
+// A link picker like the buttons' one, keyed "<kind>|<path>".
+function linkPick(key, v, label = "Goes to") {
+  v = String(v || "");
+  const mode = linkMode[key] || (v && !v.startsWith("page:") ? "url" : "page");
+  const [pid, ref] = v.startsWith("page:") ? v.slice(5).split("#") : ["", ""];
+  const target = PAGE_LIST.find((p) => p.id === pid), now = resolveLink(v), fid = "cl-" + key.replace(/\W/g, "-");
+  const body = mode === "page"
+    ? `<select class="input" data-cpage="${key}" aria-label="${esc(label)}: page"><option value="">Choose a page…</option>${PAGE_LIST.map((p) => `<option value="${p.id}" ${p.id === pid ? "selected" : ""}>${esc(p.name)} · ${esc(p.path)}</option>`).join("")}</select>
+       ${target ? `<select class="input" data-csec="${key}" aria-label="${esc(label)}: part of the page"><option value="">Top of the page</option>${(() => { const m = anchorMap(target.id); return pageRefs(target.id).map((x) => `<option value="${x.ref}" ${x.ref === ref ? "selected" : ""}>${x.el ? "↳ " : ""}${esc(x.label)} · #${esc(m[x.ref] || "")}</option>`).join(""); })()}</select>` : ""}`
+    : `<input class="input" data-curl="${key}" id="${fid}" value="${esc(v.startsWith("page:") ? "" : v)}" inputmode="url" placeholder="https://… · mailto:… · or /privacy" autocapitalize="off" spellcheck="false"><small class="slug-err" id="${fid}-err"></small>`;
+  return `<div class="field link-ed"><label>${esc(label)}</label>
+    <div class="seg" role="group" aria-label="Link type"><button type="button" data-cmode="${key}~page" aria-pressed="${mode === "page"}">Page on this site</button><button type="button" data-cmode="${key}~url" aria-pressed="${mode === "url"}">Web address</button></div>
+    ${body}<p class="source">${now ? `Now: <span class="mono">${esc(now)}</span>` : "Not linked yet: it stays hidden on the live site until it has a link."}</p></div>`;
+}
+const cText = (kind, path, label, max, hint = "") => { const v = String(chromeGet(kind, path) ?? ""), fid = "cf-" + (kind + path).replace(/\W/g, "-");
+  return `<div class="field"><label for="${fid}">${esc(label)}</label><input class="input" id="${fid}" data-cf="${kind}|${path}" value="${esc(v)}" maxlength="${max}">${hint ? `<p class="source">${hint}</p>` : ""}</div>`; };
+function chromeEditor(kind) {
+  const page = pageView(S.page), own = !!chromeOwn(kind), name = CHROME_NAME[kind];
+  const sharing = allPages().filter((p) => !chromeOwn(kind, p.id)).length;
+  const scope = `<div class="seg" role="group" aria-label="Where changes go"><button type="button" data-cscope="${kind}~all" aria-pressed="${!own}">All pages (default)</button><button type="button" data-cscope="${kind}~page" aria-pressed="${own}">Only ${esc(page.name)}</button></div>
+    <p class="note">${own ? `${esc(page.name)} has its own ${name.toLowerCase()}. Changes here only change this page.` : `Changes here change every page using the default (${sharing} of ${allPages().length} pages).`}</p>
+    ${own ? `<div class="row-btns"><button type="button" class="btn btn-small" data-cdefault="${kind}">Make this the default</button><button type="button" class="btn btn-small" data-creset="${kind}">Reset to default</button></div>` : ""}`;
+  let body = "";
+  if (kind === "nav") {
+    const n = chromeTarget("nav"), links = n.links || [];
+    body = `<p class="group-label">Links · ${links.length}/${CHROME_MAX.links}</p>
+      ${links.map((l, i) => `<div class="clink"><div class="clink-head"><input class="input" data-cf="nav|links.${i}.label" value="${esc(l.label)}" maxlength="${CHROME_MAX.label}" aria-label="Link ${i + 1} text" placeholder="Link text">
+        <button type="button" class="lay-btn" data-cmove="nav~${i}~-1" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="lay-btn" data-cmove="nav~${i}~1" aria-label="Move down" ${i === links.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="lay-btn lay-x" data-cdel="nav~${i}" aria-label="Remove ${esc(l.label || "link")}">×</button></div>
+        ${linkPick(`nav|links.${i}.link`, l.link)}</div>`).join("")}
+      ${links.length < CHROME_MAX.links ? `<button type="button" class="btn btn-small" data-cadd="nav">+ Add link</button>` : ""}
+      <p class="group-label">Button</p>
+      ${cText("nav", "cta.label", "Button text", CHROME_MAX.label, "Leave empty to hide the button.")}
+      ${linkPick("nav|cta.link", n.cta?.link, "Button goes to")}
+      <p class="note">Tablet and phone: the menu button opens these same links and the button.</p>`;
+  } else {
+    body = `${cText("footer", "tagline", "Tagline", CHROME_MAX.text)}
+      <p class="group-label">Meeting link</p>${cText("footer", "meetLabel", "Text", CHROME_MAX.label, "Leave empty to hide it.")}${linkPick("footer|meetLink", chromeGet("footer", "meetLink"))}
+      ${cText("footer", "address", "Address", CHROME_MAX.text)}
+      ${cText("footer", "copyright", "Copyright line", CHROME_MAX.text, "{year} becomes the current year.")}
+      <p class="group-label">Privacy</p>${cText("footer", "privacyLabel", "Text", CHROME_MAX.label)}${linkPick("footer|privacyLink", chromeGet("footer", "privacyLink"))}
+      <p class="group-label">Terms</p>${cText("footer", "termsLabel", "Text", CHROME_MAX.label)}${linkPick("footer|termsLink", chromeGet("footer", "termsLink"))}`;
+  }
+  return `<p class="crumb"><b>${name}</b> · ${own ? "this page" : "default"}</p><div class="chrome-ed">${scope}${body}</div>`;
+}
+const openChrome = (kind) => { curSec = "@" + kind; selected = openCard = null; NAV_VIEW = "editor"; render(); applyNav(); document.querySelector(`#site [data-chrome="${kind}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
+// Redraw just the preview (while typing, so the field keeps focus).
+const redrawPreview = () => { $("#site").innerHTML = pageHtml(pageView(S.page)); save(); };
+document.addEventListener("click", (e) => {
+  const c = e.target.closest?.("#site [data-chrome]");
+  if (c && !e.target.closest("[data-navmenu]")) return openChrome(c.dataset.chrome);
+  const b = e.target.closest?.("[data-chromeopen], [data-cmode], [data-cadd], [data-cmove], [data-cdel], [data-cscope], [data-cdefault], [data-creset]"); if (!b) return;
+  const d = b.dataset;
+  if (d.chromeopen) return openChrome(d.chromeopen);
+  if (d.cmode) { const [key, m] = d.cmode.split("~"); linkMode[key] = m; return renderCards(); }
+  if (d.cadd) { const n = chromeTarget("nav"); if (n.links.length >= CHROME_MAX.links) return; n.links.push({ label: "", link: "" }); render(); document.querySelector(`[data-cf="nav|links.${n.links.length - 1}.label"]`)?.focus(); return; }
+  if (d.cmove) { const [, i, dir] = d.cmove.split("~"), l = chromeTarget("nav").links, a = +i, z = a + +dir; if (z < 0 || z >= l.length) return; [l[a], l[z]] = [l[z], l[a]]; return render(); }
+  if (d.cdel) { const [, i] = d.cdel.split("~"), l = chromeTarget("nav").links, gone = l.splice(+i, 1)[0]; render(); return toast(`Removed ${gone?.label || "the link"}.`); }
+  if (d.cscope) {
+    const [kind, to] = d.cscope.split("~"), own = chromeOwn(kind), pg = pageView(S.page).name;
+    if (to === "page" && !own) { (S.chromePage[S.page] ||= {})[kind] = structuredClone(S.chrome[kind]); render(); return toast(`${pg} now has its own ${CHROME_NAME[kind].toLowerCase()}. Other pages keep the default.`); }
+    if (to === "all" && own) { if (!confirm(`Drop ${pg}'s own ${CHROME_NAME[kind].toLowerCase()} and use the default again?`)) return; delete S.chromePage[S.page][kind]; render(); return toast("Back to the default."); }
+    return;
+  }
+  if (d.cdefault) { const kind = d.cdefault; if (!confirm(`Make ${pageView(S.page).name}'s ${CHROME_NAME[kind].toLowerCase()} the default for every page that uses the default?`)) return; S.chrome[kind] = structuredClone(chromeOwn(kind)); delete S.chromePage[S.page][kind]; render(); return toast("Saved as the default."); }
+  if (d.creset) { const kind = d.creset; if (!confirm(`Reset ${pageView(S.page).name}'s ${CHROME_NAME[kind].toLowerCase()} to the default? Its own version is dropped.`)) return; delete S.chromePage[S.page][kind]; render(); return toast("Back to the default."); }
+});
+document.addEventListener("input", (e) => { const t = e.target; if (t.dataset?.cf == null) return; const [kind, path] = t.dataset.cf.split("|"); chromeSet(kind, path, t.value); redrawPreview(); });
+document.addEventListener("change", (e) => {
+  const t = e.target, d = t.dataset || {};
+  const key = d.cpage ?? d.csec ?? d.curl; if (key == null) return;
+  const [kind, path] = key.split("|");
+  if (d.cpage != null) chromeSet(kind, path, t.value ? "page:" + t.value : "");
+  else if (d.csec != null) { const cur = String(chromeGet(kind, path) || "").slice(5).split("#")[0]; chromeSet(kind, path, "page:" + cur + (t.value ? "#" + t.value : "")); }
+  else { const u = t.value.trim(), err = document.getElementById(t.id + "-err"); if (u && !URL_OK(u)) { if (err) err.textContent = "Use https://…, mailto:…, or a site path like /privacy."; return; } chromeSet(kind, path, u); }
+  render(); toast("Link updated.");
+});
 
 // ── Sections: move, add, remove ──
 const list = () => S.pages[S.page];
@@ -1991,8 +2135,8 @@ function renderSide() {
         const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
         return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span><span class="dot ${pageIsLive(p) ? "placed" : "draft"}" title="${pageIsLive(p) ? "Live" : "Work in progress"}"></span></button>`;
       }).join("")],
-      layers: [title("layers", `Layers · ${esc(page.name)}`), page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")
-        + `<button type="button" class="side-row" data-mods-focus>${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button>`],
+      layers: [title("layers", `Layers · ${esc(page.name)}`), chromeRow("nav") + page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")
+        + `<button type="button" class="side-row" data-mods-focus>${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button>` + chromeRow("footer")],
       modules: [title("modules", "Modules"), modulesInner()],
       sources: [title("sources", "Sources"), sourcesInner()],
     };
@@ -2020,6 +2164,12 @@ function renderSide() {
 const KIND_ICON = { embed: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>', text: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>', link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>', image: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/>', logos: '<rect x="3" y="8" width="7" height="8" rx="1"/><rect x="14" y="8" width="7" height="8" rx="1"/>', list: '<path d="M9 6h12M9 12h12M9 18h12M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>', offers: '<rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/>' };
 const spotRow = (sl) => { const st = status(sl.id); return `<div class="lay-row lay-spot" data-navslot="${sl.id}" role="button" tabindex="0" aria-current="${selected === sl.id}">${svg(KIND_ICON[sl.kind] || KIND_ICON.text, "lay-ico")}<span class="grow">${esc(sl.label)}</span><span class="lay-kind">${esc(KIND_CHIP(sl))}</span><span class="dot ${st === "empty" ? "" : st}" title="${st}"></span></div>`; };
 const secOpen = (id) => curSec === id || UI.exp.has(id);
+// Global nav (top) and Footer (bottom): pinned on every page; "Default" or "This page".
+function chromeRow(kind) {
+  const own = !!chromeOwn(kind), icon = kind === "nav" ? '<path d="M4 7h16M4 12h10M4 17h7"/>' : '<rect x="4" y="5" width="16" height="9" rx="1"/><path d="M4 19h16"/>';
+  return `<div class="lay-sec lay-pinned"><div class="lay-row lay-head" data-chromeopen="${kind}" role="button" tabindex="0" aria-current="${curSec === "@" + kind}" title="Same design on every page: click to edit its words and links">
+    ${svg(icon, "lay-chev")}<span class="grow">${CHROME_NAME[kind]}</span><span class="chip">${own ? "This page" : "Default"}</span></div></div>`;
+}
 function layerHtml(sec, si, total) {
   const ids = sec.slots.map((s) => s.id).filter((id) => !SLOTS[id].optional || status(id) !== "empty");
   const n = ids.filter((id) => status(id) === "placed").length, open = secOpen(sec.id);

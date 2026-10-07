@@ -60,6 +60,9 @@ export type BuilderState = {
   pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
   // Link names (#anchors) set in Studio, keyed by section id ("<uid>") or element ("<uid>.<key>").
   anchors?: Record<string, unknown>;
+  // Global nav and Footer words and links: the site default, and pages' own versions.
+  chrome?: { nav?: unknown; footer?: unknown };
+  chromePage?: Record<string, { nav?: unknown; footer?: unknown } | undefined>;
 };
 
 // One section of a live page. Most are finished HTML; the mailing list and
@@ -71,7 +74,11 @@ export type LiveSection =
   | { kind: "calendly"; id: string; uid: string; className: string };
 
 // css: Tablet/Phone crops (rules for the page's 1000px and 700px breakpoints).
-export type LivePage = { sections: LiveSection[]; css: string; navOverPhoto: boolean };
+// Nav and footer content set in Studio, checked (null = not set in Studio: the site's built-in wording).
+export type LiveLink = { label: string; href: string };
+export type LiveNav = { links: LiveLink[]; cta: LiveLink | null };
+export type LiveFooter = { tagline: string; meeting: LiveLink | null; address: string; copyright: string; privacy: LiveLink | null; terms: LiveLink | null };
+export type LivePage = { sections: LiveSection[]; css: string; navOverPhoto: boolean; nav: LiveNav | null; footer: LiveFooter | null };
 
 // ── Safe values ──
 const esc = (t: unknown) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -250,7 +257,21 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
   }
   const first = tpls[str(list[0]?.t)];
   const css = sections.map((x) => cropRules(x.uid, x.id, state.crop)).filter(Boolean).join("\n");
-  return { sections, css, navOverPhoto: !!first && PHOTO_TOP.includes(first.type) };
+  // Nav and footer: this page's own version if it has one, otherwise the site default.
+  const obj = (v: unknown) => (v && typeof v === "object" ? (v as Record<string, unknown>) : null);
+  const own = obj(state.chromePage?.[pageId]);
+  const navSrc = obj(own?.nav) || obj(state.chrome?.nav), footSrc = obj(own?.footer) || obj(state.chrome?.footer);
+  const cut = (v: unknown, n: number) => str(v).trim().slice(0, n);
+  const pair = (label: unknown, to: unknown): LiveLink | null => { const l = cut(label, 30), h = safeHref(link(to)); return l && h ? { label: l, href: h } : null; };
+  const nav: LiveNav | null = navSrc ? {
+    links: rows(navSrc.links).slice(0, 7).map((r) => pair(r.label, r.link)).filter((x): x is LiveLink => !!x),
+    cta: pair(obj(navSrc.cta)?.label, obj(navSrc.cta)?.link),
+  } : null;
+  const footer: LiveFooter | null = footSrc ? {
+    tagline: cut(footSrc.tagline, 140), meeting: pair(footSrc.meetLabel, footSrc.meetLink), address: cut(footSrc.address, 140),
+    copyright: cut(footSrc.copyright, 140), privacy: pair(footSrc.privacyLabel, footSrc.privacyLink), terms: pair(footSrc.termsLabel, footSrc.termsLink),
+  } : null;
+  return { sections, css, navOverPhoto: !!first && PHOTO_TOP.includes(first.type), nav, footer };
 }
 
 // The builder's starting pages. Andrew can rename them, change their addresses

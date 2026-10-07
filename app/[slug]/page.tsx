@@ -28,7 +28,7 @@ export default async function StudioPage({ params }: Props) {
         <main>
           <BuilderPage page={studio.page} livePages={studio.livePages} paths={studio.paths} />
         </main>
-        <Footer />
+        <Footer content={studio.page.footer} />
       </>
     );
   }

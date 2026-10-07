@@ -18,11 +18,14 @@ export default function BuilderPage({ page, livePages = [], paths = {} }: { page
   // The nav's links: About and Pricing follow the pages' addresses; Solutions and Platforms
   // jump to that section, shown only when the page has it.
   const pricing = livePages.includes("pricing") && paths.pricing ? paths.pricing : ids.has("sol-offers") ? `#${addr("sol-offers")}` : null;
-  const items: NavItem[] = [
+  // Links set in Studio (Global nav); before that, the built-in ones.
+  const items: NavItem[] = page.nav ? page.nav.links : [
     { label: "About", href: paths.about ?? "/about" },
     ...JUMPS.filter(([, id]) => ids.has(id)).map(([label, id]) => ({ label, href: `/#${addr(id)}` })),
     ...(pricing ? [{ label: "Pricing", href: pricing }] : []),
   ];
+  const cta: NavItem | null = page.nav ? page.nav.cta : { label: "Book a call →", href: calendlyUrl };
+  const external = (href: string) => /^https?:/i.test(href);
   return (
     <div className="site">
       {/* Tablet / Phone photo crops set in Studio (numbers only, checked in lib/builder-site.ts). */}
@@ -31,11 +34,11 @@ export default function BuilderPage({ page, livePages = [], paths = {} }: { page
         <a href="/" aria-label="ClearMark home"><img src="/studio-media/logo-white.png" alt="ClearMark Training" /></a>
         <nav aria-label="Main">
           <ul>
-            {items.map((it) => <li key={it.label}><a href={it.href}>{it.label}</a></li>)}
-            <li><a className="pill-cta" href={calendlyUrl} target="_blank" rel="noopener noreferrer">Book a call →</a></li>
+            {items.map((it, i) => <li key={i}><a href={it.href} {...(external(it.href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{it.label}</a></li>)}
+            {cta && <li><a className="pill-cta" href={cta.href} {...(external(cta.href) ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{cta.label}</a></li>}
           </ul>
         </nav>
-        <NavMenu items={items} calendlyUrl={calendlyUrl} />
+        <NavMenu items={items} cta={cta} />
       </header>
       {page.sections.map((sec) => {
         if (sec.kind === "mail") {

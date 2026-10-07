@@ -20,7 +20,7 @@ export default async function Home() {
         <main>
           <BuilderPage page={studio.page} livePages={studio.livePages} paths={studio.paths} />
         </main>
-        <Footer />
+        <Footer content={studio.page.footer} />
       </>
     );
   }

@@ -7,8 +7,9 @@ export type NavItem = { label: string; href: string };
 // Tablet and phone nav (Studio pages): a menu button whose three lines turn into an X,
 // opening a panel under the bar with the nav links and Book a call. Shown at 1000px and
 // narrower by components/builder-site.css; desktop keeps the row of links.
-export default function NavMenu({ items, calendlyUrl }: { items: NavItem[]; calendlyUrl: string }) {
+export default function NavMenu({ items, cta }: { items: NavItem[]; cta: NavItem | null }) {
   const [open, setOpen] = useState(false);
+  const ext = (href: string) => (/^https?:/i.test(href) ? { target: "_blank", rel: "noopener noreferrer" } : {});
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
@@ -24,9 +25,9 @@ export default function NavMenu({ items, calendlyUrl }: { items: NavItem[]; cale
       <div id="site-menu" className={`bnav-menu${open ? " is-open" : ""}`} aria-hidden={!open}>
         <div className="bnav-menu-inner">
           <ul>
-            {items.map((it) => <li key={it.href + it.label}><a href={it.href} tabIndex={open ? 0 : -1} onClick={() => setOpen(false)}>{it.label}</a></li>)}
+            {items.map((it, i) => <li key={i}><a href={it.href} {...ext(it.href)} tabIndex={open ? 0 : -1} onClick={() => setOpen(false)}>{it.label}</a></li>)}
           </ul>
-          <a className="bnav-menu-cta" href={calendlyUrl} target="_blank" rel="noopener noreferrer" tabIndex={open ? 0 : -1}>Book a call →</a>
+          {cta && <a className="bnav-menu-cta" href={cta.href} {...ext(cta.href)} tabIndex={open ? 0 : -1}>{cta.label}</a>}
         </div>
       </div>
     </>
