@@ -1,0 +1,150 @@
+/*
+  ClearMark type and color rules (one file).
+  Built from styles/colors.css and styles/typography.css on Oct 7, 2026.
+  Fonts: Saira (headings and body), Courier Prime (buttons).
+  Hex values marked "approx" are placeholders until the exact Figma values are added.
+*/
+@import url("https://fonts.googleapis.com/css2?family=Saira:wght@100;200;300;400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap");
+
+/* ───────── COLOR ───────── */
+
+:root {
+  /* Primaries: core brand colors */
+  --white: #FFFFFF;
+  --clay-light: #F6F5F2;
+  --clay: #E1DDD5;
+  --midnight: #1C2026;
+  --rogue-cherry: #DB1F3D;
+  --tidal-azure: #0099CE;
+
+  /* Neutrals: human earth colors, light to dark (approx) */
+  --sage-veil: #C9C6BE;
+  --sage-mist: #B2AFA7;
+  --dusty-sage: #9C998F;
+  --deep-taupe: #858278;
+  --bistre: #6E675A;
+  --mossy-pewter: #656862;
+  --iron-pine: #444D4D;
+  --charcoal: #2C3139;
+
+  /* Secondaries: warm and green (approx) */
+  --tangerine-burst: #E48F46;
+  --honey-brass: #C8A74B;
+  --solar-flare: #F5DE73;
+  --pine-shadow: #2D4332;
+  --iron-moss: #336A4E;
+  --emerald-tide: #469C6F;
+  --frosted-mint: #ABCFA1;
+  --deep-aubergine: #4C1F50;
+  --magenta-orchid: #874084;
+  --amethyst-veil: #9679B2;
+  --lavender-mist: #C6B7E1;
+
+  /* Secondaries: cool (approx) */
+  --cobalt-wave: #294079;
+  --aegean: #2D6AA5;
+  --glacial-cyan: #56B7C3;
+  --oxblood: #661823;
+  --merlot: #91272B;
+  --coral-rush: #DC4F58;
+  --orange-crush: #E8714B;
+  --burnt-sienna: #DB6931;
+
+  /* What each color is used for on the site */
+  --color-page: var(--clay-light);
+  --color-surface: var(--white);
+  --color-surface-dark: var(--midnight);
+  --color-text: var(--midnight);
+  --color-text-muted: var(--iron-pine);
+  --color-text-inverse: var(--white);
+  --color-border: var(--clay);
+  --color-action: var(--rogue-cherry);
+  --color-action-hover: var(--merlot);
+  --color-link: var(--aegean);
+  --color-focus: var(--tidal-azure);
+}
+
+
+/* ───────── TYPE ───────── */
+:root {
+  --font-heading: "Saira", sans-serif;
+  --font-body: "Saira", sans-serif;
+  --font-button: "Courier Prime", monospace;
+
+  /* Body sizes: size / line height / letter spacing */
+  --text-xl-size: 28px; --text-xl-lh: 32px; --text-xl-ls: -1px;
+  --text-lg-size: 24px; --text-lg-lh: 28px; --text-lg-ls: -1px;
+  --text-md-size: 20px; --text-md-lh: 24px; --text-md-ls: -1px;
+  --text-sm-size: 16px; --text-sm-lh: 20px; --text-sm-ls: -1px;
+  --text-xs-size: 12px; --text-xs-lh: 14px; --text-xs-ls: -1px;
+  --text-xxs-size: 8px; --text-xxs-lh: 10px; --text-xxs-ls: -1px;
+
+  /* Headline sizes (desktop) */
+  --text-h6-size: 40px; --text-h6-lh: 36px; --text-h6-ls: -2px;
+  --text-h5-size: 52px; --text-h5-lh: 48px; --text-h5-ls: -2px;
+  --text-h4-size: 64px; --text-h4-lh: 56px; --text-h4-ls: -3px;
+  --text-h3-size: 80px; --text-h3-lh: 72px; --text-h3-ls: -4px;
+  --text-h2-size: 96px; --text-h2-lh: 88px; --text-h2-ls: -4px;
+  --text-h1-size: 112px; --text-h1-lh: 100px; --text-h1-ls: -4px;
+
+  /* Tagline */
+  --text-tagline-size: 16px; --text-tagline-lh: 16px; --text-tagline-ls: 3px;
+
+  /* Weights */
+  --font-weight-thin: 100; --font-weight-light: 300; --font-weight-normal: 400; --font-weight-medium: 500;
+  --font-weight-semi-bold: 600; --font-weight-bold: 700; --font-weight-extra-bold: 800;
+}
+
+/* Headlines: h1–h3 ExtraLight (200), h4–h6 Light (300). .as-h1–.as-h6 look the same on any tag. */
+h1, h2, h3, h4, h5, h6, .as-h1, .as-h2, .as-h3, .as-h4, .as-h5, .as-h6 { font-family: var(--font-heading); margin: 0; }
+h1, .as-h1 { font-size: var(--text-h1-size); line-height: var(--text-h1-lh); letter-spacing: var(--text-h1-ls); font-weight: 200; }
+h2, .as-h2 { font-size: var(--text-h2-size); line-height: var(--text-h2-lh); letter-spacing: var(--text-h2-ls); font-weight: 200; }
+h3, .as-h3 { font-size: var(--text-h3-size); line-height: var(--text-h3-lh); letter-spacing: var(--text-h3-ls); font-weight: 200; }
+h4, .as-h4 { font-size: var(--text-h4-size); line-height: var(--text-h4-lh); letter-spacing: var(--text-h4-ls); font-weight: 300; }
+h5, .as-h5 { font-size: var(--text-h5-size); line-height: var(--text-h5-lh); letter-spacing: var(--text-h5-ls); font-weight: 300; }
+h6, .as-h6 { font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); font-weight: 300; }
+
+/* Tagline: small, bold, uppercase, wide spacing */
+.tagline { font-family: var(--font-heading); font-size: var(--text-tagline-size); line-height: var(--text-tagline-lh); letter-spacing: var(--text-tagline-ls); font-weight: 700; text-transform: uppercase; margin: 0; }
+
+/* Body text: class="text-{size}-{weight}", e.g. text-md-light, text-sm-bold */
+.text-xl-thin, .text-xl-light, .text-xl-normal, .text-xl-medium, .text-xl-semi-bold, .text-xl-bold,
+.text-xl-extra-bold, .text-lg-light, .text-lg-normal, .text-lg-medium, .text-lg-semi-bold, .text-lg-bold,
+.text-lg-extra-bold, .text-md-light, .text-md-normal, .text-md-medium, .text-md-semi-bold, .text-md-bold,
+.text-md-extra-bold, .text-sm-light, .text-sm-normal, .text-sm-medium, .text-sm-semi-bold, .text-sm-bold,
+.text-sm-extra-bold, .text-xs-light, .text-xs-normal, .text-xs-medium, .text-xs-semi-bold, .text-xs-bold,
+.text-xs-extra-bold, .text-xxs-light, .text-xxs-normal, .text-xxs-medium, .text-xxs-semi-bold, .text-xxs-bold,
+.text-xxs-extra-bold { font-family: var(--font-body); margin: 0; }
+.text-xl-thin, .text-xl-light, .text-xl-normal, .text-xl-medium, .text-xl-semi-bold, .text-xl-bold, .text-xl-extra-bold { font-size: var(--text-xl-size); line-height: var(--text-xl-lh); letter-spacing: var(--text-xl-ls); }
+.text-lg-light, .text-lg-normal, .text-lg-medium, .text-lg-semi-bold, .text-lg-bold, .text-lg-extra-bold { font-size: var(--text-lg-size); line-height: var(--text-lg-lh); letter-spacing: var(--text-lg-ls); }
+.text-md-light, .text-md-normal, .text-md-medium, .text-md-semi-bold, .text-md-bold, .text-md-extra-bold { font-size: var(--text-md-size); line-height: var(--text-md-lh); letter-spacing: var(--text-md-ls); }
+.text-sm-light, .text-sm-normal, .text-sm-medium, .text-sm-semi-bold, .text-sm-bold, .text-sm-extra-bold { font-size: var(--text-sm-size); line-height: var(--text-sm-lh); letter-spacing: var(--text-sm-ls); }
+.text-xs-light, .text-xs-normal, .text-xs-medium, .text-xs-semi-bold, .text-xs-bold, .text-xs-extra-bold { font-size: var(--text-xs-size); line-height: var(--text-xs-lh); letter-spacing: var(--text-xs-ls); }
+.text-xxs-light, .text-xxs-normal, .text-xxs-medium, .text-xxs-semi-bold, .text-xxs-bold, .text-xxs-extra-bold { font-size: var(--text-xxs-size); line-height: var(--text-xxs-lh); letter-spacing: var(--text-xxs-ls); }
+.text-xl-thin { font-weight: var(--font-weight-thin); }
+.text-xl-light, .text-lg-light, .text-md-light, .text-sm-light, .text-xs-light, .text-xxs-light { font-weight: var(--font-weight-light); }
+.text-xl-normal, .text-lg-normal, .text-md-normal, .text-sm-normal, .text-xs-normal, .text-xxs-normal { font-weight: var(--font-weight-normal); }
+.text-xl-medium, .text-lg-medium, .text-md-medium, .text-sm-medium, .text-xs-medium, .text-xxs-medium { font-weight: var(--font-weight-medium); }
+.text-xl-semi-bold, .text-lg-semi-bold, .text-md-semi-bold, .text-sm-semi-bold, .text-xs-semi-bold, .text-xxs-semi-bold { font-weight: var(--font-weight-semi-bold); }
+.text-xl-bold, .text-lg-bold, .text-md-bold, .text-sm-bold, .text-xs-bold, .text-xxs-bold { font-weight: var(--font-weight-bold); }
+.text-xl-extra-bold, .text-lg-extra-bold, .text-md-extra-bold, .text-sm-extra-bold, .text-xs-extra-bold, .text-xxs-extra-bold { font-weight: var(--font-weight-extra-bold); }
+
+/* Weight modifiers: change only the weight, e.g. class="as-h6 weight-bold" */
+.weight-thin { font-weight: var(--font-weight-thin); }
+.weight-light { font-weight: var(--font-weight-light); }
+.weight-normal { font-weight: var(--font-weight-normal); }
+.weight-medium { font-weight: var(--font-weight-medium); }
+.weight-semi-bold { font-weight: var(--font-weight-semi-bold); }
+.weight-bold { font-weight: var(--font-weight-bold); }
+.weight-extra-bold { font-weight: var(--font-weight-extra-bold); }
+
+/* Phones (767px and narrower): headlines shrink, tagline drops to 12px; body sizes stay the same */
+@media (max-width: 767px) {
+  h1, .as-h1 { font-size: 88px; line-height: 79px; letter-spacing: -4px; }
+  h2, .as-h2 { font-size: 72px; line-height: 65px; letter-spacing: -4px; }
+  h3, .as-h3 { font-size: 60px; line-height: 54px; letter-spacing: -4px; }
+  h4, .as-h4 { font-size: 48px; line-height: 43px; letter-spacing: -3px; }
+  h5, .as-h5 { font-size: 40px; line-height: 36px; letter-spacing: -2px; }
+  h6, .as-h6 { font-size: 32px; line-height: 29px; letter-spacing: -2px; }
+  .tagline { font-size: 12px; line-height: 12px; letter-spacing: 3px; }
+}
