@@ -82,6 +82,12 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 /* Page thumbnails */
 .pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 8px; }
 .page-thumb { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 8px; text-align: left; display: flex; flex-direction: column; gap: 8px; }
+.page-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.page-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding-inline: 2px; }
+.page-link, .page-url { font-family: var(--f-mono); font-size: 12px; color: var(--accent); text-decoration: none; overflow-wrap: anywhere; }
+.page-link:hover, .page-url:hover { text-decoration: underline; }
+.live-chip { font-family: var(--f-mono); font-size: 11px; border-radius: 999px; padding: 1px 8px; border: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+.live-chip.is-live { border-color: var(--placed); color: var(--placed); }
 .page-thumb[aria-current="page"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .thumb-box { height: 150px; overflow: hidden; border-radius: 6px; background: var(--cm-clay-light); position: relative; }
 .thumb-box > div { position: absolute; top: 0; left: 0; width: 1280px; transform-origin: 0 0; pointer-events: none; }
@@ -464,7 +470,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 <header class="top" id="top">
   <div class="brand">
     <h1>Studio Builder</h1>
-    <p>ClearMark · clearmark.bz · <span id="page-name">Home</span></p>
+    <p>ClearMark · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span></p>
   </div>
   <div class="seg mode-switch" role="group" aria-label="View">
     <button type="button" data-mode="content" aria-pressed="true">Content</button>
@@ -730,12 +736,19 @@ function seed() {
 // saves back to it; the prototype on its own keeps everything in this browser.
 const LIVE = window.__STUDIO_LIVE__ === true;
 const API = "/clrcrm/studio/builder/api";
+// Where each page lives on the site. Live Studio uses its own address; the prototype shows the Vercel one.
+const SITE_URL = LIVE ? location.origin : "https://clearmark-tan.vercel.app";
+let LIVE_PAGES = LIVE && Array.isArray(window.__STUDIO_LIVE_PAGES__) ? window.__STUDIO_LIVE_PAGES__ : null;
+const pageUrl = (p) => SITE_URL + p.path;
+const liveChip = (p) => LIVE_PAGES ? `<span class="live-chip${LIVE_PAGES.includes(p.id) ? " is-live" : ""}" title="${LIVE_PAGES.includes(p.id) ? "Visitors see the last published version" : "Publish to put this page on the site"}">${LIVE_PAGES.includes(p.id) ? "Live" : "Not live yet"}</span>` : "";
 let S;
 if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
 if (S) { S.flip ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
 S.design ||= {}; S.customTpls ||= [];
+// Open a page straight from a link: /clrcrm/studio/builder?page=about
+{ const want = new URLSearchParams(location.search).get("page"); if (want && PAGE_LIST.some((p) => p.id === want)) S.page = want; }
 rebuildTpl();
 rebuildSlots();
 const save = () => { if (LIVE) return queueSync(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
@@ -1083,6 +1096,9 @@ function render() {
   $("#site").classList.toggle("guides", S.guides);
   $("#guides").checked = S.guides;
   $("#page-name").textContent = page.name;
+  $("#page-url").href = pageUrl(page); $("#page-url").textContent = pageUrl(page).replace(/^https?:\/\//, "") + " ↗";
+  $("#page-live").outerHTML = liveChip(page).replace("<span ", '<span id="page-live" ') || '<span id="page-live" class="live-chip" hidden></span>';
+  if (LIVE) history.replaceState(null, "", `?page=${S.page}`);
   $("#cc-page").textContent = page.name;
   document.querySelectorAll("[data-device]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.device === S.device));
   renderCards();
@@ -1105,7 +1121,8 @@ function renderPages() {
   $("#pages").innerHTML = allPages().map((p) => {
     const ids = countable(p);
     const n = ids.filter((id) => status(id) === "placed").length;
-    return `<button type="button" class="page-thumb" data-page="${p.id}" ${p.id === S.page ? 'aria-current="page"' : ""}><div class="thumb-box"><div class="site">${pageHtml(p, false)}</div></div><span><b>${esc(p.name)}</b><span class="mono">${n}/${ids.length}</span></span></button>`;
+    return `<div class="page-item"><button type="button" class="page-thumb" data-page="${p.id}" ${p.id === S.page ? 'aria-current="page"' : ""}><div class="thumb-box"><div class="site">${pageHtml(p, false)}</div></div><span><b>${esc(p.name)}</b><span class="mono">${n}/${ids.length}</span></span></button>
+      <span class="page-meta"><a class="page-link" href="${esc(pageUrl(p))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(p).replace(/^https?:\/\//, ""))} ↗</a>${liveChip(p)}</span></div>`;
   }).join("");
   // scale thumbs to their box width
   document.querySelectorAll(".thumb-box").forEach((b) => { const inner = b.firstElementChild; inner.style.transform = `scale(${b.clientWidth / 1280})`; });
@@ -1346,6 +1363,7 @@ $("#publish").onclick = async () => {
     const res = await fetch(API + "?action=publish", { method: "POST" });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j.error || "Couldn't publish");
+    if (Array.isArray(j.livePages)) { LIVE_PAGES = j.livePages; render(); }
     toast("Published. The live site shows it within a minute.");
   } catch (e) { toast(e.message); }
   $("#publish").textContent = "Publish"; $("#publish").disabled = false;

@@ -235,3 +235,17 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
   const first = tpls[str(list[0]?.t)];
   return { sections, css, navOverPhoto: !!first && PHOTO_TOP.includes(first.type) };
 }
+
+// The builder's pages and their addresses on the live site.
+export const BUILDER_PAGES = [
+  { id: "home", name: "Home", path: "/" },
+  { id: "about", name: "About", path: "/about" },
+  { id: "pricing", name: "Pricing", path: "/pricing" },
+  { id: "book", name: "Book a call", path: "/book" },
+] as const;
+
+// Pages that have something to show in this state (visitors see these once published).
+export function livePageIds(state: BuilderState | null | undefined): string[] {
+  if (!state) return [];
+  return BUILDER_PAGES.filter((p) => (renderLivePage(state, p.id)?.sections.length ?? 0) > 0).map((p) => p.id);
+}

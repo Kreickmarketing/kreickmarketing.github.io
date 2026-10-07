@@ -18,7 +18,7 @@ export default async function Home() {
     return (
       <>
         <main>
-          <BuilderPage page={studio} />
+          <BuilderPage page={studio.page} livePages={studio.livePages} />
         </main>
         <Footer />
       </>

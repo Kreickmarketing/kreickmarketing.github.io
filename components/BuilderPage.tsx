@@ -5,11 +5,11 @@ import "./builder-site.css";
 const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL || "https://calendly.com";
 
 // Nav links that jump to a section on the page, shown only when that section exists.
-const JUMPS: [string, string][] = [["Solutions", "solutions"], ["Platforms", "platforms"], ["Pricing", "sol-offers"]];
+const JUMPS: [string, string][] = [["Solutions", "solutions"], ["Platforms", "platforms"]];
 
 // A page made in the Studio builder. The section HTML comes from lib/builder-site.ts,
 // which escapes all text and only allows safe links, local images and ClearMark design values.
-export default function BuilderPage({ page }: { page: LivePage }) {
+export default function BuilderPage({ page, livePages = [] }: { page: LivePage; livePages?: string[] }) {
   const ids = new Set(page.sections.map((s) => s.id));
   return (
     <div className="site">
@@ -19,7 +19,8 @@ export default function BuilderPage({ page }: { page: LivePage }) {
         <nav aria-label="Main">
           <ul>
             <li><a href="/about">About</a></li>
-            {JUMPS.filter(([, id]) => ids.has(id)).map(([label, id]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}
+            {JUMPS.filter(([, id]) => ids.has(id)).map(([label, id]) => <li key={id}><a href={`/#${id}`}>{label}</a></li>)}
+            {livePages.includes("pricing") ? <li><a href="/pricing">Pricing</a></li> : ids.has("sol-offers") && <li><a href="#sol-offers">Pricing</a></li>}
             <li><a className="pill-cta" href={calendlyUrl} target="_blank" rel="noopener noreferrer">Book a call →</a></li>
           </ul>
         </nav>

@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
+import { livePageIds, type BuilderState } from "@/lib/builder-site";
 
 // Save (PUT) and Publish (POST ?action=publish) for the Studio builder.
 // Every call checks the login again; Supabase's row rules (RLS) are the second lock.
@@ -36,6 +37,7 @@ export async function POST(request: Request) {
   if (!id) return fail("Site not found", 404);
   const { data, error } = await supabase.rpc("publish_builder", { p_site: id });
   if (error) return fail(error.message, 500);
-  revalidatePath("/");
-  return NextResponse.json({ ok: true, at: data });
+  revalidatePath("/", "layout");  // every live page (Home, About, Pricing, Book a call)
+  const { data: row } = await supabase.from("builder_sites").select("published").eq("site_id", id).maybeSingle();
+  return NextResponse.json({ ok: true, at: data, livePages: livePageIds(row?.published as BuilderState | null) });
 }
