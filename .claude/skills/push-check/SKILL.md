@@ -19,6 +19,12 @@ Andrew designs Studio's section templates on the Claude Design canvas. This skil
 
 Template ids (board files are `<id>_desktop|tablet|phone.dc.html`): hero, logos, heading, photo-points, photo-tags, offers, mailing (and any new row on the canvas).
 
+Site-wide parts (same on every page; not in `TEMPLATES`):
+- **nav** (`nav_*.dc.html`): builder `navChrome()` + `.site-nav` CSS; live `components/BuilderPage.tsx` (`header.bnav`) + `.bnav` in `components/builder-site.css`. Keep the live links' logic (About/Pricing follow page addresses; Solutions/Platforms only when that section exists).
+- **footer** (`footer_*.dc.html`): builder `.site-footer` markup/CSS; live `components/Footer.tsx` + `components/footer.css`.
+- **buttons** (`buttons_desktop|phone.dc.html`): `.cta`, `.cta-red`, `.mail .signup .button`, `.cta:hover` in the builder and `components/builder-site.css`; the nav pill is `.pill-cta`.
+- `data-fullscreen="true"` on a section root means it fills the browser window's height on desktop and tablet: `min-height: 100svh` on the live site (the board's height is just one screen size); in the builder preview, the preview frame's height.
+
 ## Steps
 
 1. **Get the boards.** `Artifact` read the canvas (`project/canvas.json` and the three boards for each template). Copy them into `docs/prototypes/claude-design-templates/`. `git diff` that folder to see what Andrew changed. No change for a template → say so and skip it.

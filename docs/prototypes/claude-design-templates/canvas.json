@@ -8,29 +8,64 @@
       "x": 0,
       "y": 0
     },
+    "buttons_desktop.dc.html": {
+      "h": 520,
+      "title": "buttons \u00b7 desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 11640
+    },
+    "buttons_phone.dc.html": {
+      "h": 680,
+      "title": "buttons \u00b7 phone 390",
+      "w": 390,
+      "x": 1360,
+      "y": 11640
+    },
+    "footer_desktop.dc.html": {
+      "h": 380,
+      "title": "footer \u00b7 desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 10840
+    },
+    "footer_phone.dc.html": {
+      "h": 520,
+      "title": "footer \u00b7 phone 390",
+      "w": 390,
+      "x": 2208,
+      "y": 10840
+    },
+    "footer_tablet.dc.html": {
+      "h": 480,
+      "title": "footer \u00b7 tablet 768",
+      "w": 768,
+      "x": 1360,
+      "y": 10840
+    },
     "heading_desktop.dc.html": {
       "h": 360,
       "title": "heading \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 2800
+      "y": 3080
     },
     "heading_phone.dc.html": {
       "h": 400,
       "title": "heading \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 2800
+      "y": 3080
     },
     "heading_tablet.dc.html": {
       "h": 360,
       "title": "heading \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 2800
+      "y": 3080
     },
     "hero_desktop.dc.html": {
-      "h": 760,
+      "h": 800,
       "title": "hero \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
@@ -44,7 +79,7 @@
       "y": 1100
     },
     "hero_tablet.dc.html": {
-      "h": 720,
+      "h": 1024,
       "title": "hero \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
@@ -55,105 +90,126 @@
       "title": "logos \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 2240
+      "y": 2520
     },
     "logos_phone.dc.html": {
       "h": 280,
       "title": "logos \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 2240
+      "y": 2520
     },
     "logos_tablet.dc.html": {
       "h": 200,
       "title": "logos \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 2240
+      "y": 2520
     },
     "mailing_desktop.dc.html": {
       "h": 440,
       "title": "mailing \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 8720
+      "y": 9000
     },
     "mailing_phone.dc.html": {
       "h": 700,
       "title": "mailing \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 8720
+      "y": 9000
     },
     "mailing_tablet.dc.html": {
       "h": 640,
       "title": "mailing \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 8720
+      "y": 9000
+    },
+    "nav_desktop.dc.html": {
+      "h": 104,
+      "title": "nav \u00b7 desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 10220
+    },
+    "nav_phone.dc.html": {
+      "h": 72,
+      "title": "nav \u00b7 phone 390",
+      "w": 390,
+      "x": 2208,
+      "y": 10220
+    },
+    "nav_tablet.dc.html": {
+      "h": 104,
+      "title": "nav \u00b7 tablet 768",
+      "w": 768,
+      "x": 1360,
+      "y": 10220
     },
     "offers_desktop.dc.html": {
       "h": 720,
       "title": "offers \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 6640
+      "y": 6920
     },
     "offers_phone.dc.html": {
       "h": 1700,
       "title": "offers \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 6640
+      "y": 6920
     },
     "offers_tablet.dc.html": {
       "h": 1180,
       "title": "offers \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 6640
+      "y": 6920
     },
     "photo-points_desktop.dc.html": {
       "h": 780,
       "title": "photo-points \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 3540
+      "y": 3820
     },
     "photo-points_phone.dc.html": {
       "h": 1260,
       "title": "photo-points \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 3540
+      "y": 3820
     },
     "photo-points_tablet.dc.html": {
       "h": 1180,
       "title": "photo-points \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 3540
+      "y": 3820
     },
     "photo-tags_desktop.dc.html": {
       "h": 760,
       "title": "photo-tags \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 5180
+      "y": 5460
     },
     "photo-tags_phone.dc.html": {
       "h": 1080,
       "title": "photo-tags \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 5180
+      "y": 5460
     },
     "photo-tags_tablet.dc.html": {
       "h": 860,
       "title": "photo-tags \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 5180
+      "y": 5460
     }
   },
   "createdOnFiles": {
@@ -165,6 +221,20 @@
     "view": "canvas"
   },
   "notes": {
+    "foot-note": {
+      "fill": "orange",
+      "text": "Footer: same on every page\n\nDesktop: two rows split by a white hairline, with a back-to-top button. Tablet and phone: one column, no back-to-top.",
+      "w": 380,
+      "x": 2680,
+      "y": 10840
+    },
+    "hero-full": {
+      "fill": "orange",
+      "text": "Full screen on desktop and tablet\n\nThe hero always fills the browser window's height (or more, if the words need it). These boards show a 1280 x 800 laptop and a 768 x 1024 tablet. Phone keeps its own height.",
+      "w": 380,
+      "x": 2680,
+      "y": 1100
+    },
     "howto": {
       "fill": "orange",
       "maxH": 720,
@@ -174,13 +244,36 @@
       "x": 1360,
       "y": 0
     },
+    "nav-note": {
+      "fill": "orange",
+      "text": "Global nav: same on every page\n\nShown on its Midnight bar (pages that start without a photo). Over a photo (Home) the bar is see-through: see the Hero boards.\n\nPhone: logo and Book a call only.",
+      "w": 380,
+      "x": 2680,
+      "y": 10220
+    },
+    "t-buttons": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Buttons",
+      "w": 240,
+      "x": 0,
+      "y": 11380
+    },
+    "t-footer": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Footer",
+      "w": 240,
+      "x": 0,
+      "y": 10580
+    },
     "t-heading": {
       "kind": "title1",
       "maxW": 2598,
       "text": "Heading",
       "w": 240,
       "x": 0,
-      "y": 2540
+      "y": 2820
     },
     "t-hero": {
       "kind": "title1",
@@ -196,7 +289,7 @@
       "text": "Logo row",
       "w": 240,
       "x": 0,
-      "y": 1980
+      "y": 2260
     },
     "t-mailing": {
       "kind": "title1",
@@ -204,7 +297,15 @@
       "text": "Mailing list",
       "w": 240,
       "x": 0,
-      "y": 8460
+      "y": 8740
+    },
+    "t-nav": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Global nav",
+      "w": 240,
+      "x": 0,
+      "y": 9960
     },
     "t-offers": {
       "kind": "title1",
@@ -212,7 +313,7 @@
       "text": "Offer cards",
       "w": 240,
       "x": 0,
-      "y": 6380
+      "y": 6660
     },
     "t-photo-points": {
       "kind": "title1",
@@ -220,7 +321,7 @@
       "text": "Photo + points",
       "w": 240,
       "x": 0,
-      "y": 3280
+      "y": 3560
     },
     "t-photo-tags": {
       "kind": "title1",
@@ -228,7 +329,7 @@
       "text": "Photo background + tags",
       "w": 240,
       "x": 0,
-      "y": 4920
+      "y": 5200
     }
   },
   "order": [
@@ -253,7 +354,15 @@
     "offers_phone.dc.html",
     "mailing_desktop.dc.html",
     "mailing_tablet.dc.html",
-    "mailing_phone.dc.html"
+    "mailing_phone.dc.html",
+    "nav_desktop.dc.html",
+    "nav_tablet.dc.html",
+    "nav_phone.dc.html",
+    "footer_desktop.dc.html",
+    "footer_tablet.dc.html",
+    "footer_phone.dc.html",
+    "buttons_desktop.dc.html",
+    "buttons_phone.dc.html"
   ],
   "pages": [],
   "title": "ClearMark Studio Templates",
