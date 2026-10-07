@@ -80,7 +80,7 @@ const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.fi
 const hasText = (r: Record<string, unknown>) => Object.values(r).some((x) => str(x));
 
 // ── Drawing each template (live mode: empty spots are simply left out) ──
-function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => ""): string {
+function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
   const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
   const bg = (key: string) => { const src = safeImage(P(key)); return `<div class="hero-bg">${src ? `<img data-slot=".${key}" src="${esc(src)}"${crop(key)} alt="">` : ""}</div>`; };
@@ -90,7 +90,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
 
   switch (type) {
     case "hero": {
-      const btn = str(P("button")), href = safeHref(P("link"));
+      const btn = str(P("button")), href = safeHref(link(P("link")));
       const q = rows(P("quote")).filter(hasText)[0], st = rows(P("stat")).filter(hasText)[0];
       return `${bg("image")}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}</div>`
         + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${esc(str(q.name))}</b><span>${esc(str(q.quote))}</span></figure>` : "<div></div>"}${st ? `<aside class="stat-card" data-slot=".stat"><small>${esc(str(st.kicker))}</small><b>${esc(str(st.value))}</b></aside>` : ""}</div>` : "");
@@ -131,6 +131,16 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
   if (!list?.length) return null;
   const tpls: Record<string, Template> = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
   const slots = state.slots && typeof state.slots === "object" ? state.slots : {};
+  // Buttons that link to a Studio page are saved as "page:<id>" (optionally "#<section>"),
+  // so they follow the page's current address. A missing or unpublished page means no link.
+  const pages = pagesOf(state);
+  const link = (v: unknown) => {
+    const s = str(v);
+    if (!s.startsWith("page:")) return s;
+    const [pid, sec] = s.slice(5).split("#");
+    const p = pages.find((x) => x.id === pid && !x.unpublished);
+    return p ? p.path + (sec && ID.test(sec) ? "#" + sec : "") : "";
+  };
   const sections: LiveSection[] = [];
   for (const inst of list) {
     const tpl = tpls[str(inst?.t)], uid = str(inst?.uid);
@@ -141,7 +151,7 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
     else if (tpl.type === "calendly") sections.push({ kind: "calendly", id: uid, className });
     else {
       // A section with nothing placed in it is left off the live page.
-      const html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]));
+      const html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link);
       if (/<(img|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id: uid, className, html });
     }
   }

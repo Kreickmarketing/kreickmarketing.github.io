@@ -561,6 +561,8 @@ body.drag-image .bg-drop { display: flex; }
 #site .filled.drop-ok, #site img.drop-ok { outline: 5px solid var(--cm-azure) !important; outline-offset: 3px; }
 #site img.drop-ok { filter: brightness(0.75); }
 body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0, 153, 206, 0.8); outline-offset: 2px; }
+.link-ed .seg { align-self: flex-start; }
+.link-ed .input + .input { margin-top: 6px; }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
 .crop-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
 .crop-hint { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 32, 38, 0.78); color: #fff; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; pointer-events: none; }
@@ -1001,9 +1003,11 @@ function cardBody(id) {
     ed = `<div class="field"><label for="in-${id}">Content · up to ${sl.limit} characters</label>${sl.long
       ? `<textarea class="input" id="in-${id}" data-edit="${id}" rows="3">${esc(v)}</textarea>`
       : `<input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}">`}${counter(v.length, sl.limit)}</div>`;
+    // A button: its link is edited right here too.
+    const linkId = `${sl.section}.link`;
+    if (sl.key === "button" && SLOTS[linkId]) ed += linkEditor(linkId);
   } else if (sl.kind === "link") {
-    const ok = !v || /^(https?:\/\/\S+|\/\S*|#\S*|mailto:\S+)$/i.test(v);
-    ed = `<div class="field"><label for="in-${id}">Link</label><input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}" inputmode="url" placeholder="https://… or /page or #section"></div>${ok ? "" : `<p class="source" style="color:var(--bad)">Use https://…, /page or #section.</p>`}`;
+    ed = linkEditor(id);
   } else if (sl.kind === "image") {
     const c = cropOf(id), bgShape = sl.key === "image";
     ed = v ? `<div class="field"><label>Crop · ${c ? "your focus point" : "auto (centre)"}</label>
@@ -1033,10 +1037,35 @@ function cardBody(id) {
     ${ed}
     <div class="card-actions">
       <button type="button" class="btn btn-small btn-primary" data-place="${id}" ${s === "draft" && !isEmpty(st.value) && !overLimit(id) ? "" : "disabled"}>Place in preview</button>
-      <button type="button" class="btn btn-small" data-revert="${id}" ${HIST[id]?.length ? "" : "disabled"} title="Go back to how this spot was before your last change">↶ Revert</button>
+      <button type="button" class="btn btn-small" data-revert="${id}" ${HIST[revertTarget(id)]?.length ? "" : "disabled"} title="Go back to how this spot was before your last change">↶ Revert</button>
       <button type="button" class="btn btn-small" data-clear="${id}" ${isEmpty(st.value) && isEmpty(st.placed) ? "disabled" : ""}>Clear card</button>
     </div>${overLimit(id) ? `<p class="source" style="color:var(--bad)">Over the limit. Shorten it to place it.</p>` : ""}`;
 }
+// ── Links: a page on this site (kept as "page:<id>", optionally "#<section>", so it follows
+// the page if its address changes) or a web address (https://… or mailto:…). Links apply at once.
+const linkMode = {};
+const URL_OK = (u) => /^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(u) || /^mailto:[^\s"'<>@]+@[^\s"'<>]+$/i.test(u);
+function resolveLink(v) {
+  v = String(v || "");
+  if (!v.startsWith("page:")) return v;
+  const [pid, sec] = v.slice(5).split("#"), p = PAGE_LIST.find((x) => x.id === pid);
+  return p ? p.path + (sec ? "#" + sec : "") : "";
+}
+function linkEditor(id) {
+  const v = String(S.slots[id].placed || S.slots[id].value || ""), mode = linkMode[id] || (v && !v.startsWith("page:") ? "url" : "page");
+  const [pid, sec] = v.startsWith("page:") ? v.slice(5).split("#") : ["", ""];
+  const target = PAGE_LIST.find((p) => p.id === pid), now = resolveLink(v);
+  const body = mode === "page"
+    ? `<select class="input" data-linkpage="${id}" aria-label="Page"><option value="">Choose a page…</option>${PAGE_LIST.map((p) => `<option value="${p.id}" ${p.id === pid ? "selected" : ""}>${esc(p.name)} · ${esc(p.path)}</option>`).join("")}</select>
+       ${target ? `<select class="input" data-linksec="${id}" aria-label="Part of the page"><option value="">Top of the page</option>${pageView(target.id).sections.map((x) => `<option value="${x.id}" ${x.id === sec ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}`
+    : `<input class="input" data-linkurl="${id}" value="${esc(v.startsWith("page:") ? "" : v)}" inputmode="url" placeholder="https://calendly.com/… or mailto:you@clearmark.bz" autocapitalize="off" spellcheck="false"><small class="slug-err" id="link-err-${id.replace(/\W/g, "-")}"></small>`;
+  return `<div class="field link-ed"><label>Button goes to</label>
+    <div class="seg" role="group" aria-label="Link type"><button type="button" data-linkmode="${id}:page" aria-pressed="${mode === "page"}">Page on this site</button><button type="button" data-linkmode="${id}:url" aria-pressed="${mode === "url"}">Web address</button></div>
+    ${body}
+    <p class="source">${now ? `Now: <a class="set-link" href="${esc(now.startsWith("/") ? SITE_URL + now : now)}" target="_blank" rel="noopener noreferrer">${esc(now)} ↗</a>${now.startsWith("http") ? " · opens in a new tab" : ""}` : "Not linked yet: the button stays hidden on the live site until it has a link."}</p></div>`;
+}
+function setLink(id, val) { snap(id); S.slots[id] = { value: val, placed: val }; render(); toast(val ? "Link updated." : "Link removed."); }
+
 const KIND_CHIP = (sl) => sl.kind === "text" ? `text · ${sl.limit}` : sl.kind === "list" ? `list · ${sl.max}` : sl.kind === "logos" ? `logos · ${sl.max}` : sl.kind === "offers" ? `cards · ${sl.max}` : sl.kind;
 
 // Small line drawings of each template, for the Templates list.
@@ -1181,13 +1210,20 @@ function renderSources() { const box = document.getElementById("side-sources"); 
 // first keeps a copy of how it was, so "Revert" steps back one change at a time (last 30).
 const HIST = {};
 const takeSnap = (id) => structuredClone({ value: S.slots[id].value, placed: S.slots[id].placed, crop: S.crop?.[id] ?? null });
-function pushSnap(id, snap) { const h = (HIST[id] ||= []); if (!h.length || !same(h[h.length - 1], snap)) h.push(snap); if (h.length > 30) h.shift(); }
+function pushSnap(id, snap) { const h = (HIST[id] ||= []); if (!h.length || !same(h[h.length - 1].s, snap)) h.push({ s: snap, t: Date.now() }); if (h.length > 30) h.shift(); }
+// A button's card reverts its text or its link, whichever changed last.
+function revertTarget(id) {
+  const sl = SLOTS[id], link = sl?.key === "button" ? `${sl.section}.link` : null;
+  const last = (x) => HIST[x]?.[HIST[x].length - 1]?.t || 0;
+  return link && last(link) > last(id) ? link : id;
+}
 const snap = (id) => S.slots[id] && pushSnap(id, takeSnap(id));
 function revert(id) {
-  const prev = HIST[id]?.pop(); if (!prev) return;
+  const showId = id; id = revertTarget(id);
+  const prev = HIST[id]?.pop()?.s; if (!prev) return;
   S.slots[id] = { value: prev.value, placed: prev.placed };
   S.crop ||= {}; if (prev.crop) S.crop[id] = prev.crop; else delete S.crop[id];
-  selected = openCard = id; render(); toast("Reverted to how it was before your last change.");
+  selected = openCard = SLOTS[showId] ? showId : id; render(); toast("Reverted to how it was before your last change.");
 }
 function fill(id, p, place) {
   const sl = SLOTS[id], st = S.slots[id];
@@ -1262,6 +1298,7 @@ document.addEventListener("click", (e) => {
   if (d.flip) { S.flip[d.flip] = !S.flip[d.flip]; render(); scrollToSection(d.flip); toast(S.flip[d.flip] ? "Photo on the right." : "Photo on the left."); return; }
   if (d.secmove) { const [id, dir] = d.secmove.split(":"); moveSectionBy(id, +dir); return; }
   if (d.revert) return revert(d.revert);
+  if (d.linkmode) { const [id, m] = d.linkmode.split(":"); linkMode[id] = m; renderCards(); return; }
   if (d.zoom) { const [id, dir] = d.zoom.split(":"); zoomBy(id, +dir * 0.25); return; }
   if (d.cropauto) { snap(d.cropauto); delete S.crop?.[d.cropauto]; render(); toast("Crop set back to auto (centre)."); return; }
   if (d.place || d.clear || d.addrow) snap(d.place || d.clear || d.addrow);
@@ -1307,12 +1344,19 @@ function refreshCard(id, input) {
   const card = document.querySelector(`[data-card="${id}"]`), s = status(id);
   card.className = `ccard is-${s} is-selected`;
   const pill = card.querySelector(".ccard-head .pill:last-child"); pill.className = `pill pill-${s}`; pill.textContent = s[0].toUpperCase() + s.slice(1);
-  const rv = card.querySelector("[data-revert]"); if (rv) rv.disabled = !HIST[id]?.length;
+  const rv = card.querySelector("[data-revert]"); if (rv) rv.disabled = !HIST[revertTarget(id)]?.length;
   const place = card.querySelector("[data-place]"); place.disabled = !(s === "draft" && !isEmpty(S.slots[id].value) && !overLimit(id));
   save();
 }
 document.addEventListener("change", (e) => {
   const t = e.target;
+  if (t.dataset.linkpage != null) { setLink(t.dataset.linkpage, t.value ? "page:" + t.value : ""); return; }
+  if (t.dataset.linksec != null) { const cur = String(S.slots[t.dataset.linksec].placed || "").slice(5).split("#")[0]; setLink(t.dataset.linksec, "page:" + cur + (t.value ? "#" + t.value : "")); return; }
+  if (t.dataset.linkurl != null) {
+    const u = t.value.trim(), err = document.getElementById("link-err-" + t.dataset.linkurl.replace(/\W/g, "-"));
+    if (u && !URL_OK(u)) { if (err) err.textContent = "Use a full address starting with https:// (or mailto: for email)."; return; }
+    setLink(t.dataset.linkurl, u); return;
+  }
   if (t.dataset.addoffer && t.value) { snap(t.dataset.addoffer); S.slots[t.dataset.addoffer].value.push(t.value); render(); }
   if (t.id === "guides") { S.guides = t.checked; render(); }
   if (t.id === "upload" && t.files[0]) {
