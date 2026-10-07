@@ -63,6 +63,8 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 16px; padding-block: 16px 32px; align-items: start; }
 .pane-preview { grid-row: 1 / span 2; }
 .pane-cards, .pane-sources { grid-column: 2; }
+.pane-cards { grid-row: 1 / span 2; align-self: stretch; }
+.edit-float { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 8px; transition: margin-top 0.2s; }
 .pane { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .pane-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; min-height: 32px; }
 .pane-head h2 { font-size: 15px; font-weight: 700; }
@@ -551,6 +553,14 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
 body.is-resizing { cursor: col-resize; user-select: none; }
 .side.will-close { opacity: 0.45; }
 .dev-range { color: var(--ink-3); font-family: var(--f-mono); font-size: 12px; white-space: nowrap; }
+.bg-drop { display: none; position: absolute; top: 72px; right: 32px; z-index: 30; width: 300px; min-height: 150px; border: 4px dashed #fff; border-radius: 18px; background: rgba(28, 32, 38, 0.55); color: #fff; font-family: var(--f-mono); font-size: 22px; font-weight: 700; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; }
+.bg-drop small { font-size: 14px; font-weight: 400; opacity: 0.8; }
+body.drag-image .bg-drop { display: flex; }
+.bg-drop.drop-ok { background: rgba(0, 153, 206, 0.6); border-color: var(--cm-azure); }
+/* While dragging, anything you can drop on lights up blue */
+#site .filled.drop-ok, #site img.drop-ok { outline: 5px solid var(--cm-azure) !important; outline-offset: 3px; }
+#site img.drop-ok { filter: brightness(0.75); }
+body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0, 153, 206, 0.8); outline-offset: 2px; }
 .empty-state { border: 1.5px dashed var(--line); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--ink-2); }
 
 /* Phones: the rail becomes a bar along the bottom; panels open as a sheet above it */
@@ -620,10 +630,12 @@ body.is-resizing { cursor: col-resize; user-select: none; }
   </section>
 
   <section class="pane pane-cards" aria-labelledby="cc-title">
-    <div class="pane-head">
-      <h2 id="cc-title">Edit <span id="cc-page" hidden>Home</span></h2>
+    <div class="edit-float" id="edit-float">
+      <div class="pane-head">
+        <h2 id="cc-title">Edit <span id="cc-page" hidden>Home</span></h2>
+      </div>
+      <div class="cards" id="cards"></div>
     </div>
-    <div class="cards" id="cards"></div>
   </section>
 
 </main>
@@ -941,7 +953,9 @@ function pageHtml(page, live = true) {
   return nav + empty + secs.map((sec) => {
     const k = (key) => `${sec.id}.${key}`;
     const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
-    return `<section class="sec t-${sec.template} ${SECTION_CLASS[sec.type]}" data-secid="${sec.id}">${tools}${SECTION_HTML[sec.type](sec, k)}</section>`;
+    // While an image is being dragged, sections with a photo behind them show a "Background image" box to drop on.
+    const bgDrop = live && PHOTO_TOP.includes(sec.type) && SLOTS[k("image")] ? `<div class="bg-drop" data-slot="${k("image")}">Background image<small>drop to replace</small></div>` : "";
+    return `<section class="sec t-${sec.template} ${SECTION_CLASS[sec.type]}" data-secid="${sec.id}">${tools}${bgDrop}${SECTION_HTML[sec.type](sec, k)}</section>`;
   }).join("") + `<footer class="site-footer"><img src="media/logo-white.png" alt="ClearMark Training"><span>Built for real people, in real jobs, right now.</span><span class="chrome-note">Footer: same on every page</span></footer>`;
 }
 
@@ -962,6 +976,7 @@ function fit() {
   wrap.style.height = site.offsetHeight * k + 32 + "px";
   wrap.classList.toggle("phone", S.device !== "desktop");
   if (S.device !== "desktop") sc.style.marginLeft = Math.max(0, (avail - w * k) / 2) + "px"; else sc.style.marginLeft = "0";
+  placeEdit();
 }
 
 // ── Content cards ──
@@ -1038,6 +1053,14 @@ function renderTemplates() {
 }
 
 // The Edit pane shows one spot at a time: the one picked in Layers (left) or in the preview.
+// Line the Edit pane up with the spot (or section) being edited; sticky keeps it in view while you scroll.
+function placeEdit() {
+  const box = $("#edit-float"); if (!box) return;
+  const target = (selected && document.querySelector(`#site [data-slot="${selected}"]`)) || (curSec && document.querySelector(`#site [data-secid="${curSec}"]`));
+  if (!target || matchMedia("(max-width: 760px)").matches) { box.style.marginTop = "0"; return; }
+  const pane = box.parentElement, top = target.getBoundingClientRect().top - pane.getBoundingClientRect().top - 40;
+  box.style.marginTop = Math.max(0, Math.min(top, pane.clientHeight - box.offsetHeight)) + "px";
+}
 function renderCards() {
   const page = pageView(S.page), sl = selected && SLOTS[selected];
   const sec = sl ? page.sections.find((x) => x.id === sl.section) : page.sections.find((x) => x.id === curSec);
@@ -1052,6 +1075,7 @@ function renderCards() {
     $("#cards").innerHTML = "";
   }
   $("#panes").classList.toggle("no-edit", !sec);
+  requestAnimationFrame(placeEdit);
 }
 
 // ── Sections: move, add, remove ──
@@ -1264,8 +1288,10 @@ document.addEventListener("dragstart", (e) => {
   const t = e.target.closest?.("[data-drag]"); if (!t) return;
   const [type, ...rest] = t.dataset.drag.split("|"); dragging = { type, value: rest.join("|") };
   e.dataTransfer.setData("text/plain", dragging.value); e.dataTransfer.effectAllowed = "copy";
+  setTimeout(() => document.body.classList.add("drag-" + type), 0);  // after the drag has started (Chrome)
 });
-document.addEventListener("dragend", () => { dragging = null; document.querySelectorAll(".drop-ok").forEach((x) => x.classList.remove("drop-ok")); });
+const endSrcDrag = () => { dragging = null; document.body.classList.remove("drag-image", "drag-text", "drag-offer"); document.querySelectorAll(".drop-ok").forEach((x) => x.classList.remove("drop-ok")); };
+document.addEventListener("dragend", endSrcDrag);
 
 // Press-and-drag in the preview and card list, built on pointer events so it works
 // the same with a mouse, a trackpad or a finger, in every browser:
@@ -1390,12 +1416,26 @@ document.addEventListener("dragover", (e) => {
   if (accepts(SLOTS[id], dragging)) { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; t.classList.add("drop-ok"); }
 });
 document.addEventListener("dragleave", (e) => { const t = dropTarget(e); if (t && !t.contains(e.relatedTarget)) t.classList.remove("drop-ok"); });
+// Dropping on the preview: an image or CMS card changes the page straight away; text
+// arrives as a draft, and the Edit pane opens beside it with "Place in preview".
 document.addEventListener("drop", (e) => {
   const t = dropTarget(e); if (!t || !dragging) return;
   e.preventDefault();
-  const id = t.dataset.slot || t.dataset.card;
-  fill(id, dragging, !!t.dataset.slot);
-  toast(t.dataset.slot ? "Placed in preview." : "Added to the card as a draft.");
+  const d = dragging, id = t.dataset.slot || t.dataset.card, sl = SLOTS[id];
+  endSrcDrag();
+  if (!t.dataset.slot) { fill(id, d, false); toast("Added to the card as a draft."); return; }
+  curSec = sl.section;
+  if (d.type !== "text") { fill(id, d, true); toast("Placed in preview."); return; }
+  // Text dropped on one point, tag or quote replaces that line (title if dropped on the title).
+  const item = sl.kind === "list" && e.target.closest?.(`#site [data-item^="${id}:"]`);
+  if (item) {
+    const st = S.slots[id], i = +item.dataset.item.split(":")[1];
+    const rows = structuredClone(isEmpty(st.value) ? st.placed : st.value);
+    const col = e.target.closest("b") ? sl.cols[0].key : sl.cols[sl.cols.length - 1].key;
+    if (rows[i]) { rows[i][col] = d.value; st.value = rows; }
+    selected = openCard = id; save(); render();
+  } else fill(id, d, false);
+  toast("Dropped in as a draft. Press “Place in preview” to show it.");
 });
 
 // Top bar
