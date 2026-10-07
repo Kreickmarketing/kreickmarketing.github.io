@@ -13,12 +13,12 @@ export const revalidate = 300;
 const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL || "https://calendly.com";
 
 export default async function Home() {
-  const studio = await getBuilderPage("clearmark", "home");
+  const studio = await getBuilderPage("clearmark", { id: "home" });
   if (studio) {
     return (
       <>
         <main>
-          <BuilderPage page={studio.page} livePages={studio.livePages} />
+          <BuilderPage page={studio.page} livePages={studio.livePages} paths={studio.paths} />
         </main>
         <Footer />
       </>

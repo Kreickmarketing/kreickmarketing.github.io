@@ -1,16 +1,17 @@
 // Live pages made in the Studio builder (/clrcrm/studio/builder).
 //
 // The builder saves one JSON "state" per site: pages (lists of template copies),
-// spots ({ value, placed }), photo sides (flip) and template designs. Visitors see
+// spots ({ value, placed }), photo sides (flip) and the page list (names and
+// addresses). Template designs live in code (and Claude Design), not in the state. Visitors see
 // what was *placed* when Andrew pressed Publish. This file turns that state into
 // HTML and CSS for the live site. It mirrors the builder's own drawing code
-// (docs/prototypes/studio-builder/studio-builder.html: SECTION_HTML and cssFor),
+// (docs/prototypes/studio-builder/studio-builder.html: SECTION_HTML),
 // minus the editing marks, so keep the two in step when a template changes.
 //
 // Safety: the state is only ever written by logged-in CRM members, but it is
 // still treated as untrusted here. Every text is escaped, images must be local
-// files, links must be https, mailto or on-site, and design values must be one
-// of the ClearMark names the Design view offers.
+// files, links must be https, mailto or on-site, and page addresses must be
+// simple lower-case slugs that don't clash with the site's own routes.
 
 type Slot = { key: string; kind: "text" | "link" | "image" | "logos" | "list" | "offers" };
 type Template = { id: string; type: string; slots: Slot[] };
@@ -46,8 +47,7 @@ export type BuilderState = {
   pages?: Record<string, { uid: string; t: string; name?: string }[]>;
   slots?: Record<string, { placed?: unknown }>;
   flip?: Record<string, boolean>;
-  design?: Record<string, Record<string, Record<string, Record<string, unknown>>>>;
-  customTpls?: { id: string; base: string }[];
+  pageList?: { id: string; name?: string; path?: string }[];
 };
 
 // One section of a live page. Most are finished HTML; the mailing list and
@@ -57,7 +57,7 @@ export type LiveSection =
   | { kind: "mail"; id: string; className: string; headline: string; intro: string }
   | { kind: "calendly"; id: string; className: string };
 
-export type LivePage = { sections: LiveSection[]; css: string; navOverPhoto: boolean };
+export type LivePage = { sections: LiveSection[]; navOverPhoto: boolean };
 
 // ── Safe values ──
 const esc = (t: unknown) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -114,112 +114,16 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean): 
   }
 }
 
-// ── Design view choices → CSS (same rules as the builder's cssFor) ──
-const COLORS = new Set(["white", "clay-light", "clay", "midnight", "rogue-cherry", "tidal-azure", "sage-mist", "deep-taupe", "iron-pine", "charcoal", "solar-flare", "honey-brass", "tangerine-burst", "iron-moss", "frosted-mint", "cobalt-wave", "aegean", "merlot", "lavender-mist"]);
-// [size, line height, letter spacing, weight, phone size, phone line height]
-const TEXT_STYLES: Record<string, number[]> = {
-  h1: [112, 100, -4, 200, 88, 79], h2: [96, 88, -4, 200, 72, 65], h3: [80, 72, -4, 200, 60, 54],
-  h4: [64, 56, -3, 300, 48, 43], h5: [52, 48, -2, 300, 40, 36], h6: [40, 36, -2, 300, 32, 29],
-  tagline: [16, 16, 3, 700, 12, 12], xl: [28, 32, -1, 400], lg: [24, 28, -1, 400], md: [20, 24, -1, 400], sm: [16, 20, -1, 400], xs: [12, 14, -1, 400],
-};
-const WEIGHTS = new Set([200, 300, 400, 500, 600, 700, 800]);
-const STEPS = new Set([0, 16, 32, 64, 96, 128, 160]);
-const RATIOS = new Set(["1fr 1fr", "2fr 3fr", "3fr 2fr", "1fr 2fr", "2fr 1fr", "1fr"]);
-const VALIGN = new Set(["start", "center", "end"]);
-const ALIGN = new Set(["left", "center", "right"]);
-const ASPECTS = new Set(["4 / 5", "1 / 1", "4 / 3", "16 / 9"]);
-const BTN: Record<string, string> = { white: "background: var(--white); color: var(--midnight); border: 0", cherry: "background: var(--rogue-cherry); color: var(--white); border: 0", outline: "background: transparent; color: var(--white); border: 2px solid var(--white)" };
-const COLS_SEL: Record<string, string> = { header: " .sh", photopoints: " .split", story: " .split", plat: " .sh", cred: "", mail: "" };
-const num = (v: unknown, ok: (n: number) => boolean) => (typeof v === "number" && Number.isFinite(v) && ok(v) ? v : undefined);
-
-function decls(props: Record<string, unknown>, bp: string): string[] {
-  const out: string[] = [];
-  const style = (k: unknown) => {
-    const t = TEXT_STYLES[str(k)];
-    if (!t) return;
-    const ph = bp === "phone" && t[4];
-    out.push(`font-size: ${ph ? t[4] : t[0]}px`, `line-height: ${ph ? t[5] : t[1]}px`, `letter-spacing: ${t[2]}px`, `font-weight: ${t[3]}`);
-    if (k === "tagline") out.push("text-transform: uppercase");
-  };
-  for (const [p, v] of Object.entries(props)) {
-    if ((p === "bg" || p === "color") && COLORS.has(str(v))) out.push(`${p === "bg" ? "background" : "color"}: var(--${v})`);
-    else if (p === "pt" && num(v, (n) => STEPS.has(n)) !== undefined) out.push(`padding-top: ${v}px`);
-    else if (p === "pb" && num(v, (n) => STEPS.has(n)) !== undefined) out.push(`padding-bottom: ${v}px`);
-    else if (p === "px" && num(v, (n) => STEPS.has(n)) !== undefined) out.push(`padding-left: ${v}px`, `padding-right: ${v}px`);
-    else if (p === "gap" && num(v, (n) => STEPS.has(n)) !== undefined) out.push(`gap: ${v}px`);
-    else if (p === "hidden" && v === true) out.push("display: none");
-    else if (p === "ratio" && RATIOS.has(str(v))) out.push(`grid-template-columns: ${v}`);
-    else if (p === "valign" && VALIGN.has(str(v))) out.push(`align-items: ${v}`);
-    else if (p === "style") style(v);
-    else if (p === "weight" && num(v, (n) => WEIGHTS.has(n)) !== undefined) out.push(`font-weight: ${v}`);
-    else if (p === "align" && ALIGN.has(str(v))) out.push(`text-align: ${v}`);
-    else if (p === "radius" && num(v, (n) => n >= 0 && n <= 64) !== undefined) out.push(`border-radius: ${v}px`);
-    else if (p === "aspect" && ASPECTS.has(str(v))) out.push(`aspect-ratio: ${v}`, "height: auto", "object-fit: cover");
-  }
-  return out;
-}
-
-function designCss(tplId: string, tpl: Template, d: Record<string, Record<string, Record<string, unknown>>>): string {
-  const sc = `.site .t-${tplId}`, blocks: string[] = [];
-  const obj = (x: unknown) => (x && typeof x === "object" && !Array.isArray(x) ? (x as Record<string, Record<string, unknown>>) : {});
-  const at = { base: obj(d.base), tablet: obj(d.tablet), phone: obj(d.phone) };
-  const valueAt = (bp: "phone", layer: string, prop: string) => { for (const b of ["phone", "tablet", "base"] as const) { const v = obj(at[b])[layer]?.[prop]; if (v !== undefined) return v; } return undefined; };
-  for (const bp of ["base", "tablet", "phone"] as const) {
-    const rules: string[] = [];
-    const layers = new Set([...Object.keys(at[bp]), ...(bp === "phone" ? [...Object.keys(at.base), ...Object.keys(at.tablet)] : [])]);
-    for (const layer of layers) {
-      if (layer !== "section" && layer !== "columns" && !tpl.slots.some((x) => x.key === layer)) continue;
-      const props: Record<string, unknown> = { ...(obj(at[bp][layer]) as Record<string, unknown>) };
-      if (bp === "phone" && !props.style) { const st = valueAt("phone", layer, "style"); if (TEXT_STYLES[str(st)]?.[4]) props.style = st; }
-      if (bp === "phone" && !props.tstyle) { const st = valueAt("phone", layer, "tstyle"); if (TEXT_STYLES[str(st)]?.[4]) props.tstyle = st; }
-      if (!Object.keys(props).length) continue;
-      if (layer === "columns" && !(tpl.type in COLS_SEL)) continue;
-      const base = layer === "section" ? sc : layer === "columns" ? sc + COLS_SEL[tpl.type] : `${sc} [data-slot=".${layer}"]`;
-      const sl = tpl.slots.find((x) => x.key === layer);
-      const { tstyle, cols, logoh, btn, ...rest } = props;
-      const own = decls(rest, bp);
-      const hid = own.filter((x) => x.startsWith("display")), visual = own.filter((x) => !x.startsWith("display"));
-      if (hid.length) rules.push(`${base} { ${hid.join("; ")}; }`);
-      if (sl?.kind === "list" && layer === "points") {
-        if (visual.length) rules.push(`${base} .point p { ${visual.join("; ")}; }`);
-        const ts = decls({ style: tstyle }, bp);
-        if (ts.length) rules.push(`${base} .point b { ${ts.join("; ")}; }`);
-        if (COLORS.has(str(rest.color))) rules.push(`${base} .point b { color: var(--${rest.color}); }`);
-        continue;
-      }
-      if (sl?.kind === "logos") { const h = num(logoh, (n) => n >= 16 && n <= 120); if (h !== undefined) rules.push(`${base} img { height: ${h}px; }`); continue; }
-      if (sl?.kind === "offers") {
-        const c = num(cols, (n) => Number.isInteger(n) && n >= 1 && n <= 4);
-        if (c !== undefined) rules.push(`${base} { grid-template-columns: repeat(${c}, minmax(0, 1fr)); }`);
-        const r = decls({ radius: rest.radius }, bp);
-        if (r.length) rules.push(`${base} .offer { ${r.join("; ")}; }`);
-        continue;
-      }
-      if (BTN[str(btn)]) rules.push(`${base} { ${BTN[str(btn)]}; }`);
-      if (visual.length) rules.push(`${base} { ${visual.join("; ")}; }`);
-    }
-    if (!rules.length) continue;
-    const q = bp === "tablet" ? "@container (max-width: 1000px)" : bp === "phone" ? "@container (max-width: 700px)" : "";
-    blocks.push(q ? `${q} {\n  ${rules.join("\n  ")}\n}` : rules.join("\n"));
-  }
-  return blocks.join("\n");
-}
-
 // ── A whole live page ──
 export function renderLivePage(state: BuilderState, pageId: string): LivePage | null {
   const list = Array.isArray(state?.pages?.[pageId]) ? state.pages![pageId] : null;
   if (!list?.length) return null;
   const tpls: Record<string, Template> = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
-  for (const c of Array.isArray(state.customTpls) ? state.customTpls : []) {
-    if (ID.test(str(c?.id)) && tpls[str(c?.base)]) tpls[c.id] = { ...tpls[c.base], id: c.id };
-  }
   const slots = state.slots && typeof state.slots === "object" ? state.slots : {};
   const sections: LiveSection[] = [];
-  const used = new Set<string>();
   for (const inst of list) {
     const tpl = tpls[str(inst?.t)], uid = str(inst?.uid);
     if (!tpl || !ID.test(uid)) continue;
-    used.add(tpl.id);
     const P = (key: string) => slots[`${uid}.${key}`]?.placed;
     const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}`;
     if (tpl.type === "mail") sections.push({ kind: "mail", id: uid, className, headline: str(P("headline")), intro: str(P("intro")) });
@@ -230,22 +134,45 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
       if (/<(img|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id: uid, className, html });
     }
   }
-  const design = state.design && typeof state.design === "object" ? state.design : {};
-  const css = [...used].filter((id) => design[id]).map((id) => designCss(id, tpls[id], design[id])).filter(Boolean).join("\n");
   const first = tpls[str(list[0]?.t)];
-  return { sections, css, navOverPhoto: !!first && PHOTO_TOP.includes(first.type) };
+  return { sections, navOverPhoto: !!first && PHOTO_TOP.includes(first.type) };
 }
 
-// The builder's pages and their addresses on the live site.
+// The builder's starting pages. Andrew can rename them, change their addresses
+// and add more in Studio; the list is saved as `pageList` in the state.
 export const BUILDER_PAGES = [
   { id: "home", name: "Home", path: "/" },
   { id: "about", name: "About", path: "/about" },
   { id: "pricing", name: "Pricing", path: "/pricing" },
   { id: "book", name: "Book a call", path: "/book" },
 ] as const;
+export type BuilderPageInfo = { id: string; name: string; path: string };
+
+// Addresses Studio pages can't take: the site's own routes.
+export const RESERVED_SLUGS = new Set(["clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"]);
+export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+
+// The page list in a state, checked: Home is always "/", every other page has a
+// unique, safe one-word address. Bad or missing entries fall back to the start list.
+export function pagesOf(state: BuilderState | null | undefined): BuilderPageInfo[] {
+  const list = Array.isArray(state?.pageList) ? state!.pageList : null;
+  if (!list) return BUILDER_PAGES.map((p) => ({ ...p }));
+  const out: BuilderPageInfo[] = [], seen = new Set<string>();
+  for (const p of list) {
+    const id = str(p?.id);
+    if (!ID.test(id) || out.some((x) => x.id === id)) continue;
+    const name = str(p?.name).slice(0, 60) || id;
+    if (id === "home") { out.push({ id, name, path: "/" }); continue; }
+    const slug = str(p?.path).replace(/^\//, "");
+    if (!SLUG.test(slug) || slug.length > 60 || RESERVED_SLUGS.has(slug) || seen.has(slug)) continue;
+    seen.add(slug);
+    out.push({ id, name, path: "/" + slug });
+  }
+  return out;
+}
 
 // Pages that have something to show in this state (visitors see these once published).
 export function livePageIds(state: BuilderState | null | undefined): string[] {
   if (!state) return [];
-  return BUILDER_PAGES.filter((p) => (renderLivePage(state, p.id)?.sections.length ?? 0) > 0).map((p) => p.id);
+  return pagesOf(state).filter((p) => (renderLivePage(state, p.id)?.sections.length ?? 0) > 0).map((p) => p.id);
 }

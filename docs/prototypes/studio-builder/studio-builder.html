@@ -23,7 +23,7 @@
   /* ClearMark site (preview) */
   --cm-white: #FFFFFF; --cm-clay-light: #F6F5F2; --cm-clay: #E1DDD5; --cm-midnight: #1C2026;
   --cm-charcoal: #2C3139; --cm-cherry: #DB1F3D; --cm-azure: #0099CE; --cm-iron: #444D4D; --cm-taupe: #858278;
-  /* ClearMark color names (styles/colors.css), used by Design view's CSS */
+  /* ClearMark color names (styles/colors.css) */
   --white: #FFFFFF; --clay-light: #F6F5F2; --clay: #E1DDD5; --midnight: #1C2026; --rogue-cherry: #DB1F3D; --tidal-azure: #0099CE;
   --sage-mist: #B2AFA7; --deep-taupe: #858278; --iron-pine: #444D4D; --charcoal: #2C3139; --solar-flare: #F5DE73; --honey-brass: #C8A74B;
   --tangerine-burst: #E48F46; --iron-moss: #336A4E; --frosted-mint: #ABCFA1; --cobalt-wave: #294079; --aegean: #2D6AA5; --merlot: #91272B; --lavender-mist: #C6B7E1;
@@ -172,97 +172,6 @@ select.input { padding-right: 10px; }
 .upload { display: flex; flex-direction: column; gap: 6px; border: 1.5px dashed var(--line); border-radius: 8px; padding: 10px; color: var(--ink-3); font-size: 12px; text-align: center; }
 .upload input { font-size: 12px; max-width: 100%; }
 .picked-bar { font-size: 12px; color: var(--ink-2); background: var(--accent-soft); border-radius: 6px; padding: 6px 8px; display: flex; justify-content: space-between; gap: 6px; align-items: center; }
-
-/* ── Content | Design switch ── */
-.mode-switch button { font-size: 13px; padding: 5px 16px; }
-body.design-open { overflow: hidden; }
-
-/* ── Design view: light, like Claude Design ── */
-.design { position: fixed; inset: 0; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr) 380px; background: #F3F2EF; color: #1F1E1D; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; color-scheme: light; padding-top: env(safe-area-inset-top, 0px); }
-.design[hidden] { display: none; }
-.design button, .design select, .design input { font: inherit; color: inherit; }
-.dv-main { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-.dv-toolbar { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 3; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; background: #fff; border: 1px solid #E6E4E0; border-radius: 14px; padding: 6px 8px; box-shadow: 0 2px 10px rgba(30, 25, 20, 0.06); width: fit-content; max-width: calc(100% - 32px); }
-.dv-tool { border: 0; background: none; border-radius: 8px; height: 34px; min-width: 34px; padding: 0 8px; display: inline-grid; place-items: center; color: #3D3B38; cursor: pointer; }
-.dv-tool:hover:not(:disabled) { background: #F1F0ED; }
-.dv-tool[aria-pressed="true"] { background: #DCEBFA; color: #0B5FA5; }
-.dv-tool:disabled { color: #C2BFBA; cursor: default; }
-.dv-back { font-weight: 600; }
-.dv-div { width: 1px; height: 22px; background: #E6E4E0; margin: 0 2px; }
-.dv-spacer { flex: 1; }
-.dv-pick { display: inline-flex; align-items: center; gap: 8px; padding: 0 8px; border-radius: 8px; }
-.dv-pick:hover { background: #F1F0ED; }
-.dv-pick-count { display: inline-grid; place-items: center; min-width: 22px; height: 22px; border-radius: 6px; background: #F1F0ED; font-size: 12px; color: #6E6B66; }
-.dv-pick select, .dv-zoom select { border: 0; background: none; font-size: 16px; font-weight: 500; padding: 4px 2px; cursor: pointer; }
-.dv-zoom { display: inline-flex; align-items: center; gap: 4px; padding-left: 8px; border-left: 1px solid #E6E4E0; }
-.dv-zoom span { font-variant-numeric: tabular-nums; min-width: 42px; text-align: right; }
-.dv-zoom select { width: 22px; font-size: 13px; }
-.dv-seg { display: inline-flex; background: #F1F0ED; border-radius: 9px; padding: 2px; gap: 2px; }
-.dv-seg button { border: 0; background: none; border-radius: 7px; padding: 5px 12px; cursor: pointer; color: #6E6B66; }
-.dv-seg button[aria-pressed="true"] { background: #fff; color: #1F1E1D; box-shadow: 0 1px 2px rgba(0,0,0,0.08); font-weight: 600; }
-.dv-seg-small button { padding: 4px 10px; font-size: 13px; }
-.dv-canvas { flex: 1; overflow: auto; padding: 96px 32px 48px; }
-.dv-canvas.is-hand { cursor: grab; }
-.dv-canvas.is-hand * { pointer-events: none; }
-.dv-canvas.is-hand { pointer-events: auto; }
-.dv-boards { display: flex; gap: 32px; align-items: flex-start; width: max-content; }
-.board { margin: 0; display: flex; flex-direction: column; gap: 10px; }
-.board figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; color: #6E6B66; font-size: 12px; }
-.board figcaption button { border: 0; background: none; padding: 0; font-size: 16px; color: #3D3B38; cursor: pointer; }
-.board.is-active figcaption button { color: #0B5FA5; font-weight: 600; }
-.board-frame { overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(30, 25, 20, 0.12); }
-.board.is-active .board-frame { outline: 2px solid #3B8BE0; outline-offset: 2px; }
-.board-scale { transform-origin: 0 0; }
-.board .site [data-slot], .board .site [data-layer] { cursor: default; }
-.board .site [data-slot]:hover { outline: 2px solid rgba(59, 139, 224, 0.6); outline-offset: 2px; }
-.board .site .is-picked { outline: 4px solid #3B8BE0 !important; outline-offset: 2px; }
-.board .site section.is-picked { outline-offset: -4px; }
-.dv-panel { background: #fff; border-left: 1px solid #E6E4E0; display: flex; flex-direction: column; min-height: 0; }
-.dv-tabs { display: flex; align-items: center; gap: 4px; padding: 10px 12px; border-bottom: 1px solid #E6E4E0; }
-.dv-tabs button[role="tab"] { border: 0; background: none; border-radius: 8px; padding: 6px 12px; font-size: 16px; color: #8A8782; cursor: pointer; }
-.dv-tabs button[aria-selected="true"] { background: #F1F0ED; color: #1F1E1D; font-weight: 500; }
-.dv-close { margin-left: auto; border: 0; background: none; font-size: 22px; color: #6E6B66; cursor: pointer; width: 32px; height: 32px; border-radius: 8px; }
-.dv-close:hover { background: #F1F0ED; }
-.dv-panel-body { overflow: auto; flex: 1; }
-.dv-tree { list-style: none; margin: 0; padding: 8px; border-bottom: 1px solid #E6E4E0; max-height: 260px; overflow: auto; }
-.dv-tree button { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; background: none; text-align: left; padding: 7px 10px; border-radius: 8px; font-size: 15px; cursor: pointer; }
-.dv-tree button.lvl1 { padding-left: 34px; }
-.dv-tree button:hover { background: #F6F5F3; }
-.dv-tree li[aria-selected="true"] button { background: #ECEBE8; }
-.dv-tree .ico { width: 18px; color: #8A8782; font-size: 12px; text-align: center; }
-.dv-tree .kind { margin-left: auto; font-size: 11px; color: #A19D97; text-transform: uppercase; letter-spacing: 0.04em; }
-.dv-sec { padding: 16px 20px; border-bottom: 1px solid #E6E4E0; display: flex; flex-direction: column; gap: 12px; }
-.dv-sec-head { display: flex; justify-content: space-between; align-items: center; }
-.dv-sec h3 { font-size: 17px; font-weight: 700; margin: 0; }
-.dv-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 4px 12px; align-items: center; }
-.dv-row > label { color: #8A8782; font-size: 15px; }
-.dv-ctl { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.dv-input { width: 100%; min-width: 0; border: 1px solid #E2E0DC; border-radius: 9px; padding: 7px 10px; background: #fff; font-size: 15px; }
-.dv-input:disabled { background: #F6F5F3; color: #8A8782; }
-.dv-swatch { flex: none; width: 20px; height: 20px; border-radius: 5px; border: 1px solid #DDDAD5; background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%); background-size: 8px 8px; }
-.dv-swatch[style*="#"] { background-image: none; }
-.dv-from { grid-column: 2; font-size: 11px; color: #A19D97; }
-.dv-row.is-tweak .dv-input, .dv-row.is-tweak .dv-seg { box-shadow: 0 0 0 2px #F5DE73; }
-.dv-row.is-inherited .dv-input { color: #8A8782; }
-.dv-toggle { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
-.dv-hint { margin: 0; color: #8A8782; font-size: 13px; }
-.dv-used { background: #F6F5F3; border-radius: 9px; padding: 8px 12px; font-size: 13px; color: #6E6B66; }
-.dv-used.is-free { background: none; padding: 0; }
-.dv-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.dv-btn { border: 1px solid #E2E0DC; background: #fff; border-radius: 9px; padding: 6px 12px; cursor: pointer; font-weight: 500; }
-.dv-btn:hover { background: #F6F5F3; }
-.dv-danger { color: #B42318; }
-.dv-code { margin: 0; background: #F6F5F3; border-radius: 9px; padding: 12px; font: 12px/1.5 ui-monospace, "Courier New", monospace; white-space: pre-wrap; word-break: break-word; }
-.dv-tweaks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.dv-tweaks li { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #FDF8E1; border-radius: 8px; padding: 6px 10px; font-size: 13px; }
-.dv-x { border: 0; background: none; cursor: pointer; font-size: 15px; color: #6E6B66; }
-.design :focus-visible { outline: 2px solid #3B8BE0; outline-offset: 2px; }
-@media (max-width: 900px) {
-  .design { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 45%); }
-  .dv-panel { border-left: 0; border-top: 1px solid #E6E4E0; }
-  .dv-toolbar { left: 8px; right: 8px; top: 8px; }
-  .dv-canvas { padding-top: 120px; }
-}
 
 /* Templates list */
 .tpl-list { display: flex; flex-direction: column; gap: 8px; }
@@ -560,6 +469,11 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 .cms-table td.num { color: var(--ink-3); font-family: var(--f-mono); width: 40px; }
 .cms-table img { width: 40px; height: 28px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; }
 .cms-table tr:last-child td { border-bottom: 0; }
+.slug-row { display: flex; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding-left: 12px; }
+.slug-row .mono { color: var(--ink-3); font-size: 13px; white-space: nowrap; }
+.set-field .slug-row input { border: 0; background: none; padding-left: 2px; min-width: 0; }
+.slug-err { color: var(--bad) !important; }
+.side-label .btn { text-transform: none; letter-spacing: 0; }
 .empty-state { border: 1.5px dashed var(--line); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--ink-2); }
 
 /* Phones: the rail becomes a bar along the bottom; panels open as a sheet above it */
@@ -601,11 +515,7 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 <header class="top" id="top">
   <div class="brand">
     <h1>Studio Builder</h1>
-    <p>ClearMark · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span></p>
-  </div>
-  <div class="seg mode-switch" role="group" aria-label="View">
-    <button type="button" data-mode="content" aria-pressed="true">Content</button>
-    <button type="button" data-mode="design" aria-pressed="false">Design</button>
+    <p>ClearMark · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span> <button type="button" class="btn btn-small" id="page-edit" data-setnav="page:home">Edit address</button></p>
   </div>
   <div class="top-actions">
     <button class="btn" id="place-all" type="button">Place all drafts</button>
@@ -663,30 +573,6 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
     <div class="sources" id="sources"></div>
   </aside>
 </main>
-<div class="design" id="design" hidden>
-  <div class="dv-main">
-    <div class="dv-toolbar" role="toolbar" aria-label="Design tools">
-      <button type="button" class="dv-tool dv-back" id="dv-back" data-dv-back>← Back</button>
-      <span class="dv-div"></span>
-      <div class="dv-seg mode-switch-light" role="group" aria-label="View"><button type="button" data-mode="content" aria-pressed="false">Content</button><button type="button" data-mode="design" aria-pressed="true">Design</button></div>
-      <span class="dv-div"></span>
-      <label class="dv-pick"><span class="dv-pick-count" id="dv-count"></span><select id="dv-template" aria-label="Template"></select></label>
-      <span class="dv-div"></span>
-      <button type="button" class="dv-tool" data-tool="select" aria-pressed="true" title="Select (V)" aria-label="Select"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 3l14 8-6 2-2 6z"/></svg></button>
-      <button type="button" class="dv-tool" data-tool="hand" aria-pressed="false" title="Hand: drag to look around (H)" aria-label="Hand"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11V4.5a1.5 1.5 0 0 1 3 0V12M14 11.5V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-.5a6 6 0 0 1-5-2.7L3.6 14a1.5 1.5 0 0 1 2.5-1.7L8 15"/></svg></button>
-      <button type="button" class="dv-tool" disabled title="Add text: comes with New template" aria-label="Add text (coming next)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg></button>
-      <button type="button" class="dv-tool" disabled title="Add frame: comes with New template" aria-label="Add frame (coming next)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v18M16 3v18M3 8h18M3 16h18"/></svg></button>
-      <button type="button" class="dv-tool" disabled title="Add image: comes with New template" aria-label="Add image (coming next)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/></svg></button>
-      <span class="dv-spacer"></span>
-      <label class="dv-zoom"><span id="dv-zoom-label">100%</span><select id="dv-zoom" aria-label="Zoom"><option value="fit">Fit all sizes</option><option value="0.25">25%</option><option value="0.5">50%</option><option value="0.75">75%</option><option value="1">100%</option></select></label>
-    </div>
-    <div class="dv-canvas" id="dv-canvas"><div class="dv-boards" id="dv-boards"></div></div>
-  </div>
-  <aside class="dv-panel" aria-label="Template properties">
-    <div class="dv-tabs" role="tablist"><button type="button" role="tab" data-dvtab="props" aria-selected="true">Properties</button><button type="button" role="tab" data-dvtab="code" aria-selected="false">Code</button><button type="button" role="tab" data-dvtab="tweaks" aria-selected="false">Tweaks</button><button type="button" class="dv-close" data-dv-back aria-label="Close Design view">×</button></div>
-    <div class="dv-panel-body" id="dv-panel-body"></div>
-  </aside>
-</div>
 <div class="toast" id="toast" hidden></div>
 <div class="confirm-backdrop" id="confirm" hidden>
   <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
@@ -792,21 +678,18 @@ const TEMPLATES = [
   ]},
   { id: "calendly", name: "Calendly booking", type: "calendly", about: "Your 15-minute call calendar. Nothing to fill.", slots: [] },
 ];
-// Built-in templates plus copies made in Design view (S.customTpls).
-let TPL = {};
-const allTemplates = () => [...TEMPLATES, ...((typeof S !== "undefined" && S?.customTpls) || []).map((c) => TPL[c.id]).filter(Boolean)];
-function rebuildTpl() {
-  TPL = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
-  for (const c of (S?.customTpls || [])) if (TPL[c.base]) TPL[c.id] = { ...TPL[c.base], id: c.id, name: c.name, about: c.about, base: c.base };
-}
+// How templates look is decided in code (and in Claude Design), not here.
+const TPL = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
 
-// The site's pages. Each page is a list of sections; each section is a copy of a template.
-const PAGE_LIST = [
+// The site's pages: name and address. Each page is a list of sections; each section is a
+// copy of a template. Pages can be renamed, re-addressed and added (S.pageList); Home is always "/".
+const START_PAGES = [
   { id: "home", name: "Home", path: "/" },
   { id: "about", name: "About", path: "/about" },
   { id: "pricing", name: "Pricing", path: "/pricing" },
   { id: "book", name: "Book a call", path: "/book" },
 ];
+let PAGE_LIST = START_PAGES;
 const START_SECTIONS = {
   home: [["hero", "hero", "Hero"], ["credibility", "logos", "Credibility"], ["why", "heading", "Why ClearMark · heading"], ["why-proof", "photo-points", "Founder + selling points"],
     ["platforms", "photo-tags", "Platforms"], ["solutions", "heading", "Solutions · heading"], ["sol-offers", "offers", "Offer cards"], ["mailing", "mailing", "Mailing list"]],
@@ -856,7 +739,7 @@ function seed() {
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { pages, slots: v, page: "home", flip: {}, device: "desktop", guides: true };
+  return { pages, pageList: structuredClone(START_PAGES), slots: v, page: "home", flip: {}, device: "desktop", guides: true };
 }
 // Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
@@ -872,10 +755,15 @@ if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
 if (S) { S.flip ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
-S.design ||= {}; S.customTpls ||= [];
+// Sections made from copies in the old Design view go back to their original template;
+// design now lives in Claude Design, so the builder keeps no design of its own.
+if (S.customTpls) { const base = Object.fromEntries(S.customTpls.map((c) => [c.id, c.base])); for (const l of Object.values(S.pages)) for (const inst of l) if (base[inst.t]) inst.t = base[inst.t]; }
+delete S.design; delete S.customTpls;
+if (!Array.isArray(S.pageList)) S.pageList = structuredClone(START_PAGES);
+for (const p of S.pageList) S.pages[p.id] = (S.pages[p.id] || []).filter((inst) => TPL[inst.t]);
+PAGE_LIST = S.pageList;
 // Open a page straight from a link: /clrcrm/studio/builder?page=about
 { const want = new URLSearchParams(location.search).get("page"); if (want && PAGE_LIST.some((p) => p.id === want)) S.page = want; }
-rebuildTpl();
 rebuildSlots();
 const save = () => { if (LIVE) return queueSync(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
@@ -907,7 +795,7 @@ const isEmpty = (v) => Array.isArray(v) ? v.length === 0 || v.every((r) => typeo
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 function status(id) {
   const st = S.slots[id];
-  if (!st) return "empty"; // a sample spot shown only in Design view
+  if (!st) return "empty";
   if (isEmpty(st.value) && isEmpty(st.placed)) return "empty";
   return same(st.value, st.placed) && !isEmpty(st.placed) ? "placed" : "draft";
 }
@@ -992,10 +880,10 @@ function pageHtml(page, live = true) {
   const secs = page.sections;
   // The nav is part of the design: over the photo when the page starts with one, otherwise a dark bar.
   const nav = navChrome().replace('class="site-nav"', `class="site-nav${secs[0] && PHOTO_TOP.includes(secs[0].type) ? "" : " nav-bar"}"`);
-  const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections. Open Templates in the card list to add one.</div></div>` : "";
+  const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections yet. Open Modules in the side nav to add one.</div></div>` : "";
   return nav + empty + secs.map((sec) => {
     const k = (key) => `${sec.id}.${key}`;
-    const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}<button type="button" class="sec-flip" data-edittpl="${sec.id}" title="Change how this template looks, at every size">✎ Edit template</button><button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
+    const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
     return `<section class="sec t-${sec.template} ${SECTION_CLASS[sec.type]}" data-secid="${sec.id}">${tools}${SECTION_HTML[sec.type](sec, k)}</section>`;
   }).join("") + `<footer class="site-footer"><img src="media/logo-white.png" alt="ClearMark Training"><span>Built for real people, in real jobs, right now.</span><span class="chrome-note">Footer: same on every page</span></footer>`;
 }
@@ -1083,7 +971,7 @@ function renderTemplates() {
   const page = pageView(S.page);
   const after = curSec && page.sections.find((x) => x.id === curSec);
   $("#cards").innerHTML = `<p class="hint" style="margin:0">Each template is a section designed in code. <b style="color:var(--ink-2)">+ Add</b> puts it ${after ? `after <b style="color:var(--ink)">${esc(after.name)}</b>` : "at the end of the page"}; or drag it onto the preview, where a blue line shows where it lands.</p>
-    <div class="tpl-list">${allTemplates().map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">
+    <div class="tpl-list">${TEMPLATES.map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">
       ${tplThumb(t.type)}<div class="tpl-text"><b>${esc(t.name)}</b><span>${esc(t.about)}</span><span class="chip" style="align-self:flex-start">${t.slots.length ? `${t.slots.length} ${t.slots.length === 1 ? "spot" : "spots"}` : "nothing to fill"}${t.flip ? " · photo left or right" : ""}</span></div>
       <button type="button" class="btn btn-small btn-primary" data-addtpl="${t.id}">+ Add</button></div>`).join("")}</div>`;
 }
@@ -1105,7 +993,7 @@ function renderCards() {
     const fixed = sec.slots.length ? "" : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`;
     return `<div class="sec-group${curSec === sec.id ? " is-current" : ""}" data-secid="${sec.id}">
       <div class="group-label sec-head" data-secdrag="${sec.id}" title="Drag to move this section"><span><span class="grip" aria-hidden="true">⠿</span>${esc(sec.name)} ${TPL[sec.template].name !== sec.name ? `<span class="tpl-name">${esc(TPL[sec.template].name)}</span>` : ""}</span>
-        <span class="sec-head-btns"><button type="button" class="btn btn-small" data-edittpl="${sec.id}" title="Edit template in Design view">✎</button>${sec.flip ? `<button type="button" class="btn btn-small" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}
+        <span class="sec-head-btns">${sec.flip ? `<button type="button" class="btn btn-small" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}
           <button type="button" class="x" data-secmove="${sec.id}:-1" aria-label="Move ${esc(sec.name)} up" ${si === 0 ? "disabled" : ""}>↑</button>
           <button type="button" class="x" data-secmove="${sec.id}:1" aria-label="Move ${esc(sec.name)} down" ${si === secs.length - 1 ? "disabled" : ""}>↓</button>
           <button type="button" class="x x-remove" data-secremove="${sec.id}" aria-label="Remove ${esc(sec.name)}" title="Remove section">×</button></span></div>
@@ -1153,7 +1041,7 @@ function askRemove(id) {
   pendingRemove = id;
   const filled = sec.slots.filter((sl) => status(sl.id) !== "empty").length;
   $("#confirm-title").textContent = `Remove “${sec.name}”?`;
-  $("#confirm-text").textContent = filled ? `This deletes the section and the ${filled} ${filled === 1 ? "spot" : "spots"} you've filled in it. You can't undo this.` : "This deletes the section from the page. You can add it again from Templates.";
+  $("#confirm-text").textContent = filled ? `This deletes the section and the ${filled} ${filled === 1 ? "spot" : "spots"} you've filled in it. You can't undo this.` : "This deletes the section from the page. You can add it again from Modules.";
   $("#confirm").hidden = false;
   $("#confirm-no").focus();
 }
@@ -1216,7 +1104,6 @@ const countable = (page) => page.sections.flatMap((x) => x.slots.map((y) => y.id
 
 // ── Draw everything ──
 function render() {
-  applyDesignCss();
   const page = pageView(S.page);
   $("#site").innerHTML = pageHtml(page);
   $("#site").classList.toggle("guides", S.guides);
@@ -1224,6 +1111,7 @@ function render() {
   $("#page-name").textContent = page.name;
   $("#page-url").href = pageUrl(page); $("#page-url").textContent = pageUrl(page).replace(/^https?:\/\//, "") + " ↗";
   $("#page-live").outerHTML = liveChip(page).replace("<span ", '<span id="page-live" ') || '<span id="page-live" class="live-chip" hidden></span>';
+  $("#page-edit").dataset.setnav = "page:" + page.id;
   if (LIVE) history.replaceState(null, "", `?page=${S.page}`);
   $("#cc-page").textContent = page.name;
   document.querySelectorAll("[data-device]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.device === S.device));
@@ -1471,7 +1359,7 @@ $("#place-all").onclick = () => {
 let resetArmed = false;
 $("#reset").onclick = () => {
   if (!resetArmed) { resetArmed = true; $("#reset").textContent = "Tap again to reset"; setTimeout(() => { resetArmed = false; $("#reset").textContent = "Reset prototype"; }, 3000); return; }
-  resetArmed = false; S = seed(); S.design = {}; S.customTpls = []; rebuildTpl(); rebuildSlots(); selected = openCard = picked = curSec = null; $("#reset").textContent = "Reset prototype"; render(); toast("Back to the starting example.");
+  resetArmed = false; S = seed(); PAGE_LIST = S.pageList; rebuildSlots(); selected = openCard = picked = curSec = null; $("#reset").textContent = "Reset prototype"; render(); toast("Back to the starting example.");
 };
 let publishArmed = false;
 $("#publish").onclick = async () => {
@@ -1498,358 +1386,12 @@ new ResizeObserver(() => { fit(); document.querySelectorAll(".thumb-box").forEac
 // Images load after the first draw; refit when they arrive.
 document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.target.closest("#site")) fit(); }, true);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// DESIGN VIEW: change how a template looks, at Desktop, Tablet and Phone sizes.
-// Every choice is a named ClearMark color, text style or grid step, saved per
-// template in S.design[templateId] = { base, tablet, phone } and turned into CSS
-// that both views use. Tablet and Phone hold only the differences ("tweaks").
-// ═══════════════════════════════════════════════════════════════════════════
-const BPS = [
-  { id: "base", name: "Desktop", width: 1280, note: "all sizes" },
-  { id: "tablet", name: "Tablet", width: 768, note: "768 and narrower" },
-  { id: "phone", name: "Phone", width: 390, note: "phones only" },
-];
-const COLOR_TOKENS = [
-  ["white", "#FFFFFF"], ["clay-light", "#F6F5F2"], ["clay", "#E1DDD5"], ["midnight", "#1C2026"], ["rogue-cherry", "#DB1F3D"], ["tidal-azure", "#0099CE"],
-  ["sage-mist", "#B2AFA7"], ["deep-taupe", "#858278"], ["iron-pine", "#444D4D"], ["charcoal", "#2C3139"],
-  ["solar-flare", "#F5DE73"], ["honey-brass", "#C8A74B"], ["tangerine-burst", "#E48F46"], ["iron-moss", "#336A4E"], ["frosted-mint", "#ABCFA1"],
-  ["cobalt-wave", "#294079"], ["aegean", "#2D6AA5"], ["merlot", "#91272B"], ["lavender-mist", "#C6B7E1"],
-];
-const HEX = Object.fromEntries(COLOR_TOKENS);
-const nice = (t) => t.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-// Text styles from styles/typography.css: [size, line height, letter spacing, weight, phone size, phone line height]
-const TEXT_STYLES = {
-  h1: ["Heading 1", 112, 100, -4, 200, 88, 79], h2: ["Heading 2", 96, 88, -4, 200, 72, 65], h3: ["Heading 3", 80, 72, -4, 200, 60, 54],
-  h4: ["Heading 4", 64, 56, -3, 300, 48, 43], h5: ["Heading 5", 52, 48, -2, 300, 40, 36], h6: ["Heading 6", 40, 36, -2, 300, 32, 29],
-  tagline: ["Tagline", 16, 16, 3, 700, 12, 12], xl: ["Body XL", 28, 32, -1, 400], lg: ["Body LG", 24, 28, -1, 400],
-  md: ["Body MD", 20, 24, -1, 400], sm: ["Body SM", 16, 20, -1, 400], xs: ["Body XS", 12, 14, -1, 400],
-};
-const WEIGHTS = { 200: "ExtraLight", 300: "Light", 400: "Normal", 500: "Medium", 600: "Semi bold", 700: "Bold", 800: "Extra bold" };
-const STEPS = [0, 16, 32, 64, 96, 128, 160];
-const RATIOS = { "1fr 1fr": "Half and half", "2fr 3fr": "Narrow + wide", "3fr 2fr": "Wide + narrow", "1fr 2fr": "One third + two thirds", "2fr 1fr": "Two thirds + one third", "1fr": "Stacked (one column)" };
-
-// Which properties each layer offers.
-function layerProps(tpl, layer) {
-  if (layer === "section") return [
-    ["bg", "Background", "color"], ["pt", "Padding top", "step"], ["pb", "Padding bottom", "step"], ["px", "Side padding", "step"], ["hidden", "Hide section", "toggle"]];
-  if (layer === "columns") return [["ratio", "Columns", "ratio"], ["gap", "Gap", "step"], ["valign", "Line up", "valign"]];
-  const sl = tpl.slots.find((x) => x.key === layer);
-  if (!sl) return [];
-  if (sl.kind === "link") return [];
-  if (sl.kind === "image") return BG_IMAGE(tpl, layer) ? [["hidden", "Hide", "toggle"]] : [["radius", "Corner radius", "radius"], ["aspect", "Shape", "aspect"], ["hidden", "Hide", "toggle"]];
-  if (sl.kind === "logos") return [["logoh", "Logo height", "logoh"], ["hidden", "Hide", "toggle"]];
-  if (sl.kind === "offers") return [["cols", "Cards per row", "cols"], ["radius", "Corner radius", "radius"]];
-  if (sl.kind === "list" && sl.cols.some((c) => c.key === "title")) return [["tstyle", "Title style", "style"], ["style", "Text style", "style"], ["color", "Color", "color"], ["hidden", "Hide", "toggle"]];
-  if (sl.kind === "list" && sl.max === 1) return [["hidden", "Hide", "toggle"]];
-  if (sl.key === "button") return [["btn", "Button style", "btn"], ["hidden", "Hide", "toggle"]];
-  return [["style", "Text style", "style"], ["weight", "Weight", "weight"], ["color", "Color", "color"], ["align", "Align", "align"], ["hidden", "Hide", "toggle"]];
-}
-const BG_IMAGE = (tpl, key) => key === "image" && ["hero", "plat", "pagehero"].includes(tpl.type);
-const COLS_SEL = { header: " .sh", photopoints: " .split", story: " .split", plat: " .sh", cred: "", mail: "" };
-const hasColumns = (tpl) => tpl.type in COLS_SEL;
-const layersOf = (tpl) => ["section", ...(hasColumns(tpl) ? ["columns"] : []), ...tpl.slots.map((s) => s.key)];
-const layerName = (tpl, l) => l === "section" ? tpl.name : l === "columns" ? "Columns" : tpl.slots.find((s) => s.key === l)?.label;
-const layerIcon = (tpl, l) => l === "section" ? "#" : l === "columns" ? "|||" : ({ image: "▣", logos: "▣", offers: "▤", link: "↗", list: "≡", text: "T" })[tpl.slots.find((s) => s.key === l)?.kind] || "T";
-
-// Design values: base, then tablet, then phone (each narrower size inherits the wider one).
-const D = (id) => (S.design[id] ||= { base: {}, tablet: {}, phone: {} });
-function valueAt(tplId, bp, layer, prop) {
-  const d = D(tplId), order = bp === "phone" ? ["phone", "tablet", "base"] : bp === "tablet" ? ["tablet", "base"] : ["base"];
-  for (const b of order) { const v = d[b][layer]?.[prop]; if (v !== undefined) return { v, from: b }; }
-  return { v: undefined, from: null };
-}
-function setValue(tplId, bp, layer, prop, v) {
-  const d = D(tplId)[bp];
-  d[layer] ||= {};
-  if (v === undefined || v === "") delete d[layer][prop]; else d[layer][prop] = v;
-  if (!Object.keys(d[layer]).length) delete d[layer];
-}
-
-// Turn a template's design into CSS. Both views use it.
-function cssDecls(tpl, layer, props, bp) {
-  const out = [];
-  const style = (k) => { const t = TEXT_STYLES[k]; if (!t) return; const ph = bp === "phone" && t[5]; out.push(`font-size: ${ph ? t[5] : t[1]}px`, `line-height: ${ph ? t[6] : t[2]}px`, `letter-spacing: ${t[3]}px`, `font-weight: ${t[4]}`, k === "tagline" ? "text-transform: uppercase" : ""); };
-  for (const [p, v] of Object.entries(props)) {
-    if (p === "bg") out.push(`background: var(--${v})`);
-    else if (p === "pt") out.push(`padding-top: ${v}px`);
-    else if (p === "pb") out.push(`padding-bottom: ${v}px`);
-    else if (p === "px") out.push(`padding-left: ${v}px`, `padding-right: ${v}px`);
-    else if (p === "hidden") out.push(v ? "display: none" : "");
-    else if (p === "ratio") out.push(`grid-template-columns: ${v}`);
-    else if (p === "gap") out.push(`gap: ${v}px`);
-    else if (p === "valign") out.push(`align-items: ${v}`);
-    else if (p === "style" && layer !== "tstyle") style(v);
-    else if (p === "weight") out.push(`font-weight: ${v}`);
-    else if (p === "color") out.push(`color: var(--${v})`);
-    else if (p === "align") out.push(`text-align: ${v}`);
-    else if (p === "radius") out.push(`border-radius: ${v}px`);
-    else if (p === "aspect") out.push(`aspect-ratio: ${v}`, "height: auto", "object-fit: cover");
-  }
-  return out.filter(Boolean);
-}
-function cssFor(tplId) {
-  const tpl = TPL[tplId], d = D(tplId), sc = `.site .t-${tplId}`, blocks = [];
-  for (const bp of ["base", "tablet", "phone"]) {
-    const rules = [];
-    // Headings keep their own phone size unless Phone changes the style.
-    const layers = new Set([...Object.keys(d[bp]), ...(bp === "phone" ? Object.keys(d.base).concat(Object.keys(d.tablet)) : [])]);
-    for (const layer of layers) {
-      let props = { ...(d[bp][layer] || {}) };
-      if (bp === "phone" && !props.style) { const s = valueAt(tplId, "phone", layer, "style").v; if (s && TEXT_STYLES[s][5]) props.style = s; }
-      if (bp === "phone" && !props.tstyle) { const s = valueAt(tplId, "phone", layer, "tstyle").v; if (s && TEXT_STYLES[s][5]) props.tstyle = s; }
-      if (!Object.keys(props).length) continue;
-      const base = layer === "section" ? sc : layer === "columns" ? sc + COLS_SEL[tpl.type] : `${sc} [data-slot$=".${layer}"]`;
-      const sl = tpl.slots.find((s) => s.key === layer);
-      const { tstyle, cols, logoh, btn, ...rest } = props;
-      const own = cssDecls(tpl, layer, rest, bp);
-      const textOnly = (decls) => decls.filter((x) => !x.startsWith("display"));
-      if (sl?.kind === "list" && sl.cols.some((c) => c.key === "title")) {
-        const hid = own.filter((x) => x.startsWith("display")), txt = textOnly(own);
-        if (hid.length) rules.push(`${base} { ${hid.join("; ")}; }`);
-        if (txt.length) rules.push(`${base}:not(.slot) .point p { ${txt.join("; ")}; }`);
-        if (tstyle) rules.push(`${base}:not(.slot) .point b { ${cssDecls(tpl, "x", { style: tstyle }, bp).join("; ")}; }`);
-        if (rest.color) rules.push(`${base}:not(.slot) .point b { color: var(--${rest.color}); }`);
-        continue;
-      }
-      if (sl && ["image"].includes(sl.kind) && !BG_IMAGE(tpl, layer)) { if (own.length) rules.push(`${base} { ${own.join("; ")}; }`); continue; }
-      if (sl?.kind === "logos") { const hid = own.filter((x) => x.startsWith("display")); if (hid.length) rules.push(`${base} { ${hid.join("; ")}; }`); if (logoh) rules.push(`${base} img { height: ${logoh}px; }`); continue; }
-      if (sl?.kind === "offers") { if (cols) rules.push(`${base} { grid-template-columns: repeat(${cols}, minmax(0, 1fr)); }`); if (rest.radius) rules.push(`${base} .offer { border-radius: ${rest.radius}px; }`); continue; }
-      if (btn) rules.push(`${base}:not(.slot) { ${({ white: "background: var(--white); color: var(--midnight); border: 0", cherry: "background: var(--rogue-cherry); color: var(--white); border: 0", outline: "background: transparent; color: var(--white); border: 2px solid var(--white)" })[btn]}; }`);
-      if (!own.length) continue;
-      // Text styles only touch filled text, never the dotted box.
-      const visual = own.filter((x) => !x.startsWith("display")), hid = own.filter((x) => x.startsWith("display"));
-      if (hid.length) rules.push(`${base} { ${hid.join("; ")}; }`);
-      if (visual.length) rules.push(`${sl ? base + ":not(.slot)" : base} { ${visual.join("; ")}; }`);
-    }
-    if (!rules.length) continue;
-    const q = bp === "tablet" ? "@container (max-width: 1000px)" : bp === "phone" ? "@container (max-width: 700px)" : "";
-    blocks.push(q ? `${q} {\n  ${rules.join("\n  ")}\n}` : rules.join("\n"));
-  }
-  return blocks.join("\n");
-}
-function applyDesignCss() {
-  let el = document.getElementById("design-css");
-  if (!el) { el = document.createElement("style"); el.id = "design-css"; document.head.append(el); }
-  el.textContent = allTemplates().map((t) => cssFor(t.id)).filter(Boolean).join("\n");
-}
-
-// Where a template is used.
-function usage(tplId) {
-  const hits = [];
-  for (const p of PAGE_LIST) for (const inst of S.pages[p.id]) if (inst.t === tplId) hits.push({ page: p, inst });
-  return hits;
-}
-
-// ── Design view state and drawing ──
-let dv = { open: false, tpl: null, layer: "section", bp: "base", tab: "props", zoom: "fit", back: null, hand: false };
-function openDesign(tplId, back) {
-  dv = { ...dv, open: true, tpl: tplId || dv.tpl || "photo-points", layer: "section", bp: "base", back: back || { page: S.page, sec: curSec } };
-  $("#design").hidden = false; document.body.classList.add("design-open");
-  syncMode(); renderDesign();
-}
-function closeDesign() {
-  dv.open = false; $("#design").hidden = true; document.body.classList.remove("design-open");
-  if (dv.back) { S.page = dv.back.page; curSec = dv.back.sec; }
-  syncMode(); render(); if (curSec) scrollToSection(curSec);
-}
-function syncMode() { document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", (b.dataset.mode === "design") === dv.open)); }
-
-// A sample of the template for the boards: real content from the first place it's used, or empty spots.
-function sampleSection(tplId) {
-  const hit = usage(tplId)[0];
-  const inst = hit ? hit.inst : { uid: `sample-${tplId}`, t: tplId, name: TPL[tplId].name };
-  const sv = sectionView(inst, hit ? hit.page.id : S.page);
-  if (!hit) for (const sl of sv.slots) SLOTS[sl.id] = sl;
-  return sv;
-}
-function boardHtml(tplId) {
-  const sec = sampleSection(tplId);
-  const k = (key) => `${sec.id}.${key}`;
-  return `<section class="sec t-${tplId} ${SECTION_CLASS[sec.type]}" data-layer="section">${SECTION_HTML[sec.type](sec, k)}</section>`;
-}
-
-function renderDesign() {
-  if (!dv.open) return;
-  const tpl = TPL[dv.tpl];
-  if (!tpl) { dv.tpl = "photo-points"; return renderDesign(); }
-  // Toolbar
-  $("#dv-count").textContent = allTemplates().length;
-  $("#dv-template").innerHTML = allTemplates().map((t) => `<option value="${t.id}" ${t.id === dv.tpl ? "selected" : ""}>${esc(t.name)}${t.base ? " (copy)" : ""}</option>`).join("");
-  $("#dv-back").textContent = `← Back to ${PAGE_LIST.find((p) => p.id === (dv.back?.page || S.page)).name}`;
-  $("#dv-zoom").value = dv.zoom;
-  document.querySelectorAll("[data-tool]").forEach((b) => b.setAttribute("aria-pressed", (b.dataset.tool === "hand") === dv.hand));
-  // Boards
-  $("#dv-canvas").classList.toggle("is-hand", dv.hand);
-  $("#dv-boards").innerHTML = BPS.map((bp) => `<figure class="board${dv.bp === bp.id ? " is-active" : ""}" data-bp="${bp.id}">
-      <figcaption><button type="button" data-bp-pick="${bp.id}">${bp.name}</button><span>${bp.width}px · ${bp.note}</span></figcaption>
-      <div class="board-frame"><div class="board-scale"><div class="site" style="width:${bp.width}px">${boardHtml(dv.tpl)}</div></div></div></figure>`).join("");
-  sizeBoards();
-  markSelection();
-  renderPanel();
-}
-function sizeBoards() {
-  const canvas = $("#dv-canvas"), total = BPS.reduce((a, b) => a + b.width, 0) + 2 * 64;
-  const k = dv.zoom === "fit" ? Math.min(1, (canvas.clientWidth - 64) / total) : +dv.zoom;
-  document.querySelectorAll(".board").forEach((b) => {
-    const w = BPS.find((x) => x.id === b.dataset.bp).width, site = b.querySelector(".site"), sc = b.querySelector(".board-scale");
-    sc.style.transform = `scale(${k})`; sc.style.width = w + "px";
-    b.querySelector(".board-frame").style.width = w * k + "px";
-    b.querySelector(".board-frame").style.height = site.offsetHeight * k + "px";
-  });
-  $("#dv-zoom-label").textContent = `${Math.round(k * 100)}%`;
-}
-function markSelection() {
-  document.querySelectorAll("#dv-boards .is-picked").forEach((x) => x.classList.remove("is-picked"));
-  const sel = dv.layer === "section" ? "[data-layer='section']" : dv.layer === "columns" ? `[data-layer='section']${COLS_SEL[TPL[dv.tpl].type] || ""}` : `[data-slot$=".${dv.layer}"]`;
-  document.querySelectorAll(`#dv-boards ${sel}`).forEach((x) => x.classList.add("is-picked"));
-}
-
-function renderPanel() {
-  const tpl = TPL[dv.tpl], used = usage(dv.tpl), pages = new Set(used.map((u) => u.page.id)).size;
-  document.querySelectorAll("[data-dvtab]").forEach((b) => b.setAttribute("aria-selected", b.dataset.dvtab === dv.tab));
-  const tree = `<ul class="dv-tree" role="tree">${layersOf(tpl).map((l) => `<li role="treeitem" aria-selected="${dv.layer === l}"><button type="button" data-layer-pick="${l}" class="${l === "section" ? "lvl0" : "lvl1"}"><span class="ico">${layerIcon(tpl, l)}</span>${esc(layerName(tpl, l))}${l !== "section" && l !== "columns" ? `<span class="kind">${esc(KIND_CHIP(tpl.slots.find((s) => s.key === l)))}</span>` : ""}</button></li>`).join("")}</ul>`;
-  const usedNote = `<div class="dv-used${used.length ? "" : " is-free"}">${used.length ? `Used in <b>${used.length} ${used.length === 1 ? "section" : "sections"}</b> on ${pages} ${pages === 1 ? "page" : "pages"}. Changes here update all of them.` : "Not used on any page yet."}</div>`;
-  let body = "";
-  if (dv.tab === "props") {
-    const bpName = BPS.find((b) => b.id === dv.bp);
-    const props = layerProps(tpl, dv.layer);
-    body = `${tree}
-      <div class="dv-sec"><div class="dv-sec-head"><h3>${dv.layer === "section" ? "Template" : esc(layerName(tpl, dv.layer))}</h3></div>
-        ${dv.layer === "section" ? `${usedNote}<div class="dv-row"><label for="dv-name">Name</label><input id="dv-name" class="dv-input" value="${esc(tpl.name)}" ${tpl.base ? "" : "disabled title='Built-in templates keep their name. Duplicate to make your own.'"}></div>
-          <div class="dv-actions"><button type="button" class="dv-btn" data-dv="duplicate">Duplicate template</button>${tpl.base && !used.length ? `<button type="button" class="dv-btn dv-danger" data-dv="delete">Delete</button>` : ""}</div>` : ""}
-      </div>
-      <div class="dv-sec"><div class="dv-sec-head"><h3>Editing</h3></div>
-        <div class="dv-seg" role="group" aria-label="Which sizes">${BPS.map((b) => `<button type="button" data-bp-pick="${b.id}" aria-pressed="${dv.bp === b.id}">${b.name}</button>`).join("")}</div>
-        <p class="dv-hint">${dv.bp === "base" ? "Changes here apply to every size, unless Tablet or Phone has its own tweak." : `Changes here are tweaks for ${bpName.name.toLowerCase()} (${bpName.note}). They show on the Tweaks tab.`}</p></div>
-      <div class="dv-sec"><div class="dv-sec-head"><h3>${dv.layer === "section" ? "Appearance" : dv.layer === "columns" ? "Layout" : "Style"}</h3></div>
-        ${props.length ? props.map(([p, label, type]) => propRow(tpl, p, label, type)).join("") : `<p class="dv-hint">${dv.layer && tpl.slots.find((s) => s.key === dv.layer)?.kind === "link" ? "A link has no look of its own: it's where the button goes." : "Nothing to style here."}</p>`}
-        ${tpl.flip && dv.layer === "columns" ? `<p class="dv-hint">Photo left or right is chosen per section in Content view (⇄ Photo).</p>` : ""}</div>`;
-  } else if (dv.tab === "code") {
-    body = `<div class="dv-sec"><div class="dv-sec-head"><h3>CSS for ${esc(tpl.name)}</h3></div><p class="dv-hint">Read only. This is what your design choices turn into; it uses only ClearMark color and text-style names.</p>
-      <pre class="dv-code">${esc(cssFor(dv.tpl) || "/* No changes yet: this template still looks exactly as designed in code. */")}</pre></div>`;
-  } else {
-    const d = D(dv.tpl);
-    const list = (bp) => Object.entries(d[bp]).flatMap(([l, ps]) => Object.entries(ps).map(([p, v]) => `<li><span><b>${esc(layerName(tpl, l))}</b> · ${esc(propLabel(tpl, l, p))}: ${esc(showVal(p, v))}</span><button type="button" class="dv-x" data-untweak="${bp}|${l}|${p}" aria-label="Remove this tweak">↺</button></li>`));
-    body = `<div class="dv-sec"><p class="dv-hint">Tweaks are the differences for smaller screens. Pick Tablet or Phone (on the board label or the Properties tab), then change a property. ↺ removes a tweak, so that size goes back to following the bigger one.</p></div>
-      ${["tablet", "phone"].map((bp) => { const l = list(bp); return `<div class="dv-sec"><div class="dv-sec-head"><h3>${BPS.find((b) => b.id === bp).name}</h3><button type="button" class="dv-btn" data-bp-pick="${bp}" data-dvtab-go="props">+ Tweak</button></div>${l.length ? `<ul class="dv-tweaks">${l.join("")}</ul>` : `<p class="dv-hint">No tweaks: follows ${bp === "tablet" ? "Desktop" : "Tablet"}.</p>`}</div>`; }).join("")}`;
-  }
-  $("#dv-panel-body").innerHTML = body;
-}
-const propLabel = (tpl, l, p) => (layerProps(tpl, l).find((x) => x[0] === p) || [p, p])[1];
-const showVal = (p, v) => p === "bg" || p === "color" ? nice(v) : p === "style" || p === "tstyle" ? TEXT_STYLES[v]?.[0] : p === "weight" ? WEIGHTS[v] : p === "ratio" ? RATIOS[v] : p === "hidden" ? (v ? "Hidden" : "Shown") : typeof v === "number" ? v + "px" : String(v);
-
-// One property row. Shows the value at the size being edited, and where it comes from.
-function propRow(tpl, p, label, type) {
-  const { v, from } = valueAt(dv.tpl, dv.bp, dv.layer, p);
-  const inherited = from && from !== dv.bp;
-  const id = `dv-${p}`;
-  const opts = (pairs, cur) => `<option value="">Default (as designed)</option>` + pairs.map(([val, txt]) => `<option value="${val}" ${String(cur) === String(val) ? "selected" : ""}>${esc(txt)}</option>`).join("");
-  let ctl = "";
-  if (type === "color") ctl = `<span class="dv-swatch" style="background:${v ? HEX[v] : "transparent"}"></span><select id="${id}" class="dv-input" data-prop="${p}">${opts(COLOR_TOKENS.map(([n, h]) => [n, `${nice(n)}  ${h}`]), v)}</select>`;
-  else if (type === "style") ctl = `<select id="${id}" class="dv-input" data-prop="${p}">${opts(Object.entries(TEXT_STYLES).map(([k, t]) => [k, `${t[0]} · ${dv.bp === "phone" && t[5] ? t[5] : t[1]}px`]), v)}</select>`;
-  else if (type === "weight") ctl = `<select id="${id}" class="dv-input" data-prop="${p}">${opts(Object.entries(WEIGHTS), v)}</select>`;
-  else if (type === "step") ctl = `<select id="${id}" class="dv-input" data-prop="${p}" data-num>${opts(STEPS.map((s) => [s, `${s}px`]), v)}</select>`;
-  else if (type === "ratio") ctl = `<select id="${id}" class="dv-input" data-prop="${p}">${opts(Object.entries(RATIOS), v)}</select>`;
-  else if (type === "valign") ctl = `<select id="${id}" class="dv-input" data-prop="${p}">${opts([["start", "Top"], ["center", "Middle"], ["end", "Bottom"]], v)}</select>`;
-  else if (type === "radius") ctl = `<select id="${id}" class="dv-input" data-prop="${p}" data-num>${opts([0, 8, 18, 32].map((r) => [r, `${r}px`]), v)}</select>`;
-  else if (type === "aspect") ctl = `<select id="${id}" class="dv-input" data-prop="${p}">${opts([["4 / 5", "Portrait 4:5"], ["1 / 1", "Square 1:1"], ["4 / 3", "Landscape 4:3"], ["16 / 9", "Wide 16:9"]], v)}</select>`;
-  else if (type === "logoh") ctl = `<select id="${id}" class="dv-input" data-prop="${p}" data-num>${opts([24, 36, 44, 56].map((r) => [r, `${r}px`]), v)}</select>`;
-  else if (type === "cols") ctl = `<select id="${id}" class="dv-input" data-prop="${p}" data-num>${opts([[1, "1"], [2, "2"], [3, "3"], [4, "4"]], v)}</select>`;
-  else if (type === "btn") ctl = `<select id="${id}" class="dv-input" data-prop="${p}">${opts([["white", "White pill"], ["cherry", "Rogue Cherry pill"], ["outline", "Outline"]], v)}</select>`;
-  else if (type === "align") ctl = `<div class="dv-seg dv-seg-small" role="group" aria-label="${label}">${[["left", "Left"], ["center", "Center"], ["right", "Right"]].map(([a, t]) => `<button type="button" data-set="${p}|${a}" aria-pressed="${v === a}">${t}</button>`).join("")}</div>`;
-  else if (type === "toggle") ctl = `<label class="dv-toggle"><input type="checkbox" id="${id}" data-prop="${p}" data-bool ${v ? "checked" : ""}> ${v ? "Hidden" : "Shown"}</label>`;
-  return `<div class="dv-row${inherited ? " is-inherited" : ""}${from === dv.bp && dv.bp !== "base" ? " is-tweak" : ""}"><label for="${id}">${esc(label)}</label><div class="dv-ctl">${ctl}</div>${inherited ? `<span class="dv-from">from ${BPS.find((b) => b.id === from).name}</span>` : from === dv.bp && dv.bp !== "base" ? `<span class="dv-from">tweak</span>` : ""}</div>`;
-}
-
-function designChange(prop, raw, isNum, isBool) {
-  const v = isBool ? (raw ? true : undefined) : raw === "" ? undefined : isNum ? +raw : raw;
-  setValue(dv.tpl, dv.bp, dv.layer, prop, v);
-  applyDesignCss(); save(); renderDesign();
-}
-
-// Copy a template so it can change on its own.
-function duplicateTemplate() {
-  const src = TPL[dv.tpl], base = src.base || src.id;
-  const id = `${base}-${Math.random().toString(36).slice(2, 6)}`;
-  S.customTpls.push({ id, base, name: `${src.name} copy`, about: src.about });
-  S.design[id] = structuredClone(D(dv.tpl));
-  rebuildTpl(); applyDesignCss(); save();
-  dv.tpl = id; dv.layer = "section"; renderDesign();
-  toast(`Made “${src.name} copy”. It's in Templates in Content view.`);
-}
-function deleteTemplate() {
-  const t = TPL[dv.tpl];
-  if (!t.base || usage(dv.tpl).length) return;
-  S.customTpls = S.customTpls.filter((x) => x.id !== dv.tpl); delete S.design[dv.tpl];
-  rebuildTpl(); applyDesignCss(); save();
-  dv.tpl = t.base; renderDesign(); toast(`Deleted ${t.name}.`);
-}
-
-// Design view events
-document.addEventListener("click", (e) => {
-  const inDesign = e.target.closest("#design");
-  const m = e.target.closest("[data-mode]");
-  if (m) { e.stopPropagation(); if (m.dataset.mode === "design" && !dv.open) openDesign(TPL[pageView(S.page).sections.find((x) => x.id === curSec)?.template] ? pageView(S.page).sections.find((x) => x.id === curSec).template : null); else if (m.dataset.mode === "content" && dv.open) closeDesign(); return; }
-  const ed = e.target.closest("[data-edittpl]");
-  if (ed) { e.stopPropagation(); const sec = pageView(S.page).sections.find((x) => x.id === ed.dataset.edittpl); curSec = sec.id; openDesign(sec.template, { page: S.page, sec: sec.id }); return; }
-  if (!inDesign) return;
-  e.stopPropagation();
-  const t = e.target.closest("button, [data-slot], [data-layer], .board");
-  if (!t) return;
-  const d = t.dataset;
-  if (d.dvtab) { dv.tab = d.dvtab; renderPanel(); return; }
-  if (d.bpPick) { dv.bp = d.bpPick; if (d.dvtabGo) dv.tab = d.dvtabGo; renderDesign(); return; }
-  if (d.layerPick) { dv.layer = d.layerPick; renderPanel(); markSelection(); return; }
-  if (d.set) { const [p, v] = d.set.split("|"); const cur = valueAt(dv.tpl, dv.bp, dv.layer, p); designChange(p, cur.v === v && cur.from === dv.bp ? "" : v); return; }
-  if (d.untweak) { const [bp, l, p] = d.untweak.split("|"); setValue(dv.tpl, bp, l, p, undefined); applyDesignCss(); save(); renderDesign(); return; }
-  if (d.dv === "duplicate") return duplicateTemplate();
-  if (d.dv === "delete") return deleteTemplate();
-  if (d.dvBack != null) return closeDesign();
-  if (d.tool) { dv.hand = d.tool === "hand"; renderDesign(); return; }
-  if (dv.hand) return;
-  // Clicking the design: pick the layer under the pointer, on that board's size.
-  const board = e.target.closest(".board");
-  if (board && e.target.closest(".site")) {
-    dv.bp = board.dataset.bp;
-    const slot = e.target.closest("[data-slot]");
-    const key = slot ? slot.dataset.slot.split(".").pop() : null;
-    dv.layer = key && layerProps(TPL[dv.tpl], key) ? key : "section";
-    dv.tab = "props"; renderDesign();
-  }
-}, true);
-document.addEventListener("change", (e) => {
-  const t = e.target;
-  if (!t.closest("#design")) return;
-  if (t.id === "dv-template") { dv.tpl = t.value; dv.layer = "section"; renderDesign(); return; }
-  if (t.id === "dv-zoom") { dv.zoom = t.value; sizeBoards(); return; }
-  if (t.id === "dv-name") { const c = S.customTpls.find((x) => x.id === dv.tpl); if (c && t.value.trim()) { c.name = t.value.trim().slice(0, 40); rebuildTpl(); save(); renderDesign(); } return; }
-  if (t.dataset.prop) designChange(t.dataset.prop, t.dataset.bool != null ? t.checked : t.value, t.dataset.num != null, t.dataset.bool != null);
-});
-document.addEventListener("keydown", (e) => {
-  if (!dv.open || e.target.matches("input, select, textarea")) return;
-  if (e.key === "Escape" && !pendingRemove) closeDesign();
-  if (e.key === "h") { dv.hand = true; renderDesign(); }
-  if (e.key === "v") { dv.hand = false; renderDesign(); }
-});
-// Hand tool: drag the canvas to look around.
-(() => {
-  let pan = null;
-  document.addEventListener("pointerdown", (e) => {
-    const c = e.target.closest("#dv-canvas"); if (!c || !dv.hand) return;
-    pan = { x: e.clientX, y: e.clientY, l: c.scrollLeft, t: c.scrollTop, c }; c.setPointerCapture(e.pointerId); e.preventDefault();
-  });
-  document.addEventListener("pointermove", (e) => { if (!pan) return; pan.c.scrollLeft = pan.l - (e.clientX - pan.x); pan.c.scrollTop = pan.t - (e.clientY - pan.y); });
-  document.addEventListener("pointerup", () => (pan = null));
-})();
-new ResizeObserver(() => dv.open && sizeBoards()).observe(document.body);
-document.addEventListener("load", (e) => { if (dv.open && e.target.tagName === "IMG" && e.target.closest("#dv-boards")) sizeBoards(); }, true);
-
 // ── Side nav (Oct 7): rail + panel, like Figma Sites and Supabase ─────────────
 // Rail: logo menu (sites, main dashboard), Pages, Modules, CMS, Settings.
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general" };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false };
 try { const u = JSON.parse(localStorage.getItem(UI_KEY)); if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k]; } catch {}
 const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
@@ -1868,10 +1410,9 @@ const MOD_ICON = {
   logos: '<circle cx="6" cy="12" r="3"/><rect x="11" y="9" width="5" height="6" rx="1"/><path d="M19 9l2.5 6h-5z"/>',
   cms: '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
   forms: '<rect x="3" y="5" width="18" height="5" rx="1.5"/><rect x="3" y="13" width="11" height="5" rx="2.5"/>',
-  mine: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
 };
 const svg = (paths, cls = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${paths}</svg>`;
-// Module groups, like Figma's Insert panel. Copies made in Design view go in "My copies".
+// Module groups, like Figma's Insert panel.
 function modCats() {
   const cats = [
     { id: "heroes", name: "Heroes", color: "var(--cm-cherry)", tpls: ["hero", "page-hero"] },
@@ -1882,8 +1423,6 @@ function modCats() {
     { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offers"] },
     { id: "forms", name: "Forms & embeds", color: "var(--merlot)", tpls: ["mailing", "calendly"] },
   ];
-  const mine = (S.customTpls || []).map((c) => c.id).filter((id) => TPL[id]);
-  if (mine.length) cats.push({ id: "mine", name: "My copies", color: "var(--iron-pine)", tpls: mine });
   return cats;
 }
 
@@ -1911,7 +1450,7 @@ function renderSide() {
     const page = pageView(S.page);
     el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>
         <button type="button" class="btn btn-primary btn-wide" data-nav-publish>${esc($("#publish").textContent)}</button></div>
-      <div class="side-sec"><div class="side-label">Pages</div>${allPages().map((p) => {
+      <div class="side-sec"><div class="side-label">Pages <button type="button" class="btn btn-small" data-addpage-open aria-expanded="${UI.adding}">+ Add page</button></div>${UI.adding ? addPageForm() : ""}${allPages().map((p) => {
         const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
         return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span>${liveChip(p)}</button>`;
       }).join("")}</div>
@@ -1991,9 +1530,8 @@ function renderSettings() {
   if (UI.set.startsWith("page:")) {
     const p = PAGE_LIST.find((x) => x.id === UI.set.slice(5)) || PAGE_LIST[0], base = `pages.${p.id}`;
     const siteHidden = !!getSet("site.noindex");
-    v.innerHTML = `<div class="view-head">${back}<h2>Page settings · ${esc(p.name)}</h2></div><div class="set-col">${SET_NOTE}
+    v.innerHTML = `<div class="view-head">${back}<h2>Page settings · ${esc(p.name)}</h2></div><div class="set-col">${pageCard(p)}${SET_NOTE}
       <div class="set-card"><h3>General</h3>
-        <div class="set-row"><span>Address</span><a class="set-link" href="${esc(pageUrl(p))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(p).replace(/^https?:\/\//, ""))} ↗</a>${liveChip(p)}</div>
         ${fText(`${base}.title`, "Page title", p.id === "home" ? getSet("site.title") || "ClearMark" : `${p.name}`, "Shown in the browser tab and in Google, before the site title.")}
         ${fText(`${base}.description`, "Page description", "Leave empty to use the site description", "One or two sentences for Google and link previews.", true)}
         ${fCheck(`${base}.noindex`, "Hide this page from search engines", siteHidden ? "The whole site is hidden (Site → General)." : "", siteHidden, siteHidden)}</div>
@@ -2014,6 +1552,57 @@ function renderSettings() {
       ${fImage("site.favicon", "Favicon", "logo", "48 × 48", "ClearMark mark (default)")}
       ${fImage("site.social", "Social sharing image", "photo", "1200 × 630", "None yet")}</div>
     <div class="set-card"><h3>Custom code</h3><p class="set-help">Left out on purpose for now: code pasted here would run on every page. When you need ad tracking or analytics, we'll add it with a safety check.</p></div></div>`;
+}
+
+// ── Pages: add, rename, change address, delete ──
+// Addresses are one lower-case word or words joined by dashes. Home is always "/".
+const RESERVED_SLUGS = ["clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"];
+const slugify = (t) => String(t).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+function slugProblem(slug, exceptId) {
+  if (!slug) return "Type an address.";
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) return "Use lower-case letters, numbers and single dashes only (like about-us).";
+  if (RESERVED_SLUGS.includes(slug)) return "The site already uses that address for something else.";
+  if (PAGE_LIST.some((p) => p.id !== exceptId && p.path === "/" + slug)) return "Another page already has that address.";
+  return "";
+}
+const HOST = BASE_DOMAIN.replace("https://", "") + "/";
+const START_WITH = { hero: ["page-hero", "heading"], heading: ["heading", "photo-text"], empty: [] };
+function addPageForm() {
+  return `<div class="set-card" style="padding:12px;gap:10px;margin:4px 0 8px">
+    <label class="set-field"><span>Page name</span><input type="text" id="np-name" placeholder="e.g. Case studies" maxlength="60"></label>
+    <label class="set-field"><span>Address</span><span class="slug-row"><span class="mono">/</span><input type="text" id="np-slug" placeholder="case-studies" maxlength="60" autocapitalize="off" spellcheck="false"></span><small id="np-err" class="slug-err"></small></label>
+    <label class="set-field"><span>Start with</span><select id="np-start"><option value="hero">Page hero + heading</option><option value="heading">Heading + photo and text</option><option value="empty">Nothing (add modules yourself)</option></select></label>
+    <div class="set-row" style="gap:8px"><button type="button" class="btn btn-primary btn-small" data-addpage>Add page</button><button type="button" class="btn btn-small" data-addpage-cancel>Cancel</button></div></div>`;
+}
+function addPage() {
+  const name = $("#np-name").value.trim().slice(0, 60), slug = $("#np-slug").value.trim();
+  const err = !name ? "Give the page a name." : slugProblem(slug);
+  if (err) { $("#np-err").textContent = err; return; }
+  let id = slug.slice(0, 50); while (PAGE_LIST.some((p) => p.id === id) || S.pages[id]) id = `${slug.slice(0, 50)}-${Math.random().toString(36).slice(2, 5)}`;
+  S.pageList.push({ id, name, path: "/" + slug });
+  S.pages[id] = START_WITH[$("#np-start").value].map((t) => ({ uid: `${t}-${Math.random().toString(36).slice(2, 6)}`, t, name: TPL[t].name }));
+  rebuildSlots();
+  UI.adding = false; NAV_VIEW = "editor"; S.page = id; selected = openCard = curSec = null;
+  render(); applyNav(); window.scrollTo({ top: 0 });
+  toast(`Added ${name}. It goes live at /${slug} when you publish.`);
+}
+let deleteArmed = null;
+function deletePage(id) {
+  const p = PAGE_LIST.find((x) => x.id === id); if (!p || id === "home") return;
+  if (deleteArmed !== id) { deleteArmed = id; renderSettings(); setTimeout(() => { if (deleteArmed === id) { deleteArmed = null; renderSettings(); } }, 4000); return; }
+  deleteArmed = null;
+  for (const inst of S.pages[id] || []) for (const sid of Object.keys(S.slots)) if (sid.startsWith(inst.uid + ".")) delete S.slots[sid];
+  delete S.pages[id]; S.pageList.splice(S.pageList.indexOf(p), 1); delete SETTINGS().pages[id];
+  S.page = "home"; UI.set = "general"; rebuildSlots(); render(); applyNav();
+  toast(`Deleted ${p.name}. It comes off the live site when you publish.`);
+}
+function pageCard(p) {
+  const home = p.id === "home";
+  return `<div class="set-card"><h3>Page</h3>
+    <label class="set-field"><span>Page name</span><input type="text" data-pagename="${p.id}" value="${esc(p.name)}" maxlength="60"><small>Shown in Studio and in the browser tab.</small></label>
+    <label class="set-field"><span>Address (slug)</span>${home ? `<span class="slug-row"><span class="mono">${esc(HOST)}</span><input type="text" value="" placeholder="(home page)" disabled></span><small>Home is always the main address, “/”.</small>`
+      : `<span class="slug-row"><span class="mono">${esc(HOST)}</span><input type="text" data-pageslug="${p.id}" value="${esc(p.path.slice(1))}" maxlength="60" autocapitalize="off" spellcheck="false"></span><small id="slug-err" class="slug-err"></small><small>Lower-case letters, numbers and dashes. The live address changes when you press Publish. <a class="set-link" href="${esc(pageUrl(p))}" target="_blank" rel="noopener noreferrer">Open ↗</a> ${liveChip(p)}</small>`}</label>
+    ${home ? "" : `<div><button type="button" class="btn btn-small${deleteArmed === p.id ? " btn-danger" : ""}" data-delpage="${p.id}">${deleteArmed === p.id ? "Tap again to delete this page" : "Delete page"}</button></div>`}</div>`;
 }
 
 // ── Popovers ──
@@ -2056,6 +1645,10 @@ document.addEventListener("click", (e) => {
   if (d.sidebarMenu != null) return openPop("#sidebar-menu", t);
   if (d.sidebar) { UI.sidebar = d.sidebar; UI.open = d.sidebar === "expanded"; UI.cat = null; closePops(); saveUI(); applyNav(); toast({ expanded: "Panel stays open.", collapsed: "Panel opens when you click an icon.", hover: "Panel opens when you point at an icon." }[d.sidebar]); return; }
   if (d.navClosePop != null) return closePops();
+  if (d.addpageOpen != null) { UI.adding = !UI.adding; renderSide(); if (UI.adding) $("#np-name")?.focus(); return; }
+  if (d.addpageCancel != null) { UI.adding = false; renderSide(); return; }
+  if (d.addpage != null) return addPage();
+  if (d.delpage) return deletePage(d.delpage);
   if (d.rail) return railGo(d.rail, false);
   if (d.railOpen) { UI.rail = d.railOpen; UI.open = true; UI.cat = null; NAV_VIEW = "editor"; saveUI(); applyNav(); return; }
   if (d.navClose != null) { UI.open = false; UI.cat = null; applyNav(); return; }
@@ -2091,11 +1684,25 @@ document.addEventListener("pointerout", (e) => {
   if (e.target.closest(".rail, .side, .fly, .pop") && !e.relatedTarget?.closest?.(".rail, .side, .fly, .pop")) { clearTimeout(hoverT); hoverT = setTimeout(() => { UI.open = false; UI.cat = null; applyNav(); }, 350); }
 });
 // Settings fields save as you type.
-document.addEventListener("input", (e) => { const t = e.target; if (t.dataset.set && t.tagName !== "SELECT") setSet(t.dataset.set, t.value); });
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.dataset.set && t.tagName !== "SELECT") setSet(t.dataset.set, t.value);
+  // New page: the address follows the name until you type your own.
+  if (t.id === "np-name" && !$("#np-slug").dataset.touched) $("#np-slug").value = slugify(t.value);
+  if (t.id === "np-slug") { t.dataset.touched = "1"; $("#np-err").textContent = ""; }
+  if (t.dataset.pageslug) $("#slug-err").textContent = t.value === PAGE_LIST.find((p) => p.id === t.dataset.pageslug).path.slice(1) ? "" : slugProblem(t.value.trim(), t.dataset.pageslug);
+  if (t.dataset.pagename) { const p = PAGE_LIST.find((x) => x.id === t.dataset.pagename); if (p && t.value.trim()) { p.name = t.value.trim().slice(0, 60); save(); } }
+});
 document.addEventListener("change", (e) => {
   const t = e.target;
   if (t.dataset.setck) { setSet(t.dataset.setck, t.checked); if (t.dataset.setck === "site.noindex") renderSettings(); }
   if (t.dataset.set && t.tagName === "SELECT") { setSet(t.dataset.set, t.value); renderSettings(); }
+  if (t.dataset.pagename) { render(); renderSettings(); }
+  if (t.dataset.pageslug) {
+    const p = PAGE_LIST.find((x) => x.id === t.dataset.pageslug), slug = t.value.trim(), err = slugProblem(slug, p.id);
+    if (err) { $("#slug-err").textContent = err; return; }
+    p.path = "/" + slug; render(); renderSettings(); toast(`Address is now /${slug}. It changes on the live site when you publish.`);
+  }
 });
 addEventListener("resize", () => { document.documentElement.dataset.docked = docked(); });
 applyNav();

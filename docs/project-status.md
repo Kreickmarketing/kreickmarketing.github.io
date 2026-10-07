@@ -3,7 +3,7 @@
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
 - Design system: /design-system (colors, type, buttons, nav, footer, components, grid, content fields, 13 cards).
-- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio/builder (Studio: templates and dotted spots, saves to Supabase, Publish puts Home, About, Pricing and Book a call live; each page shows its live link; side nav with logo menu, Pages, Modules, CMS, Settings), /clrcrm/studio (My Sites and the older editor), /clrcrm/crm (CRM: 6 leads, 11 products in Supabase), /clrcrm/interview (interview drill).
+- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio/builder (Studio: templates and dotted spots, saves to Supabase, Publish puts Home, About, Pricing and Book a call live; each page shows its live link; side nav with logo menu, Pages (+ Add page), Modules, CMS, Settings (page addresses); no Design view: design comes from Claude Design), /clrcrm/studio (My Sites and the older editor), /clrcrm/crm (CRM: 6 leads, 11 products in Supabase), /clrcrm/interview (interview drill).
 - Kreick Marketing site (separate repo kreickmarketing-site): https://kreickmarketing.vercel.app (Gigs, 6 case studies, AI Explorations).
 
 ## Where things live in this repo
