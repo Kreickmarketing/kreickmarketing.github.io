@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Photo background + tags · phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700&amp;family=Courier+Prime:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#FFFFFF}a:hover{color:#E1DDD5}
+</style>
+</helmet>
+<section data-template="photo-tags" style="position: relative; width: 390px; height: 1080px; box-sizing: border-box; overflow: hidden; padding: 64px 20px; background: #1C2026; color: #FFFFFF; font-family: 'Saira', sans-serif; display: flex; flex-direction: column; gap: 32px">
+<img data-spot="image" src="/_blob/afe16c008b2f37e4711db202803b2056" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+<div style="position: absolute; inset: 0; background: rgba(28,32,38,0.6)"></div>
+<div data-spot="columns" style="position: relative; display: grid; grid-template-columns: 1fr; gap: 16px">
+<p data-spot="label" style="margin: 0; font-size: 12px; line-height: 12px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase">Platforms</p>
+<h2 data-spot="headline" style="margin: 0; font-size: 36px; line-height: 36px; letter-spacing: -1.5px; font-weight: 300">For any business.<br>On any platform.</h2>
+</div>
+<ul data-spot="tags" style="position: relative; margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px">
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ Growth &amp; Sales</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ Marketing &amp; Content</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ HR &amp; People Operations</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ IT &amp; Service Operations</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ Executive &amp; Strategy</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ Operations (cross-functional)</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ Legal &amp; Compliance</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ R&amp;D / Innovation</li>
+<li style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px">+ Data Analytics</li>
+</ul>
+<div data-spot="logos" style="position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; align-items: center; justify-items: start">
+<img src="/_blob/8276061cbc52697b7d10d1be376e779c" alt="Airtable" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/ad9a49b3419fed7811439b0b90bdc963" alt="SAP" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/355a4a2a558ac0e57bf29f52277cbf69" alt="Copilot" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/3f323baadc5aa9e33a91992e95607611" alt="ServiceNow" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/851094094b5cfdfa24eeaa284591d421" alt="Slack" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/45eeb5ddf020f36d73ea8d3b36965f9c" alt="Workday" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/1dee87eedf0bb57632ef4e30dac5e848" alt="Notion" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/6932e2f70d0b2755c2f46734b7b83a1e" alt="Gemini" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/a1086c39fae754e23efb2c1dfe203723" alt="Einstein" style="height: 30px; width: auto; max-width: 100%">
+<img src="/_blob/4f06a8da205be77d4f092d7eee7b51f3" alt="Oracle NetSuite" style="height: 30px; width: auto; max-width: 100%">
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1080}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

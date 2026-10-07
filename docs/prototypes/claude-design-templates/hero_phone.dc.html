@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hero · phone</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700&amp;family=Courier+Prime:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#FFFFFF}a:hover{color:#E1DDD5}
+</style>
+</helmet>
+<section data-template="hero" style="position: relative; width: 390px; height: 720px; box-sizing: border-box; overflow: hidden; background: #1C2026; color: #FFFFFF; font-family: 'Saira', sans-serif; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 20px 32px">
+<img data-spot="image" src="/_blob/7889ff4a32da61bba84719eb95ad1daf" alt="A woman working at a laptop in a field of orange poppies" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+<div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45) 0%, rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.8) 100%)"></div>
+<nav data-chrome="nav" style="position: relative; display: flex; align-items: center; justify-content: space-between">
+<img src="/_blob/1d5213958254da5e40e8a1cf382870ae" alt="ClearMark Training" style="height: 30px; width: auto">
+<button type="button" aria-label="Menu" style="width: 44px; height: 44px; border: 0; background: none; color: #FFFFFF; display: grid; place-items: center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+</nav>
+<div style="position: relative; display: flex; flex-direction: column; gap: 24px">
+<h1 data-spot="headline" style="margin: 0; font-size: 40px; line-height: 38px; letter-spacing: -1.5px; font-weight: 700">Your single source of truth shouldn't be a person.</h1>
+<a data-spot="button" href="https://calendly.com/andrew-clearmark/15min" style="display: flex; justify-content: center; align-items: center; gap: 12px; background: #FFFFFF; color: #1C2026; border-radius: 999px; padding: 14px 28px; font-family: 'Courier Prime', monospace; font-size: 18px; font-weight: 700; text-decoration: none">Book a call →</a>
+<nav data-chrome="tabbar" aria-label="Sections" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; border-top: 1px solid rgba(255,255,255,0.35); padding-top: 16px; font-size: 12px; text-align: center">
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h6v6H4zM14 4l3 3-3 3-3-3zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>Solutions</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3"/></svg>Platforms</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 7v4M12 11l-6 6M12 11l6 6"/></svg>The Engine</a>
+<a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-decoration: none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M16 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H8"/></svg>Pricing</a>
+</nav>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":720}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

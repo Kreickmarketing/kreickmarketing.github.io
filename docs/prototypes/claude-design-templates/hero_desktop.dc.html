@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hero · desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700&amp;family=Courier+Prime:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#FFFFFF}a:hover{color:#E1DDD5}
+</style>
+</helmet>
+<section data-template="hero" style="position: relative; width: 1280px; height: 760px; box-sizing: border-box; overflow: hidden; background: #1C2026; color: #FFFFFF; font-family: 'Saira', sans-serif; display: flex; flex-direction: column; justify-content: space-between; padding: 32px 64px 64px">
+<img data-spot="image" src="/_blob/7889ff4a32da61bba84719eb95ad1daf" alt="A woman working at a laptop in a field of orange poppies" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+<div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45) 0%, rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7) 100%)"></div>
+<nav data-chrome="nav" style="position: relative; display: flex; align-items: center; justify-content: space-between">
+<img src="/_blob/1d5213958254da5e40e8a1cf382870ae" alt="ClearMark Training" style="height: 40px; width: auto">
+<div style="display: flex; gap: 32px; align-items: center; font-size: 17px">
+<a href="#">About</a><a href="#">Solutions</a><a href="#">Platforms</a><a href="#">Pricing</a>
+<a href="#" style="border: 1.5px solid #FFFFFF; border-radius: 999px; padding: 6px 18px; text-decoration: none">Book a call →</a>
+</div>
+</nav>
+<div style="position: relative; display: flex; flex-direction: column; gap: 32px">
+<div style="display: flex; flex-direction: column; gap: 32px; max-width: 760px">
+<h1 data-spot="headline" style="margin: 0; font-size: 72px; line-height: 68px; letter-spacing: -3px; font-weight: 700">Your single source of truth shouldn't be a person.</h1>
+<a data-spot="button" href="https://calendly.com/andrew-clearmark/15min" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 12px; background: #FFFFFF; color: #1C2026; border-radius: 999px; padding: 14px 28px; font-family: 'Courier Prime', monospace; font-size: 18px; font-weight: 700; text-decoration: none">Book a call →</a>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px">
+<figure data-spot="quote" style="margin: 0; width: 520px; box-sizing: border-box; padding: 24px; border-radius: 18px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3); display: flex; flex-direction: column; gap: 12px">
+<figcaption style="font-size: 15px; font-weight: 700">[CLIENT NAME]</figcaption>
+<blockquote style="margin: 0; font-size: 17px; line-height: 24px">[A client quote you have permission to use.]</blockquote>
+</figure>
+<aside data-spot="stat" style="width: 260px; box-sizing: border-box; padding: 24px; border-radius: 18px; background: #FFFFFF; color: #1C2026; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; color: #444D4D">Email click-through</span>
+<span style="font-size: 44px; line-height: 44px; letter-spacing: -2px; font-weight: 700">17% → 54%</span>
+</aside>
+</div>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":760}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
