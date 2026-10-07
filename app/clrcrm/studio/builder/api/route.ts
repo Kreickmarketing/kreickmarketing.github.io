@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import { livePageIds, withUnpublished, type BuilderState } from "@/lib/builder-site";
+import { loadCms } from "@/lib/cms";
 
 // Save (PUT), Publish (POST ?action=publish), Unpublish one page
 // (POST ?action=unpublish&page=<id>) and start an upload (POST ?action=upload-url)
@@ -68,11 +69,13 @@ export async function POST(request: Request) {
     const { error } = await supabase.from("builder_sites").update({ draft: withUnpublished(row.draft as BuilderState, page, true), published }).eq("site_id", id);
     if (error) return fail(error.message, 500);
     revalidatePath("/", "layout");
-    return NextResponse.json({ ok: true, livePages: livePageIds(published as BuilderState | null) });
+    const cms = (await loadCms(supabase, id)).filter((i) => i.status === "published");
+    return NextResponse.json({ ok: true, livePages: livePageIds(published as BuilderState | null, cms) });
   }
   const { data, error } = await supabase.rpc("publish_builder", { p_site: id });
   if (error) return fail(error.message, 500);
   revalidatePath("/", "layout");  // every live page (Home, About, Pricing, Book a call)
   const { data: row } = await supabase.from("builder_sites").select("published").eq("site_id", id).maybeSingle();
-  return NextResponse.json({ ok: true, at: data, livePages: livePageIds(row?.published as BuilderState | null) });
+  const cms = (await loadCms(supabase, id)).filter((i) => i.status === "published");
+  return NextResponse.json({ ok: true, at: data, livePages: livePageIds(row?.published as BuilderState | null, cms) });
 }

@@ -601,6 +601,17 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .blk-chev { width: 13px; height: 13px; transform: rotate(90deg); transition: transform 0.15s; }
 .blk.is-closed .blk-chev { transform: none; }
 .blk.is-closed { padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.offer-draft { position: absolute; top: 16px; right: 16px; z-index: 2; background: var(--solar-flare); color: var(--cm-midnight); font-family: var(--f-mono); font-size: 13px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+.src-noimg { width: 44px; height: 44px; border-radius: 6px; background: var(--panel); flex: none; }
+.cf { font-family: var(--f-mono); font-size: 10.5px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; margin-left: 4px; font-weight: 400; }
+.cms-row { cursor: pointer; }
+.cms-row:hover td { background: var(--panel); }
+.cms-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
+.cms-img { border: 2px solid transparent; border-radius: 8px; padding: 0; background: var(--panel); aspect-ratio: 1; overflow: hidden; }
+.cms-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cms-img.is-on { border-color: var(--accent); }
+.cms-noimg { color: var(--ink-3); font-size: 12px; }
+.set-field textarea { font: inherit; }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
 .crop-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
 .crop-hint { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 32, 38, 0.78); color: #fff; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; pointer-events: none; }
@@ -725,12 +736,30 @@ const PLAYBOOK = [
   { id: "quote-by", label: "Quote by", text: "James Kinney, Chief AI Officer, INVNT", flag: "Needs approval" },
   { id: "signoff", label: "Sign-off", text: "ClearMark. Make it visible." },
 ];
-const OFFERS = [
-  { id: "agency", title: "Agency Systems", sub: "Pilot in three weeks, then a live cycle", price: "$2,500+", note: "setup · then $500–$1,500/mo", image: "media/poppies.jpg", status: "Ready" },
-  { id: "content", title: "Content System", sub: "AI content calendar and video scripts", price: "$125+", note: "a month · up to $500", image: "media/flowers.jpg", status: "Draft" },
-  { id: "publishing", title: "Publishing System", sub: "Book relaunch calendar and launch sprint", price: "$1,500+", note: "project · up to $5,000", image: "media/bridge.jpg", status: "Draft" },
-  { id: "leadgen", title: "Working Interview", sub: "A fast proof-of-work build, money-back", price: "$37", note: "one-time", image: "media/rock-climb.jpg", status: "Draft" },
+// ── CMS: Products and Portfolio, filled from the content fields (docs/design-system/cards.md).
+// Live Studio gets the site's items from Supabase (window.__STUDIO_CMS__) and saves through
+// the CMS API; the prototype starts from the same four offers and keeps edits in this browser.
+// status "published" shows as Ready (on the live site); "draft" stays in Studio.
+const CMS_KEY = "clearmark-studio-cms-v1";
+const cmsItem = (slug, sort, ct100, ct200, cp, note, img, alt, tag) => ({ id: slug, collection: "products", slug, status: "published", sort, ct100, ct200, ct300: "", cs: "", cl: "", cb: "", cbl: "", cp, cpt: "", cps: "", cpd: "", cpdt: [note], media: [{ code: "CI-01", url: img, alt }], tags: [tag] });
+const SAMPLE_CMS = [
+  cmsItem("agency-systems", 1, "Agency Systems", "Pilot in three weeks, then a live cycle", "$2,500+", "setup · then $500–$1,500/mo", "media/poppies.jpg", "A woman working at a laptop in a field of orange poppies", "Agency pilot"),
+  cmsItem("content-system", 2, "Content System", "AI content calendar and video scripts", "$125+", "a month · up to $500", "media/flowers.jpg", "A field of blue flowers", "In the pipeline"),
+  cmsItem("publishing-system", 3, "Publishing System", "Book relaunch calendar and launch sprint", "$1,500+", "project · up to $5,000", "media/bridge.jpg", "People walking across a wooden bridge", "In the pipeline"),
+  cmsItem("working-interview", 4, "Working Interview", "A fast proof-of-work build, money-back", "$37", "one-time", "media/rock-climb.jpg", "A climber on a rock face", "In the pipeline"),
 ];
+let CMS = (LIVE_CMS() || (() => { try { return JSON.parse(localStorage.getItem(CMS_KEY)); } catch { return null; } })() || structuredClone(SAMPLE_CMS));
+function LIVE_CMS() { return window.__STUDIO_LIVE__ === true && Array.isArray(window.__STUDIO_CMS__) ? window.__STUDIO_CMS__ : null; }
+// Offer cards used ids like "agency" before the CMS; drafts may still hold them.
+const LEGACY_OFFER_IDS = { agency: "agency-systems", content: "content-system", publishing: "publishing-system", leadgen: "working-interview" };
+// Products as offer cards: CT100 title, CT200 subtitle, CP price, first CPDT line, CI-01 photo, first tag.
+let OFFERS = [];
+function rebuildOffers() {
+  OFFERS = CMS.filter((i) => i.collection === "products").sort((a, b) => a.sort - b.sort).map((i) => ({
+    id: i.id, slug: i.slug, title: i.ct100, sub: i.ct200, price: i.cp, note: i.cpdt[0] || i.cpd || "",
+    image: i.media.find((m) => m.code === "CI-01")?.url || "", tag: i.tags[0] || "", status: i.status === "published" ? "Ready" : "Draft" }));
+}
+rebuildOffers();
 
 // ── Templates: section designs, made in code. Each has named spots to fill. ──
 // kind: text (limit) · link · image · logos (max) · list (max rows, columns with limits) · offers (max)
@@ -885,6 +914,9 @@ delete S.design; delete S.customTpls;
 if (!Array.isArray(S.pageList)) S.pageList = structuredClone(START_PAGES);
 for (const p of S.pageList) S.pages[p.id] = (S.pages[p.id] || []).filter((inst) => TPL[inst.t]);
 PAGE_LIST = S.pageList;
+// Offer cards picked before the CMS used ids like "agency": point them at the CMS items.
+for (const [sid, st] of Object.entries(S.slots || {})) if (sid.endsWith(".cards")) for (const k of ["value", "placed"])
+  if (Array.isArray(st[k])) st[k] = st[k].map((r) => (LEGACY_OFFER_IDS[r] ? OFFERS.find((o) => o.slug === LEGACY_OFFER_IDS[r])?.id || r : r));
 // Files uploaded in live Studio before (kept in the draft).
 for (const m of (Array.isArray(S.media) ? S.media : []).slice().reverse()) if (m?.src && !IMAGES.some((i) => i.src === m.src)) IMAGES.unshift({ id: "up-" + IMAGES.length, src: m.src, name: m.name || "Upload", kind: m.kind === "video" ? "video" : "photo" });
 // Open a page straight from a link: /clrcrm/studio/builder?page=about
@@ -942,8 +974,8 @@ function slotBox(id, extra = "", style = "") {
 const filledAttr = (id) => `data-slot="${id}" class="filled${selected === id ? " is-sel" : ""}"`;
 const text = (id, tag, cls = "", extraSlotCls = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${esc(v)}</${tag}>` : slotBox(id, extraSlotCls); };
 const lines = (id, tag, cls = "", extra = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${v.map((r) => `<span>${esc(r.line)}</span>`).join("")}</${tag}>` : slotBox(id, extra); };
-const offerById = (oid) => OFFERS.find((o) => o.id === oid);
-const offerCard = (o, i, id) => `<article class="offer" data-item="${id}:${i}"><img src="${esc(o.image)}" alt=""><div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span class="mono" style="font-size:13px">+ ${esc(o.status === "Ready" ? "Agency pilot" : "In the pipeline")}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`;
+const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY_OFFER_IDS[oid] || oid));
+const offerCard = (o, i, id) => `<article class="offer" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span class="mono" style="font-size:13px">${o.tag ? `+ ${esc(o.tag)}` : ""}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`;
 function offersBlock(id, max) {
   const v = P(id);
   const items = v ? v.map(offerById).filter(Boolean) : [];
@@ -1296,7 +1328,7 @@ function sourceItems(id) {
   if (id === "images") return `<div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im">${isVideo(im.src) ? `<video src="${esc(im.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(im.src)}" alt="">`}</div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
       <label class="upload" for="upload">+ Upload an image or video${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`;
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
-  return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0"><img src="${esc(o.image)}" alt=""><span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
+  return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0">${o.image ? `<img src="${esc(o.image)}" alt="">` : `<span class="src-noimg"></span>`}<span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
 const modulesInner = () => {
   const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
@@ -1838,7 +1870,7 @@ function renderSide() {
   } else if (UI.rail === "cms") {
     el.innerHTML = `<div class="side-head"><h2>CMS ${closeX}</h2><p>Databases. Cards on your pages pull from these, so an edit shows everywhere the card is used.</p></div>
       <div class="side-sec"><div class="side-label">Databases</div>
-        ${[["products", "Products", OFFERS.length], ["portfolio", "Portfolio", 0]].map(([id, name, n]) => `<button type="button" class="side-row" data-cmsdb="${id}" aria-current="${NAV_VIEW === "cms" && UI.cms === id}">${svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>')}<span class="grow">${name}</span><span class="sub">${n}</span></button>`).join("")}
+        ${[["products", "Products", CMS.filter((i) => i.collection === "products").length], ["portfolio", "Portfolio", CMS.filter((i) => i.collection === "portfolio").length]].map(([id, name, n]) => `<button type="button" class="side-row" data-cmsdb="${id}" aria-current="${NAV_VIEW === "cms" && UI.cms === id}">${svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>')}<span class="grow">${name}</span><span class="sub">${n}</span></button>`).join("")}
         <button type="button" class="side-row" disabled title="Comes with the CMS step">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">New database</span><span class="sub">soon</span></button></div>`;
   } else {
     const row = (id, icon, name, sub = "") => `<button type="button" class="side-row" data-setnav="${id}" aria-current="${NAV_VIEW === "settings" && UI.set === id}">${svg(icon)}<span class="grow">${esc(name)}</span>${sub ? `<span class="sub">${esc(sub)}</span>` : ""}</button>`;
@@ -1870,18 +1902,82 @@ function usedOn(offerId) {
   for (const p of allPages()) for (const sec of p.sections) for (const sl of sec.slots) if (sl.kind === "offers" && (P(sl.id) || []).includes(offerId)) pages.add(p.name);
   return [...pages];
 }
+// The CMS screens: a table per database; click a row (or + New item) to edit its fields.
+const CF = (k) => `<span class="cf">${k}</span>`;
+let cmsEdit = null, cmsDirty = false, cmsLeaveArmed = false;
+const wordCount = (t) => (String(t || "").trim() ? String(t).trim().split(/\s+/).length : 0);
+const cmsName = (c) => (c === "portfolio" ? "Portfolio" : "Products");
+function openCmsItem(id) {
+  const it = id === "new" ? null : CMS.find((x) => x.id === id);
+  cmsEdit = it ? structuredClone(it) : { id: "", collection: UI.cms, slug: "", status: "draft", sort: 0, ct100: "", ct200: "", ct300: "", cs: "", cl: "", cb: "", cbl: "", cp: "", cpt: "", cps: "", cpd: "", cpdt: [], media: [], tags: [] };
+  cmsEdit.slugTouched = !!it; cmsDirty = false; cmsLeaveArmed = false; renderCms(); window.scrollTo({ top: 0 });
+}
 function renderCms() {
-  const back = `<button type="button" class="btn btn-small" data-nav-back>← Editor</button>`;
-  if (UI.cms === "portfolio") {
-    $("#view-cms").innerHTML = `<div class="view-head">${back}<h2>Portfolio</h2><button type="button" class="btn" disabled title="Comes with the CMS step">+ New item</button></div>
-      <div class="empty-state"><b style="color:var(--ink)">No portfolio items yet.</b><br>Case studies will live here, and portfolio cards on your pages will pull from them.</div>`;
-    return;
+  const back = `<button type="button" class="btn btn-small" data-nav-back>← Editor</button>`, col = UI.cms === "portfolio" ? "portfolio" : "products";
+  if (cmsEdit) return renderCmsItem();
+  const items = CMS.filter((i) => i.collection === col).sort((a, b) => a.sort - b.sort);
+  const head = `<div class="view-head">${back}<h2>${cmsName(col)}</h2><button type="button" class="btn btn-primary" data-cmsnew>+ New item</button></div>`;
+  if (!items.length) { $("#view-cms").innerHTML = `${head}<div class="empty-state"><b style="color:var(--ink)">No ${col === "portfolio" ? "case studies" : "products"} yet.</b><br>Press <b>+ New item</b> to add the first one.</div>`; return; }
+  $("#view-cms").innerHTML = `${head}
+    <div class="cms-table-wrap"><table class="cms-table"><thead><tr><th></th><th>Title ${CF("CT100")}</th><th>Second title ${CF("CT200")}</th><th>Price ${CF("CP")}</th><th>Status</th><th>${col === "products" ? "On pages" : "Tags"}</th></tr></thead><tbody>
+      ${items.map((it, n) => { const img = it.media.find((m) => m.code === "CI-01")?.url, u = col === "products" ? usedOn(it.id) : null;
+        return `<tr class="cms-row" data-cmsitem="${esc(it.id)}" tabindex="0" title="Edit"><td class="num">${n + 1}</td><td style="white-space:nowrap">${img ? `<img src="${esc(img)}" alt="">` : ""}${esc(it.ct100)}</td><td>${esc(it.ct200)}</td><td class="mono">${esc(it.cp)}</td>
+          <td><span class="badge ${it.status === "published" ? "ok" : "wait"}">${it.status === "published" ? "Ready" : "Draft"}</span></td><td>${u ? (u.length ? esc(u.join(", ")) : '<span class="hint">Not on a page</span>') : esc(it.tags.join(", "))}</td></tr>`; }).join("")}
+    </tbody></table></div><p class="set-help" style="margin-top:12px">Click a row to edit it. <b>Ready</b> items show on the live site wherever a page uses them; <b>Draft</b> items only show here.</p>`;
+}
+function renderCmsItem() {
+  const it = cmsEdit, col = it.collection, img = it.media.find((m) => m.code === "CI-01");
+  const used = it.id && col === "products" ? usedOn(it.id) : [];
+  const f = (k, code, label, help = "", long = false, ph = "") => `<label class="set-field"><span>${label} ${CF(code)}</span>${long
+    ? `<textarea data-cf="${k}" placeholder="${esc(ph)}" rows="${k === "cl" ? 10 : 4}">${esc(k === "cpdt" ? it.cpdt.join("\n") : it[k])}</textarea>`
+    : `<input type="text" data-cf="${k}" value="${esc(it[k])}" placeholder="${esc(ph)}">`}${help ? `<small>${help}</small>` : ""}</label>`;
+  const photos = IMAGES.filter((m) => m.kind !== "logo" && !isVideo(m.src) && !m.src.startsWith("data:") && !m.src.startsWith("blob:"));
+  $("#view-cms").innerHTML = `<div class="view-head"><button type="button" class="btn btn-small" data-cmsback>${cmsDirty && cmsLeaveArmed ? "Leave without saving?" : `← ${cmsName(col)}`}</button><h2>${esc(it.ct100 || "New item")}</h2>
+      <button type="button" class="btn" data-cmsdiscard ${cmsDirty ? "" : "disabled"}>Discard changes</button><button type="button" class="btn btn-primary" data-cmssave>${it.id ? "Save" : "Add item"}</button></div>
+    <div class="set-col">
+      ${used.length ? `<p class="note" style="margin:0"><b>Also on:</b> ${esc(used.join(", "))}. ${it.status === "published" ? "Saving changes it there on the live site straight away." : "It's a Draft, so the live site doesn't show it."}</p>` : ""}
+      <div class="set-card"><h3>Status</h3><div class="seg" role="group" aria-label="Status"><button type="button" data-cmsstatus="draft" aria-pressed="${it.status !== "published"}">Draft</button><button type="button" data-cmsstatus="published" aria-pressed="${it.status === "published"}">Ready</button></div>
+        <p class="set-help">Ready: shows on the live site wherever a page uses it. Draft: only in Studio (the preview marks it).</p></div>
+      <div class="set-card"><h3>Titles</h3>${f("ct100", "CT100", "Main title", "Required.")}${f("ct200", "CT200", "Second title")}${f("ct300", "CT300", "Third title")}
+        <label class="set-field"><span>Slug</span><span class="slug-row"><span class="mono">/</span><input type="text" data-cf="slug" value="${esc(it.slug)}" autocapitalize="off" spellcheck="false"></span><small>Its own address later (lower-case letters, numbers, dashes).</small></label></div>
+      <div class="set-card"><h3>Text</h3>${f("cs", "CS", "Content short", `<span id="cs-count">${wordCount(it.cs)}</span> / 144 words`, true)}${f("cl", "CL", "Content long", `<span id="cl-count">${wordCount(it.cl)}</span> / 1,500 words`, true)}</div>
+      <div class="set-card"><h3>Button</h3>${f("cb", "CB", "Button text", "", false, "e.g. Book a call")}${f("cbl", "CBL", "Button link", "https://…, mailto:… or /a-page-on-this-site", false, "https://")}</div>
+      <div class="set-card"><h3>Price</h3>${f("cp", "CP", "Price", "", false, "e.g. $2,500+")}${f("cpt", "CPT", "Price title")}${f("cps", "CPS", "Price subtitle")}${f("cpd", "CPD", "Price description", "", true)}${f("cpdt", "CPDT", "Price dates / note", "One line each. The first line shows under the price on cards.", true, "e.g. Starting on Wednesday January 28, 2026")}</div>
+      <div class="set-card"><h3>Media</h3><div class="set-field"><span>Main image ${CF("CI-01")}</span>
+          <div class="cms-imgs">${photos.map((m) => `<button type="button" class="cms-img${img?.url === m.src ? " is-on" : ""}" data-cmsimg="${esc(m.src)}" title="${esc(m.name)}"><img src="${esc(m.src)}" alt=""></button>`).join("")}<button type="button" class="cms-img cms-noimg${img ? "" : " is-on"}" data-cmsimg="" title="No image">None</button></div>
+          <small>Upload more in Pages → Sources → Images &amp; video.</small></div>
+        <label class="set-field"><span>Image description (for screen readers)</span><input type="text" data-cf="alt" value="${esc(img?.alt || "")}" placeholder="What the photo shows"></label></div>
+      <div class="set-card"><h3>Tags</h3><label class="set-field"><span>Tags</span><input type="text" data-cf="tags" value="${esc(it.tags.join(", "))}" placeholder="Hybrid course, Leadership upskilling"><small>Comma-separated. The first tag is the small “+” label on cards.</small></label></div>
+      <p class="slug-err" id="cms-err"></p>
+    </div>`;
+}
+async function saveCmsItem() {
+  const it = cmsEdit, err = (m) => { $("#cms-err").textContent = m; toast(m); };
+  if (!it.ct100.trim()) return err("Give it a title (CT100).");
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(it.slug)) return err("The slug can only use lower-case letters, numbers and single dashes.");
+  if (wordCount(it.cs) > 144) return err("Content short is up to 144 words.");
+  if (wordCount(it.cl) > 1500) return err("Content long is up to 1,500 words.");
+  if (CMS.some((x) => x.collection === it.collection && x.slug === it.slug && x.id !== it.id)) return err("Another item already uses that slug.");
+  const img = it.media.find((m) => m.code === "CI-01");
+  const payload = { id: it.id || undefined, collection: it.collection, slug: it.slug, status: it.status, ct100: it.ct100, ct200: it.ct200, ct300: it.ct300, cs: it.cs, cl: it.cl, cb: it.cb, cbl: it.cbl,
+    cp: it.cp, cpt: it.cpt, cps: it.cps, cpd: it.cpd, cpdt: it.cpdt, tags: it.tags, image: img ? { url: img.url, alt: img.alt } : null };
+  if (LIVE) {
+    try {
+      const res = await fetch(API + "/cms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ item: payload }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) return err(j.error || "Couldn't save");
+      CMS = j.cms; cmsEdit = structuredClone(CMS.find((x) => x.id === j.id) || it);
+    } catch { return err("Couldn't reach the server. Try again."); }
+  } else {
+    const saved = { ...structuredClone(it), id: it.id || it.slug, sort: it.sort || Math.max(0, ...CMS.filter((x) => x.collection === it.collection).map((x) => x.sort)) + 1 };
+    delete saved.slugTouched;
+    CMS = [...CMS.filter((x) => x.id !== saved.id), saved];
+    try { localStorage.setItem(CMS_KEY, JSON.stringify(CMS)); } catch {}
+    cmsEdit = structuredClone(saved);
   }
-  $("#view-cms").innerHTML = `<div class="view-head">${back}<h2>Products</h2><button type="button" class="btn" disabled title="Comes with the CMS step">+ New item</button><button type="button" class="btn" disabled title="Comes with the CMS step">Edit fields</button></div>
-    <p class="note" style="margin:0 0 16px">These are the offers your <b>Offer cards</b> show. Read-only for now: adding and editing items here is the next Studio step (CMS).</p>
-    <div class="cms-table-wrap"><table class="cms-table"><thead><tr><th></th><th>Title</th><th>Subtitle</th><th>Price</th><th>Price note</th><th>Status</th><th>Placed on</th></tr></thead><tbody>
-      ${OFFERS.map((o, i) => { const u = usedOn(o.id); return `<tr><td class="num">${i + 1}</td><td style="white-space:nowrap"><img src="${esc(o.image)}" alt="">${esc(o.title)}</td><td>${esc(o.sub)}</td><td class="mono">${esc(o.price)}</td><td>${esc(o.note)}</td><td><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></td><td>${u.length ? esc(u.join(", ")) : '<span class="hint">Not on a page</span>'}</td></tr>`; }).join("")}
-    </tbody></table></div>`;
+  cmsEdit.slugTouched = true; cmsDirty = false; rebuildOffers();
+  render(); renderSide(); renderCms();
+  toast(it.status === "published" ? "Saved. It's live wherever a page uses it." : "Saved as a Draft.");
 }
 
 // ── Settings screens ──
@@ -2022,7 +2118,7 @@ function railGo(r, fromHover) {
 // In Collapsed / Expand-on-hover (and on phones) the panel floats; it closes after you pick something.
 const closeIfFloating = () => { if (!docked() && UI.open) { UI.open = false; UI.cat = null; applyNav(); } };
 document.addEventListener("click", (e) => {
-  const t = e.target.closest("button, a, [data-page], [data-navsec], [data-navslot], [data-pick], [data-blocktoggle]");
+  const t = e.target.closest("button, a, [data-page], [data-navsec], [data-navslot], [data-pick], [data-blocktoggle], [data-cmsitem]");
   if (!t) return;
   const d = t.dataset;
   if (d.blocktoggle) { if (blockMoved) return; const b = d.blocktoggle; UI.closed.has(b) ? UI.closed.delete(b) : UI.closed.add(b); saveUI(); renderSide(); return; }
@@ -2054,7 +2150,14 @@ document.addEventListener("click", (e) => {
   if (d.savework != null) return saveWork();
   if (d.unpub != null) return unpublishPage();
   if (d.modgroup) { UI.mods.has(d.modgroup) ? UI.mods.delete(d.modgroup) : UI.mods.add(d.modgroup); renderModules(); return; }
-  if (d.cmsdb) { UI.cms = d.cmsdb; NAV_VIEW = "cms"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
+  if (t.dataset.cmsitem) { openCmsItem(t.dataset.cmsitem); return; }
+  if (d.cmsnew != null) { openCmsItem("new"); return; }
+  if (d.cmsback != null) { if (cmsDirty && !cmsLeaveArmed) { cmsLeaveArmed = true; renderCms(); setTimeout(() => { cmsLeaveArmed = false; if (cmsEdit) renderCms(); }, 4000); return; } cmsEdit = null; renderCms(); return; }
+  if (d.cmsdiscard != null) { openCmsItem(cmsEdit?.id || "new"); toast("Changes discarded."); return; }
+  if (d.cmssave != null) return saveCmsItem();
+  if (d.cmsstatus && cmsEdit) { cmsEdit.status = d.cmsstatus; cmsDirty = true; renderCms(); return; }
+  if (d.cmsimg != null && cmsEdit) { const alt = cmsEdit.media.find((m) => m.code === "CI-01")?.alt || ""; cmsEdit.media = cmsEdit.media.filter((m) => m.code !== "CI-01"); if (d.cmsimg) cmsEdit.media.unshift({ code: "CI-01", url: d.cmsimg, alt }); cmsDirty = true; renderCms(); return; }
+  if (d.cmsdb) { cmsEdit = null; UI.cms = d.cmsdb; NAV_VIEW = "cms"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
   if (d.setnav) { UI.set = d.setnav; NAV_VIEW = "settings"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
   if (d.navsec) {
     const sec = pageView(S.page).sections.find((x) => x.id === d.navsec); if (!sec) return;
@@ -2071,7 +2174,7 @@ document.addEventListener("pointerdown", (e) => {
   if (!e.target.closest(".pop, #rail-logo, [data-sidebar-menu]")) closePops();
   if (!docked() && UI.open && !e.target.closest(".side, .rail, .fly, .pop, .confirm-backdrop")) { UI.open = false; UI.cat = null; applyNav(); }
 }, true);
-document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-navsec], [data-navslot], [data-blocktoggle]")) { e.preventDefault(); e.target.click(); } });
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-navsec], [data-navslot], [data-blocktoggle], [data-cmsitem]")) { e.preventDefault(); e.target.click(); } });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closePops(); if (!docked() && UI.open && !pendingRemove) { UI.open = false; UI.cat = null; applyNav(); } } });
 // Expand on hover: point at an icon to open its panel; move away to close it.
 let hoverT = null;
@@ -2088,6 +2191,18 @@ document.addEventListener("pointerout", (e) => {
 // Settings fields save as you type.
 document.addEventListener("input", (e) => {
   const t = e.target;
+  // CMS item fields: kept in the working copy until Save.
+  if (t.dataset.cf && cmsEdit) {
+    const k = t.dataset.cf, v = t.value; cmsDirty = true; $("[data-cmsdiscard]") && ($("[data-cmsdiscard]").disabled = false);
+    if (k === "cpdt") cmsEdit.cpdt = v.split("\n").map((l) => l.trim()).filter(Boolean);
+    else if (k === "tags") cmsEdit.tags = v.split(",").map((l) => l.trim()).filter(Boolean);
+    else if (k === "alt") { const m = cmsEdit.media.find((x) => x.code === "CI-01"); if (m) m.alt = v; }
+    else if (k === "slug") { cmsEdit.slug = v.trim(); cmsEdit.slugTouched = true; }
+    else cmsEdit[k] = v;
+    if (k === "ct100" && !cmsEdit.slugTouched) { cmsEdit.slug = slugify(v); const sl = $('[data-cf="slug"]'); if (sl) sl.value = cmsEdit.slug; }
+    if (k === "cs" || k === "cl") { const c = $(`#${k}-count`); if (c) { c.textContent = wordCount(v); c.parentElement.classList.toggle("slug-err", wordCount(v) > (k === "cs" ? 144 : 1500)); } }
+    return;
+  }
   if (t.dataset.set && t.tagName !== "SELECT") setSet(t.dataset.set, t.value);
   // New page: the address follows the name until you type your own.
   if (t.id === "np-name" && !$("#np-slug").dataset.touched) $("#np-slug").value = slugify(t.value);

@@ -3,6 +3,7 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import { livePageIds, type BuilderState } from "@/lib/builder-site";
+import { loadCms } from "@/lib/cms";
 
 // Studio builder: the template-and-spots editor. Its source is one HTML file,
 // docs/prototypes/studio-builder/studio-builder.html (the same file the Claude
@@ -24,10 +25,13 @@ export async function GET(request: Request) {
 
   // JSON inside a <script>: escape "<" so no saved text can close the tag.
   const state = JSON.stringify(row?.draft && Object.keys(row.draft).length ? row.draft : null).replace(/</g, "\\u003c");
-  const livePages = JSON.stringify(livePageIds(row?.published as BuilderState | null));
+  // The CMS (drafts too: CRM members can read them) for offer cards and the CMS screens.
+  const cms = site ? await loadCms(supabase, site.id) : [];
+  const livePages = JSON.stringify(livePageIds(row?.published as BuilderState | null, cms.filter((i) => i.status === "published")));
+  const cmsJson = JSON.stringify(cms).replace(/</g, "\\u003c");
   const html = (await readFile(SOURCE, "utf8"))
     .replace(/(["`])media\//g, "$1/studio-media/")
-    .replace("<script>", `<script>window.__STUDIO_LIVE__ = true; window.__STUDIO_STATE__ = ${state}; window.__STUDIO_LIVE_PAGES__ = ${livePages};</script>\n<script>`);
+    .replace("<script>", `<script>window.__STUDIO_LIVE__ = true; window.__STUDIO_STATE__ = ${state}; window.__STUDIO_LIVE_PAGES__ = ${livePages}; window.__STUDIO_CMS__ = ${cmsJson};</script>\n<script>`);
 
   return new NextResponse(`<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">\n${html}`, {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },

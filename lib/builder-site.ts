@@ -1,3 +1,4 @@
+import { LEGACY_OFFER_IDS, type CmsItem } from "./cms";
 // Live pages made in the Studio builder (/clrcrm/studio/builder).
 //
 // The builder saves one JSON "state" per site: pages (lists of template copies),
@@ -33,13 +34,19 @@ const TEMPLATES: Template[] = [
   { id: "calendly", type: "calendly", slots: [] },
 ];
 
-// Offer cards (the builder's CMS list for now).
-const OFFERS: Record<string, { title: string; sub: string; price: string; note: string; image: string; status: string }> = {
-  agency: { title: "Agency Systems", sub: "Pilot in three weeks, then a live cycle", price: "$2,500+", note: "setup · then $500–$1,500/mo", image: "/studio-media/poppies.jpg", status: "Ready" },
-  content: { title: "Content System", sub: "AI content calendar and video scripts", price: "$125+", note: "a month · up to $500", image: "/studio-media/flowers.jpg", status: "Draft" },
-  publishing: { title: "Publishing System", sub: "Book relaunch calendar and launch sprint", price: "$1,500+", note: "project · up to $5,000", image: "/studio-media/bridge.jpg", status: "Draft" },
-  leadgen: { title: "Working Interview", sub: "A fast proof-of-work build, money-back", price: "$37", note: "one-time", image: "/studio-media/rock-climb.jpg", status: "Draft" },
-};
+// Offer cards come from the Studio CMS (Products): title CT100, subtitle CT200, price CP,
+// price note = first CPDT line, photo CI-01, small "+" label = first tag. Cards are found by
+// item id, by slug, or by the ids used before the CMS (LEGACY_OFFER_IDS).
+type OfferCard = { title: string; sub: string; price: string; note: string; image: string | null; tag: string };
+function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
+  const products = cms.filter((i) => i.collection === "products");
+  return (ref) => {
+    const r = str(ref), slug = LEGACY_OFFER_IDS[r] || r;
+    const i = products.find((x) => x.id === r || x.slug === slug);
+    if (!i) return null;
+    return { title: i.ct100, sub: i.ct200, price: i.cp, note: i.cpdt[0] || i.cpd, image: safeImage(i.media.find((m) => m.code === "CI-01")?.url), tag: i.tags[0] || "" };
+  };
+}
 
 const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", video: "std", calendly: "std" };
 const PHOTO_TOP = ["hero", "pagehero", "plat"];
@@ -108,7 +115,7 @@ const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.fi
 const hasText = (r: Record<string, unknown>) => Object.values(r).some((x) => str(x));
 
 // ── Drawing each template (live mode: empty spots are simply left out) ──
-function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v): string {
+function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
   const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
   const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
@@ -137,8 +144,8 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     case "header": { const body = str(P("body")); return `<div class="sh">${text("tagline", "p", "tagline")}<div>${lines("headline", "h2")}${body ? `<p class="body" data-slot=".body">${esc(body)}</p>` : ""}</div></div>`; }
     case "offersonly": {
       const ids = Array.isArray(P("cards")) ? (P("cards") as unknown[]) : [];
-      const cards = ids.map((x) => OFFERS[str(x)]).filter(Boolean);
-      return cards.length ? `<div class="offer-grid" data-slot=".cards">${cards.map((o) => `<article class="offer"><img src="${esc(o.image)}" alt=""><div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span style="font-family:var(--font-button);font-size:13px">+ ${o.status === "Ready" ? "Agency pilot" : "In the pipeline"}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`).join("")}</div>` : "";
+      const cards = ids.map(offer).filter((o): o is OfferCard => !!o);
+      return cards.length ? `<div class="offer-grid" data-slot=".cards">${cards.map((o) => `<article class="offer">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span style="font-family:var(--font-button);font-size:13px">${o.tag ? `+ ${esc(o.tag)}` : ""}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`).join("")}</div>` : "";
     }
     default: return "";
   }
@@ -175,7 +182,8 @@ function cropStyle(c: unknown): string {
 }
 
 // ── A whole live page ──
-export function renderLivePage(state: BuilderState, pageId: string): LivePage | null {
+// cms: the site's CMS items visitors may see (published only), for offer cards.
+export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem[] = []): LivePage | null {
   const list = Array.isArray(state?.pages?.[pageId]) ? state.pages![pageId] : null;
   if (!list?.length) return null;
   const tpls: Record<string, Template> = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
@@ -183,6 +191,7 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
   // Buttons that link to a Studio page are saved as "page:<id>" (optionally "#<section>"),
   // so they follow the page's current address. A missing or unpublished page means no link.
   const pages = pagesOf(state);
+  const offer = offerCards(cms);
   const link = (v: unknown) => {
     const s = str(v);
     if (!s.startsWith("page:")) return s;
@@ -202,7 +211,7 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
     else if (tpl.type === "calendly") sections.push({ kind: "calendly", id: uid, className });
     else {
       // A section with nothing placed in it is left off the live page.
-      const html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link);
+      const html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer);
       if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id: uid, className, html });
     }
   }
@@ -247,9 +256,9 @@ export function pagesOf(state: BuilderState | null | undefined): BuilderPageInfo
 }
 
 // Pages visitors can see in this state: not unpublished, and something placed on them.
-export function livePageIds(state: BuilderState | null | undefined): string[] {
+export function livePageIds(state: BuilderState | null | undefined, cms: CmsItem[] = []): string[] {
   if (!state) return [];
-  return pagesOf(state).filter((p) => !p.unpublished && (renderLivePage(state, p.id)?.sections.length ?? 0) > 0).map((p) => p.id);
+  return pagesOf(state).filter((p) => !p.unpublished && (renderLivePage(state, p.id, cms)?.sections.length ?? 0) > 0).map((p) => p.id);
 }
 
 // The same state with one page marked unpublished (or back on). Used on both the draft and

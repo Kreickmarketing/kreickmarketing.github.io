@@ -12,6 +12,7 @@
 - `app/design-system/`: the design system page and its sample content.
 - `app/clrcrm/`: team area (login, Studio, CRM, playbook, interview).
 - Uploads: Supabase Storage bucket `studio-media` (clearmark-test), see `supabase/studio-media.sql`.
+- CMS: Products (the 4 offers + a draft sample) and Portfolio in Supabase `items`/`media`/`tags`; edited in Studio → CMS; offer cards read from it (`lib/cms.ts`).
 - `supabase/`: SQL for signups, crm_members, clients, products, and Studio (`studio.sql`: sites, pages, collections, items, media, tags, versions). Project clearmark-test only.
 - `lib/studio.ts`: the shape of a Studio page (sections → components or a card grid).
 - `docs/design-system/`: text-styles.md, cards.md (content fields, card specs).
