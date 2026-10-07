@@ -569,6 +569,20 @@ body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0,
 .mod-item .grow b { font-size: 13px; font-weight: 600; }
 .mod-item .grow span { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mod-item .btn { flex: none; }
+.blk { padding-bottom: 0; border-bottom: 0; }
+.blk-body > * { flex-shrink: 0; }
+.blk-body { overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; }
+.blk-resize { height: 9px; margin: 0 -8px; cursor: row-resize; touch-action: none; position: relative; flex: none; }
+.blk-resize::after { content: ""; position: absolute; left: 0; right: 0; top: 4px; height: 1px; background: var(--line); }
+.blk-resize:hover::after, body.is-resizing-v .blk-resize::after { height: 3px; top: 3px; background: var(--accent); }
+body.is-resizing-v { cursor: row-resize; user-select: none; }
+/* Scrollbars like Figma: thin, and only while the pointer is over that area */
+.side, .blk-body { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.side:hover, .blk-body:hover { scrollbar-color: rgba(255, 255, 255, 0.28) transparent; }
+.side::-webkit-scrollbar, .blk-body::-webkit-scrollbar { width: 8px; }
+.side::-webkit-scrollbar-thumb, .blk-body::-webkit-scrollbar-thumb { background: transparent; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.side:hover::-webkit-scrollbar-thumb, .blk-body:hover::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.28); }
+.side::-webkit-scrollbar-track, .blk-body::-webkit-scrollbar-track { background: transparent; }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
 .crop-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
 .crop-hint { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 32, 38, 0.78); color: #fff; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; pointer-events: none; }
@@ -1214,14 +1228,14 @@ function sourceItems(id) {
 const modulesInner = () => {
   const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
   const where = after ? `Adds after ${after.name}` : "Adds at the end of the page";
-  return `<div class="side-label" data-blockdrag="modules"><span><span class="lay-grip" aria-hidden="true">⠿</span> Modules</span></div>${modCats().map((c) => {
+  return `${modCats().map((c) => {
     const open = UI.mods.has(c.id);
     return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-modgroup="${c.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}<span class="mod-ico mod-ico-sm" style="background:${c.color}">${svg(MOD_ICON[c.id])}</span><span class="grow">${esc(c.name)}</span><span class="sub">${c.tpls.length}</span></button>
       ${open ? `<div class="src-body">${c.tpls.map((id) => TPL[id]).map((t) => `<div class="mod-item" data-tpldrag="${t.id}" title="Drag onto the page">${tplThumb(t.type)}<span class="grow"><b>${esc(t.name)}</b><span>${esc(t.about)}</span></span><button type="button" class="btn btn-small btn-outline" data-addtpl="${t.id}" title="${esc(where)}">+ Add</button></div>`).join("")}</div>` : ""}</div>`;
   }).join("")}`;
 };
 function renderModules() { const box = document.getElementById("side-modules"); if (box) box.innerHTML = modulesInner(); }
-const sourcesInner = () => `<div class="side-label" data-blockdrag="sources"><span><span class="lay-grip" aria-hidden="true">⠿</span> Sources</span></div>${SRC_GROUPS.map((g) => {
+const sourcesInner = () => `${SRC_GROUPS.map((g) => {
   const open = UI.src.has(g.id);
   return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-srcgroup="${g.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}${svg(g.icon, "lay-ico")}<span class="grow">${g.name}</span><span class="sub">${g.count()}</span></button>
     ${open ? `<div class="src-body">${sourceItems(g.id)}</div>` : ""}</div>`;
@@ -1622,7 +1636,9 @@ document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.t
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "modules", "sources"], mods: new Set(), w: 280 };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "modules", "sources"], mods: new Set(), w: 280, h: {} };
+// How tall each block in the Pages panel starts (drag its bottom line to change; double-click resets).
+const BLOCK_H = { pages: 240, layers: 380, modules: 320, sources: 360 };
 try {
   const u = JSON.parse(localStorage.getItem(UI_KEY));
   if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k];
@@ -1633,9 +1649,10 @@ try {
   }
   if (UI.rail === "modules") UI.rail = "pages";
   if (typeof u?.w === "number") UI.w = Math.min(520, Math.max(220, u.w));
+  if (u?.h && typeof u.h === "object") for (const [k, v] of Object.entries(u.h)) if (k in BLOCK_H && typeof v === "number") UI.h[k] = Math.min(2000, Math.max(48, v));
 } catch {}
 document.documentElement.style.setProperty("--side-w", UI.w + "px");
-const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w })); } catch {} };
+const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w, h: UI.h })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
 const docked = () => UI.sidebar === "expanded" && UI.open && !isPhone();
 const viewFor = (r) => (r === "cms" || r === "settings" ? r : "editor");
@@ -1690,18 +1707,24 @@ function renderSide() {
   const el = $("#side");
   if (UI.rail === "pages") {
     const page = pageView(S.page);
+    const title = (id, text, extra = "") => `<div class="side-label" data-blockdrag="${id}"><span><span class="lay-grip" aria-hidden="true">⠿</span> ${text}</span>${extra}</div>`;
     const blocks = {
-      pages: `<div class="side-sec" data-block="pages"><div class="side-label" data-blockdrag="pages"><span><span class="lay-grip" aria-hidden="true">⠿</span> Pages</span> <button type="button" class="btn btn-small" data-addpage-open aria-expanded="${UI.adding}">+ Add page</button></div>${UI.adding ? addPageForm() : ""}${allPages().map((p) => {
+      pages: [title("pages", "Pages", ` <button type="button" class="btn btn-small" data-addpage-open aria-expanded="${UI.adding}">+ Add page</button>`), (UI.adding ? addPageForm() : "") + allPages().map((p) => {
         const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
         return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span><span class="dot ${pageIsLive(p) ? "placed" : "draft"}" title="${pageIsLive(p) ? "Live" : "Work in progress"}"></span></button>`;
-      }).join("")}</div>`,
-      layers: `<div class="side-sec layers" data-block="layers"><div class="side-label" data-blockdrag="layers"><span><span class="lay-grip" aria-hidden="true">⠿</span> Layers · ${esc(page.name)}</span></div>${page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")}
-        <button type="button" class="side-row" data-mods-focus>${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`,
-      modules: `<div class="side-sec sources-sec" data-block="modules" id="side-modules">${modulesInner()}</div>`,
-      sources: `<div class="side-sec sources-sec" data-block="sources" id="side-sources">${sourcesInner()}</div>`,
+      }).join("")],
+      layers: [title("layers", `Layers · ${esc(page.name)}`), page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")
+        + `<button type="button" class="side-row" data-mods-focus>${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button>`],
+      modules: [title("modules", "Modules"), modulesInner()],
+      sources: [title("sources", "Sources"), sourcesInner()],
     };
+    // Keep each block's scroll position when the panel redraws.
+    const keep = { side: el.scrollTop }; el.querySelectorAll("[data-blkbody]").forEach((b) => (keep[b.dataset.blkbody] = b.scrollTop));
     el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>${pubActions(curPage())}</div>`
-      + UI.blocks.map((b) => blocks[b]).join("");
+      + UI.blocks.map((b) => `<div class="side-sec blk${b === "layers" ? " layers" : b === "modules" || b === "sources" ? " sources-sec" : ""}" data-block="${b}">${blocks[b][0]}
+          <div class="blk-body" data-blkbody="${b}" id="side-${b}" style="max-height:${UI.h[b] || BLOCK_H[b]}px">${blocks[b][1]}</div>
+          <div class="blk-resize" data-blkresize="${b}" role="separator" aria-orientation="horizontal" aria-label="Resize ${b}" title="Drag to make this taller or shorter · double-click to reset"></div></div>`).join("");
+    el.scrollTop = keep.side; el.querySelectorAll("[data-blkbody]").forEach((b) => (b.scrollTop = keep[b.dataset.blkbody] || 0));
   } else if (UI.rail === "cms") {
     el.innerHTML = `<div class="side-head"><h2>CMS ${closeX}</h2><p>Databases. Cards on your pages pull from these, so an edit shows everywhere the card is used.</p></div>
       <div class="side-sec"><div class="side-label">Databases</div>
@@ -1996,6 +2019,18 @@ document.addEventListener("pointerup", () => {
   if (d.target) { const o = UI.blocks.filter((x) => x !== d.id); const i = o.indexOf(d.target); o.splice(d.after ? i + 1 : i, 0, d.id); UI.blocks = o; saveUI(); }
   renderSide();
 });
+
+// Make a block taller or shorter by dragging the line under it. Double-click the line to reset.
+let bh = null;
+document.addEventListener("pointerdown", (e) => {
+  const line = e.target.closest?.("#side [data-blkresize]"); if (!line || e.button > 0) return;
+  e.preventDefault();
+  const id = line.dataset.blkresize, body = document.querySelector(`#side [data-blkbody="${id}"]`);
+  bh = { id, body, y: e.clientY, h: body.getBoundingClientRect().height }; line.setPointerCapture?.(e.pointerId); document.body.classList.add("is-resizing-v");
+});
+document.addEventListener("pointermove", (e) => { if (!bh) return; bh.now = Math.round(Math.min(2000, Math.max(48, bh.h + e.clientY - bh.y))); bh.body.style.maxHeight = bh.now + "px"; });
+document.addEventListener("pointerup", () => { if (!bh) return; if (bh.now) { UI.h[bh.id] = bh.now; saveUI(); } bh = null; document.body.classList.remove("is-resizing-v"); });
+document.addEventListener("dblclick", (e) => { const line = e.target.closest?.("#side [data-blkresize]"); if (!line) return; delete UI.h[line.dataset.blkresize]; saveUI(); renderSide(); });
 
 // Resize the panel by dragging its right edge. Past the narrowest size, letting go closes it.
 const SIDE_MIN = 220, SIDE_MAX = 520, SIDE_CLOSE = SIDE_MIN - 70;
