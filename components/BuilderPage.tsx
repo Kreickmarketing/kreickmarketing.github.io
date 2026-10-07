@@ -14,6 +14,8 @@ export default function BuilderPage({ page, livePages = [], paths = {} }: { page
   const ids = new Set(page.sections.map((s) => s.id));
   return (
     <div className="site">
+      {/* Tablet / Phone photo crops set in Studio (numbers only, checked in lib/builder-site.ts). */}
+      {page.css && <style dangerouslySetInnerHTML={{ __html: page.css }} />}
       <header className={`bnav${page.navOverPhoto ? "" : " nav-bar"}`}>
         <a href="/" aria-label="ClearMark home"><img src="/studio-media/logo-white.png" alt="ClearMark Training" /></a>
         <nav aria-label="Main">

@@ -48,7 +48,8 @@ export type BuilderState = {
   pages?: Record<string, { uid: string; t: string; name?: string }[]>;
   slots?: Record<string, { placed?: unknown }>;
   flip?: Record<string, boolean>;
-  crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown }>;  // image focus points (% from top-left) and zoom (1–3×)
+  // Image focus points (% from top-left) and zoom (1–3×): Desktop, plus optional tablet/phone crops.
+  crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown; tablet?: unknown; phone?: unknown }>;
   pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
 };
 
@@ -59,7 +60,8 @@ export type LiveSection =
   | { kind: "mail"; id: string; className: string; label: string; headline: string; intro: string; nameLabel: string; emailLabel: string; button: string; thanks: string }
   | { kind: "calendly"; id: string; className: string };
 
-export type LivePage = { sections: LiveSection[]; navOverPhoto: boolean };
+// css: Tablet/Phone crops (rules for the page's 1000px and 700px breakpoints).
+export type LivePage = { sections: LiveSection[]; css: string; navOverPhoto: boolean };
 
 // ── Safe values ──
 const esc = (t: unknown) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -144,6 +146,26 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
 
 // Crop focus point and zoom → a style attribute. Only numbers in range get through
 // (x, y: 0–100; zoom: 1–3).
+function cropParts(c: unknown): { x: number; y: number; z: number } | null {
+  const o = c && typeof c === "object" ? (c as { x?: unknown; y?: unknown; z?: unknown }) : null;
+  const ok = (n: unknown, lo: number, hi: number) => typeof n === "number" && Number.isFinite(n) && n >= lo && n <= hi;
+  if (!o || !ok(o.x, 0, 100) || !ok(o.y, 0, 100)) return null;
+  return { x: Math.round(o.x as number), y: Math.round(o.y as number), z: ok(o.z, 1, 3) ? Math.round((o.z as number) * 100) / 100 : 1 };
+}
+// Tablet / Phone crops for one section → container rules (same breakpoints as the page).
+function cropRules(uid: string, crops: BuilderState["crop"]): string {
+  const out: string[] = [];
+  for (const [id, c] of Object.entries(crops || {})) {
+    if (!id.startsWith(uid + ".")) continue;
+    const key = id.slice(uid.length + 1);
+    if (!ID.test(key) || !c || typeof c !== "object") continue;
+    for (const [bp, w] of [["tablet", 1000], ["phone", 700]] as const) {
+      const v = cropParts((c as Record<string, unknown>)[bp]);
+      if (v) out.push(`@container (max-width: ${w}px) { .site [id="${uid}"] :is(img, video)[data-slot=".${key}"] { object-position: ${v.x}% ${v.y}% !important; transform: ${v.z > 1 ? `scale(${v.z})` : "none"} !important; transform-origin: ${v.x}% ${v.y}% !important; } }`);
+    }
+  }
+  return out.join("\n");
+}
 function cropStyle(c: unknown): string {
   const o = c && typeof c === "object" ? (c as { x?: unknown; y?: unknown; z?: unknown }) : null;
   const ok = (n: unknown, lo: number, hi: number) => typeof n === "number" && Number.isFinite(n) && n >= lo && n <= hi;
@@ -185,7 +207,8 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
     }
   }
   const first = tpls[str(list[0]?.t)];
-  return { sections, navOverPhoto: !!first && PHOTO_TOP.includes(first.type) };
+  const css = sections.map((x) => cropRules(x.id, state.crop)).filter(Boolean).join("\n");
+  return { sections, css, navOverPhoto: !!first && PHOTO_TOP.includes(first.type) };
 }
 
 // The builder's starting pages. Andrew can rename them, change their addresses
