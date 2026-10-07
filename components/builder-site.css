@@ -39,7 +39,7 @@
 .site .cred { background: var(--charcoal); color: var(--white); padding: 48px 64px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: center; }
 .site .tagline { font-size: 14px; letter-spacing: 0.24em; text-transform: uppercase; font-weight: 700; margin: 0; }
 .site .logo-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-end; }
-.site .logo-row img { height: 44px; width: auto; max-width: 200px; object-fit: contain; }
+.site .logo-row img { height: 24px; width: auto; max-width: 200px; object-fit: contain; }
 .site .cred .tagline { font-size: 16px; line-height: 16px; letter-spacing: 3px; }
 
 .site .std { padding: 96px 64px; display: flex; flex-direction: column; gap: 48px; }
@@ -94,7 +94,7 @@
   .site .cred { grid-template-columns: 1fr; padding: 48px 32px; }
   .site .cred .tagline { font-size: 14px; line-height: 14px; }
   .site .logo-row { justify-content: space-between; }
-  .site .logo-row img { height: 32px; }
+  .site .logo-row img { height: 24px; }
   .site .split.flip > :first-child { order: 0; }
   .site .point { grid-template-columns: 1fr 2fr; }
   .site .plat { min-height: 0; }
