@@ -566,7 +566,7 @@ body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0,
 .mod-item:hover { background: var(--panel); border-color: var(--line); }
 .mod-item .tpl-thumb { width: 56px; height: 34px; flex: none; }
 .mod-item .grow { display: flex; flex-direction: column; min-width: 0; }
-.mod-item .grow b { font-size: 13px; font-weight: 600; }
+.mod-item .grow b { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mod-item .grow span { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mod-item .btn { flex: none; }
 .blk { padding-bottom: 0; border-bottom: 0; }
@@ -1230,7 +1230,7 @@ const modulesInner = () => {
   const where = after ? `Adds after ${after.name}` : "Adds at the end of the page";
   return `${modCats().map((c) => {
     const open = UI.mods.has(c.id);
-    return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-modgroup="${c.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}<span class="mod-ico mod-ico-sm" style="background:${c.color}">${svg(MOD_ICON[c.id])}</span><span class="grow">${esc(c.name)}</span><span class="sub">${c.tpls.length}</span></button>
+    return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-modgroup="${c.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}${svg(MOD_ICON[c.id], "lay-ico")}<span class="grow">${esc(c.name)}</span><span class="sub">${c.tpls.length}</span></button>
       ${open ? `<div class="src-body">${c.tpls.map((id) => TPL[id]).map((t) => `<div class="mod-item" data-tpldrag="${t.id}" title="Drag onto the page">${tplThumb(t.type)}<span class="grow"><b>${esc(t.name)}</b><span>${esc(t.about)}</span></span><button type="button" class="btn btn-small btn-outline" data-addtpl="${t.id}" title="${esc(where)}">+ Add</button></div>`).join("")}</div>` : ""}</div>`;
   }).join("")}`;
 };
