@@ -14,16 +14,29 @@ body{margin:0}
 a{color:#2D6AA5}a:hover{color:#294079}
 </style>
 </helmet>
-<nav data-template="nav" data-chrome="nav" style="width: 390px; height: 72px; box-sizing: border-box; padding: 20px; background: #1C2026; color: #FFFFFF; font-family: 'Saira', sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 16px">
+<div data-template="nav" style="width: 390px; height: 432px; position: relative; background: #F6F5F2; font-family: 'Saira', sans-serif">
+<nav data-chrome="nav" style="position: relative; z-index: 2; width: 390px; height: 72px; box-sizing: border-box; padding: 20px; background: #1C2026; color: #FFFFFF; font-family: 'Saira', sans-serif; display: flex; align-items: center; justify-content: space-between; gap: 16px">
 <a data-spot="logo" href="#" aria-label="ClearMark home"><img src="/_blob/1d5213958254da5e40e8a1cf382870ae" alt="ClearMark Training" style="height: 30px; width: auto; display: block"></a>
-<button data-spot="menu" type="button" aria-label="{{menuLabel}}" aria-expanded="{{expanded}}" onClick="{{toggle}}" style="position: relative; width: 44px; height: 44px; margin-right: -6px; padding: 0; border: 0; background: transparent; color: #FFFFFF; cursor: pointer">
+<button data-spot="menu" type="button" aria-label="{{menuLabel}}" aria-expanded="{{expanded}}" aria-controls="nav-menu" onClick="{{toggle}}" style="position: relative; width: 44px; height: 44px; margin-right: -6px; padding: 0; border: 0; background: transparent; color: #FFFFFF; cursor: pointer">
 <span aria-hidden="true" style="position: absolute; left: 6px; top: 11px; width: 32px; height: 3px; border-radius: 2px; background: #FFFFFF; transition: transform 0.3s ease; transform: {{top}}"></span>
 <span aria-hidden="true" style="position: absolute; left: 6px; top: 20px; width: 32px; height: 3px; border-radius: 2px; background: #FFFFFF; transition: opacity 0.2s ease; opacity: {{mid}}"></span>
 <span aria-hidden="true" style="position: absolute; left: 6px; top: 29px; width: 32px; height: 3px; border-radius: 2px; background: #FFFFFF; transition: transform 0.3s ease; transform: {{bottom}}"></span>
 </button>
 </nav>
+<div id="nav-menu" data-spot="links" style="position: absolute; top: 72px; left: 0; right: 0; z-index: 1; overflow: hidden; background: #1C2026; color: #FFFFFF; transition: max-height 0.35s ease, visibility 0.35s; max-height: {{panelH}}; visibility: {{panelVis}}">
+<div style="display: flex; flex-direction: column; gap: 32px; padding: 0 20px 32px">
+<div style="display: flex; flex-direction: column">
+<a href="#" style="display: block; padding: 12px 0; border-bottom: 1px solid #444D4D; color: #FFFFFF; text-decoration: none; font-size: 24px; line-height: 32px">About</a>
+<a href="#" style="display: block; padding: 12px 0; border-bottom: 1px solid #444D4D; color: #FFFFFF; text-decoration: none; font-size: 24px; line-height: 32px">Solutions</a>
+<a href="#" style="display: block; padding: 12px 0; border-bottom: 1px solid #444D4D; color: #FFFFFF; text-decoration: none; font-size: 24px; line-height: 32px">Platforms</a>
+<a href="#" style="display: block; padding: 12px 0; border-bottom: 1px solid #444D4D; color: #FFFFFF; text-decoration: none; font-size: 24px; line-height: 32px">Pricing</a>
+</div>
+<a data-spot="cta" href="#" style="align-self: stretch; display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: #DB1F3D; color: #FFFFFF; border-radius: 999px; padding: 14px 28px; font-family: 'Courier Prime', monospace; font-size: 18px; line-height: 24px; font-weight: 700; text-decoration: none">Book a call →</a>
+</div>
+</div>
+</div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":72}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":432}}'>
 class Component extends DCLogic {
 renderVals() {
 const open = !!(this.state && this.state.open);
@@ -34,6 +47,8 @@ menuLabel: open ? 'Close menu' : 'Open menu',
 top: open ? 'translateY(9px) rotate(45deg)' : 'none',
 mid: open ? '0' : '1',
 bottom: open ? 'translateY(-9px) rotate(-45deg)' : 'none',
+panelH: open ? '360px' : '0px',
+panelVis: open ? 'visible' : 'hidden',
 };
 }
 }

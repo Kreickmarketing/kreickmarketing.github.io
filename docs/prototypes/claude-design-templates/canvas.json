@@ -13,35 +13,35 @@
       "title": "buttons \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 11640
+      "y": 12000
     },
     "buttons_phone.dc.html": {
       "h": 680,
       "title": "buttons \u00b7 phone 390",
       "w": 390,
       "x": 1360,
-      "y": 11640
+      "y": 12000
     },
     "footer_desktop.dc.html": {
       "h": 380,
       "title": "footer \u00b7 desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 10840
+      "y": 11200
     },
     "footer_phone.dc.html": {
       "h": 520,
       "title": "footer \u00b7 phone 390",
       "w": 390,
       "x": 2208,
-      "y": 10840
+      "y": 11200
     },
     "footer_tablet.dc.html": {
       "h": 480,
       "title": "footer \u00b7 tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 10840
+      "y": 11200
     },
     "heading_desktop.dc.html": {
       "h": 360,
@@ -135,7 +135,7 @@
       "y": 10220
     },
     "nav_phone.dc.html": {
-      "h": 72,
+      "h": 432,
       "is_interactive": true,
       "title": "nav \u00b7 phone 390",
       "w": 390,
@@ -143,7 +143,7 @@
       "y": 10220
     },
     "nav_tablet.dc.html": {
-      "h": 104,
+      "h": 464,
       "is_interactive": true,
       "title": "nav \u00b7 tablet 768",
       "w": 768,
@@ -228,7 +228,7 @@
       "text": "Footer: same on every page\n\nDesktop: two rows split by a white hairline, with a back-to-top button. Tablet and phone: one column, no back-to-top.",
       "w": 380,
       "x": 2680,
-      "y": 10840
+      "y": 11200
     },
     "hero-full": {
       "fill": "orange",
@@ -248,7 +248,7 @@
     },
     "nav-note": {
       "fill": "orange",
-      "text": "Global nav: same on every page\n\nShown on its Midnight bar (pages that start without a photo). Over a photo (Home) the bar is see-through: see the Hero boards.\n\nTablet and phone: logo and a menu button. Press Play on those boards and click it: the three lines turn into an X, and back.",
+      "text": "Global nav: same on every page\n\nShown on its Midnight bar (pages that start without a photo). Over a photo (Home) the bar is see-through: see the Hero boards.\n\nTablet and phone: logo and a menu button. Press Play on those boards and click it: the lines turn into an X and the menu slides open over the page (About, Solutions, Platforms, Pricing, Book a call). Click the X to close it. The light area under the bar stands in for the page.",
       "w": 380,
       "x": 2680,
       "y": 10220
@@ -259,7 +259,7 @@
       "text": "Buttons",
       "w": 240,
       "x": 0,
-      "y": 11380
+      "y": 11740
     },
     "t-footer": {
       "kind": "title1",
@@ -267,7 +267,7 @@
       "text": "Footer",
       "w": 240,
       "x": 0,
-      "y": 10580
+      "y": 10940
     },
     "t-heading": {
       "kind": "title1",
