@@ -1,4 +1,5 @@
 import SignupForm from "./SignupForm";
+import NavMenu, { type NavItem } from "./NavMenu";
 import type { LivePage } from "@/lib/builder-site";
 import "./builder-site.css";
 
@@ -12,6 +13,14 @@ const JUMPS: [string, string][] = [["Solutions", "solutions"], ["Platforms", "pl
 // addresses (set in Studio), so About and Pricing link to wherever those pages live.
 export default function BuilderPage({ page, livePages = [], paths = {} }: { page: LivePage; livePages?: string[]; paths?: Record<string, string> }) {
   const ids = new Set(page.sections.map((s) => s.id));
+  // The nav's links: About and Pricing follow the pages' addresses; Solutions and Platforms
+  // jump to that section, shown only when the page has it.
+  const pricing = livePages.includes("pricing") && paths.pricing ? paths.pricing : ids.has("sol-offers") ? "#sol-offers" : null;
+  const items: NavItem[] = [
+    { label: "About", href: paths.about ?? "/about" },
+    ...JUMPS.filter(([, id]) => ids.has(id)).map(([label, id]) => ({ label, href: `/#${id}` })),
+    ...(pricing ? [{ label: "Pricing", href: pricing }] : []),
+  ];
   return (
     <div className="site">
       {/* Tablet / Phone photo crops set in Studio (numbers only, checked in lib/builder-site.ts). */}
@@ -20,12 +29,11 @@ export default function BuilderPage({ page, livePages = [], paths = {} }: { page
         <a href="/" aria-label="ClearMark home"><img src="/studio-media/logo-white.png" alt="ClearMark Training" /></a>
         <nav aria-label="Main">
           <ul>
-            <li><a href={paths.about ?? "/about"}>About</a></li>
-            {JUMPS.filter(([, id]) => ids.has(id)).map(([label, id]) => <li key={id}><a href={`/#${id}`}>{label}</a></li>)}
-            {livePages.includes("pricing") && paths.pricing ? <li><a href={paths.pricing}>Pricing</a></li> : ids.has("sol-offers") && <li><a href="#sol-offers">Pricing</a></li>}
+            {items.map((it) => <li key={it.label}><a href={it.href}>{it.label}</a></li>)}
             <li><a className="pill-cta" href={calendlyUrl} target="_blank" rel="noopener noreferrer">Book a call →</a></li>
           </ul>
         </nav>
+        <NavMenu items={items} calendlyUrl={calendlyUrl} />
       </header>
       {page.sections.map((sec) => {
         if (sec.kind === "mail") {

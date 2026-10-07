@@ -21,7 +21,30 @@
 .site .bnav a:hover { text-decoration: underline; }
 .site .bnav .pill-cta { border: 1.5px solid var(--white); border-radius: 999px; padding: 6px 18px; }
 .site .bnav .pill-cta:hover { text-decoration: none; background: rgba(255, 255, 255, 0.14); }
-.site .hero { min-height: 760px; color: var(--white); background: var(--midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
+/* Tablet and phone menu (components/NavMenu.tsx): hidden on desktop. */
+.site .bnav .burger { display: none; position: relative; width: 44px; height: 44px; margin-right: -6px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.site .bnav .burger span { position: absolute; left: 6px; width: 32px; height: 3px; border-radius: 2px; background: var(--white); transition: transform 0.3s ease, opacity 0.2s ease; }
+.site .bnav .burger span:nth-child(1) { top: 11px; }
+.site .bnav .burger span:nth-child(2) { top: 20px; }
+.site .bnav .burger span:nth-child(3) { top: 29px; }
+.site .bnav .burger.is-open span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+.site .bnav .burger.is-open span:nth-child(2) { opacity: 0; }
+.site .bnav .burger.is-open span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+.site .bnav-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; overflow: hidden; background: var(--midnight); max-height: 0; visibility: hidden; transition: max-height 0.35s ease, visibility 0.35s; }
+.site .bnav-menu.is-open { max-height: 480px; visibility: visible; }
+.site .bnav-menu-inner { display: flex; flex-direction: column; gap: 32px; padding: 0 32px 32px; }
+.site .bnav-menu ul { display: flex; flex-direction: column; align-items: stretch; gap: 0; list-style: none; margin: 0; padding: 0; }
+.site .bnav-menu li a { display: block; padding: 12px 0; border-bottom: 1px solid var(--iron-pine); font-size: 24px; line-height: 32px; }
+.site .bnav-menu li a:hover { text-decoration: none; color: var(--clay); }
+.site .bnav-menu-cta { align-self: flex-start; display: inline-flex; align-items: center; justify-content: center; gap: 12px; background: var(--rogue-cherry); border-radius: 999px; padding: 14px 28px; font-family: var(--font-button); font-size: 18px; line-height: 24px; font-weight: 700; }
+.site .bnav-menu-cta:hover { text-decoration: none; background: var(--clay); color: var(--midnight) !important; }
+@container (max-width: 1000px) {
+  .site .bnav { padding: 32px; }
+  .site .bnav nav { display: none; }
+  .site .bnav .burger { display: block; }
+  .site .bnav-menu { display: block; }
+}
+.site .hero { min-height: 100vh; min-height: 100svh; color: var(--white); background: var(--midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
 .site .hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .site .hero-bg :is(img, video) { width: 100%; height: 100%; object-fit: cover; }
 .site .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
@@ -131,7 +154,8 @@
   .site .split :is(img, video).photo { aspect-ratio: 4 / 5; }
   .site .bnav { padding: 20px; }
   .site .bnav img { height: 30px; }
-  .site .bnav li:not(:last-child) { display: none; }
+  .site .bnav-menu-inner { padding: 0 20px 32px; }
+  .site .bnav-menu-cta { align-self: stretch; }
 }
 
 /* Mailing list: the real sign-up form. */
