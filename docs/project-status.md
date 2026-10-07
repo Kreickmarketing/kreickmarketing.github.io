@@ -1,4 +1,4 @@
-# Project status (updated Oct 6, 2026, Studio builder prototype)
+# Project status (updated Oct 7, 2026, canvas edits in Studio prototype)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
@@ -22,7 +22,7 @@
 1. Swap the real images from uploads/ and assets/ into Hero, Credibility and Platforms.
 2. Andrew: add NEXT_PUBLIC_CALENDLY_URL = https://calendly.com/andrew-clearmark/15min in Vercel.
 3. Andrew: open Studio → ClearMark → Home → Edit, check the preview, then Publish. The first Publish replaces the old hand-built homepage.
-4. Studio is changing direction to a builder with fixed layouts and dotted spots (see docs/studio-plan.md, Oct 6). Andrew reviews the prototype at https://claude.ai/artifact/ErVXjLTHdeD2tCbDRga3JP, then we port it.
+4. Studio is changing direction to a builder with fixed layouts and dotted spots (see docs/studio-plan.md, Oct 6). Andrew reviews the prototype at https://claude.ai/artifact/ErVXjLTHdeD2tCbDRga3JP, then we port it. Templates are fine-tuned on the Claude Design canvas https://claude.ai/artifact/4SAJ91HAWLnyKJBSLAYmpM; Andrew's first round (hero headline size, stacked selling points, Platforms tags and logos at the bottom) is in prototype v7.
 
 ## Rules to remember
 - Never name Chevrolet or MediaMonks on ClearMark. Kreick site must not link to ClearMark.

@@ -335,7 +335,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .hero-bg .slot { position: absolute; inset: 24px; z-index: 1; min-height: 0; font-size: 18px; place-items: start end; padding: 64px 24px; }
 .hero > *:not(.hero-bg):not(.sec-tag) { position: relative; z-index: 2; }
 .hero-main { display: flex; flex-direction: column; gap: 32px; max-width: 760px; }
-.hero h1 { font-size: 72px; line-height: 0.95; letter-spacing: -3px; font-weight: 700; margin: 0; }
+.hero h1 { font-size: 64px; line-height: 68px; letter-spacing: -3px; font-weight: 700; margin: 0; }
 .cta { display: inline-flex; align-items: center; gap: 12px; background: #fff; color: var(--cm-midnight); border-radius: 999px; padding: 14px 28px; font-family: var(--f-mono); font-size: 18px; font-weight: 700; align-self: flex-start; }
 .cta-red { background: var(--cm-cherry); color: #fff; }
 .hero-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
@@ -359,12 +359,13 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .split img.photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--cm-clay); }
 .split .slot.photo { aspect-ratio: 4 / 5; }
 .points { display: flex; flex-direction: column; gap: 24px; }
-.point { border-top: 1px solid var(--cm-clay); padding-top: 16px; display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+.point { border-top: 1px solid var(--cm-clay); padding-top: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
 .point b { font-size: 22px; letter-spacing: -0.5px; line-height: 1.1; }
 .point p { margin: 0; color: var(--cm-iron); font-size: 17px; }
 .point .stat { font-size: 15px; color: var(--cm-azure); font-weight: 700; display: block; margin-top: 6px; }
 
-.plat { color: #fff; background: var(--cm-midnight); overflow: hidden; }
+.plat { color: #fff; background: var(--cm-midnight); overflow: hidden; min-height: 760px; justify-content: space-between; }
+.plat-foot { display: flex; flex-direction: column; gap: 48px; }
 .plat .hero-bg::after { background: rgba(28,32,38,0.55); }
 .plat > *:not(.hero-bg):not(.sec-tag) { position: relative; z-index: 2; }
 .tag-pills { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
@@ -402,6 +403,16 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .page-hero { min-height: 520px; }
 .calendly { border: 1px solid var(--cm-clay); border-radius: 18px; background: #fff; padding: 48px; text-align: center; color: var(--cm-iron); font-size: 18px; }
 
+/* Tablet-width page: points go back to title beside text (photo sits above). */
+@container (max-width: 1000px) {
+  .split { grid-template-columns: 1fr; gap: 32px; }
+  .split.flip > :first-child { order: 0; }
+  .split img.photo, .split .slot.photo { aspect-ratio: 4 / 3; }
+  .point { grid-template-columns: 1fr 2fr; }
+  .plat { min-height: 0; }
+  .hero h1 { font-size: 56px; line-height: 54px; letter-spacing: -2px; }
+  .plat-foot { gap: 40px; }
+}
 /* Phone-width page: same blocks, stacked. */
 @container (max-width: 700px) {
   .site-nav { padding: 20px; }
@@ -417,8 +428,10 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .std, .mail { padding: 64px 20px; }
   .sh, .split, .mail, .point { grid-template-columns: 1fr; }
   .split.flip > :first-child { order: 0; }
+  .split img.photo, .split .slot.photo { aspect-ratio: 4 / 5; }
   .sh h2 { font-size: 36px; letter-spacing: -1.5px; }
   .plat-logos { grid-template-columns: repeat(2, 1fr); }
+  .plat-foot { gap: 32px; }
   .offer-grid { grid-template-columns: 1fr; }
   .quote-sec blockquote { font-size: 28px; }
   .mail h2 { font-size: 36px; }
@@ -789,8 +802,8 @@ const SECTION_HTML = {
     const img = P(k("image")), tags = P(k("tags")), logos = P(k("logos"));
     return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div>
       <div class="sh">${text(k("label"), "p", "tagline", "on-dark")}${lines(k("headline"), "h2", "", "on-dark")}</div>
-      ${tags ? `<ul ${filledAttr(k("tags")).replace('class="', 'class="tag-pills ')}>${tags.map((t, i) => `<li data-item="${k("tags")}:${i}">${esc(t.tag)}</li>`).join("")}</ul>` : slotBox(k("tags"), "on-dark")}
-      ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}`;
+      <div class="plat-foot">${tags ? `<ul ${filledAttr(k("tags")).replace('class="', 'class="tag-pills ')}>${tags.map((t, i) => `<li data-item="${k("tags")}:${i}">${esc(t.tag)}</li>`).join("")}</ul>` : slotBox(k("tags"), "on-dark")}
+      ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}</div>`;
   },
   quote: (sec, k) => `${P(k("text")) ? `<blockquote ${filledAttr(k("text"))}>“${esc(P(k("text")))}”</blockquote>` : slotBox(k("text"), "", "min-height:120px")}${text(k("by"), "cite")}`,
   mail: (sec, k) => `<div><p class="tagline">Mailing list</p>${text(k("headline"), "h2")}${text(k("intro"), "p")}</div>
