@@ -595,6 +595,12 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .video-tag { position: absolute; z-index: 1; left: 16px; bottom: 16px; color: #fff; font-family: var(--f-mono); font-size: 16px; background: rgba(28, 32, 38, 0.7); padding: 2px 10px; border-radius: 999px; }
 .video-slot { aspect-ratio: 16 / 9; }
 .crop-bps { align-self: flex-start; margin-bottom: 6px; }
+.blk-title { cursor: pointer; border-radius: 6px; margin-bottom: 2px; }
+.blk-title:hover { color: var(--ink-2); }
+.blk-title > span { display: inline-flex; align-items: center; gap: 4px; }
+.blk-chev { width: 13px; height: 13px; transform: rotate(90deg); transition: transform 0.15s; }
+.blk.is-closed .blk-chev { transform: none; }
+.blk.is-closed { padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
 .crop-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
 .crop-hint { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 32, 38, 0.78); color: #fff; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; pointer-events: none; }
@@ -1736,7 +1742,7 @@ document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.t
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "modules", "sources"], mods: new Set(), w: 280, h: {} };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "modules", "sources"], mods: new Set(), w: 280, h: {}, closed: new Set() };
 // How tall each block in the Pages panel starts (drag its bottom line to change; double-click resets).
 const BLOCK_H = { pages: 240, layers: 380, modules: 320, sources: 360 };
 try {
@@ -1749,10 +1755,11 @@ try {
   }
   if (UI.rail === "modules") UI.rail = "pages";
   if (typeof u?.w === "number") UI.w = Math.min(520, Math.max(220, u.w));
+  if (Array.isArray(u?.closed)) UI.closed = new Set(u.closed.filter((b) => ["pages", "layers", "modules", "sources"].includes(b)));
   if (u?.h && typeof u.h === "object") for (const [k, v] of Object.entries(u.h)) if (k in BLOCK_H && typeof v === "number") UI.h[k] = Math.min(2000, Math.max(48, v));
 } catch {}
 document.documentElement.style.setProperty("--side-w", UI.w + "px");
-const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w, h: UI.h })); } catch {} };
+const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w, h: UI.h, closed: [...UI.closed] })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
 const docked = () => UI.sidebar === "expanded" && UI.open && !isPhone();
 const viewFor = (r) => (r === "cms" || r === "settings" ? r : "editor");
@@ -1809,7 +1816,8 @@ function renderSide() {
   const el = $("#side");
   if (UI.rail === "pages") {
     const page = pageView(S.page);
-    const title = (id, text, extra = "") => `<div class="side-label" data-blockdrag="${id}"><span><span class="lay-grip" aria-hidden="true">⠿</span> ${text}</span>${extra}</div>`;
+    // A block's title: click to fold it away (like Figma), drag to move it.
+    const title = (id, text, extra = "") => `<div class="side-label blk-title" data-blockdrag="${id}" data-blocktoggle="${id}" role="button" tabindex="0" aria-expanded="${!UI.closed.has(id)}" title="Click to ${UI.closed.has(id) ? "open" : "fold"} · drag to move"><span><span class="lay-grip" aria-hidden="true">⠿</span>${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev blk-chev")} ${text}</span>${extra}</div>`;
     const blocks = {
       pages: [title("pages", "Pages", ` <button type="button" class="btn btn-small" data-addpage-open aria-expanded="${UI.adding}">+ Add page</button>`), (UI.adding ? addPageForm() : "") + allPages().map((p) => {
         const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
@@ -1823,9 +1831,9 @@ function renderSide() {
     // Keep each block's scroll position when the panel redraws.
     const keep = { side: el.scrollTop }; el.querySelectorAll("[data-blkbody]").forEach((b) => (keep[b.dataset.blkbody] = b.scrollTop));
     el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>${pubActions(curPage())}</div>`
-      + UI.blocks.map((b) => `<div class="side-sec blk${b === "layers" ? " layers" : b === "modules" || b === "sources" ? " sources-sec" : ""}" data-block="${b}">${blocks[b][0]}
-          <div class="blk-body" data-blkbody="${b}" id="side-${b}" style="max-height:${UI.h[b] || BLOCK_H[b]}px">${blocks[b][1]}</div>
-          <div class="blk-resize" data-blkresize="${b}" role="separator" aria-orientation="horizontal" aria-label="Resize ${b}" title="Drag to make this taller or shorter · double-click to reset"></div></div>`).join("");
+      + UI.blocks.map((b) => `<div class="side-sec blk${UI.closed.has(b) ? " is-closed" : ""}${b === "layers" ? " layers" : b === "modules" || b === "sources" ? " sources-sec" : ""}" data-block="${b}">${blocks[b][0]}
+          ${UI.closed.has(b) ? "" : `<div class="blk-body" data-blkbody="${b}" id="side-${b}" style="max-height:${UI.h[b] || BLOCK_H[b]}px">${blocks[b][1]}</div>
+          <div class="blk-resize" data-blkresize="${b}" role="separator" aria-orientation="horizontal" aria-label="Resize ${b}" title="Drag to make this taller or shorter · double-click to reset"></div>`}</div>`).join("");
     el.scrollTop = keep.side; el.querySelectorAll("[data-blkbody]").forEach((b) => (b.scrollTop = keep[b.dataset.blkbody] || 0));
   } else if (UI.rail === "cms") {
     el.innerHTML = `<div class="side-head"><h2>CMS ${closeX}</h2><p>Databases. Cards on your pages pull from these, so an edit shows everywhere the card is used.</p></div>
@@ -2014,9 +2022,10 @@ function railGo(r, fromHover) {
 // In Collapsed / Expand-on-hover (and on phones) the panel floats; it closes after you pick something.
 const closeIfFloating = () => { if (!docked() && UI.open) { UI.open = false; UI.cat = null; applyNav(); } };
 document.addEventListener("click", (e) => {
-  const t = e.target.closest("button, a, [data-page], [data-navsec], [data-navslot], [data-pick]");
+  const t = e.target.closest("button, a, [data-page], [data-navsec], [data-navslot], [data-pick], [data-blocktoggle]");
   if (!t) return;
   const d = t.dataset;
+  if (d.blocktoggle) { if (blockMoved) return; const b = d.blocktoggle; UI.closed.has(b) ? UI.closed.delete(b) : UI.closed.add(b); saveUI(); renderSide(); return; }
   if (d.srcgroup) { UI.src.has(d.srcgroup) ? UI.src.delete(d.srcgroup) : UI.src.add(d.srcgroup); renderSources(); return; }
   // Phones can't drag: tap a source, the panel closes, then tap a dotted box.
   if (d.pick) { if (isPhone() && picked) { setTab("preview"); closeIfFloating(); } return; }
@@ -2036,7 +2045,7 @@ document.addEventListener("click", (e) => {
   if (d.rail) return railGo(d.rail, false);
   // "Add a section": open the Modules block in the Pages panel and bring it into view.
   if (d.modsFocus != null) {
-    UI.rail = "pages"; UI.open = true; NAV_VIEW = "editor"; if (!UI.mods.size) UI.mods.add("heroes");
+    UI.rail = "pages"; UI.open = true; NAV_VIEW = "editor"; UI.closed.delete("modules"); if (!UI.mods.size) UI.mods.add("heroes");
     saveUI(); applyNav(); document.querySelector('#side [data-block="modules"]')?.scrollIntoView({ behavior: "smooth", block: "start" }); return;
   }
   if (d.navClose != null) { UI.open = false; UI.cat = null; applyNav(); return; }
@@ -2062,7 +2071,7 @@ document.addEventListener("pointerdown", (e) => {
   if (!e.target.closest(".pop, #rail-logo, [data-sidebar-menu]")) closePops();
   if (!docked() && UI.open && !e.target.closest(".side, .rail, .fly, .pop, .confirm-backdrop")) { UI.open = false; UI.cat = null; applyNav(); }
 }, true);
-document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-navsec], [data-navslot]")) { e.preventDefault(); e.target.click(); } });
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-navsec], [data-navslot], [data-blocktoggle]")) { e.preventDefault(); e.target.click(); } });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closePops(); if (!docked() && UI.open && !pendingRemove) { UI.open = false; UI.cat = null; applyNav(); } } });
 // Expand on hover: point at an icon to open its panel; move away to close it.
 let hoverT = null;
@@ -2100,7 +2109,7 @@ document.addEventListener("change", (e) => {
 addEventListener("resize", () => { document.documentElement.dataset.docked = docked(); });
 
 // Move Pages, Layers and Sources above or below each other: drag a block by its title.
-let bd = null;
+let bd = null, blockMoved = false;
 document.addEventListener("pointerdown", (e) => {
   const h = e.target.closest("#side [data-blockdrag]");
   if (!h || e.button > 0 || e.target.closest("button, input, select")) return;
@@ -2118,6 +2127,7 @@ document.addEventListener("pointerup", () => {
   if (!bd) return;
   const d = bd; bd = null; document.body.classList.remove("is-dragging");
   if (!d.started) return;
+  blockMoved = true; setTimeout(() => (blockMoved = false), 0);
   if (d.target) { const o = UI.blocks.filter((x) => x !== d.id); const i = o.indexOf(d.target); o.splice(d.after ? i + 1 : i, 0, d.id); UI.blocks = o; saveUI(); }
   renderSide();
 });
