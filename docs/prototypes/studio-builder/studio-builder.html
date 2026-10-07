@@ -550,6 +550,7 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
 .side-resize[hidden] { display: none; }
 body.is-resizing { cursor: col-resize; user-select: none; }
 .side.will-close { opacity: 0.45; }
+.dev-range { color: var(--ink-3); font-family: var(--f-mono); font-size: 12px; white-space: nowrap; }
 .empty-state { border: 1.5px dashed var(--line); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--ink-2); }
 
 /* Phones: the rail becomes a bar along the bottom; panels open as a sheet above it */
@@ -591,17 +592,10 @@ body.is-resizing { cursor: col-resize; user-select: none; }
 
 <header class="top" id="top">
   <div class="brand">
-    <h1>Studio Builder</h1>
     <p>ClearMark · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span> <button type="button" class="btn btn-small" id="page-edit" data-setnav="page:home">Edit address</button></p>
   </div>
   <div class="top-actions">
     <span class="save-state mono" id="save-state" hidden></span>
-    <button class="btn" id="reset" type="button" title="Prototype only: erase everything here and go back to the starting example">Reset prototype</button>
-  </div>
-  <div class="meter" aria-live="polite">
-    <span>Spots placed · this page</span>
-    <b id="meter-num">0 / 0</b>
-    <div class="meter-bar"><i id="meter-bar" style="width:0"></i></div>
   </div>
 </header>
 
@@ -611,10 +605,10 @@ body.is-resizing { cursor: col-resize; user-select: none; }
 </div>
 
 <main class="panes" id="panes" data-tab="preview">
-  <section class="pane pane-preview" aria-labelledby="pv-title">
-    <div class="pane-head">
-      <h2 id="pv-title">Preview</h2>
+  <section class="pane pane-preview" aria-label="Preview">
+    <div class="pane-head" style="justify-content:flex-end">
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <span class="dev-range" id="dev-range"></span>
         <div class="seg" role="group" aria-label="Preview width">
           <button type="button" class="dev-btn" data-device="desktop" aria-pressed="true" aria-label="Desktop, 1280 wide" title="Desktop · 1280"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></button>
           <button type="button" class="dev-btn" data-device="tablet" aria-pressed="false" aria-label="Tablet, 768 wide" title="Tablet · 768"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/></svg></button>
@@ -622,7 +616,6 @@ body.is-resizing { cursor: col-resize; user-select: none; }
         </div>
       </div>
     </div>
-    <div class="status-line" id="status-line">Pick a card, or click a dotted box, to fill that spot.</div>
     <div class="canvas-wrap" id="canvas-wrap"><div class="canvas-scale" id="canvas-scale"><div class="site guides" id="site"></div></div></div>
   </section>
 
@@ -953,6 +946,10 @@ function pageHtml(page, live = true) {
 }
 
 // ── Preview sizing: draw at 1280 (desktop) or 390 (phone) and shrink to fit ──
+// The page's breakpoints (the @container rules above and in components/builder-site.css):
+// phone up to 700px wide, tablet 701–1000px, desktop 1001px and wider. The preview draws
+// each at one typical width: 390, 768 and 1280.
+const DEVICE_RANGE = { desktop: "1001px and wider", tablet: "701px – 1000px", phone: "700px and narrower" };
 function fit() {
   const wrap = $("#canvas-wrap"), sc = $("#canvas-scale"), site = $("#site");
   const w = { phone: 390, tablet: 768 }[S.device] || 1280;
@@ -1101,18 +1098,8 @@ function askRemove(id) {
   $("#confirm").hidden = false;
   $("#confirm-no").focus();
 }
-// Reset (prototype only) asks twice: the button turns into "Tap again to reset", then this box.
-function askReset() {
-  pendingRemove = "__reset__";
-  $("#confirm-title").textContent = "Erase everything in this prototype?";
-  $("#confirm-text").textContent = "Every page, section, text and image you've placed here goes back to the starting example, and any pages you added are deleted. You can't undo this. (The live site isn't touched.)";
-  $("#confirm-yes").textContent = "Yes, erase it all"; $("#confirm-no").textContent = "No, keep my work";
-  $("#confirm").hidden = false;
-  $("#confirm-no").focus();
-}
 function closeRemove(yes) {
   const id = pendingRemove; pendingRemove = null; $("#confirm").hidden = true;
-  if (id === "__reset__") { if (yes) resetAll(); else toast("Nothing was erased."); return; }
   if (!yes || !id) return;
   const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
   l.splice(i, 1);
@@ -1187,13 +1174,7 @@ function render() {
   document.querySelectorAll("[data-device]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.device === S.device));
   renderCards();
   renderSources();
-  // meter: spots on visible sections
-  const ids = countable(page);
-  const placed = ids.filter((id) => status(id) === "placed").length;
-  $("#meter-num").textContent = `${placed} / ${ids.length}`;
-  $("#meter-bar").style.width = ids.length ? (placed / ids.length) * 100 + "%" : "0";
-  const sl = selected && SLOTS[selected];
-  $("#status-line").innerHTML = sl ? `<span><b>${esc(sl.label)}</b> · ${esc(pageView(sl.page).sections.find((s) => s.id === sl.section).name)} · ${status(selected)}</span><span class="hint">${esc(sl.source || "")}</span>` : "Pick a card, or click a dotted box, to fill that spot.";
+  $("#dev-range").textContent = DEVICE_RANGE[S.device] || DEVICE_RANGE.desktop;
   renderPages();
   requestAnimationFrame(fit);
   save();
@@ -1418,12 +1399,6 @@ document.addEventListener("drop", (e) => {
 });
 
 // Top bar
-let resetArmed = false;
-$("#reset").onclick = () => {
-  if (!resetArmed) { resetArmed = true; $("#reset").textContent = "Tap again to reset"; setTimeout(() => { resetArmed = false; $("#reset").textContent = "Reset prototype"; }, 3000); return; }
-  resetArmed = false; $("#reset").textContent = "Reset prototype"; askReset();
-};
-function resetAll() { S = seed(); PAGE_LIST = S.pageList; rebuildSlots(); selected = openCard = picked = curSec = null; render(); toast("Back to the starting example."); }
 // ── Publish · Save · Unpublish (side nav, Pages panel) ──
 // Publish: places every draft, then puts the site live, with this page on it.
 // Save: keeps your work as a draft (work in progress); nothing changes on the live site.
@@ -1486,10 +1461,6 @@ function pubActions(p) {
     <p class="pub-status"><span class="dot ${live ? "placed" : "draft"}"></span>${esc(p.name)}: ${live ? "Live" : "Work in progress"}</p></div>`;
 }
 
-if (LIVE) {
-  $("#reset").hidden = true;
-  $(".brand h1").textContent = "Studio";
-}
 function setTab(tab) { $("#panes").dataset.tab = tab; document.querySelectorAll("[data-tab]").forEach((b) => b.tagName === "BUTTON" && b.setAttribute("aria-pressed", b.dataset.tab === tab)); }
 new ResizeObserver(() => { fit(); document.querySelectorAll(".thumb-box").forEach((b) => (b.firstElementChild.style.transform = `scale(${b.clientWidth / 1280})`)); document.documentElement.style.setProperty("--top-h", $("#top").offsetHeight + "px"); }).observe(document.body);
 // Images load after the first draw; refit when they arrive.
