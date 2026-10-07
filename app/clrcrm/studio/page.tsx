@@ -13,6 +13,11 @@ export default async function MySites() {
         <h1>My Sites</h1>
       </div>
 
+      <p className="studio-builder-link">
+        <a href="/clrcrm/studio/builder" className="button button-action">Open Studio for ClearMark →</a>
+        <span>The new editor: templates, dotted spots, Publish. The site cards below open the older editor.</span>
+      </p>
+
       {sites.length === 0 ? (
         <p className="studio-empty">No sites yet.</p>
       ) : (

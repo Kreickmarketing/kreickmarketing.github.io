@@ -44,6 +44,7 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .brand { display: flex; flex-direction: column; min-width: 0; }
 .brand h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
 .brand p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.save-state { font-size: 12px; color: var(--ink-2); }
 .top-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .btn { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 16px; font-family: var(--f-mono); font-size: 13px; }
 .btn:hover:not(:disabled) { border-color: var(--ink-2); }
@@ -471,6 +472,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   </div>
   <div class="top-actions">
     <button class="btn" id="place-all" type="button">Place all drafts</button>
+    <span class="save-state mono" id="save-state" hidden></span>
     <button class="btn" id="reset" type="button">Reset prototype</button>
     <button class="btn btn-primary" id="publish" type="button">Publish</button>
   </div>
@@ -480,7 +482,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
     <div class="meter-bar"><i id="meter-bar" style="width:0"></i></div>
   </div>
 </header>
-<p class="note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Add sections from <b>Templates</b> (top of the card list) and remove them with <b>× Remove</b>. Drag a section's blue tag (or its name in the card list) to move it. Drag offer cards, selling points, tags and logos to reorder them, and drag the founder photo to the other side to swap it with the text. Nothing here touches the live site.</p>
+<p class="note" id="proto-note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Add sections from <b>Templates</b> (top of the card list) and remove them with <b>× Remove</b>. Drag a section's blue tag (or its name in the card list) to move it. Drag offer cards, selling points, tags and logos to reorder them, and drag the founder photo to the other side to swap it with the text. Nothing here touches the live site.</p>
 
 <div class="seg tabs-phone" role="tablist" aria-label="Show">
   <button type="button" data-tab="preview" aria-pressed="true">Preview</button>
@@ -724,14 +726,38 @@ function seed() {
   ]);
   return { pages, slots: v, page: "home", flip: {}, device: "desktop", guides: true };
 }
+// Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
+// saves back to it; the prototype on its own keeps everything in this browser.
+const LIVE = window.__STUDIO_LIVE__ === true;
+const API = "/clrcrm/studio/builder/api";
 let S;
-try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
+if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
+else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
 if (S) { S.flip ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
 S.design ||= {}; S.customTpls ||= [];
 rebuildTpl();
 rebuildSlots();
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+const save = () => { if (LIVE) return queueSync(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+
+// Live saving: a moment after each change, send the whole draft to Supabase.
+let syncT = null, lastSent = LIVE ? JSON.stringify(S) : "";
+function setSaveState(t) { const el = document.getElementById("save-state"); if (el) { el.textContent = t; el.hidden = false; } }
+function queueSync() { if (JSON.stringify(S) === lastSent) return; setSaveState("Saving…"); clearTimeout(syncT); syncT = setTimeout(syncNow, 1200); }
+async function syncNow() {
+  clearTimeout(syncT);
+  const body = JSON.stringify(S);
+  if (body === lastSent) { setSaveState("Saved"); return true; }
+  try {
+    const res = await fetch(API, { method: "PUT", headers: { "content-type": "application/json" }, body });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || "Couldn't save");
+    lastSent = body; setSaveState("Saved"); return true;
+  } catch (e) {
+    setSaveState("Not saved"); toast(`${e.message}. Trying again…`); syncT = setTimeout(syncNow, 5000); return false;
+  }
+}
+if (LIVE) addEventListener("beforeunload", (e) => { if (JSON.stringify(S) !== lastSent) { fetch(API, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(S), keepalive: true }); e.preventDefault(); } });
 
 let selected = null, openCard = null, filter = "all", srcTab = "images", picked = null, curSec = null;
 
@@ -1310,7 +1336,25 @@ $("#reset").onclick = () => {
   if (!resetArmed) { resetArmed = true; $("#reset").textContent = "Tap again to reset"; setTimeout(() => { resetArmed = false; $("#reset").textContent = "Reset prototype"; }, 3000); return; }
   resetArmed = false; S = seed(); S.design = {}; S.customTpls = []; rebuildTpl(); rebuildSlots(); selected = openCard = picked = curSec = null; $("#reset").textContent = "Reset prototype"; render(); toast("Back to the starting example.");
 };
-$("#publish").onclick = () => toast("Prototype: Publish goes live once this design moves into the real Studio.");
+let publishArmed = false;
+$("#publish").onclick = async () => {
+  if (!LIVE) return toast("Prototype: Publish goes live once this design moves into the real Studio.");
+  if (!publishArmed) { publishArmed = true; $("#publish").textContent = "Tap again to publish"; setTimeout(() => { publishArmed = false; $("#publish").textContent = "Publish"; }, 4000); return; }
+  publishArmed = false; $("#publish").textContent = "Publishing…"; $("#publish").disabled = true;
+  try {
+    if (!(await syncNow())) throw new Error("Couldn't save first");
+    const res = await fetch(API + "?action=publish", { method: "POST" });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || "Couldn't publish");
+    toast("Published. The live site shows it within a minute.");
+  } catch (e) { toast(e.message); }
+  $("#publish").textContent = "Publish"; $("#publish").disabled = false;
+};
+if (LIVE) {
+  $("#reset").hidden = true;
+  $("#proto-note").innerHTML = "<b>Studio.</b> Changes save on their own. Only what's <b>placed</b> shows on the live site, and only after <b>Publish</b>. Images you upload stay in this browser for now; use the Images in Sources for the live site.";
+  $(".brand h1").textContent = "Studio";
+}
 function setTab(tab) { $("#panes").dataset.tab = tab; document.querySelectorAll("[data-tab]").forEach((b) => b.tagName === "BUTTON" && b.setAttribute("aria-pressed", b.dataset.tab === tab)); }
 new ResizeObserver(() => { fit(); document.querySelectorAll(".thumb-box").forEach((b) => (b.firstElementChild.style.transform = `scale(${b.clientWidth / 1280})`)); document.documentElement.style.setProperty("--top-h", $("#top").offsetHeight + "px"); }).observe(document.body);
 // Images load after the first draw; refit when they arrive.

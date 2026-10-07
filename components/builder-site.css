@@ -1,0 +1,135 @@
+/* Pages made in the Studio builder. Copied from the builder's own page styles
+   (docs/prototypes/studio-builder/studio-builder.html) so live pages match the preview.
+   Everything sits under .site so it can't clash with the rest of the site.
+   Widths respond to the page's own width (container queries): tablet at 1000px, phone at 700px. */
+.site { width: 100%; background: var(--clay-light); color: var(--midnight); font-family: var(--font-display); container-type: inline-size; position: relative; }
+.site h1, .site h2, .site h3, .site p, .site figure, .site blockquote { margin: 0; }
+.site .sec { position: relative; scroll-margin-top: 16px; }
+.site .split.flip > :first-child { order: 2; }
+.site .hero, .site .plat { align-items: stretch; }
+.site .hero::after { content: none; }
+.site .hero > *:not(.hero-bg), .site .plat > *:not(.hero-bg) { position: relative; z-index: 2; }
+.site .cta { text-decoration: none; }
+.site .cta:hover { background: var(--clay); }
+
+/* Nav: over the photo when the page starts with one, otherwise a dark bar. */
+.site .bnav { position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 32px 64px; color: var(--white); }
+.site .bnav.nav-bar { position: relative; background: var(--midnight); }
+.site .bnav img { height: 40px; width: auto; display: block; }
+.site .bnav ul { display: flex; gap: 32px; list-style: none; margin: 0; padding: 0; align-items: center; font-size: 17px; }
+.site .bnav a { color: var(--white); text-decoration: none; }
+.site .bnav a:hover { text-decoration: underline; }
+.site .bnav .pill-cta { border: 1.5px solid var(--white); border-radius: 999px; padding: 6px 18px; }
+.site .bnav .pill-cta:hover { text-decoration: none; background: rgba(255, 255, 255, 0.14); }
+.site .hero { min-height: 760px; color: var(--white); background: var(--midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
+.site .hero-bg { position: absolute; inset: 0; z-index: 0; }
+.site .hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.site .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
+.site .hero-main { display: flex; flex-direction: column; gap: 32px; max-width: 760px; }
+.site .hero h1 { font-size: 64px; line-height: 68px; letter-spacing: -3px; font-weight: 700; margin: 0; }
+.site .cta { display: inline-flex; align-items: center; gap: 12px; background: var(--white); color: var(--midnight); border-radius: 999px; padding: 14px 28px; font-family: var(--font-button); font-size: 18px; font-weight: 700; align-self: flex-start; }
+.site .cta-red { background: var(--rogue-cherry); color: var(--white); }
+.site .hero-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
+.site .glass { background: rgba(255,255,255,0.14); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 24px; max-width: 520px; display: flex; flex-direction: column; gap: 12px; font-size: 17px; }
+.site .glass b { font-size: 15px; }
+.site .stat-card { background: var(--white); color: var(--midnight); border-radius: 18px; padding: 24px; width: 260px; display: flex; flex-direction: column; gap: 6px; }
+.site .stat-card small { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--iron-pine); font-weight: 700; }
+.site .stat-card b { font-size: 44px; line-height: 1; letter-spacing: -2px; }
+
+.site .cred { background: var(--charcoal); color: var(--white); padding: 48px 64px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: center; }
+.site .tagline { font-size: 14px; letter-spacing: 0.24em; text-transform: uppercase; font-weight: 700; margin: 0; }
+.site .logo-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-end; }
+.site .logo-row img { height: 44px; width: auto; max-width: 200px; object-fit: contain; }
+
+.site .std { padding: 96px 64px; display: flex; flex-direction: column; gap: 48px; }
+.site .sh { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start; }
+.site .sh h2 { font-size: 56px; line-height: 1; letter-spacing: -2.5px; font-weight: 300; margin: 0; }
+.site .sh h2 span { display: block; }
+.site .sh p.body { font-size: 20px; line-height: 1.45; color: var(--iron-pine); margin: 16px 0 0; max-width: 640px; }
+.site .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.site .split img.photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--clay); }
+.site .points { display: flex; flex-direction: column; gap: 24px; }
+.site .point { border-top: 1px solid var(--clay); padding-top: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+.site .point b { font-size: 22px; letter-spacing: -0.5px; line-height: 1.1; }
+.site .point p { margin: 0; color: var(--iron-pine); font-size: 17px; }
+.site .point .stat { font-size: 15px; color: var(--tidal-azure); font-weight: 700; display: block; margin-top: 6px; }
+
+.site .plat { color: var(--white); background: var(--midnight); overflow: hidden; min-height: 760px; justify-content: space-between; }
+.site .plat-foot { display: flex; flex-direction: column; gap: 48px; }
+.site .plat .hero-bg::after { background: rgba(28,32,38,0.55); }
+.site .tag-pills { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.site .tag-pills li { border: 1.5px solid currentColor; border-radius: 999px; padding: 6px 16px; font-size: 15px; }
+.site .tag-pills li::before { content: "+ "; }
+.site .plat-logos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 32px; align-items: center; }
+.site .plat-logos img { max-width: 100%; height: 36px; object-fit: contain; }
+
+.site .offer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
+.site .offer { position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 5; color: var(--white); display: flex; flex-direction: column; justify-content: space-between; padding: 32px; background: var(--midnight); }
+.site .offer img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.site .offer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.55), rgba(28,32,38,0.1) 45%, rgba(28,32,38,0.75)); }
+.site .offer > * { position: relative; z-index: 1; }
+.site .offer h3 { font-size: 36px; line-height: 1; letter-spacing: -1.5px; font-weight: 700; margin: 0; }
+.site .offer p { margin: 8px 0 0; font-size: 17px; }
+.site .offer .foot { border-top: 1px solid rgba(255,255,255,0.7); padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.site .offer .price { font-size: 30px; font-weight: 700; letter-spacing: -1px; text-align: right; }
+.site .offer .price small { display: block; font-size: 12px; font-weight: 400; letter-spacing: 0; }
+
+.site .quote-sec { background: var(--clay); }
+.site .quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
+.site .quote-sec cite { font-style: normal; font-size: 17px; color: var(--iron-pine); }
+
+.site .mail { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 96px 64px; background: var(--white); }
+.site .mail h2 { font-size: 52px; line-height: 1; letter-spacing: -2px; font-weight: 700; margin: 8px 0 16px; }
+.site .mail p { font-size: 20px; color: var(--iron-pine); margin: 0; }
+
+
+.site .page-hero { min-height: 520px; }
+
+/* Tablet-width page: points go back to title beside text (photo sits above). */
+@container (max-width: 1000px) {
+  .site .split { grid-template-columns: 1fr; gap: 32px; }
+  .site .split.flip > :first-child { order: 0; }
+  .site .point { grid-template-columns: 1fr 2fr; }
+  .site .plat { min-height: 0; }
+  .site .hero h1 { font-size: 56px; line-height: 54px; letter-spacing: -2px; }
+  .site .plat-foot { gap: 40px; }
+}
+/* Phone-width page: same blocks, stacked. */
+@container (max-width: 700px) {
+  .site .hero { min-height: 680px; padding: 120px 20px 32px; }
+  .site .hero h1 { font-size: 40px; letter-spacing: -1.5px; }
+  .site .hero-bottom, .site .stat-card { display: none; }
+  .site .cta { align-self: stretch; justify-content: center; }
+  .site .cred { grid-template-columns: 1fr; padding: 32px 20px; }
+  .site .logo-row { justify-content: flex-start; display: grid; grid-template-columns: 1fr 1fr; }
+  .site .std, .site .mail { padding: 64px 20px; }
+  .site .sh, .site .split, .site .mail, .site .point { grid-template-columns: 1fr; }
+  .site .split.flip > :first-child { order: 0; }
+  .site .sh h2 { font-size: 36px; letter-spacing: -1.5px; }
+  .site .plat-logos { grid-template-columns: repeat(2, 1fr); }
+  .site .plat-foot { gap: 32px; }
+  .site .offer-grid { grid-template-columns: 1fr; }
+  .site .quote-sec blockquote { font-size: 28px; }
+  .site .mail h2 { font-size: 36px; }
+}
+
+
+/* Photo shape per size, and the phone nav. */
+@container (max-width: 1000px) {
+  .site .split img.photo { aspect-ratio: 4 / 3; }
+}
+@container (max-width: 700px) {
+  .site .split img.photo { aspect-ratio: 4 / 5; }
+  .site .bnav { padding: 20px; }
+  .site .bnav img { height: 30px; }
+  .site .bnav li:not(:last-child) { display: none; }
+}
+
+/* Mailing list: the real sign-up form. */
+.site .mail .signup { display: flex; flex-direction: column; gap: 16px; }
+.site .mail .field input { border: 1px solid var(--clay); border-radius: 8px; padding: 14px 16px; font: inherit; font-size: 16px; }
+.site .mail .signup .button { align-self: flex-start; min-height: 0; background: var(--rogue-cherry); color: var(--white); padding: 14px 32px; font-size: 18px; }
+.site .mail .form-note { margin: 0; font-size: 15px; }
+
+/* Calendly booking. */
+.site .calendly { border: 1px solid var(--clay); border-radius: 18px; background: var(--white); padding: 48px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; color: var(--iron-pine); font-size: 18px; }

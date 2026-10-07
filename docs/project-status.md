@@ -1,9 +1,9 @@
-# Project status (updated Oct 7, 2026, canvas edits in Studio prototype)
+# Project status (updated Oct 7, 2026, Studio builder live)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
 - Design system: /design-system (colors, type, buttons, nav, footer, components, grid, content fields, 13 cards).
-- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio (Studio: My Sites, page list, page editor with Insert panel, moving sections, Save draft and Publish), /clrcrm/crm (CRM: 6 leads, 11 products in Supabase), /clrcrm/interview (interview drill).
+- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio/builder (Studio: templates and dotted spots, saves to Supabase, Publish puts Home live), /clrcrm/studio (My Sites and the older editor), /clrcrm/crm (CRM: 6 leads, 11 products in Supabase), /clrcrm/interview (interview drill).
 - Kreick Marketing site (separate repo kreickmarketing-site): https://kreickmarketing.vercel.app (Gigs, 6 case studies, AI Explorations).
 
 ## Where things live in this repo
@@ -22,7 +22,8 @@
 1. Swap the real images from uploads/ and assets/ into Hero, Credibility and Platforms.
 2. Andrew: add NEXT_PUBLIC_CALENDLY_URL = https://calendly.com/andrew-clearmark/15min in Vercel.
 3. Andrew: open Studio → ClearMark → Home → Edit, check the preview, then Publish. The first Publish replaces the old hand-built homepage.
-4. Studio is changing direction to a builder with fixed layouts and dotted spots (see docs/studio-plan.md, Oct 6). Andrew reviews the prototype at https://claude.ai/artifact/ErVXjLTHdeD2tCbDRga3JP, then we port it. Templates are fine-tuned on the Claude Design canvas https://claude.ai/artifact/4SAJ91HAWLnyKJBSLAYmpM; Andrew's first round (hero headline size, stacked selling points, Platforms tags and logos at the bottom) is in prototype v7.
+4. Andrew: log in → Studio → "Open Studio for ClearMark" → check Home → Publish (tap twice) → check the live home page. Until the first Publish the old hand-built home stays up.
+5. Studio is changing direction to a builder with fixed layouts and dotted spots (see docs/studio-plan.md, Oct 6). Andrew reviews the prototype at https://claude.ai/artifact/ErVXjLTHdeD2tCbDRga3JP, then we port it. Templates are fine-tuned on the Claude Design canvas https://claude.ai/artifact/4SAJ91HAWLnyKJBSLAYmpM; Andrew's first round (hero headline size, stacked selling points, Platforms tags and logos at the bottom) is in prototype v7.
 
 ## Rules to remember
 - Never name Chevrolet or MediaMonks on ClearMark. Kreick site must not link to ClearMark.

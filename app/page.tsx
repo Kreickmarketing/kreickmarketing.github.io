@@ -2,8 +2,8 @@ import Image from "next/image";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import SignupForm from "@/components/SignupForm";
-import StudioPage from "@/components/StudioPage";
-import { getPublishedPage } from "@/lib/studio-public";
+import BuilderPage from "@/components/BuilderPage";
+import { getBuilderPage } from "@/lib/builder-public";
 
 // Once Home is published in Studio, the live page comes from Studio
 // (refreshed on every Publish, and at least every 5 minutes).
@@ -13,13 +13,12 @@ export const revalidate = 300;
 const calendlyUrl = process.env.NEXT_PUBLIC_CALENDLY_URL || "https://calendly.com";
 
 export default async function Home() {
-  const studio = await getPublishedPage("clearmark", "/");
+  const studio = await getBuilderPage("clearmark", "home");
   if (studio) {
     return (
       <>
         <main>
-          <StudioPage content={studio.content} settings={studio.settings} cards={studio.cards} />
-          <MailingList />
+          <BuilderPage page={studio} />
         </main>
         <Footer />
       </>
