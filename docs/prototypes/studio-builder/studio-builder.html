@@ -162,6 +162,27 @@ select.input { padding-right: 10px; }
 .upload input { font-size: 12px; max-width: 100%; }
 .picked-bar { font-size: 12px; color: var(--ink-2); background: var(--accent-soft); border-radius: 6px; padding: 6px 8px; display: flex; justify-content: space-between; gap: 6px; align-items: center; }
 
+/* Templates list */
+.tpl-list { display: flex; flex-direction: column; gap: 8px; }
+.tpl { display: grid; grid-template-columns: 80px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; cursor: grab; touch-action: none; user-select: none; }
+.tpl:hover { border-color: var(--accent); }
+.tpl-thumb { width: 80px; height: 48px; color: var(--ink-2); }
+.tpl-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tpl-text span:not(.chip) { color: var(--ink-2); font-size: 12px; }
+.tpl-name { font-weight: 400; letter-spacing: 0.06em; color: var(--ink-3); margin-left: 6px; }
+.add-section { margin-top: 8px; border: 1.5px dashed var(--line); background: none; border-radius: 10px; padding: 12px; font-family: var(--f-mono); font-size: 13px; color: var(--ink-2); }
+.add-section:hover { border-color: var(--accent); color: var(--ink); }
+.sec-group.is-current > .sec-head { color: var(--ink); }
+.x-remove:hover { color: var(--bad) !important; border-color: var(--bad) !important; }
+.sec-remove { color: var(--cm-cherry); border-color: var(--cm-cherry); }
+/* "Are you sure?" box */
+.confirm-backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(10, 12, 15, 0.6); display: grid; place-items: center; padding: 16px; }
+.confirm-backdrop[hidden] { display: none; }
+.confirm { width: min(420px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.confirm h3 { font-size: 18px; }
+.confirm p { margin: 0; color: var(--ink-2); }
+.confirm-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.btn-danger { background: var(--bad); border-color: var(--bad); color: #fff; font-weight: 700; }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--ground); padding: 8px 16px; border-radius: 999px; font-weight: 600; font-size: 13px; z-index: 50; }
 
 /* ── The ClearMark page inside the preview ── */
@@ -347,7 +368,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
     <div class="meter-bar"><i id="meter-bar" style="width:0"></i></div>
   </div>
 </header>
-<p class="note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Drag a section's blue tag (or its name in the card list) to move it. Drag offer cards, selling points, tags and logos to reorder them, and drag the founder photo to the other side to swap it with the text. Nothing here touches the live site.</p>
+<p class="note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Add sections from <b>Templates</b> (top of the card list) and remove them with <b>× Remove</b>. Drag a section's blue tag (or its name in the card list) to move it. Drag offer cards, selling points, tags and logos to reorder them, and drag the founder photo to the other side to swap it with the text. Nothing here touches the live site.</p>
 
 <div class="seg tabs-phone" role="tablist" aria-label="Show">
   <button type="button" data-tab="preview" aria-pressed="true">Preview</button>
@@ -378,7 +399,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
       <h2 id="cc-title">Content cards · <span id="cc-page">Home</span></h2>
       <div class="seg" role="group" aria-label="Filter cards">
         <button type="button" data-filter="all" aria-pressed="true">All</button>
-        <button type="button" data-filter="todo" aria-pressed="false">To do</button>
+        <button type="button" data-filter="templates" aria-pressed="false">Templates</button>
       </div>
     </div>
     <div class="cards" id="cards"></div>
@@ -397,6 +418,16 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   </aside>
 </main>
 <div class="toast" id="toast" hidden></div>
+<div class="confirm-backdrop" id="confirm" hidden>
+  <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
+    <h3 id="confirm-title">Remove this section?</h3>
+    <p id="confirm-text"></p>
+    <div class="confirm-actions">
+      <button type="button" class="btn btn-danger" id="confirm-yes" data-confirm-yes>Yes, remove</button>
+      <button type="button" class="btn" id="confirm-no" data-confirm-no>No, keep module</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ── Sources: real ClearMark material ──────────────────────────────────────────
@@ -435,123 +466,130 @@ const OFFERS = [
   { id: "leadgen", title: "Working Interview", sub: "A fast proof-of-work build, money-back", price: "$37", note: "one-time", image: "media/rock-climb.jpg", status: "Draft" },
 ];
 
-// ── Pages: fixed layouts, each made of sections with named spots ─────────────
+// ── Templates: section designs, made in code. Each has named spots to fill. ──
 // kind: text (limit) · link · image · logos (max) · list (max rows, columns with limits) · offers (max)
-const PAGES = [
-  { id: "home", name: "Home", path: "/", sections: [
-    { id: "hero", name: "Hero", type: "hero", slots: [
-      { id: "hero-image", label: "Hero image", kind: "image", about: "Full-width photo behind the headline.", source: "Images" },
-      { id: "hero-headline", label: "Headline", kind: "text", limit: 80, about: "The one line every visitor reads.", source: "Playbook · Headline" },
-      { id: "hero-button", label: "Button text", kind: "text", limit: 22, about: "What the white button says.", source: "Usually “Book a call”" },
-      { id: "hero-link", label: "Button link", kind: "link", about: "Where the button goes.", source: "Your Calendly link" },
-      { id: "hero-quote", label: "Testimonial", kind: "list", max: 1, cols: [{ key: "name", label: "Name", limit: 40 }, { key: "quote", label: "Quote", limit: 220, long: true }], optional: true, about: "See-through panel, bottom left. Hidden on phones.", source: "A client quote you have permission to use" },
-      { id: "hero-stat", label: "Stat card", kind: "list", max: 1, cols: [{ key: "kicker", label: "Small title", limit: 32 }, { key: "value", label: "Number", limit: 10 }], optional: true, about: "White card, bottom right. Hidden on phones.", source: "Playbook · Proof 1 (17% → 54%)" },
-    ]},
-    { id: "credibility", name: "Credibility", type: "cred", slots: [
-      { id: "cred-label", label: "Label", kind: "text", limit: 30, about: "Short label, left of the logos.", source: "e.g. “Speaker & certifications:”" },
-      { id: "cred-logos", label: "Logos", kind: "logos", max: 4, about: "White logos on Charcoal.", source: "Images · logos" },
-    ]},
-    { id: "why", name: "Why ClearMark · heading", type: "header", slots: [
-      { id: "why-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Why ClearMark”" },
-      { id: "why-headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Playbook · Pillar 2" },
-      { id: "why-body", label: "Paragraph", kind: "text", limit: 260, long: true, source: "Playbook · Value proposition" },
-    ]},
-    { id: "why-proof", name: "Founder + selling points", type: "photopoints", flip: true, slots: [
-      { id: "why-photo", label: "Founder photo", kind: "image", source: "Images · Founder photo" },
-      { id: "why-points", label: "Selling points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Proof", limit: 160, long: true }], source: "Playbook · Selling points 1–3" },
-    ]},
-    { id: "platforms", name: "Platforms", type: "plat", slots: [
-      { id: "plat-image", label: "Background image", kind: "image", source: "Images · Platforms background" },
-      { id: "plat-headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "e.g. “For any business. / On any platform.”" },
-      { id: "plat-tags", label: "+ Tags", kind: "list", max: 9, cols: [{ key: "tag", label: "Tag", limit: 30 }], source: "Business areas you serve" },
-      { id: "plat-logos", label: "Platform logos", kind: "logos", max: 10, source: "Images · Platform logos" },
-    ]},
-    { id: "solutions", name: "Solutions · heading", type: "header", slots: [
-      { id: "sol-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Solutions”" },
-      { id: "sol-headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Playbook · How we work" },
-      { id: "sol-body", label: "Paragraph", kind: "text", limit: 260, long: true, optional: true, about: "Fill it, or leave it empty and the heading stands alone.", source: "Playbook · How we work" },
-    ]},
-    { id: "sol-offers", name: "Offer cards", type: "offersonly", slots: [
-      { id: "sol-cards", label: "Offer cards", kind: "offers", max: 3, about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Offers" },
-    ]},
-    { id: "quote", name: "Quote", type: "quote", optional: true, slots: [
-      { id: "quote-text", label: "Quote", kind: "text", limit: 200, long: true, source: "Playbook · Supporting quote (needs approval)" },
-      { id: "quote-by", label: "Name and title", kind: "text", limit: 60, source: "Playbook · Quote by" },
-    ]},
-    { id: "mailing", name: "Mailing list", type: "mail", slots: [
-      { id: "mail-headline", label: "Headline", kind: "text", limit: 32, source: "e.g. “Stay in the loop”" },
-      { id: "mail-intro", label: "Intro", kind: "text", limit: 120, long: true, source: "One sentence on what people get" },
-    ]},
+// axis "x": items in the spot sit side by side, so dragging reorders left/right.
+const TEMPLATES = [
+  { id: "hero", name: "Hero", type: "hero", about: "Full-width photo with the headline and a button. Best as the first section.", slots: [
+    { key: "image", label: "Hero image", kind: "image", about: "Full-width photo behind the headline.", source: "Images" },
+    { key: "headline", label: "Headline", kind: "text", limit: 80, about: "The one line every visitor reads.", source: "Playbook · Headline" },
+    { key: "button", label: "Button text", kind: "text", limit: 22, about: "What the white button says.", source: "Usually “Book a call”" },
+    { key: "link", label: "Button link", kind: "link", about: "Where the button goes.", source: "Your Calendly link" },
+    { key: "quote", label: "Testimonial", kind: "list", max: 1, cols: [{ key: "name", label: "Name", limit: 40 }, { key: "quote", label: "Quote", limit: 220, long: true }], optional: true, about: "See-through panel, bottom left. Hidden on phones.", source: "A client quote you have permission to use" },
+    { key: "stat", label: "Stat card", kind: "list", max: 1, cols: [{ key: "kicker", label: "Small title", limit: 32 }, { key: "value", label: "Number", limit: 10 }], optional: true, about: "White card, bottom right. Hidden on phones.", source: "Playbook · Proof 1 (17% → 54%)" },
   ]},
-  { id: "about", name: "About", path: "/about", sections: [
-    { id: "about-hero", name: "Page hero", type: "pagehero", slots: [
-      { id: "ab-image", label: "Hero image", kind: "image", source: "Images" },
-      { id: "ab-headline", label: "Headline", kind: "text", limit: 60, source: "e.g. “26 years inside agencies”" },
-    ]},
-    { id: "ab-head", name: "About · heading", type: "header", slots: [
-      { id: "ab-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “About”" },
-      { id: "ab-title", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Your own words" },
-    ]},
-    { id: "story", name: "Photo + story", type: "story", flip: true, slots: [
-      { id: "ab-photo", label: "Photo", kind: "image", source: "Images · Founder photo" },
-      { id: "ab-body", label: "Story", kind: "text", limit: 600, long: true, source: "Playbook · Positioning statement" },
-    ]},
-    { id: "team", name: "How the team works", type: "points", slots: [
-      { id: "ab-points", label: "Team members", kind: "list", max: 3, cols: [{ key: "title", label: "Name and role", limit: 40 }, { key: "proof", label: "What they do", limit: 160, long: true }], source: "Playbook · How the team works" },
-    ]},
+  { id: "heading", name: "Heading", type: "header", about: "Tagline on the left; a two-line headline and an optional paragraph on the right.", slots: [
+    { key: "tagline", label: "Tagline", kind: "text", limit: 24, source: "One or two words, e.g. “Solutions”" },
+    { key: "headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Playbook · Pillars" },
+    { key: "body", label: "Paragraph", kind: "text", limit: 260, long: true, optional: true, about: "Fill it, or leave it empty and the heading stands alone.", source: "Playbook · Value proposition" },
   ]},
-  { id: "pricing", name: "Pricing", path: "/pricing", sections: [
-    { id: "pr-head", name: "Pricing · heading", type: "header", slots: [
-      { id: "pr-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Pricing”" },
-      { id: "pr-title", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Your own words" },
-      { id: "pr-body", label: "Paragraph", kind: "text", limit: 200, long: true, source: "Playbook · How we work" },
-    ]},
-    { id: "pr-cards", name: "Offers", type: "offersonly", slots: [
-      { id: "pr-offers", label: "Offer cards", kind: "offers", max: 4, source: "Offers" },
-    ]},
+  { id: "logos", name: "Logo row", type: "cred", about: "A short label and a row of white logos on Charcoal.", slots: [
+    { key: "label", label: "Label", kind: "text", limit: 30, about: "Short label, left of the logos.", source: "e.g. “Speaker & certifications:”" },
+    { key: "logos", label: "Logos", kind: "logos", max: 6, axis: "x", about: "White logos on Charcoal.", source: "Images · logos" },
   ]},
-  { id: "book", name: "Book a call", path: "/book", sections: [
-    { id: "bk-head", name: "Book a call · heading", type: "header", slots: [
-      { id: "bk-tagline", label: "Tagline", kind: "text", limit: 24, source: "e.g. “Book a call”" },
-      { id: "bk-title", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Your own words" },
-      { id: "bk-body", label: "Paragraph", kind: "text", limit: 200, long: true, source: "What happens on the call" },
-    ]},
-    { id: "bk-cal", name: "Calendly", type: "calendly", slots: [] },
+  { id: "photo-points", name: "Photo + points", type: "photopoints", flip: true, about: "A tall photo beside up to three titled points. Photo can sit left or right.", slots: [
+    { key: "photo", label: "Photo", kind: "image", source: "Images · Founder photo" },
+    { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · Selling points 1–3" },
   ]},
+  { id: "photo-text", name: "Photo + text", type: "story", flip: true, about: "A tall photo beside a longer paragraph. Photo can sit left or right.", slots: [
+    { key: "photo", label: "Photo", kind: "image", source: "Images" },
+    { key: "body", label: "Text", kind: "text", limit: 600, long: true, source: "Playbook · Positioning statement" },
+  ]},
+  { id: "photo-tags", name: "Photo background + tags", type: "plat", about: "Full-width photo with a headline, + tags and a logo grid.", slots: [
+    { key: "image", label: "Background image", kind: "image", source: "Images · Platforms background" },
+    { key: "label", label: "Label", kind: "text", limit: 24, source: "e.g. “Platforms”" },
+    { key: "headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "e.g. “For any business. / On any platform.”" },
+    { key: "tags", label: "+ Tags", kind: "list", max: 9, axis: "x", cols: [{ key: "tag", label: "Tag", limit: 30 }], source: "Business areas you serve" },
+    { key: "logos", label: "Logos", kind: "logos", max: 10, axis: "x", source: "Images · Platform logos" },
+  ]},
+  { id: "offers", name: "Offer cards", type: "offersonly", about: "Up to four offer cards from the CMS, side by side.", slots: [
+    { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Offers" },
+  ]},
+  { id: "points", name: "Points", type: "points", about: "Up to three titled points in a list, no photo.", slots: [
+    { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · How the team works" },
+  ]},
+  { id: "quote", name: "Quote", type: "quote", about: "One large quote with a name and title.", slots: [
+    { key: "text", label: "Quote", kind: "text", limit: 200, long: true, source: "Playbook · Supporting quote (needs approval)" },
+    { key: "by", label: "Name and title", kind: "text", limit: 60, source: "Playbook · Quote by" },
+  ]},
+  { id: "mailing", name: "Mailing list", type: "mail", about: "Headline, one line of intro, and the sign-up form.", slots: [
+    { key: "headline", label: "Headline", kind: "text", limit: 32, source: "e.g. “Stay in the loop”" },
+    { key: "intro", label: "Intro", kind: "text", limit: 120, long: true, source: "One sentence on what people get" },
+  ]},
+  { id: "page-hero", name: "Page hero", type: "pagehero", about: "A shorter photo header for inside pages.", slots: [
+    { key: "image", label: "Hero image", kind: "image", source: "Images" },
+    { key: "headline", label: "Headline", kind: "text", limit: 60, source: "Your own words" },
+  ]},
+  { id: "calendly", name: "Calendly booking", type: "calendly", about: "Your 15-minute call calendar. Nothing to fill.", slots: [] },
 ];
-const SLOTS = {};
-for (const p of PAGES) for (const s of p.sections) for (const sl of s.slots) SLOTS[sl.id] = { ...sl, page: p.id, section: s.id };
+const TPL = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
+
+// The site's pages. Each page is a list of sections; each section is a copy of a template.
+const PAGE_LIST = [
+  { id: "home", name: "Home", path: "/" },
+  { id: "about", name: "About", path: "/about" },
+  { id: "pricing", name: "Pricing", path: "/pricing" },
+  { id: "book", name: "Book a call", path: "/book" },
+];
+const START_SECTIONS = {
+  home: [["hero", "hero", "Hero"], ["credibility", "logos", "Credibility"], ["why", "heading", "Why ClearMark · heading"], ["why-proof", "photo-points", "Founder + selling points"],
+    ["platforms", "photo-tags", "Platforms"], ["solutions", "heading", "Solutions · heading"], ["sol-offers", "offers", "Offer cards"], ["mailing", "mailing", "Mailing list"]],
+  about: [["about-hero", "page-hero", "Page hero"], ["ab-head", "heading", "About · heading"], ["story", "photo-text", "Photo + story"], ["team", "points", "How the team works"]],
+  pricing: [["pr-head", "heading", "Pricing · heading"], ["pr-cards", "offers", "Offers"]],
+  book: [["bk-head", "heading", "Book a call · heading"], ["bk-cal", "calendly", "Calendly"]],
+};
+
+// SLOTS: every spot on every page, keyed "sectionId.key". Rebuilt whenever sections change.
+let SLOTS = {};
+function sectionView(inst, pageId) {
+  const t = TPL[inst.t];
+  return { ...t, id: inst.uid, uid: inst.uid, name: inst.name, template: t.id, page: pageId,
+    slots: t.slots.map((sl) => ({ ...sl, id: `${inst.uid}.${sl.key}`, page: pageId, section: inst.uid })) };
+}
+function pageView(id) {
+  const p = PAGE_LIST.find((x) => x.id === id);
+  return { ...p, sections: S.pages[id].map((inst) => sectionView(inst, id)) };
+}
+const allPages = () => PAGE_LIST.map((p) => pageView(p.id));
+function rebuildSlots() {
+  SLOTS = {};
+  for (const p of allPages()) for (const sec of p.sections) for (const sl of sec.slots) {
+    SLOTS[sl.id] = sl;
+    if (!S.slots[sl.id]) S.slots[sl.id] = { value: blank(sl), placed: blank(sl) };
+  }
+}
 
 // ── State: each spot holds what's typed (value) and what's on the page (placed) ──
-const KEY = "clearmark-studio-builder-v3";
+const KEY = "clearmark-studio-builder-v4";
 const blank = (sl) => (sl.kind === "list" || sl.kind === "logos" || sl.kind === "offers") ? [] : "";
 function seed() {
+  const pages = Object.fromEntries(Object.entries(START_SECTIONS).map(([pid, list]) => [pid, list.map(([uid, t, name]) => ({ uid, t, name }))]));
   const v = {};
-  for (const id in SLOTS) v[id] = { value: blank(SLOTS[id]), placed: blank(SLOTS[id]) };
-  const set = (id, value, placed = true) => { v[id] = { value, placed: placed ? structuredClone(value) : blank(SLOTS[id]) }; };
-  set("hero-image", "media/poppies.jpg");
-  set("hero-headline", "Your single source of truth shouldn't be a person.");
-  set("hero-button", "Book a call");
-  set("hero-link", "https://calendly.com/andrew-clearmark/15min");
-  set("cred-label", "Speaker & certifications:", false);
-  set("plat-headline", [{ line: "For any business." }, { line: "On any platform." }]);
-  set("sol-cards", ["content", "agency", "publishing"]);
-  set("why-photo", "media/founder.webp");
-  set("why-points", [
+  const set = (id, value, placed = true) => { v[id] = { value, placed: placed ? structuredClone(value) : (Array.isArray(value) ? [] : "") }; };
+  set("hero.image", "media/poppies.jpg");
+  set("hero.headline", "Your single source of truth shouldn't be a person.");
+  set("hero.button", "Book a call");
+  set("hero.link", "https://calendly.com/andrew-clearmark/15min");
+  set("credibility.label", "Speaker & certifications:", false);
+  set("platforms.label", "Platforms");
+  set("platforms.headline", [{ line: "For any business." }, { line: "On any platform." }]);
+  set("sol-offers.cards", ["content", "agency", "publishing"]);
+  set("why-proof.photo", "media/founder.webp");
+  set("why-proof.points", [
     { title: "Our Philosophy", proof: "AI lent a magic wand, it's a toolset. And tools only work if people know how to use them. That's where we come in making AI real, usable, and sustainable." },
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { slots: v, page: "home", sectionsOff: { quote: true }, order: {}, flip: {}, device: "desktop", guides: true };
+  return { pages, slots: v, page: "home", flip: {}, device: "desktop", guides: true };
 }
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
-if (S) { S.order ||= {}; S.flip ||= {}; S.sectionsOff ||= {}; }
+if (S) { S.flip ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
-for (const id in SLOTS) if (!S.slots[id]) S.slots[id] = { value: blank(SLOTS[id]), placed: blank(SLOTS[id]) };
+rebuildSlots();
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
-let selected = null, openCard = null, filter = "all", srcTab = "images", picked = null;
+let selected = null, openCard = null, filter = "all", srcTab = "images", picked = null, curSec = null;
 
 // ── Helpers ──
 const $ = (s, r = document) => r.querySelector(s);
@@ -593,70 +631,62 @@ function offersBlock(id, max) {
 }
 const navChrome = () => `<nav class="site-nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul><li>About</li><li>Solutions</li><li>Platforms</li><li>Pricing</li><li class="pill-cta">Book a call →</li></ul><span class="burger" aria-hidden="true"></span></nav>`;
 
+// Each template's drawing. `k(key)` is the full id of one of this section's spots.
+const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${id}:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("");
+const photoBox = (sec, id, alt = "") => { const photo = P(id); return photo ? `<img ${filledAttr(id).replace('class="', 'class="photo ')} src="${esc(photo)}" alt="${esc(alt)}" data-photoflip="${sec.id}" draggable="false">` : slotBox(id, "photo").replace("<div ", `<div data-photoflip="${sec.id}" `); };
 const SECTION_HTML = {
-  hero: () => {
-    const img = P("hero-image"), q = P("hero-quote"), st = P("hero-stat"), btn = P("hero-button");
-    return `<div class="hero-bg">${img ? `<img ${filledAttr("hero-image")} src="${esc(img)}" alt="">` : slotBox("hero-image", "on-dark")}</div>
-      <div class="hero-main">${text("hero-headline", "h1", "", "on-dark")}
-        ${btn ? `<span ${filledAttr("hero-button").replace('class="', 'class="cta ')}>${esc(btn)} →</span>` : slotBox("hero-button", "on-dark", "align-self:flex-start;min-width:220px")}
-        ${P("hero-link") ? "" : `<div style="max-width:320px">${slotBox("hero-link", "on-dark")}</div>`}</div>
+  hero: (sec, k) => {
+    const img = P(k("image")), q = P(k("quote")), st = P(k("stat")), btn = P(k("button"));
+    return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div>
+      <div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}
+        ${btn ? `<span ${filledAttr(k("button")).replace('class="', 'class="cta ')}>${esc(btn)} →</span>` : slotBox(k("button"), "on-dark", "align-self:flex-start;min-width:220px")}
+        ${P(k("link")) ? "" : `<div style="max-width:320px">${slotBox(k("link"), "on-dark")}</div>`}</div>
       <div class="hero-bottom">
-        ${q ? `<figure ${filledAttr("hero-quote").replace('class="', 'class="glass ')} style="margin:0"><b>${esc(q[0].name)}</b><span>${esc(q[0].quote)}</span></figure>` : `<div style="width:520px">${slotBox("hero-quote", "on-dark", "min-height:140px")}</div>`}
-        ${st ? `<aside ${filledAttr("hero-stat").replace('class="', 'class="stat-card ')}><small>${esc(st[0].kicker)}</small><b>${esc(st[0].value)}</b></aside>` : `<div style="width:260px">${slotBox("hero-stat", "on-dark", "min-height:140px")}</div>`}
+        ${q ? `<figure ${filledAttr(k("quote")).replace('class="', 'class="glass ')} style="margin:0"><b>${esc(q[0].name)}</b><span>${esc(q[0].quote)}</span></figure>` : `<div style="width:520px">${slotBox(k("quote"), "on-dark", "min-height:140px")}</div>`}
+        ${st ? `<aside ${filledAttr(k("stat")).replace('class="', 'class="stat-card ')}><small>${esc(st[0].kicker)}</small><b>${esc(st[0].value)}</b></aside>` : `<div style="width:260px">${slotBox(k("stat"), "on-dark", "min-height:140px")}</div>`}
       </div>`;
   },
-  cred: () => {
-    const logos = P("cred-logos");
-    return `${text("cred-label", "p", "tagline", "on-dark")}
-      ${logos ? `<div ${filledAttr("cred-logos").replace('class="', 'class="logo-row ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="cred-logos:${i}" draggable="false">`).join("")}</div>` : `<div class="logo-row">${slotBox("cred-logos", "on-dark", "flex:1;min-height:72px")}</div>`}`;
+  cred: (sec, k) => {
+    const logos = P(k("logos"));
+    return `${text(k("label"), "p", "tagline", "on-dark")}
+      ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="logo-row ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : `<div class="logo-row">${slotBox(k("logos"), "on-dark", "flex:1;min-height:72px")}</div>`}`;
   },
-  photopoints: (sec) => {
-    const pts = P("why-points"), photo = P("why-photo");
-    return `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photo ? `<img ${filledAttr("why-photo").replace('class="', 'class="photo ')} src="${esc(photo)}" alt="Andrew Kreick" data-photoflip="${sec.id}" draggable="false">` : slotBox("why-photo", "photo").replace("<div ", `<div data-photoflip="${sec.id}" `)}
-        ${pts ? `<div ${filledAttr("why-points").replace('class="', 'class="points ')}>${pts.map((r, i) => `<div class="point" data-item="why-points:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("")}</div>` : `<div class="points">${[1, 2, 3].map((n) => slotBox("why-points", "", "min-height:110px").replace(esc(SLOTS["why-points"].label), `Selling point ${n}`)).join("")}</div>`}</div>`;
+  photopoints: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photoBox(sec, k("photo"))}
+      ${P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${[1, 2, 3].map((n) => slotBox(k("points"), "", "min-height:110px").replace(esc(SLOTS[k("points")].label), `Point ${n}`)).join("")}</div>`}</div>`,
+  plat: (sec, k) => {
+    const img = P(k("image")), tags = P(k("tags")), logos = P(k("logos"));
+    return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div>
+      <div class="sh">${text(k("label"), "p", "tagline", "on-dark")}${lines(k("headline"), "h2", "", "on-dark")}</div>
+      ${tags ? `<ul ${filledAttr(k("tags")).replace('class="', 'class="tag-pills ')}>${tags.map((t, i) => `<li data-item="${k("tags")}:${i}">${esc(t.tag)}</li>`).join("")}</ul>` : slotBox(k("tags"), "on-dark")}
+      ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}`;
   },
-  plat: () => {
-    const img = P("plat-image"), tags = P("plat-tags"), logos = P("plat-logos");
-    return `<div class="hero-bg">${img ? `<img ${filledAttr("plat-image")} src="${esc(img)}" alt="">` : slotBox("plat-image", "on-dark")}</div>
-      <div class="sh"><p class="tagline">Platforms</p>${lines("plat-headline", "h2", "", "on-dark")}</div>
-      ${tags ? `<ul ${filledAttr("plat-tags").replace('class="', 'class="tag-pills ')}>${tags.map((t, i) => `<li data-item="plat-tags:${i}">${esc(t.tag)}</li>`).join("")}</ul>` : slotBox("plat-tags", "on-dark")}
-      ${logos ? `<div ${filledAttr("plat-logos").replace('class="', 'class="plat-logos ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="plat-logos:${i}" draggable="false">`).join("")}</div>` : slotBox("plat-logos", "on-dark", "min-height:120px")}`;
-  },
-  quote: () => `${P("quote-text") ? `<blockquote ${filledAttr("quote-text")}>“${esc(P("quote-text"))}”</blockquote>` : slotBox("quote-text", "", "min-height:120px")}${text("quote-by", "cite")}`,
-  mail: () => `<div>${P("mail-headline") ? "" : ""}<p class="tagline">Mailing list</p>${text("mail-headline", "h2")}${text("mail-intro", "p")}</div>
+  quote: (sec, k) => `${P(k("text")) ? `<blockquote ${filledAttr(k("text"))}>“${esc(P(k("text")))}”</blockquote>` : slotBox(k("text"), "", "min-height:120px")}${text(k("by"), "cite")}`,
+  mail: (sec, k) => `<div><p class="tagline">Mailing list</p>${text(k("headline"), "h2")}${text(k("intro"), "p")}</div>
       <div class="fake-form"><div>Name</div><div>Email</div><span class="cta cta-red" style="align-self:flex-start">Sign up</span><span class="chrome-note">The form itself is part of the design, not a spot.</span></div>`,
-  pagehero: () => { const img = P("ab-image"); return `<div class="hero-bg">${img ? `<img ${filledAttr("ab-image")} src="${esc(img)}" alt="">` : slotBox("ab-image", "on-dark")}</div><div class="hero-main">${text("ab-headline", "h1", "", "on-dark")}</div>`; },
-  story: (sec) => { const photo = P("ab-photo"); return `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photo ? `<img ${filledAttr("ab-photo").replace('class="', 'class="photo ')} src="${esc(photo)}" alt="" data-photoflip="${sec.id}" draggable="false">` : slotBox("ab-photo", "photo").replace("<div ", `<div data-photoflip="${sec.id}" `)}${P("ab-body") ? `<p ${filledAttr("ab-body").replace('class="', 'class="body ')} style="font-size:20px;line-height:1.5;color:var(--cm-iron)">${esc(P("ab-body"))}</p>` : slotBox("ab-body", "", "min-height:240px")}</div>`; },
-  points: () => { const pts = P("ab-points"); return pts ? `<div ${filledAttr("ab-points").replace('class="', 'class="points ')}>${pts.map((r, i) => `<div class="point" data-item="ab-points:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("")}</div>` : `<div class="points">${slotBox("ab-points", "", "min-height:160px")}</div>`; },
+  pagehero: (sec, k) => { const img = P(k("image")); return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div><div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}</div>`; },
+  story: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photoBox(sec, k("photo"))}${P(k("body")) ? `<p ${filledAttr(k("body")).replace('class="', 'class="body ')} style="font-size:20px;line-height:1.5;color:var(--cm-iron)">${esc(P(k("body")))}</p>` : slotBox(k("body"), "", "min-height:240px")}</div>`,
+  points: (sec, k) => P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${slotBox(k("points"), "", "min-height:160px")}</div>`,
   // A heading block: tagline on the left; headline (and an optional paragraph) on the right.
-  header: (sec) => {
-    const tag = sec.slots.find((x) => x.kind === "text" && !x.long), title = sec.slots.find((x) => x.kind === "list"), body = sec.slots.find((x) => x.kind === "text" && x.long);
-    const bodyHtml = !body ? "" : P(body.id) ? `<p ${filledAttr(body.id).replace('class="', 'class="body ')}>${esc(P(body.id))}</p>` : `<div style="margin-top:16px">${slotBox(body.id, body.optional ? "slot-optional" : "", body.optional ? "min-height:56px" : "min-height:80px")}</div>`;
-    return `<div class="sh">${text(tag.id, "p", "tagline")}<div>${lines(title.id, "h2")}${bodyHtml}</div></div>`;
+  header: (sec, k) => {
+    const body = k("body");
+    const bodyHtml = P(body) ? `<p ${filledAttr(body).replace('class="', 'class="body ')}>${esc(P(body))}</p>` : `<div style="margin-top:16px">${slotBox(body, "slot-optional", "min-height:56px")}</div>`;
+    return `<div class="sh">${text(k("tagline"), "p", "tagline")}<div>${lines(k("headline"), "h2")}${bodyHtml}</div></div>`;
   },
-  offersonly: (sec) => offersBlock(sec.slots[0].id, sec.slots[0].max),
+  offersonly: (sec, k) => offersBlock(k("cards"), SLOTS[k("cards")].max),
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
 const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", calendly: "std" };
 
-// Sections in the order Andrew has arranged them (or the layout's own order).
-function orderedSections(page) {
-  const saved = S.order[page.id] || [];
-  const byId = Object.fromEntries(page.sections.map((x) => [x.id, x]));
-  const list = saved.filter((id) => byId[id]).map((id) => byId[id]);
-  for (const x of page.sections) if (!list.includes(x)) list.push(x);
-  return list;
-}
 const PHOTO_TOP = ["hero", "pagehero", "plat"];
 function pageHtml(page, live = true) {
-  const secs = orderedSections(page);
-  const first = secs.find((x) => !(x.optional && S.sectionsOff[x.id]));
+  const secs = page.sections;
   // The nav is part of the design: over the photo when the page starts with one, otherwise a dark bar.
-  const nav = navChrome().replace('class="site-nav"', `class="site-nav${first && PHOTO_TOP.includes(first.type) ? "" : " nav-bar"}"`);
-  return nav + secs.map((sec, i) => {
-    const off = sec.optional && S.sectionsOff[sec.id];
-    const handle = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}${sec.optional ? (off ? " · off" : " · optional") : ""}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}</span>` : "";
-    return `<section class="sec ${SECTION_CLASS[sec.type]}${off ? " sec-off" : ""}${i === 0 && !PHOTO_TOP.includes(sec.type) ? " after-bar" : ""}" data-secid="${sec.id}">${handle}${SECTION_HTML[sec.type](sec)}</section>`;
+  const nav = navChrome().replace('class="site-nav"', `class="site-nav${secs[0] && PHOTO_TOP.includes(secs[0].type) ? "" : " nav-bar"}"`);
+  const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections. Open Templates in the card list to add one.</div></div>` : "";
+  return nav + empty + secs.map((sec) => {
+    const k = (key) => `${sec.id}.${key}`;
+    const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
+    return `<section class="sec ${SECTION_CLASS[sec.type]}" data-secid="${sec.id}">${tools}${SECTION_HTML[sec.type](sec, k)}</section>`;
   }).join("") + `<footer class="site-footer"><img src="media/logo-white.png" alt="ClearMark Training"><span>Built for real people, in real jobs, right now.</span><span class="chrome-note">Footer: same on every page</span></footer>`;
 }
 
@@ -717,13 +747,44 @@ function cardBody(id) {
 }
 const KIND_CHIP = (sl) => sl.kind === "text" ? `text · ${sl.limit}` : sl.kind === "list" ? `list · ${sl.max}` : sl.kind === "logos" ? `logos · ${sl.max}` : sl.kind === "offers" ? `cards · ${sl.max}` : sl.kind;
 
+// Small line drawings of each template, for the Templates list.
+function tplThumb(type) {
+  const L = (d, w = 1.5) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round"/>`;
+  const R = (x, y, w, h, r = 2, dash = false) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="currentColor" stroke-width="1.5"${dash ? ' stroke-dasharray="3 2"' : ""}/>`;
+  const F = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="currentColor" opacity="0.25"/>`;
+  const g = {
+    hero: F(1, 1, 78, 46) + L("M8 24h40M8 30h28", 3) + R(8, 36, 16, 6, 3),
+    header: L("M8 12h14") + L("M34 12h36M34 19h28", 3) + L("M34 28h36M34 33h30", 1.2),
+    cred: L("M8 24h14") + [30, 42, 54, 66].map((x) => R(x, 19, 9, 10)).join(""),
+    photopoints: F(6, 6, 28, 36) + L("M42 12h12M58 12h16M42 24h12M58 24h16M42 36h12M58 36h16"),
+    story: F(6, 6, 28, 36) + L("M42 12h32M42 18h30M42 24h32M42 30h26", 1.2),
+    plat: F(1, 1, 78, 46) + L("M8 9h10M30 9h40") + [8, 22, 36].map((x) => R(x, 32, 12, 6, 3)).join(""),
+    offersonly: [6, 30, 54].map((x) => F(x, 8, 20, 32)).join(""),
+    points: L("M8 12h20M36 12h36M8 24h20M36 24h36M8 36h20M36 36h36"),
+    quote: L("M10 14h60M10 21h56M10 28h40", 2.5) + L("M10 38h20", 1.2),
+    mail: L("M8 14h28", 3) + L("M8 22h24", 1.2) + R(44, 10, 28, 6) + R(44, 20, 28, 6) + R(44, 30, 14, 6, 3),
+    pagehero: F(1, 1, 78, 30) + L("M8 22h40", 3),
+    calendly: R(16, 8, 48, 32) + L("M16 16h48M28 8v-2M52 8v-2"),
+  }[type] || "";
+  return `<svg viewBox="0 0 80 48" class="tpl-thumb" aria-hidden="true">${R(1, 1, 78, 46, 4)}${g}</svg>`;
+}
+
+function renderTemplates() {
+  const page = pageView(S.page);
+  const after = curSec && page.sections.find((x) => x.id === curSec);
+  $("#cards").innerHTML = `<p class="hint" style="margin:0">Each template is a section designed in code. <b style="color:var(--ink-2)">+ Add</b> puts it ${after ? `after <b style="color:var(--ink)">${esc(after.name)}</b>` : "at the end of the page"}; or drag it onto the preview, where a blue line shows where it lands.</p>
+    <div class="tpl-list">${TEMPLATES.map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">
+      ${tplThumb(t.type)}<div class="tpl-text"><b>${esc(t.name)}</b><span>${esc(t.about)}</span><span class="chip" style="align-self:flex-start">${t.slots.length ? `${t.slots.length} ${t.slots.length === 1 ? "spot" : "spots"}` : "nothing to fill"}${t.flip ? " · photo left or right" : ""}</span></div>
+      <button type="button" class="btn btn-small btn-primary" data-addtpl="${t.id}">+ Add</button></div>`).join("")}</div>`;
+}
+
 function renderCards() {
-  const page = PAGES.find((p) => p.id === S.page);
-  const secs = orderedSections(page);
+  if (filter === "templates") return renderTemplates();
+  const page = pageView(S.page);
+  const secs = page.sections;
   const html = secs.map((sec, si) => {
-    const off = sec.optional && S.sectionsOff[sec.id];
-    const cards = sec.slots.filter((sl) => filter === "all" || status(sl.id) !== "placed").map((slb) => {
-      const sl = SLOTS[slb.id], s = status(sl.id), isOpen = openCard === sl.id;
+    const cards = sec.slots.map((sl) => {
+      const s = status(sl.id), isOpen = openCard === sl.id;
       return `<div class="ccard is-${s}${selected === sl.id ? " is-selected" : ""}" data-card="${sl.id}" ${isOpen ? "open-card" : ""}>
         <button type="button" class="ccard-head" data-toggle="${sl.id}" aria-expanded="${isOpen}">
           <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
@@ -731,18 +792,73 @@ function renderCards() {
           <span class="chip">${KIND_CHIP(sl)}</span><span class="pill pill-${s}">${s[0].toUpperCase() + s.slice(1)}</span>
         </button>${isOpen ? `<div class="ccard-body">${cardBody(sl.id)}</div>` : ""}</div>`;
     }).join("");
-    const toggle = sec.optional ? `<label class="switch"><input type="checkbox" data-secoff="${sec.id}" ${off ? "" : "checked"}> Show</label>` : "";
     const fixed = sec.slots.length ? "" : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`;
-    const done = !cards && sec.slots.length ? `<p class="hint" style="margin:0">All placed.</p>` : "";
-    return `<div class="sec-group" data-secid="${sec.id}">
-      <div class="group-label sec-head" data-secdrag="${sec.id}" title="Drag to move this section"><span><span class="grip" aria-hidden="true">⠿</span>${esc(sec.name)}</span>
-        <span class="sec-head-btns">${toggle}${sec.flip ? `<button type="button" class="btn btn-small" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}
+    return `<div class="sec-group${curSec === sec.id ? " is-current" : ""}" data-secid="${sec.id}">
+      <div class="group-label sec-head" data-secdrag="${sec.id}" title="Drag to move this section"><span><span class="grip" aria-hidden="true">⠿</span>${esc(sec.name)} ${TPL[sec.template].name !== sec.name ? `<span class="tpl-name">${esc(TPL[sec.template].name)}</span>` : ""}</span>
+        <span class="sec-head-btns">${sec.flip ? `<button type="button" class="btn btn-small" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}
           <button type="button" class="x" data-secmove="${sec.id}:-1" aria-label="Move ${esc(sec.name)} up" ${si === 0 ? "disabled" : ""}>↑</button>
-          <button type="button" class="x" data-secmove="${sec.id}:1" aria-label="Move ${esc(sec.name)} down" ${si === secs.length - 1 ? "disabled" : ""}>↓</button></span></div>
-      ${cards}${fixed}${done}</div>`;
+          <button type="button" class="x" data-secmove="${sec.id}:1" aria-label="Move ${esc(sec.name)} down" ${si === secs.length - 1 ? "disabled" : ""}>↓</button>
+          <button type="button" class="x x-remove" data-secremove="${sec.id}" aria-label="Remove ${esc(sec.name)}" title="Remove section">×</button></span></div>
+      ${cards}${fixed}</div>`;
   }).join("");
-  $("#cards").innerHTML = html || `<p class="hint">Every spot on this page is placed.</p>`;
+  $("#cards").innerHTML = html + `<button type="button" class="add-section" data-filter="templates">+ Add a section from Templates</button>`;
 }
+
+// ── Sections: move, add, remove ──
+const list = () => S.pages[S.page];
+function moveSectionBy(id, dir) {
+  const l = list(), i = l.findIndex((x) => x.uid === id), j = i + dir;
+  if (j < 0 || j >= l.length) return;
+  [l[i], l[j]] = [l[j], l[i]];
+  curSec = id; render(); scrollToSection(id);
+}
+function moveSectionTo(id, targetId, after) {
+  if (id === targetId) return;
+  const l = list(), moving = l.splice(l.findIndex((x) => x.uid === id), 1)[0];
+  const t = l.findIndex((x) => x.uid === targetId);
+  l.splice(after ? t + 1 : t, 0, moving);
+  curSec = id; render(); scrollToSection(id);
+  toast(`Moved ${moving.name}.`);
+}
+// Add a new copy of a template, after the section you last worked on (or where it was dropped).
+function addSection(tplId, at) {
+  const t = TPL[tplId], l = list();
+  const uid = `${tplId}-${Math.random().toString(36).slice(2, 6)}`;
+  const same = l.filter((x) => x.t === tplId).length;
+  const name = same ? `${t.name} ${same + 1}` : t.name;
+  if (at == null) { const i = l.findIndex((x) => x.uid === curSec); at = i >= 0 ? i + 1 : l.length; }
+  l.splice(at, 0, { uid, t: tplId, name });
+  rebuildSlots();
+  curSec = uid; filter = "all"; syncFilter();
+  const first = t.slots[0];
+  selected = openCard = first ? `${uid}.${first.key}` : null;
+  render(); scrollToSection(uid);
+  toast(`Added ${name}. Drag its tag to move it.`);
+}
+// Removing asks first: "Yes, remove" or "No, keep module".
+let pendingRemove = null;
+function askRemove(id) {
+  const sec = pageView(S.page).sections.find((x) => x.id === id);
+  if (!sec) return;
+  pendingRemove = id;
+  const filled = sec.slots.filter((sl) => status(sl.id) !== "empty").length;
+  $("#confirm-title").textContent = `Remove “${sec.name}”?`;
+  $("#confirm-text").textContent = filled ? `This deletes the section and the ${filled} ${filled === 1 ? "spot" : "spots"} you've filled in it. You can't undo this.` : "This deletes the section from the page. You can add it again from Templates.";
+  $("#confirm").hidden = false;
+  $("#confirm-no").focus();
+}
+function closeRemove(yes) {
+  const id = pendingRemove; pendingRemove = null; $("#confirm").hidden = true;
+  if (!yes || !id) return;
+  const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
+  l.splice(i, 1);
+  for (const sid of Object.keys(S.slots)) if (sid.startsWith(id + ".")) delete S.slots[sid];
+  delete S.flip[id];
+  if (curSec === id) curSec = null;
+  if (selected?.startsWith(id + ".")) selected = openCard = null;
+  rebuildSlots(); render(); toast(`Removed ${name}.`);
+}
+function syncFilter() { document.querySelectorAll("[data-filter]").forEach((b) => b.matches(".seg button") && b.setAttribute("aria-pressed", b.dataset.filter === filter)); }
 
 // ── Sources pane ──
 const accepts = (sl, p) => (p.type === "image" && (sl.kind === "image" || sl.kind === "logos")) || (p.type === "text" && (sl.kind === "text" || sl.kind === "list")) || (p.type === "offer" && sl.kind === "offers");
@@ -781,34 +897,16 @@ function fill(id, p, place) {
   save(); render();
 }
 
-// ── Moving sections ──
-function setOrder(list) { S.order[S.page] = list.map((x) => x.id); }
-function moveSectionBy(id, dir) {
-  const page = PAGES.find((p) => p.id === S.page), list = orderedSections(page);
-  const i = list.findIndex((x) => x.id === id), j = i + dir;
-  if (j < 0 || j >= list.length) return;
-  [list[i], list[j]] = [list[j], list[i]];
-  setOrder(list); render(); scrollToSection(id);
-}
-function moveSectionTo(id, targetId, after) {
-  if (id === targetId) return;
-  const page = PAGES.find((p) => p.id === S.page), list = orderedSections(page);
-  const moving = list.splice(list.findIndex((x) => x.id === id), 1)[0];
-  const t = list.findIndex((x) => x.id === targetId);
-  list.splice(after ? t + 1 : t, 0, moving);
-  setOrder(list); render(); scrollToSection(id);
-  toast(`Moved ${moving.name}.`);
-}
 function scrollToSection(id) { requestAnimationFrame(() => document.querySelector(`#site [data-secid="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" })); }
 
 // Spots that count toward "placed": everything on visible sections, except
 // optional spots left empty.
-const countable = (page) => page.sections.filter((x) => !(x.optional && S.sectionsOff[x.id])).flatMap((x) => x.slots.map((y) => y.id))
+const countable = (page) => page.sections.flatMap((x) => x.slots.map((y) => y.id))
   .filter((id) => !SLOTS[id].optional || status(id) !== "empty");
 
 // ── Draw everything ──
 function render() {
-  const page = PAGES.find((p) => p.id === S.page);
+  const page = pageView(S.page);
   $("#site").innerHTML = pageHtml(page);
   $("#site").classList.toggle("guides", S.guides);
   $("#guides").checked = S.guides;
@@ -826,13 +924,13 @@ function render() {
   $("#place-all").disabled = !drafts;
   $("#place-all").textContent = drafts ? `Place all drafts (${drafts})` : "Place all drafts";
   const sl = selected && SLOTS[selected];
-  $("#status-line").innerHTML = sl ? `<span><b>${esc(sl.label)}</b> · ${esc(PAGES.find((p) => p.id === sl.page).sections.find((s) => s.id === sl.section).name)} · ${status(selected)}</span><span class="hint">${esc(sl.source || "")}</span>` : "Pick a card, or click a dotted box, to fill that spot.";
+  $("#status-line").innerHTML = sl ? `<span><b>${esc(sl.label)}</b> · ${esc(pageView(sl.page).sections.find((s) => s.id === sl.section).name)} · ${status(selected)}</span><span class="hint">${esc(sl.source || "")}</span>` : "Pick a card, or click a dotted box, to fill that spot.";
   renderPages();
   requestAnimationFrame(fit);
   save();
 }
 function renderPages() {
-  $("#pages").innerHTML = PAGES.map((p) => {
+  $("#pages").innerHTML = allPages().map((p) => {
     const ids = countable(p);
     const n = ids.filter((id) => status(id) === "placed").length;
     return `<button type="button" class="page-thumb" data-page="${p.id}" ${p.id === S.page ? 'aria-current="page"' : ""}><div class="thumb-box"><div class="site">${pageHtml(p, false)}</div></div><span><b>${esc(p.name)}</b><span class="mono">${n}/${ids.length}</span></span></button>`;
@@ -847,8 +945,11 @@ document.addEventListener("click", (e) => {
   const t = e.target.closest("button, [data-slot], [data-pick], [data-page]");
   if (!t) return;
   const d = t.dataset;
+  if (d.confirmYes != null || d.confirmNo != null) return closeRemove(d.confirmYes != null);
+  if (d.secremove) { askRemove(d.secremove); return; }
+  if (d.addtpl) { addSection(d.addtpl); return; }
   if (d.slot && t.closest("#site")) {
-    selected = d.slot; openCard = d.slot;
+    selected = d.slot; openCard = d.slot; curSec = SLOTS[d.slot].section;
     if (picked && accepts(SLOTS[d.slot], picked)) return fill(d.slot, picked, true);
     render();
     const card = document.querySelector(`[data-card="${d.slot}"]`);
@@ -856,8 +957,8 @@ document.addEventListener("click", (e) => {
     card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     return;
   }
-  if (d.toggle) { openCard = openCard === d.toggle ? null : d.toggle; selected = d.toggle; render(); scrollToSlot(d.toggle); return; }
-  if (d.page) { S.page = d.page; selected = openCard = null; render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  if (d.toggle) { openCard = openCard === d.toggle ? null : d.toggle; selected = d.toggle; curSec = SLOTS[d.toggle].section; render(); scrollToSlot(d.toggle); return; }
+  if (d.page) { S.page = d.page; selected = openCard = curSec = null; render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
   if (d.flip) { S.flip[d.flip] = !S.flip[d.flip]; render(); scrollToSection(d.flip); toast(S.flip[d.flip] ? "Photo on the right." : "Photo on the left."); return; }
   if (d.secmove) { const [id, dir] = d.secmove.split(":"); moveSectionBy(id, +dir); return; }
   if (d.place) { S.slots[d.place].placed = structuredClone(S.slots[d.place].value); toast("Placed in preview."); render(); scrollToSlot(d.place); return; }
@@ -875,7 +976,7 @@ document.addEventListener("click", (e) => {
     render(); return;
   }
   if (d.device) { S.device = d.device; render(); return; }
-  if (d.filter) { filter = d.filter; document.querySelectorAll("[data-filter]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.filter === filter)); renderCards(); return; }
+  if (d.filter) { filter = d.filter; syncFilter(); renderCards(); if (filter === "templates") $("#cc-title").scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
   if (d.src) { srcTab = d.src; document.querySelectorAll("[data-src]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.src === srcTab)); renderSources(); return; }
   if (d.tab) { setTab(d.tab); return; }
 });
@@ -901,7 +1002,6 @@ function refreshCard(id, input) {
 document.addEventListener("change", (e) => {
   const t = e.target;
   if (t.dataset.addoffer && t.value) { S.slots[t.dataset.addoffer].value.push(t.value); render(); }
-  if (t.dataset.secoff) { S.sectionsOff[t.dataset.secoff] = !t.checked; render(); }
   if (t.id === "guides") { S.guides = t.checked; render(); }
   if (t.id === "upload" && t.files[0]) {
     const f = t.files[0];
@@ -930,7 +1030,6 @@ document.addEventListener("dragend", () => { dragging = null; document.querySele
 // A short press without moving is still a click.
 let sd = null, suppressClick = false;
 const ghost = document.createElement("div"); ghost.className = "drag-ghost"; ghost.hidden = true; document.body.append(ghost);
-const AXIS_X = ["sol-cards", "pr-offers", "plat-tags", "cred-logos", "plat-logos"];
 const ITEM_NAME = (slot, i) => {
   const v = S.slots[slot].placed[i];
   if (SLOTS[slot].kind === "offers") return offerById(v)?.title;
@@ -939,14 +1038,16 @@ const ITEM_NAME = (slot, i) => {
 };
 document.addEventListener("pointerdown", (e) => {
   if (e.button > 0 || e.target.closest("button, input, label, select, textarea")) return;
-  const sec = e.target.closest("[data-secdrag]");
-  const item = !sec && e.target.closest("#site [data-item]");
-  const photo = !sec && !item && e.target.closest("#site [data-photoflip]");
-  if (!sec && !item && !photo) return;
+  const tpl = e.target.closest("[data-tpldrag]");
+  const sec = !tpl && e.target.closest("[data-secdrag]");
+  const item = !tpl && !sec && e.target.closest("#site [data-item]");
+  const photo = !tpl && !sec && !item && e.target.closest("#site [data-photoflip]");
+  if (!tpl && !sec && !item && !photo) return;
   e.preventDefault();
   const base = { x: e.clientX, y: e.clientY, started: false, target: null, after: false };
-  if (sec) sd = { ...base, mode: "section", id: sec.dataset.secdrag, scope: sec.closest("#site") ? "#site" : "#cards" };
-  else if (item) { const [slot, i] = item.dataset.item.split(":"); sd = { ...base, mode: "item", slot, from: +i, axis: AXIS_X.includes(slot) ? "x" : "y" }; }
+  if (tpl) sd = { ...base, mode: "template", tpl: tpl.dataset.tpldrag, scope: "#site" };
+  else if (sec) sd = { ...base, mode: "section", id: sec.dataset.secdrag, scope: sec.closest("#site") ? "#site" : "#cards" };
+  else if (item) { const [slot, i] = item.dataset.item.split(":"); sd = { ...base, mode: "item", slot, from: +i, axis: SLOTS[slot].axis === "x" ? "x" : "y" }; }
   else sd = { ...base, mode: "photo", id: photo.dataset.photoflip };
   e.target.setPointerCapture?.(e.pointerId);
 });
@@ -955,9 +1056,11 @@ document.addEventListener("pointermove", (e) => {
   if (!sd.started) {
     if (Math.hypot(e.clientX - sd.x, e.clientY - sd.y) < 6) return;
     sd.started = true;
-    if (sd.mode === "section") {
+    if (sd.mode === "template") {
+      ghost.textContent = "+ " + TPL[sd.tpl].name;
+    } else if (sd.mode === "section") {
       document.querySelectorAll(`[data-secid="${sd.id}"]`).forEach((x) => x.classList.add("is-moving"));
-      ghost.textContent = "⠿ " + (PAGES.flatMap((p) => p.sections).find((x) => x.id === sd.id)?.name || "Section");
+      ghost.textContent = "⠿ " + (list().find((x) => x.uid === sd.id)?.name || "Section");
     } else if (sd.mode === "item") {
       document.querySelector(`#site [data-item="${sd.slot}:${sd.from}"]`)?.classList.add("is-moving");
       ghost.textContent = "⠿ " + ITEM_NAME(sd.slot, sd.from);
@@ -977,13 +1080,14 @@ function clearMarks() {
 // Work out where the dragged thing would land, and show it.
 function aim() {
   const at = document.elementFromPoint(sd.lastX, sd.lastY);
-  if (sd.mode === "section") {
+  if (sd.mode === "section" || sd.mode === "template") {
     const el = at?.closest(`${sd.scope} [data-secid]`);
     document.querySelectorAll(".drop-before, .drop-after").forEach((x) => x !== el && x.classList.remove("drop-before", "drop-after"));
     if (!el) { sd.target = null; return; }
     const r = el.getBoundingClientRect(), after = sd.lastY > r.top + r.height / 2;
     el.classList.toggle("drop-after", after); el.classList.toggle("drop-before", !after);
     sd.target = el.dataset.secid; sd.after = after;
+    if (sd.mode === "template") ghost.textContent = `+ ${TPL[sd.tpl].name} ${after ? "below" : "above"} ${list().find((x) => x.uid === el.dataset.secid)?.name}`;
   } else if (sd.mode === "item") {
     const el = at?.closest(`#site [data-item^="${sd.slot}:"]`);
     document.querySelectorAll(".item-before, .item-after").forEach((x) => x !== el && x.classList.remove("item-before", "item-after"));
@@ -1026,13 +1130,14 @@ function endDrag(commit) {
   if (!d.started) return;
   suppressClick = true; setTimeout(() => (suppressClick = false), 0);
   if (!commit || d.target == null) return;
-  if (d.mode === "section") moveSectionTo(d.id, d.target, d.after);
+  if (d.mode === "template") { const i = list().findIndex((x) => x.uid === d.target); addSection(d.tpl, d.after ? i + 1 : i); }
+  else if (d.mode === "section") moveSectionTo(d.id, d.target, d.after);
   else if (d.mode === "item") moveItem(d.slot, d.from, d.target, d.after);
   else { S.flip[d.id] = d.target === "right"; render(); toast(d.target === "right" ? "Photo on the right." : "Photo on the left."); }
 }
 document.addEventListener("pointerup", () => endDrag(true));
 document.addEventListener("pointercancel", () => endDrag(false));
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") endDrag(false); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (pendingRemove) closeRemove(false); endDrag(false); } });
 const dropTarget = (e) => e.target.closest?.("#site [data-slot], [data-card]");
 document.addEventListener("dragover", (e) => {
   const t = dropTarget(e); if (!t || !dragging) return;
