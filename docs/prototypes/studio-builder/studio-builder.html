@@ -269,6 +269,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .tagline { font-size: 14px; letter-spacing: 0.24em; text-transform: uppercase; font-weight: 700; margin: 0; }
 .logo-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-end; }
 .logo-row img { height: 44px; width: auto; max-width: 200px; object-fit: contain; }
+.cred .tagline { font-size: 16px; line-height: 16px; letter-spacing: 3px; }
 
 .std { padding: 96px 64px; display: flex; flex-direction: column; gap: 48px; }
 .sh { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start; }
@@ -328,6 +329,10 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 /* Tablet-width page: points go back to title beside text (photo sits above). */
 @container (max-width: 1000px) {
   .split { grid-template-columns: 1fr; gap: 32px; }
+  .cred { grid-template-columns: 1fr; padding: 48px 32px; }
+  .cred .tagline { font-size: 14px; line-height: 14px; }
+  .logo-row { justify-content: space-between; }
+  .logo-row img { height: 32px; }
   .split.flip > :first-child { order: 0; }
   .split :is(img, video).photo, .split .slot.photo { aspect-ratio: 4 / 3; }
   .point { grid-template-columns: 1fr 2fr; }
@@ -346,7 +351,9 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .hero-bottom, .stat-card { display: none; }
   .cta { align-self: stretch; justify-content: center; }
   .cred { grid-template-columns: 1fr; padding: 32px 20px; }
-  .logo-row { justify-content: flex-start; display: grid; grid-template-columns: 1fr 1fr; }
+  .cred .tagline { font-size: 12px; line-height: 12px; }
+  .logo-row { justify-content: flex-start; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .logo-row img { height: 20px; object-position: left center; }
   .std, .mail { padding: 64px 20px; }
   .sh, .split, .mail, .point { grid-template-columns: 1fr; }
   .split.flip > :first-child { order: 0; }
