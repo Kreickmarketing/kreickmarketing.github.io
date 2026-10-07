@@ -465,7 +465,138 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .row .field + .field { grid-column: 2; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* ── Side nav (Oct 7): thin rail + one panel, like Figma Sites and Supabase ──
+   Rail: logo menu, Pages, Modules, CMS, Settings; sidebar control at the bottom.
+   The panel is docked (Expanded), opens on click over the page (Collapsed),
+   or opens while the pointer is on the rail (Expand on hover). */
+:root { --rail-w: 64px; --side-w: 280px; }
+html[data-docked="true"] body { padding-left: calc(var(--rail-w) + var(--side-w) + 16px); }
+body { padding-left: calc(var(--rail-w) + 16px); }
+.rail { position: fixed; top: 0; bottom: 0; left: 0; width: var(--rail-w); z-index: 36; background: var(--panel-2); border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 0; }
+.rail-logo { width: 40px; height: 40px; border-radius: 10px; border: 0; padding: 0; background: var(--cm-cherry); color: #fff; display: grid; place-items: center; font: 800 17px/1 var(--f-display); letter-spacing: -0.5px; margin-bottom: 12px; }
+.rail-logo[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--accent); }
+.rail-btn { width: 56px; border: 0; background: none; border-radius: 10px; padding: 6px 0 5px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink-2); font-size: 10.5px; font-weight: 600; }
+.rail-btn svg { width: 22px; height: 22px; padding: 4px; box-sizing: content-box; border-radius: 8px; }
+.rail-btn:hover { color: var(--ink); }
+.rail-btn:hover svg { background: var(--panel); }
+.rail-btn[aria-current="true"] { color: var(--ink); }
+.rail-btn[aria-current="true"] svg { background: var(--accent-soft); color: var(--accent); }
+.rail-spacer { flex: 1; }
+.side { position: fixed; top: 0; bottom: 0; left: var(--rail-w); width: var(--side-w); z-index: 35; background: var(--panel-2); border-right: 1px solid var(--line); display: flex; flex-direction: column; overflow: auto; }
+.side[hidden] { display: none; }
+html[data-docked="false"] .side { box-shadow: 12px 0 32px rgba(0, 0, 0, 0.45); }
+.side-head { padding: 16px 16px 12px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; }
+.side-head h2 { font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.side-head p { margin: 0; font-size: 12px; color: var(--ink-2); }
+.side-close { display: none; }
+.side-sec { padding: 12px 8px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.side-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding: 4px 8px 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.side-row { width: 100%; display: flex; align-items: center; gap: 10px; border: 0; background: none; border-radius: 8px; padding: 7px 8px; text-align: left; color: var(--ink); font-size: 13.5px; min-height: 36px; }
+.side-row:hover:not(:disabled) { background: var(--panel); }
+.side-row[aria-current="true"] { background: var(--panel); box-shadow: inset 2px 0 0 var(--accent); }
+.side-row:disabled { color: var(--ink-3); cursor: default; }
+.side-row .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-row .sub { color: var(--ink-3); font-size: 11.5px; font-family: var(--f-mono); }
+.side-row svg { flex: none; width: 18px; height: 18px; color: var(--ink-2); }
+.side-row .mini { flex: none; width: 56px; height: 36px; border-radius: 4px; overflow: hidden; position: relative; background: var(--cm-clay-light); }
+.side-row .mini > div { position: absolute; top: 0; left: 0; width: 1280px; transform-origin: 0 0; pointer-events: none; }
+.side-row .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--ink-3); }
+.side-row .dot.placed { background: var(--placed); } .side-row .dot.draft { background: var(--draft); }
+.side .hint { padding: 0 8px; }
+.side .btn-wide { width: 100%; }
+
+/* Modules: coloured categories, thumbnails fly out beside the panel */
+.mod-ico { flex: none; width: 40px; height: 40px; border-radius: 9px; display: grid; place-items: center; color: #fff; }
+.mod-ico svg { width: 22px; height: 22px; color: #fff; }
+.fly { position: fixed; top: 0; bottom: 0; left: calc(var(--rail-w) + var(--side-w)); width: 320px; z-index: 34; background: var(--ground); border-right: 1px solid var(--line); box-shadow: 12px 0 32px rgba(0, 0, 0, 0.4); overflow: auto; padding: 16px 12px; display: flex; flex-direction: column; gap: 10px; }
+.fly[hidden] { display: none; }
+.fly .tpl { grid-template-columns: 112px minmax(0, 1fr); gap: 8px 12px; }
+.fly .tpl-thumb { width: 112px; height: 68px; background: var(--panel-2); border-radius: 6px; }
+.fly .tpl .btn { grid-column: 2; justify-self: start; }
+
+/* Popovers: logo menu and sidebar control */
+.pop { position: fixed; z-index: 55; min-width: 240px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5); padding: 6px; display: flex; flex-direction: column; }
+.pop[hidden] { display: none; }
+.pop hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; width: 100%; }
+.pop .side-label { padding-top: 6px; }
+.pop .side-row { font-size: 14px; }
+.pop .check { margin-left: auto; color: var(--accent); }
+.pop a.side-row { text-decoration: none; }
+
+/* CMS and Settings screens (replace the editor in the main area) */
+html[data-view="cms"] #top, html[data-view="cms"] #proto-note, html[data-view="cms"] .tabs-phone, html[data-view="cms"] #panes,
+html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[data-view="settings"] .tabs-phone, html[data-view="settings"] #panes { display: none; }
+.view { padding-block: 16px 64px; }
+.view[hidden] { display: none; }
+.view-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+.view-head h2 { font-size: 18px; font-weight: 700; margin-right: auto; }
+.set-col { max-width: 840px; margin-inline: auto; display: flex; flex-direction: column; gap: 24px; }
+.set-card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.set-card h3 { font-size: 16px; font-weight: 700; }
+.set-card p { margin: 0; }
+.set-field { display: flex; flex-direction: column; gap: 6px; }
+.set-field > span:first-child { font-weight: 600; font-size: 13.5px; }
+.set-field input[type="text"], .set-field textarea, .set-field select { width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.set-field textarea { min-height: 96px; resize: vertical; }
+.set-field small, .set-help { color: var(--ink-3); font-size: 12px; }
+.set-check { display: flex; gap: 10px; align-items: flex-start; }
+.set-check input { accent-color: var(--accent); width: 18px; height: 18px; margin: 1px 0 0; flex: none; }
+.set-check b { display: block; font-weight: 600; }
+.set-check span span { color: var(--ink-3); font-size: 12.5px; }
+.set-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.set-row > span:first-child { min-width: 120px; color: var(--ink-2); }
+.set-img { display: flex; gap: 12px; align-items: center; }
+.set-img img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; background: var(--panel); flex: none; }
+.set-link { color: var(--accent); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+.set-link:hover { text-decoration: underline; }
+.badge { font-family: var(--f-mono); font-size: 11.5px; border-radius: 6px; padding: 2px 8px; border: 1px solid var(--line); color: var(--ink-2); }
+.badge.ok { color: var(--placed); border-color: var(--placed); }
+.badge.wait { color: var(--draft); border-color: var(--draft); }
+.cms-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.cms-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 760px; }
+.cms-table th, .cms-table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.cms-table th { font-weight: 600; color: var(--ink-2); background: var(--panel-2); white-space: nowrap; }
+.cms-table td.num { color: var(--ink-3); font-family: var(--f-mono); width: 40px; }
+.cms-table img { width: 40px; height: 28px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; }
+.cms-table tr:last-child td { border-bottom: 0; }
+.empty-state { border: 1.5px dashed var(--line); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--ink-2); }
+
+/* Phones: the rail becomes a bar along the bottom; panels open as a sheet above it */
+@media (max-width: 760px) {
+  :root { --rail-w: 0px; }
+  body, html[data-docked="true"] body { padding-left: 16px; padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  .rail { top: auto; right: 0; width: auto; height: calc(60px + env(safe-area-inset-bottom, 0px)); flex-direction: row; justify-content: space-around; padding: 4px 4px env(safe-area-inset-bottom, 0px); border-right: 0; border-top: 1px solid var(--line); }
+  .rail-logo { margin: 0; width: 36px; height: 36px; }
+  .rail-spacer, .rail [data-sidebar-menu] { display: none; }
+  .rail-btn { width: auto; flex: 1; }
+  .side { top: 15vh; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; width: auto; border-right: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5); }
+  .side-close { display: inline-flex; }
+  .fly { top: 15vh; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; width: auto; border-radius: 16px 16px 0 0; z-index: 37; }
+  .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+}
 </style>
+
+<nav class="rail" id="rail" aria-label="Studio">
+  <button type="button" class="rail-logo" id="rail-logo" aria-haspopup="menu" aria-expanded="false" aria-label="Sites and dashboard" title="Sites and dashboard">AI</button>
+  <button type="button" class="rail-btn" data-rail="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>Pages</button>
+  <button type="button" class="rail-btn" data-rail="modules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><path d="M17 13v8M13 17h8" stroke-linecap="round"/></svg>Modules</button>
+  <button type="button" class="rail-btn" data-rail="cms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>CMS</button>
+  <button type="button" class="rail-btn" data-rail="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5l2 2.6 3.2-.6.9 3.1 3 1.3-1.2 3 1.2 3-3 1.3-.9 3.1-3.2-.6-2 2.6-2-2.6-3.2.6-.9-3.1-3-1.3 1.2-3-1.2-3 3-1.3.9-3.1 3.2.6z"/></svg>Settings</button>
+  <span class="rail-spacer"></span>
+  <button type="button" class="rail-btn" data-sidebar-menu aria-haspopup="menu" aria-expanded="false" title="Sidebar control" aria-label="Sidebar control"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
+</nav>
+<aside class="side" id="side" aria-label="Panel" hidden></aside>
+<div class="fly" id="fly" hidden></div>
+<div class="pop" id="logo-menu" role="menu" hidden></div>
+<div class="pop" id="sidebar-menu" role="menu" hidden>
+  <div class="side-label">Sidebar control</div><hr>
+  <button type="button" class="side-row" data-sidebar="expanded" role="menuitemradio">Expanded</button>
+  <button type="button" class="side-row" data-sidebar="collapsed" role="menuitemradio">Collapsed</button>
+  <button type="button" class="side-row" data-sidebar="hover" role="menuitemradio">Expand on hover</button>
+</div>
+<section class="view" id="view-cms" hidden></section>
+<section class="view" id="view-settings" hidden></section>
 
 <header class="top" id="top">
   <div class="brand">
@@ -488,7 +619,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
     <div class="meter-bar"><i id="meter-bar" style="width:0"></i></div>
   </div>
 </header>
-<p class="note" id="proto-note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Add sections from <b>Templates</b> (top of the card list) and remove them with <b>× Remove</b>. Drag a section's blue tag (or its name in the card list) to move it. Drag offer cards, selling points, tags and logos to reorder them, and drag the founder photo to the other side to swap it with the text. Nothing here touches the live site.</p>
+<p class="note" id="proto-note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Add sections from <b>Modules</b> (side nav) and remove them with <b>× Remove</b>. Drag a section's blue tag (or its name in the card list) to move it. Drag offer cards, selling points, tags and logos to reorder them, and drag the founder photo to the other side to swap it with the text. Nothing here touches the live site.</p>
 
 <div class="seg tabs-phone" role="tablist" aria-label="Show">
   <button type="button" data-tab="preview" aria-pressed="true">Preview</button>
@@ -510,17 +641,12 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
     </div>
     <div class="status-line" id="status-line">Pick a card, or click a dotted box, to fill that spot.</div>
     <div class="canvas-wrap" id="canvas-wrap"><div class="canvas-scale" id="canvas-scale"><div class="site guides" id="site"></div></div></div>
-    <div class="group-label">Pages <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">Each page has a fixed layout, designed in code. You fill its spots.</span></div>
-    <div class="pages" id="pages"></div>
   </section>
 
   <section class="pane pane-cards" aria-labelledby="cc-title">
     <div class="pane-head">
       <h2 id="cc-title">Content cards · <span id="cc-page">Home</span></h2>
-      <div class="seg" role="group" aria-label="Filter cards">
-        <button type="button" data-filter="all" aria-pressed="true">All</button>
-        <button type="button" data-filter="templates" aria-pressed="false">Templates</button>
-      </div>
+      <button type="button" class="btn btn-small" data-rail-open="modules">+ Add a section</button>
     </div>
     <div class="cards" id="cards"></div>
   </section>
@@ -985,7 +1111,7 @@ function renderCards() {
           <button type="button" class="x x-remove" data-secremove="${sec.id}" aria-label="Remove ${esc(sec.name)}" title="Remove section">×</button></span></div>
       ${cards}${fixed}</div>`;
   }).join("");
-  $("#cards").innerHTML = html + `<button type="button" class="add-section" data-filter="templates">+ Add a section from Templates</button>`;
+  $("#cards").innerHTML = html + `<button type="button" class="add-section" data-rail-open="modules">+ Add a section from Modules</button>`;
 }
 
 // ── Sections: move, add, remove ──
@@ -1117,15 +1243,9 @@ function render() {
   requestAnimationFrame(fit);
   save();
 }
+// Pages now live in the side panel (Pages).
 function renderPages() {
-  $("#pages").innerHTML = allPages().map((p) => {
-    const ids = countable(p);
-    const n = ids.filter((id) => status(id) === "placed").length;
-    return `<div class="page-item"><button type="button" class="page-thumb" data-page="${p.id}" ${p.id === S.page ? 'aria-current="page"' : ""}><div class="thumb-box"><div class="site">${pageHtml(p, false)}</div></div><span><b>${esc(p.name)}</b><span class="mono">${n}/${ids.length}</span></span></button>
-      <span class="page-meta"><a class="page-link" href="${esc(pageUrl(p))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(p).replace(/^https?:\/\//, ""))} ↗</a>${liveChip(p)}</span></div>`;
-  }).join("");
-  // scale thumbs to their box width
-  document.querySelectorAll(".thumb-box").forEach((b) => { const inner = b.firstElementChild; inner.style.transform = `scale(${b.clientWidth / 1280})`; });
+  renderSide();
 }
 
 // ── Events ──
@@ -1723,6 +1843,262 @@ document.addEventListener("keydown", (e) => {
 })();
 new ResizeObserver(() => dv.open && sizeBoards()).observe(document.body);
 document.addEventListener("load", (e) => { if (dv.open && e.target.tagName === "IMG" && e.target.closest("#dv-boards")) sizeBoards(); }, true);
+
+// ── Side nav (Oct 7): rail + panel, like Figma Sites and Supabase ─────────────
+// Rail: logo menu (sites, main dashboard), Pages, Modules, CMS, Settings.
+// Pages and Modules work beside the editor; CMS and Settings replace it.
+// How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
+const UI_KEY = "clearmark-studio-ui";
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general" };
+try { const u = JSON.parse(localStorage.getItem(UI_KEY)); if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k]; } catch {}
+const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set })); } catch {} };
+const isPhone = () => matchMedia("(max-width: 760px)").matches;
+const docked = () => UI.sidebar === "expanded" && UI.open && !isPhone();
+const viewFor = (r) => (r === "cms" || r === "settings" ? r : "editor");
+let NAV_VIEW = viewFor(UI.rail);
+if (UI.sidebar !== "expanded" || isPhone()) { UI.open = false; NAV_VIEW = UI.rail === "settings" || UI.rail === "cms" ? NAV_VIEW : "editor"; }
+const BASE_DOMAIN = "https://clearmark-tan.vercel.app";
+const SETTINGS = () => { S.settings ||= {}; S.settings.site ||= {}; S.settings.pages ||= {}; return S.settings; };
+
+const MOD_ICON = {
+  heroes: '<path d="M3 5h18v14H3z"/><path d="M7 11h10M9 15h6"/>',
+  headings: '<path d="M5 5v14M15 5v14M5 12h10M19 9v10"/>',
+  photo: '<rect x="3" y="5" width="9" height="14" rx="1.5"/><path d="M15 8h6M15 12h6M15 16h4"/>',
+  lists: '<path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  logos: '<circle cx="6" cy="12" r="3"/><rect x="11" y="9" width="5" height="6" rx="1"/><path d="M19 9l2.5 6h-5z"/>',
+  cms: '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
+  forms: '<rect x="3" y="5" width="18" height="5" rx="1.5"/><rect x="3" y="13" width="11" height="5" rx="2.5"/>',
+  mine: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+};
+const svg = (paths, cls = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${paths}</svg>`;
+// Module groups, like Figma's Insert panel. Copies made in Design view go in "My copies".
+function modCats() {
+  const cats = [
+    { id: "heroes", name: "Heroes", color: "var(--cm-cherry)", tpls: ["hero", "page-hero"] },
+    { id: "headings", name: "Headings", color: "var(--aegean)", tpls: ["heading"] },
+    { id: "photo", name: "Photo + text", color: "var(--tangerine-burst)", tpls: ["photo-points", "photo-text", "photo-tags"] },
+    { id: "lists", name: "Points & quotes", color: "var(--iron-moss)", tpls: ["points", "quote"] },
+    { id: "logos", name: "Logos", color: "var(--deep-taupe)", tpls: ["logos"] },
+    { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offers"] },
+    { id: "forms", name: "Forms & embeds", color: "var(--merlot)", tpls: ["mailing", "calendly"] },
+  ];
+  const mine = (S.customTpls || []).map((c) => c.id).filter((id) => TPL[id]);
+  if (mine.length) cats.push({ id: "mine", name: "My copies", color: "var(--iron-pine)", tpls: mine });
+  return cats;
+}
+
+function applyNav() {
+  const html = document.documentElement;
+  html.dataset.docked = docked();
+  html.dataset.view = NAV_VIEW;
+  $("#view-cms").hidden = NAV_VIEW !== "cms";
+  $("#view-settings").hidden = NAV_VIEW !== "settings";
+  document.querySelectorAll("[data-rail]").forEach((b) => b.setAttribute("aria-current", b.dataset.rail === UI.rail));
+  $("#side").hidden = !UI.open;
+  $("#fly").hidden = !(UI.open && UI.rail === "modules" && UI.cat);
+  document.querySelectorAll("[data-sidebar]").forEach((b) => { b.setAttribute("aria-checked", b.dataset.sidebar === UI.sidebar); b.innerHTML = `<span class="dot${b.dataset.sidebar === UI.sidebar ? " placed" : ""}" style="${b.dataset.sidebar === UI.sidebar ? "" : "visibility:hidden"}"></span>${{ expanded: "Expanded", collapsed: "Collapsed", hover: "Expand on hover" }[b.dataset.sidebar]}`; });
+  renderSide();
+  if (NAV_VIEW === "cms") renderCms();
+  if (NAV_VIEW === "settings") renderSettings();
+  requestAnimationFrame(fit);
+}
+const closeX = `<button type="button" class="x side-close" data-nav-close aria-label="Close panel">×</button>`;
+
+function renderSide() {
+  if (!UI.open) return;
+  const el = $("#side");
+  if (UI.rail === "pages") {
+    const page = pageView(S.page);
+    el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>
+        <button type="button" class="btn btn-primary btn-wide" data-nav-publish>${esc($("#publish").textContent)}</button></div>
+      <div class="side-sec"><div class="side-label">Pages</div>${allPages().map((p) => {
+        const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
+        return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span>${liveChip(p)}</button>`;
+      }).join("")}</div>
+      <div class="side-sec"><div class="side-label">Sections · ${esc(page.name)}</div>${page.sections.map((sec) => {
+        const ids = sec.slots.map((s) => s.id).filter((id) => !SLOTS[id].optional || status(id) !== "empty");
+        const n = ids.filter((id) => status(id) === "placed").length;
+        const st = !ids.length || n === ids.length ? "placed" : ids.some((id) => status(id) !== "empty") ? "draft" : "";
+        return `<button type="button" class="side-row" data-navsec="${sec.id}" aria-current="${curSec === sec.id}"><span class="dot ${st}"></span><span class="grow">${esc(sec.name)}</span><span class="sub">${ids.length ? `${n}/${ids.length}` : "fixed"}</span></button>`;
+      }).join("")}<button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`;
+  } else if (UI.rail === "modules") {
+    const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
+    el.innerHTML = `<div class="side-head"><h2>Modules ${closeX}</h2><p>Pick a group, then <b>+ Add</b> or drag a module onto the page. It goes ${after ? `after <b>${esc(after.name)}</b>` : "at the end"} on <b>${esc(pageView(S.page).name)}</b>.</p></div>
+      <div class="side-sec">${modCats().map((c) => `<button type="button" class="side-row" data-modcat="${c.id}" aria-current="${UI.cat === c.id}"><span class="mod-ico" style="background:${c.color}">${svg(MOD_ICON[c.id])}</span><span class="grow">${esc(c.name)}</span><span class="sub">${c.tpls.length}</span>${svg('<path d="m9 6 6 6-6 6"/>')}</button>`).join("")}</div>`;
+    const cat = modCats().find((c) => c.id === UI.cat);
+    $("#fly").innerHTML = cat ? `<div class="side-label" style="padding-inline:4px">${esc(cat.name)} <button type="button" class="x" data-modcat="" aria-label="Close">×</button></div>
+      ${cat.tpls.map((id) => TPL[id]).map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">${tplThumb(t.type)}<div class="tpl-text"><b>${esc(t.name)}</b><span>${esc(t.about)}</span></div><button type="button" class="btn btn-small btn-primary" data-addtpl="${t.id}">+ Add</button></div>`).join("")}` : "";
+  } else if (UI.rail === "cms") {
+    el.innerHTML = `<div class="side-head"><h2>CMS ${closeX}</h2><p>Databases. Cards on your pages pull from these, so an edit shows everywhere the card is used.</p></div>
+      <div class="side-sec"><div class="side-label">Databases</div>
+        ${[["products", "Products", OFFERS.length], ["portfolio", "Portfolio", 0]].map(([id, name, n]) => `<button type="button" class="side-row" data-cmsdb="${id}" aria-current="${NAV_VIEW === "cms" && UI.cms === id}">${svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>')}<span class="grow">${name}</span><span class="sub">${n}</span></button>`).join("")}
+        <button type="button" class="side-row" disabled title="Comes with the CMS step">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">New database</span><span class="sub">soon</span></button></div>`;
+  } else {
+    const row = (id, icon, name, sub = "") => `<button type="button" class="side-row" data-setnav="${id}" aria-current="${NAV_VIEW === "settings" && UI.set === id}">${svg(icon)}<span class="grow">${esc(name)}</span>${sub ? `<span class="sub">${esc(sub)}</span>` : ""}</button>`;
+    el.innerHTML = `<div class="side-head"><h2>Settings ${closeX}</h2><p>For the whole site, or one page at a time.</p></div>
+      <div class="side-sec"><div class="side-label">Site</div>${row("general", '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>', "General")}${row("domains", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/>', "Domain names")}</div>
+      <div class="side-sec"><div class="side-label">Page settings</div>${PAGE_LIST.map((p) => row("page:" + p.id, '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>', p.name, p.path)).join("")}</div>`;
+  }
+}
+
+// ── CMS screen ──
+function usedOn(offerId) {
+  const pages = new Set();
+  for (const p of allPages()) for (const sec of p.sections) for (const sl of sec.slots) if (sl.kind === "offers" && (P(sl.id) || []).includes(offerId)) pages.add(p.name);
+  return [...pages];
+}
+function renderCms() {
+  const back = `<button type="button" class="btn btn-small" data-nav-back>← Editor</button>`;
+  if (UI.cms === "portfolio") {
+    $("#view-cms").innerHTML = `<div class="view-head">${back}<h2>Portfolio</h2><button type="button" class="btn" disabled title="Comes with the CMS step">+ New item</button></div>
+      <div class="empty-state"><b style="color:var(--ink)">No portfolio items yet.</b><br>Case studies will live here, and portfolio cards on your pages will pull from them.</div>`;
+    return;
+  }
+  $("#view-cms").innerHTML = `<div class="view-head">${back}<h2>Products</h2><button type="button" class="btn" disabled title="Comes with the CMS step">+ New item</button><button type="button" class="btn" disabled title="Comes with the CMS step">Edit fields</button></div>
+    <p class="note" style="margin:0 0 16px">These are the offers your <b>Offer cards</b> show. Read-only for now: adding and editing items here is the next Studio step (CMS).</p>
+    <div class="cms-table-wrap"><table class="cms-table"><thead><tr><th></th><th>Title</th><th>Subtitle</th><th>Price</th><th>Price note</th><th>Status</th><th>Placed on</th></tr></thead><tbody>
+      ${OFFERS.map((o, i) => { const u = usedOn(o.id); return `<tr><td class="num">${i + 1}</td><td style="white-space:nowrap"><img src="${esc(o.image)}" alt="">${esc(o.title)}</td><td>${esc(o.sub)}</td><td class="mono">${esc(o.price)}</td><td>${esc(o.note)}</td><td><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></td><td>${u.length ? esc(u.join(", ")) : '<span class="hint">Not on a page</span>'}</td></tr>`; }).join("")}
+    </tbody></table></div>`;
+}
+
+// ── Settings screens ──
+const getSet = (path) => path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), SETTINGS());
+function setSet(path, val) { const ks = path.split("."); let o = SETTINGS(); for (const k of ks.slice(0, -1)) o = (o[k] ||= {}); o[ks.at(-1)] = val; save(); }
+const fText = (path, label, ph, help = "", long = false) => `<label class="set-field"><span>${label}</span>${long ? `<textarea data-set="${path}" placeholder="${esc(ph)}">${esc(getSet(path) || "")}</textarea>` : `<input type="text" data-set="${path}" placeholder="${esc(ph)}" value="${esc(getSet(path) || "")}">`}${help ? `<small>${help}</small>` : ""}</label>`;
+const fCheck = (path, label, help = "", def = false, disabled = false) => { const v = getSet(path); return `<label class="set-check"><input type="checkbox" data-setck="${path}" ${(v ?? def) ? "checked" : ""} ${disabled ? "disabled" : ""}><span><b>${label}</b>${help ? `<span>${help}</span>` : ""}</span></label>`; };
+function fImage(path, label, kind, dims, emptyName) {
+  const v = getSet(path) || "", list = IMAGES.filter((im) => im.kind === kind && !im.src.startsWith("data:"));
+  return `<div class="set-field"><span>${label}</span><div class="set-img">${v ? `<img src="${esc(v)}" alt="">` : `<img alt="" style="visibility:hidden">`}
+    <select data-set="${path}" style="flex:1"><option value="">${esc(emptyName)}</option>${list.map((im) => `<option value="${esc(im.src)}" ${im.src === v ? "selected" : ""}>${esc(im.name)}</option>`).join("")}</select></div><small>Recommended size: ${dims}</small></div>`;
+}
+const siteStatus = () => LIVE_PAGES ? (LIVE_PAGES.length ? `<span class="badge ok">Published · ${LIVE_PAGES.length} ${LIVE_PAGES.length === 1 ? "page" : "pages"} live</span>` : `<span class="badge wait">Not published yet</span>`) : `<span class="badge">Prototype</span>`;
+const SET_NOTE = `<p class="note" style="margin:0">Saved with your draft. These settings reach the live site in a later Studio step (page settings); until then the live site keeps its current title and description.</p>`;
+function renderSettings() {
+  const back = `<button type="button" class="btn btn-small" data-nav-back>← Editor</button>`;
+  const v = $("#view-settings");
+  if (UI.set === "domains") {
+    v.innerHTML = `<div class="view-head">${back}<h2>Domain names</h2></div><div class="set-col">
+      <div class="set-card"><h3>Base domain</h3><p class="set-help">Your site is always available here (Vercel).</p>
+        <a class="set-link" href="${BASE_DOMAIN}" target="_blank" rel="noopener noreferrer">${BASE_DOMAIN.replace("https://", "")} ↗</a>
+        <div class="set-row"><span>Site status</span>${siteStatus()}</div></div>
+      <div class="set-card"><h3>Connected domains</h3><p class="set-help">Domain names are registered at Cirrus Hosting and point to Vercel.</p>
+        <a class="set-link" href="https://clearmark.bz" target="_blank" rel="noopener noreferrer">clearmark.bz ↗</a>
+        <div class="set-row"><span>Domain status</span><span class="badge">Not checked yet</span></div>
+        <div class="set-row"><span>Redirect</span><span class="mono">www.clearmark.bz → clearmark.bz</span></div>
+        <p class="set-help">Checking the status from here (Connected / Needs DNS) needs a Vercel access key, which comes with the Domains step.</p></div></div>`;
+    return;
+  }
+  if (UI.set.startsWith("page:")) {
+    const p = PAGE_LIST.find((x) => x.id === UI.set.slice(5)) || PAGE_LIST[0], base = `pages.${p.id}`;
+    const siteHidden = !!getSet("site.noindex");
+    v.innerHTML = `<div class="view-head">${back}<h2>Page settings · ${esc(p.name)}</h2></div><div class="set-col">${SET_NOTE}
+      <div class="set-card"><h3>General</h3>
+        <div class="set-row"><span>Address</span><a class="set-link" href="${esc(pageUrl(p))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(p).replace(/^https?:\/\//, ""))} ↗</a>${liveChip(p)}</div>
+        ${fText(`${base}.title`, "Page title", p.id === "home" ? getSet("site.title") || "ClearMark" : `${p.name}`, "Shown in the browser tab and in Google, before the site title.")}
+        ${fText(`${base}.description`, "Page description", "Leave empty to use the site description", "One or two sentences for Google and link previews.", true)}
+        ${fCheck(`${base}.noindex`, "Hide this page from search engines", siteHidden ? "The whole site is hidden (Site → General)." : "", siteHidden, siteHidden)}</div>
+      <div class="set-card"><h3>Images</h3>${fImage(`${base}.social`, "Social sharing image", "photo", "1200 × 630", "Use the site's image")}</div></div>`;
+    return;
+  }
+  v.innerHTML = `<div class="view-head">${back}<h2>Site settings</h2></div><div class="set-col">${SET_NOTE}
+    <div class="set-card"><h3>General</h3><div class="set-row"><span>Status</span>${siteStatus()}</div>
+      ${fText("site.title", "Site title", "ClearMark", "Shown after each page title in the browser tab and in Google.")}
+      ${fText("site.description", "Site description", PLAYBOOK.find((x) => x.id === "value").text, "What Google and link previews show when a page has no description of its own.", true)}
+      ${fText("site.language", "Language", "en", "One language code, e.g. en.")}
+      ${fText("site.ga", "Google Analytics ID", "G-XXXXXXXXXX")}
+      ${fCheck("site.noindex", "Hide all pages from search engines")}</div>
+    <div class="set-card"><h3>Accessibility</h3>
+      ${fCheck("site.reducedMotion", "Respect reduced motion", "Visitors who turn off animations on their device see none.", true)}
+      ${fCheck("site.skipLinks", "Include skip links", "Adds a hidden “Skip to content” link for keyboard and screen-reader users.")}</div>
+    <div class="set-card"><h3>Images</h3>
+      ${fImage("site.favicon", "Favicon", "logo", "48 × 48", "ClearMark mark (default)")}
+      ${fImage("site.social", "Social sharing image", "photo", "1200 × 630", "None yet")}</div>
+    <div class="set-card"><h3>Custom code</h3><p class="set-help">Left out on purpose for now: code pasted here would run on every page. When you need ad tracking or analytics, we'll add it with a safety check.</p></div></div>`;
+}
+
+// ── Popovers ──
+function openPop(id, anchor) {
+  const pop = $(id), r = anchor.getBoundingClientRect();
+  closePops(id);
+  if (!pop.hidden) { pop.hidden = true; anchor.setAttribute("aria-expanded", "false"); return; }
+  pop.hidden = false; anchor.setAttribute("aria-expanded", "true");
+  if (isPhone()) { pop.style.left = "8px"; pop.style.top = ""; pop.style.bottom = `${innerHeight - r.top + 8}px`; }
+  else if (id === "#logo-menu") { pop.style.left = `${r.right + 8}px`; pop.style.top = `${r.top}px`; pop.style.bottom = ""; }
+  else { pop.style.left = `${r.right + 8}px`; pop.style.top = ""; pop.style.bottom = `${innerHeight - r.bottom}px`; }
+  pop.querySelector("button, a")?.focus();
+}
+function closePops(except) { for (const [id, btn] of [["#logo-menu", "#rail-logo"], ["#sidebar-menu", "[data-sidebar-menu]"]]) if (id !== except) { $(id).hidden = true; $(btn).setAttribute("aria-expanded", "false"); } }
+const DASH = (LIVE ? "" : BASE_DOMAIN) + "/clrcrm/studio";
+$("#logo-menu").innerHTML = `<div class="side-label">Sites</div>
+  <button type="button" class="side-row" aria-current="true" data-nav-close-pop><span class="rail-logo" style="width:28px;height:28px;font-size:12px;margin:0;border-radius:7px">AI</span><span class="grow">ClearMark</span><span class="check">✓</span></button>
+  <a class="side-row" href="https://kreickmarketing.vercel.app" target="_blank" rel="noopener noreferrer"><span class="rail-logo" style="width:28px;height:28px;font-size:12px;margin:0;border-radius:7px;background:var(--iron-pine)">KM</span><span class="grow">Kreick Marketing<br><span class="sub">Not in Studio yet · view site</span></span>↗</a>
+  <hr>
+  <a class="side-row" href="${DASH}">${svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>')}<span class="grow">Main dashboard</span></a>
+  <a class="side-row" href="${(LIVE ? "" : BASE_DOMAIN)}/clrcrm">${svg('<path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/><circle cx="12" cy="8" r="4"/>')}<span class="grow">Team area (CRM, Playbook)</span></a>
+  <a class="side-row" href="${BASE_DOMAIN}" target="_blank" rel="noopener noreferrer">${svg('<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>')}<span class="grow">View live site</span></a>`;
+
+// ── Events ──
+function railGo(r, fromHover) {
+  if (!fromHover && r === UI.rail && UI.open && viewFor(r) === NAV_VIEW) UI.open = false;
+  else { UI.rail = r; UI.open = true; }
+  if (!fromHover && (viewFor(r) !== "editor" || NAV_VIEW !== "editor")) NAV_VIEW = viewFor(r);
+  if (r !== "modules") UI.cat = null;
+  saveUI(); applyNav();
+  if (!fromHover && NAV_VIEW !== "editor") window.scrollTo({ top: 0 });
+}
+// In Collapsed / Expand-on-hover (and on phones) the panel floats; it closes after you pick something.
+const closeIfFloating = () => { if (!docked() && UI.open) { UI.open = false; UI.cat = null; applyNav(); } };
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, a, [data-page]");
+  if (!t) return;
+  const d = t.dataset;
+  if (t.id === "rail-logo") return openPop("#logo-menu", t);
+  if (d.sidebarMenu != null) return openPop("#sidebar-menu", t);
+  if (d.sidebar) { UI.sidebar = d.sidebar; UI.open = d.sidebar === "expanded"; UI.cat = null; closePops(); saveUI(); applyNav(); toast({ expanded: "Panel stays open.", collapsed: "Panel opens when you click an icon.", hover: "Panel opens when you point at an icon." }[d.sidebar]); return; }
+  if (d.navClosePop != null) return closePops();
+  if (d.rail) return railGo(d.rail, false);
+  if (d.railOpen) { UI.rail = d.railOpen; UI.open = true; UI.cat = null; NAV_VIEW = "editor"; saveUI(); applyNav(); return; }
+  if (d.navClose != null) { UI.open = false; UI.cat = null; applyNav(); return; }
+  if (d.navBack != null) { NAV_VIEW = "editor"; if (UI.rail === "cms" || UI.rail === "settings") UI.rail = "pages"; saveUI(); applyNav(); return; }
+  if (d.navPublish != null) { $("#publish").click(); renderSide(); setTimeout(() => renderSide(), 4100); return; }
+  if (d.modcat != null) { UI.cat = UI.cat === d.modcat || !d.modcat ? null : d.modcat; applyNav(); return; }
+  if (d.cmsdb) { UI.cms = d.cmsdb; NAV_VIEW = "cms"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
+  if (d.setnav) { UI.set = d.setnav; NAV_VIEW = "settings"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
+  if (d.navsec) {
+    const sec = pageView(S.page).sections.find((x) => x.id === d.navsec); if (!sec) return;
+    NAV_VIEW = "editor"; curSec = sec.id; selected = openCard = sec.slots[0]?.id || null;
+    render(); applyNav(); scrollToSection(sec.id); if (isPhone()) setTab("preview"); closeIfFloating(); return;
+  }
+  if (d.page && t.closest("#side")) { NAV_VIEW = "editor"; applyNav(); closeIfFloating(); return; }
+  if (d.addtpl && t.closest("#fly")) { if (isPhone()) setTab("preview"); closeIfFloating(); return; }
+});
+// Clicking outside closes popovers, and a floating panel.
+document.addEventListener("pointerdown", (e) => {
+  if (!e.target.closest(".pop, #rail-logo, [data-sidebar-menu]")) closePops();
+  if (!docked() && UI.open && !e.target.closest(".side, .rail, .fly, .pop, .confirm-backdrop")) { UI.open = false; UI.cat = null; applyNav(); }
+}, true);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closePops(); if (!docked() && UI.open && !pendingRemove) { UI.open = false; UI.cat = null; applyNav(); } } });
+// Expand on hover: point at an icon to open its panel; move away to close it.
+let hoverT = null;
+document.addEventListener("pointerover", (e) => {
+  if (UI.sidebar !== "hover" || isPhone() || e.pointerType === "touch") return;
+  if (e.target.closest(".rail, .side, .fly, .pop")) clearTimeout(hoverT);
+  const b = e.target.closest("[data-rail]");
+  if (b && (b.dataset.rail !== UI.rail || !UI.open)) railGo(b.dataset.rail, true);
+});
+document.addEventListener("pointerout", (e) => {
+  if (UI.sidebar !== "hover" || !UI.open || sd) return;
+  if (e.target.closest(".rail, .side, .fly, .pop") && !e.relatedTarget?.closest?.(".rail, .side, .fly, .pop")) { clearTimeout(hoverT); hoverT = setTimeout(() => { UI.open = false; UI.cat = null; applyNav(); }, 350); }
+});
+// Settings fields save as you type.
+document.addEventListener("input", (e) => { const t = e.target; if (t.dataset.set && t.tagName !== "SELECT") setSet(t.dataset.set, t.value); });
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.dataset.setck) { setSet(t.dataset.setck, t.checked); if (t.dataset.setck === "site.noindex") renderSettings(); }
+  if (t.dataset.set && t.tagName === "SELECT") { setSet(t.dataset.set, t.value); renderSettings(); }
+});
+addEventListener("resize", () => { document.documentElement.dataset.docked = docked(); });
+applyNav();
 
 render();
 </script>
