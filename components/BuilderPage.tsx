@@ -30,11 +30,11 @@ export default function BuilderPage({ page, livePages = [], paths = {} }: { page
           return (
             <section key={sec.id} id={sec.id} className={sec.className}>
               <div>
-                <p className="tagline">Mailing list</p>
+                <p className="tagline" data-slot=".label">{sec.label}</p>
                 {sec.headline && <h2 data-slot=".headline">{sec.headline}</h2>}
                 {sec.intro && <p data-slot=".intro">{sec.intro}</p>}
               </div>
-              <SignupForm />
+              <SignupForm nameLabel={sec.nameLabel} emailLabel={sec.emailLabel} button={sec.button} thanks={sec.thanks} />
             </section>
           );
         }

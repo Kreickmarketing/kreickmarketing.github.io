@@ -27,7 +27,7 @@ const TEMPLATES: Template[] = [
   { id: "offers", type: "offersonly", slots: [s("cards", "offers")] },
   { id: "points", type: "points", slots: [s("points", "list")] },
   { id: "quote", type: "quote", slots: [s("text", "text"), s("by", "text")] },
-  { id: "mailing", type: "mail", slots: [s("headline", "text"), s("intro", "text")] },
+  { id: "mailing", type: "mail", slots: [s("label", "text"), s("headline", "text"), s("intro", "text"), s("name", "text"), s("email", "text"), s("button", "text"), s("thanks", "text")] },
   { id: "page-hero", type: "pagehero", slots: [s("image", "image"), s("headline", "text")] },
   { id: "calendly", type: "calendly", slots: [] },
 ];
@@ -55,7 +55,7 @@ export type BuilderState = {
 // Calendly need real React parts (the sign-up form), so they carry their text instead.
 export type LiveSection =
   | { kind: "html"; id: string; className: string; html: string }
-  | { kind: "mail"; id: string; className: string; headline: string; intro: string }
+  | { kind: "mail"; id: string; className: string; label: string; headline: string; intro: string; nameLabel: string; emailLabel: string; button: string; thanks: string }
   | { kind: "calendly"; id: string; className: string };
 
 export type LivePage = { sections: LiveSection[]; navOverPhoto: boolean };
@@ -147,7 +147,9 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
     if (!tpl || !ID.test(uid)) continue;
     const P = (key: string) => slots[`${uid}.${key}`]?.placed;
     const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}`;
-    if (tpl.type === "mail") sections.push({ kind: "mail", id: uid, className, headline: str(P("headline")), intro: str(P("intro")) });
+    // Mailing list: wording left empty in Studio falls back to the starting words.
+    if (tpl.type === "mail") sections.push({ kind: "mail", id: uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
+      nameLabel: str(P("name")) || "Name", emailLabel: str(P("email")) || "Email", button: str(P("button")) || "Sign up", thanks: str(P("thanks")) });
     else if (tpl.type === "calendly") sections.push({ kind: "calendly", id: uid, className });
     else {
       // A section with nothing placed in it is left off the live page.

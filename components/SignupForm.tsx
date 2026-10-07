@@ -5,25 +5,30 @@ import { joinMailingList, type SignupState } from "@/app/actions";
 
 const initial: SignupState = { status: "idle", message: "" };
 
-export default function SignupForm() {
+// The words can be set in Studio (mailing list section); without them, the defaults below.
+type Words = { nameLabel?: string; emailLabel?: string; button?: string; thanks?: string };
+
+export default function SignupForm({ nameLabel = "Name", emailLabel = "Email", button = "Join the list", thanks }: Words = {}) {
   const [state, action, pending] = useActionState(joinMailingList, initial);
+  // A new sign-up shows Studio's thank-you message; "already on the list" and errors keep their own.
+  const message = state.status === "success" && thanks && state.message !== "You're already on the list." ? thanks : state.message;
 
   return (
     <form action={action} className="signup">
       <label className="field">
-        <span className="text-sm-medium">Name</span>
+        <span className="text-sm-medium">{nameLabel}</span>
         <input name="name" type="text" autoComplete="name" required />
       </label>
       <label className="field">
-        <span className="text-sm-medium">Email</span>
+        <span className="text-sm-medium">{emailLabel}</span>
         <input name="email" type="email" autoComplete="email" required />
       </label>
       <button type="submit" className="button button-dark" disabled={pending}>
-        {pending ? "Sending..." : "Join the list"}
+        {pending ? "Sending..." : button}
       </button>
-      {state.message && (
+      {message && (
         <p role="status" className={`text-sm-normal form-note form-note-${state.status}`}>
-          {state.message}
+          {message}
         </p>
       )}
     </form>

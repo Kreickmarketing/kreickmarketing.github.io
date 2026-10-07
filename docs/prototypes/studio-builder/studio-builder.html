@@ -315,6 +315,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .mail h2 { font-size: 52px; line-height: 1; letter-spacing: -2px; font-weight: 700; margin: 8px 0 16px; }
 .mail p { font-size: 20px; color: var(--cm-iron); margin: 0; }
 .fake-form { display: flex; flex-direction: column; gap: 16px; }
+.mail-thanks { margin: 0; font-size: 14px !important; color: var(--cm-iron); }
+.mail-thanks::before { content: "After sign-up: "; color: var(--cm-taupe); }
 .fake-form div { border: 1px solid var(--cm-clay); border-radius: 8px; padding: 14px 16px; color: var(--cm-taupe); }
 
 .site-footer { background: var(--cm-midnight); color: #fff; padding: 48px 64px; display: flex; justify-content: space-between; align-items: center; gap: 32px; }
@@ -744,9 +746,15 @@ const TEMPLATES = [
     { key: "text", label: "Quote", kind: "text", limit: 200, long: true, source: "Playbook · Supporting quote (needs approval)" },
     { key: "by", label: "Name and title", kind: "text", limit: 60, source: "Playbook · Quote by" },
   ]},
+  // Text with a "def" shows that wording until you change it (so the spot is never blank).
   { id: "mailing", name: "Mailing list", type: "mail", about: "Headline, one line of intro, and the sign-up form.", slots: [
+    { key: "label", label: "Small label", kind: "text", limit: 24, optional: true, def: "Mailing list", source: "One or two words above the headline" },
     { key: "headline", label: "Headline", kind: "text", limit: 32, source: "e.g. “Stay in the loop”" },
     { key: "intro", label: "Intro", kind: "text", limit: 120, long: true, source: "One sentence on what people get" },
+    { key: "name", label: "Name field label", kind: "text", limit: 24, optional: true, def: "Name", source: "e.g. “Your name”" },
+    { key: "email", label: "Email field label", kind: "text", limit: 24, optional: true, def: "Email", source: "e.g. “Work email”" },
+    { key: "button", label: "Button text", kind: "text", limit: 22, optional: true, def: "Sign up", source: "e.g. “Join the list”" },
+    { key: "thanks", label: "Thank-you message", kind: "text", limit: 120, optional: true, def: "Thanks, you're on the list.", about: "Shown after someone signs up.", source: "One short sentence" },
   ]},
   { id: "page-hero", name: "Page hero", type: "pagehero", about: "A shorter photo header for inside pages.", slots: [
     { key: "image", label: "Hero image", kind: "image", source: "Images" },
@@ -944,8 +952,12 @@ const SECTION_HTML = {
       ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}</div>`;
   },
   quote: (sec, k) => `${P(k("text")) ? `<blockquote ${filledAttr(k("text"))}>“${esc(P(k("text")))}”</blockquote>` : slotBox(k("text"), "", "min-height:120px")}${text(k("by"), "cite")}`,
-  mail: (sec, k) => `<div><p class="tagline">Mailing list</p>${text(k("headline"), "h2")}${text(k("intro"), "p")}</div>
-      <div class="fake-form"><div>Name</div><div>Email</div><span class="cta cta-red" style="align-self:flex-start">Sign up</span><span class="chrome-note">The form itself is part of the design, not a spot.</span></div>`,
+  mail: (sec, k) => {
+    // Every word here is a spot; ones you haven't changed show their starting wording.
+    const own = (key, tag, cls = "", style = "") => `<${tag} ${filledAttr(k(key)).replace('class="', `class="${cls} `)}${style ? ` style="${style}"` : ""}>${esc(P(k(key)) || SLOTS[k(key)].def)}</${tag}>`;
+    return `<div>${own("label", "p", "tagline")}${text(k("headline"), "h2")}${text(k("intro"), "p")}</div>
+      <div class="fake-form">${own("name", "div")}${own("email", "div")}${own("button", "span", "cta cta-red", "align-self:flex-start")}${own("thanks", "p", "mail-thanks")}</div>`;
+  },
   pagehero: (sec, k) => { const img = P(k("image")); return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))}${cropAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div><div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}</div>`; },
   story: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photoBox(sec, k("photo"))}${P(k("body")) ? `<p ${filledAttr(k("body")).replace('class="', 'class="body ')} style="font-size:20px;line-height:1.5;color:var(--cm-iron)">${esc(P(k("body")))}</p>` : slotBox(k("body"), "", "min-height:240px")}</div>`,
   points: (sec, k) => P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${slotBox(k("points"), "", "min-height:160px")}</div>`,
@@ -1003,7 +1015,7 @@ function cardBody(id) {
   if (sl.kind === "text") {
     ed = `<div class="field"><label for="in-${id}">Content · up to ${sl.limit} characters</label>${sl.long
       ? `<textarea class="input" id="in-${id}" data-edit="${id}" rows="3">${esc(v)}</textarea>`
-      : `<input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}">`}${counter(v.length, sl.limit)}</div>`;
+      : `<input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}"${sl.def ? ` placeholder="${esc(sl.def)}"` : ""}>`}${counter(v.length, sl.limit)}</div>${sl.def ? `<p class="source">Empty = “${esc(sl.def)}”.</p>` : ""}`;
     // A button: its link is edited right here too.
     const linkId = `${sl.section}.link`;
     if (sl.key === "button" && SLOTS[linkId]) ed += linkEditor(linkId);
