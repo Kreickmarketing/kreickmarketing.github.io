@@ -47,7 +47,7 @@ export type BuilderState = {
   pages?: Record<string, { uid: string; t: string; name?: string }[]>;
   slots?: Record<string, { placed?: unknown }>;
   flip?: Record<string, boolean>;
-  pageList?: { id: string; name?: string; path?: string }[];
+  pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
 };
 
 // One section of a live page. Most are finished HTML; the mailing list and
@@ -146,7 +146,8 @@ export const BUILDER_PAGES = [
   { id: "pricing", name: "Pricing", path: "/pricing" },
   { id: "book", name: "Book a call", path: "/book" },
 ] as const;
-export type BuilderPageInfo = { id: string; name: string; path: string };
+// `unpublished`: Andrew took the page off the site (it stays in Studio as work in progress).
+export type BuilderPageInfo = { id: string; name: string; path: string; unpublished: boolean };
 
 // Addresses Studio pages can't take: the site's own routes.
 export const RESERVED_SLUGS = new Set(["clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"]);
@@ -156,23 +157,34 @@ export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 // unique, safe one-word address. Bad or missing entries fall back to the start list.
 export function pagesOf(state: BuilderState | null | undefined): BuilderPageInfo[] {
   const list = Array.isArray(state?.pageList) ? state!.pageList : null;
-  if (!list) return BUILDER_PAGES.map((p) => ({ ...p }));
+  if (!list) return BUILDER_PAGES.map((p) => ({ ...p, unpublished: false }));
   const out: BuilderPageInfo[] = [], seen = new Set<string>();
   for (const p of list) {
     const id = str(p?.id);
     if (!ID.test(id) || out.some((x) => x.id === id)) continue;
     const name = str(p?.name).slice(0, 60) || id;
-    if (id === "home") { out.push({ id, name, path: "/" }); continue; }
+    const unpublished = p?.unpublished === true;
+    if (id === "home") { out.push({ id, name, path: "/", unpublished }); continue; }
     const slug = str(p?.path).replace(/^\//, "");
     if (!SLUG.test(slug) || slug.length > 60 || RESERVED_SLUGS.has(slug) || seen.has(slug)) continue;
     seen.add(slug);
-    out.push({ id, name, path: "/" + slug });
+    out.push({ id, name, path: "/" + slug, unpublished });
   }
   return out;
 }
 
-// Pages that have something to show in this state (visitors see these once published).
+// Pages visitors can see in this state: not unpublished, and something placed on them.
 export function livePageIds(state: BuilderState | null | undefined): string[] {
   if (!state) return [];
-  return pagesOf(state).filter((p) => (renderLivePage(state, p.id)?.sections.length ?? 0) > 0).map((p) => p.id);
+  return pagesOf(state).filter((p) => !p.unpublished && (renderLivePage(state, p.id)?.sections.length ?? 0) > 0).map((p) => p.id);
+}
+
+// The same state with one page marked unpublished (or back on). Used on both the draft and
+// the published copy, so Unpublish takes the page off the site at once without publishing
+// anything else.
+export function withUnpublished(state: BuilderState | null | undefined, pageId: string, unpublished: boolean): BuilderState {
+  const base: BuilderState = state && typeof state === "object" ? { ...state } : {};
+  const list = Array.isArray(base.pageList) ? base.pageList : BUILDER_PAGES.map((p) => ({ ...p }));
+  base.pageList = list.map((p) => (p?.id === pageId ? { ...p, unpublished } : p));
+  return base;
 }

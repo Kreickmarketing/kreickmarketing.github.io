@@ -23,7 +23,7 @@ export async function getBuilderPage(siteSlug: string, find: { id: string } | { 
     const pages = pagesOf(state);
     const info = "id" in find ? pages.find((p) => p.id === find.id) : pages.find((p) => p.path === find.path);
     const page = info ? renderLivePage(state, info.id) : null;
-    if (!info || !page?.sections.length) return null;
+    if (!info || info.unpublished || !page?.sections.length) return null;
     return { page, name: info.name, livePages: livePageIds(state), paths: Object.fromEntries(pages.map((p) => [p.id, p.path])) };
   } catch {
     return null;

@@ -528,6 +528,28 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
 .crumb b { color: var(--ink); font-weight: 600; }
 .spot-list { display: flex; flex-direction: column; gap: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
 .spot-list .lay-spot { padding-left: 8px; }
+.panes.no-edit { grid-template-columns: minmax(0, 1fr); }
+.panes.no-edit .pane-cards { display: none; }
+.dev-btn { display: inline-grid; place-items: center; padding: 3px 10px !important; }
+.dev-btn svg { width: 18px; height: 18px; }
+.btn-outline { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+.btn-outline:hover:not(:disabled) { border-color: var(--ink-2); background: var(--panel); }
+.pub-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.pub-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pub-row .btn { padding-inline: 8px; }
+.pub-status { display: flex; align-items: center; gap: 8px; font-size: 12px !important; }
+.pub-status .dot, .side-row .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--ink-3); }
+.pub-status .dot.placed, .side-row .dot.placed { background: var(--placed); }
+.pub-status .dot.draft, .side-row .dot.draft { background: var(--draft); }
+[data-blockdrag] { cursor: grab; touch-action: none; user-select: none; }
+[data-block].is-moving { opacity: 0.45; }
+[data-block].drop-before { box-shadow: inset 0 3px 0 var(--accent); }
+[data-block].drop-after { box-shadow: inset 0 -3px 0 var(--accent); }
+.side-resize { position: fixed; top: 0; bottom: 0; left: calc(var(--rail-w) + var(--side-w) - 3px); width: 7px; z-index: 37; cursor: col-resize; touch-action: none; }
+.side-resize:hover, body.is-resizing .side-resize { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+.side-resize[hidden] { display: none; }
+body.is-resizing { cursor: col-resize; user-select: none; }
+.side.will-close { opacity: 0.45; }
 .empty-state { border: 1.5px dashed var(--line); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--ink-2); }
 
 /* Phones: the rail becomes a bar along the bottom; panels open as a sheet above it */
@@ -555,6 +577,7 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
   <button type="button" class="rail-btn" data-sidebar-menu aria-haspopup="menu" aria-expanded="false" title="Sidebar control" aria-label="Sidebar control"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
 </nav>
 <aside class="side" id="side" aria-label="Panel" hidden></aside>
+<div class="side-resize" id="side-resize" role="separator" aria-orientation="vertical" aria-label="Resize panel" title="Drag to resize. Drag far left to close." hidden></div>
 <div class="fly" id="fly" hidden></div>
 <div class="pop" id="logo-menu" role="menu" hidden></div>
 <div class="pop" id="sidebar-menu" role="menu" hidden>
@@ -572,10 +595,8 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
     <p>ClearMark · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span> <button type="button" class="btn btn-small" id="page-edit" data-setnav="page:home">Edit address</button></p>
   </div>
   <div class="top-actions">
-    <button class="btn" id="place-all" type="button" title="Put every spot you've typed into, but not yet placed, onto this page's preview in one go">Place all drafts</button>
     <span class="save-state mono" id="save-state" hidden></span>
     <button class="btn" id="reset" type="button" title="Prototype only: erase everything here and go back to the starting example">Reset prototype</button>
-    <button class="btn btn-primary" id="publish" type="button">Publish</button>
   </div>
   <div class="meter" aria-live="polite">
     <span>Spots placed · this page</span>
@@ -583,7 +604,6 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
     <div class="meter-bar"><i id="meter-bar" style="width:0"></i></div>
   </div>
 </header>
-<p class="note" id="proto-note"><b>Prototype.</b> Pick a layer on the left (or click a dotted box) and fill it in <b>Edit</b>. Drag a section in Layers, or its blue tag in the preview, to move it. Add sections from <b>Modules</b>. Nothing here touches the live site.</p>
 
 <div class="seg tabs-phone" role="tablist" aria-label="Show">
   <button type="button" data-tab="preview" aria-pressed="true">Preview</button>
@@ -595,10 +615,10 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
     <div class="pane-head">
       <h2 id="pv-title">Preview</h2>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <label class="switch"><input type="checkbox" id="guides" checked> Show sections</label>
         <div class="seg" role="group" aria-label="Preview width">
-          <button type="button" data-device="desktop" aria-pressed="true">Desktop</button>
-          <button type="button" data-device="phone" aria-pressed="false">Phone</button>
+          <button type="button" class="dev-btn" data-device="desktop" aria-pressed="true" aria-label="Desktop, 1280 wide" title="Desktop · 1280"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></button>
+          <button type="button" class="dev-btn" data-device="tablet" aria-pressed="false" aria-label="Tablet, 768 wide" title="Tablet · 768"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/></svg></button>
+          <button type="button" class="dev-btn" data-device="phone" aria-pressed="false" aria-label="Phone, 390 wide" title="Phone · 390"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg></button>
         </div>
       </div>
     </div>
@@ -780,7 +800,7 @@ function seed() {
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { pages, pageList: structuredClone(START_PAGES), slots: v, page: "home", flip: {}, device: "desktop", guides: true };
+  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, device: "desktop", guides: true };
 }
 // Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
@@ -790,7 +810,10 @@ const API = "/clrcrm/studio/builder/api";
 const SITE_URL = LIVE ? location.origin : "https://clearmark-tan.vercel.app";
 let LIVE_PAGES = LIVE && Array.isArray(window.__STUDIO_LIVE_PAGES__) ? window.__STUDIO_LIVE_PAGES__ : null;
 const pageUrl = (p) => SITE_URL + p.path;
-const liveChip = (p) => LIVE_PAGES ? `<span class="live-chip${LIVE_PAGES.includes(p.id) ? " is-live" : ""}" title="${LIVE_PAGES.includes(p.id) ? "Visitors see the last published version" : "Publish to put this page on the site"}">${LIVE_PAGES.includes(p.id) ? "Live" : "Not live yet"}</span>` : "";
+// Live = visitors see it (green). Work in progress = not published, or unpublished (yellow).
+// The prototype pretends: S.protoLive marks pages "published" here.
+const pageIsLive = (p) => !p.unpublished && (LIVE ? !!LIVE_PAGES?.includes(p.id) : !!S.protoLive?.[p.id]);
+const liveChip = (p) => `<span class="live-chip${pageIsLive(p) ? " is-live" : ""}" title="${pageIsLive(p) ? "Visitors see the last published version" : "Not on the live site: publish to put it there"}">${pageIsLive(p) ? "Live" : "Work in progress"}</span>`;
 let S;
 if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
@@ -932,7 +955,7 @@ function pageHtml(page, live = true) {
 // ── Preview sizing: draw at 1280 (desktop) or 390 (phone) and shrink to fit ──
 function fit() {
   const wrap = $("#canvas-wrap"), sc = $("#canvas-scale"), site = $("#site");
-  const w = S.device === "phone" ? 390 : 1280;
+  const w = { phone: 390, tablet: 768 }[S.device] || 1280;
   site.style.width = w + "px";
   const avail = wrap.clientWidth - 32;
   const k = Math.min(1, avail / w);
@@ -940,8 +963,8 @@ function fit() {
   sc.style.width = w + "px";
   sc.style.height = site.offsetHeight + "px";
   wrap.style.height = site.offsetHeight * k + 32 + "px";
-  wrap.classList.toggle("phone", S.device === "phone");
-  if (S.device === "phone") sc.style.marginLeft = Math.max(0, (avail - w * k) / 2) + "px"; else sc.style.marginLeft = "0";
+  wrap.classList.toggle("phone", S.device !== "desktop");
+  if (S.device !== "desktop") sc.style.marginLeft = Math.max(0, (avail - w * k) / 2) + "px"; else sc.style.marginLeft = "0";
 }
 
 // ── Content cards ──
@@ -1029,8 +1052,9 @@ function renderCards() {
   } else if (sec) {
     $("#cards").innerHTML = `<p class="crumb"><b>${esc(sec.name)}</b> · ${esc(TPL[sec.template].name)}</p>${sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`}`;
   } else {
-    $("#cards").innerHTML = `<p class="hint" style="margin:0">Pick a layer on the left, or click a dotted box in the preview, to edit it here.</p>`;
+    $("#cards").innerHTML = "";
   }
+  $("#panes").classList.toggle("no-edit", !sec);
 }
 
 // ── Sections: move, add, remove ──
@@ -1116,7 +1140,7 @@ function sourceItems(id) {
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
   return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0"><img src="${esc(o.image)}" alt=""><span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
-const sourcesInner = () => `<div class="side-label">Sources</div>${SRC_GROUPS.map((g) => {
+const sourcesInner = () => `<div class="side-label" data-blockdrag="sources"><span><span class="lay-grip" aria-hidden="true">⠿</span> Sources</span></div>${SRC_GROUPS.map((g) => {
   const open = UI.src.has(g.id);
   return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-srcgroup="${g.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}${svg(g.icon, "lay-ico")}<span class="grow">${g.name}</span><span class="sub">${g.count()}</span></button>
     ${open ? `<div class="src-body">${sourceItems(g.id)}</div>` : ""}</div>`;
@@ -1153,8 +1177,7 @@ const countable = (page) => page.sections.flatMap((x) => x.slots.map((y) => y.id
 function render() {
   const page = pageView(S.page);
   $("#site").innerHTML = pageHtml(page);
-  $("#site").classList.toggle("guides", S.guides);
-  $("#guides").checked = S.guides;
+  $("#site").classList.add("guides");
   $("#page-name").textContent = page.name;
   $("#page-url").href = pageUrl(page); $("#page-url").textContent = pageUrl(page).replace(/^https?:\/\//, "") + " ↗";
   $("#page-live").outerHTML = liveChip(page).replace("<span ", '<span id="page-live" ') || '<span id="page-live" class="live-chip" hidden></span>';
@@ -1169,9 +1192,6 @@ function render() {
   const placed = ids.filter((id) => status(id) === "placed").length;
   $("#meter-num").textContent = `${placed} / ${ids.length}`;
   $("#meter-bar").style.width = ids.length ? (placed / ids.length) * 100 + "%" : "0";
-  const drafts = Object.keys(SLOTS).filter((id) => SLOTS[id].page === S.page && status(id) === "draft" && !overLimit(id)).length;
-  $("#place-all").disabled = !drafts;
-  $("#place-all").textContent = drafts ? `Place all drafts (${drafts})` : "Place all drafts";
   const sl = selected && SLOTS[selected];
   $("#status-line").innerHTML = sl ? `<span><b>${esc(sl.label)}</b> · ${esc(pageView(sl.page).sections.find((s) => s.id === sl.section).name)} · ${status(selected)}</span><span class="hint">${esc(sl.source || "")}</span>` : "Pick a card, or click a dotted box, to fill that spot.";
   renderPages();
@@ -1398,35 +1418,76 @@ document.addEventListener("drop", (e) => {
 });
 
 // Top bar
-$("#place-all").onclick = () => {
-  let n = 0;
-  for (const id in SLOTS) if (SLOTS[id].page === S.page && status(id) === "draft" && !overLimit(id) && !isEmpty(S.slots[id].value)) { S.slots[id].placed = structuredClone(S.slots[id].value); n++; }
-  toast(`Placed ${n} ${n === 1 ? "spot" : "spots"}.`); render();
-};
 let resetArmed = false;
 $("#reset").onclick = () => {
   if (!resetArmed) { resetArmed = true; $("#reset").textContent = "Tap again to reset"; setTimeout(() => { resetArmed = false; $("#reset").textContent = "Reset prototype"; }, 3000); return; }
   resetArmed = false; $("#reset").textContent = "Reset prototype"; askReset();
 };
 function resetAll() { S = seed(); PAGE_LIST = S.pageList; rebuildSlots(); selected = openCard = picked = curSec = null; render(); toast("Back to the starting example."); }
-let publishArmed = false;
-$("#publish").onclick = async () => {
-  if (!LIVE) return toast("Prototype: Publish goes live once this design moves into the real Studio.");
-  if (!publishArmed) { publishArmed = true; $("#publish").textContent = "Tap again to publish"; setTimeout(() => { publishArmed = false; $("#publish").textContent = "Publish"; }, 4000); return; }
-  publishArmed = false; $("#publish").textContent = "Publishing…"; $("#publish").disabled = true;
+// ── Publish · Save · Unpublish (side nav, Pages panel) ──
+// Publish: places every draft, then puts the site live, with this page on it.
+// Save: keeps your work as a draft (work in progress); nothing changes on the live site.
+// Unpublish: takes this page off the live site; it stays here as work in progress.
+let pubArmed = false, unpubArmed = false, pubBusy = "";
+const curPage = () => PAGE_LIST.find((p) => p.id === S.page);
+function placeAllDrafts() {
+  let n = 0;
+  for (const id in SLOTS) if (status(id) === "draft" && !overLimit(id) && !isEmpty(S.slots[id].value)) { S.slots[id].placed = structuredClone(S.slots[id].value); n++; }
+  return n;
+}
+async function apiPost(q) {
+  const res = await fetch(API + q, { method: "POST" });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(j.error || "That didn't work");
+  if (Array.isArray(j.livePages)) LIVE_PAGES = j.livePages;
+  return j;
+}
+const arm = (which) => { if (which === "pub") pubArmed = true; else unpubArmed = true; renderSide(); setTimeout(() => { pubArmed = unpubArmed = false; renderSide(); }, 4000); };
+async function publishPage() {
+  if (pubBusy) return;
+  if (!pubArmed) return arm("pub");
+  pubArmed = false; pubBusy = "publish"; renderSide();
+  const p = curPage(); delete p.unpublished;
+  const n = placeAllDrafts();
   try {
-    if (!(await syncNow())) throw new Error("Couldn't save first");
-    const res = await fetch(API + "?action=publish", { method: "POST" });
-    const j = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(j.error || "Couldn't publish");
-    if (Array.isArray(j.livePages)) { LIVE_PAGES = j.livePages; render(); }
-    toast("Published. The live site shows it within a minute.");
+    if (LIVE) { save(); if (!(await syncNow())) throw new Error("Couldn't save first"); await apiPost("?action=publish"); }
+    else { S.protoLive = { ...(S.protoLive || {}), [p.id]: true }; save(); }
+    toast(`Published${n ? `, with ${n} ${n === 1 ? "draft" : "drafts"} placed` : ""}. ${p.name} is live${LIVE ? " within a minute" : " (prototype: pretend)"}.`);
   } catch (e) { toast(e.message); }
-  $("#publish").textContent = "Publish"; $("#publish").disabled = false;
-};
+  pubBusy = ""; render();
+}
+async function saveWork() {
+  if (pubBusy) return;
+  pubBusy = "save"; renderSide();
+  if (LIVE) toast((await syncNow()) ? "Saved as work in progress. The live site doesn't change until you publish." : "Couldn't save. Trying again…");
+  else { save(); toast("Saved as work in progress. The live site doesn't change until you publish."); }
+  pubBusy = ""; renderSide();
+}
+async function unpublishPage() {
+  const p = curPage();
+  if (pubBusy || !pageIsLive(p)) return;
+  if (p.id === "home") return toast("Home can't be unpublished: the site always needs a front page.");
+  if (!unpubArmed) return arm("unpub");
+  unpubArmed = false; pubBusy = "unpublish"; renderSide();
+  p.unpublished = true;
+  try {
+    if (LIVE) { save(); if (!(await syncNow())) throw new Error("Couldn't save first"); await apiPost(`?action=unpublish&page=${encodeURIComponent(p.id)}`); }
+    else { save(); }
+    toast(`${p.name} is off the live site. It stays here as work in progress.`);
+  } catch (e) { delete p.unpublished; toast(e.message); }
+  pubBusy = ""; render();
+}
+function pubActions(p) {
+  const live = pageIsLive(p);
+  return `<div class="pub-actions">
+    <button type="button" class="btn btn-primary btn-wide" data-pub ${pubBusy ? "disabled" : ""}>${pubBusy === "publish" ? "Publishing…" : pubArmed ? "Tap again to publish" : "Publish"}</button>
+    <div class="pub-row"><button type="button" class="btn btn-outline" data-savework ${pubBusy ? "disabled" : ""} title="Keep your changes as work in progress. Nothing changes on the live site.">${pubBusy === "save" ? "Saving…" : "Save changes"}</button>
+      <button type="button" class="btn btn-outline" data-unpub ${pubBusy || !live || p.id === "home" ? "disabled" : ""} title="${p.id === "home" ? "Home always stays live" : live ? "Take this page off the live site; it stays here" : "This page isn't live"}">${pubBusy === "unpublish" ? "Unpublishing…" : unpubArmed ? "Tap again" : "Unpublish"}</button></div>
+    <p class="pub-status"><span class="dot ${live ? "placed" : "draft"}"></span>${esc(p.name)}: ${live ? "Live" : "Work in progress"}</p></div>`;
+}
+
 if (LIVE) {
   $("#reset").hidden = true;
-  $("#proto-note").innerHTML = "<b>Studio.</b> Changes save on their own. Only what's <b>placed</b> shows on the live site, and only after <b>Publish</b>. Images you upload stay in this browser for now; use the Images in Sources for the live site.";
   $(".brand h1").textContent = "Studio";
 }
 function setTab(tab) { $("#panes").dataset.tab = tab; document.querySelectorAll("[data-tab]").forEach((b) => b.tagName === "BUTTON" && b.setAttribute("aria-pressed", b.dataset.tab === tab)); }
@@ -1439,9 +1500,15 @@ document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.t
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]) };
-try { const u = JSON.parse(localStorage.getItem(UI_KEY)); if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k]; } catch {}
-const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set })); } catch {} };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "sources"], w: 280 };
+try {
+  const u = JSON.parse(localStorage.getItem(UI_KEY));
+  if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k];
+  if (Array.isArray(u?.blocks) && u.blocks.length === 3 && ["pages", "layers", "sources"].every((b) => u.blocks.includes(b))) UI.blocks = u.blocks;
+  if (typeof u?.w === "number") UI.w = Math.min(520, Math.max(220, u.w));
+} catch {}
+document.documentElement.style.setProperty("--side-w", UI.w + "px");
+const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
 const docked = () => UI.sidebar === "expanded" && UI.open && !isPhone();
 const viewFor = (r) => (r === "cms" || r === "settings" ? r : "editor");
@@ -1482,6 +1549,7 @@ function applyNav() {
   $("#view-settings").hidden = NAV_VIEW !== "settings";
   document.querySelectorAll("[data-rail]").forEach((b) => b.setAttribute("aria-current", b.dataset.rail === UI.rail));
   $("#side").hidden = !UI.open;
+  $("#side-resize").hidden = !UI.open || isPhone();
   $("#fly").hidden = !(UI.open && UI.rail === "modules" && UI.cat);
   document.querySelectorAll("[data-sidebar]").forEach((b) => { b.setAttribute("aria-checked", b.dataset.sidebar === UI.sidebar); b.innerHTML = `<span class="dot${b.dataset.sidebar === UI.sidebar ? " placed" : ""}" style="${b.dataset.sidebar === UI.sidebar ? "" : "visibility:hidden"}"></span>${{ expanded: "Expanded", collapsed: "Collapsed", hover: "Expand on hover" }[b.dataset.sidebar]}`; });
   renderSide();
@@ -1496,15 +1564,17 @@ function renderSide() {
   const el = $("#side");
   if (UI.rail === "pages") {
     const page = pageView(S.page);
-    el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>
-        <button type="button" class="btn btn-primary btn-wide" data-nav-publish>${esc($("#publish").textContent)}</button></div>
-      <div class="side-sec"><div class="side-label">Pages <button type="button" class="btn btn-small" data-addpage-open aria-expanded="${UI.adding}">+ Add page</button></div>${UI.adding ? addPageForm() : ""}${allPages().map((p) => {
+    const blocks = {
+      pages: `<div class="side-sec" data-block="pages"><div class="side-label" data-blockdrag="pages"><span><span class="lay-grip" aria-hidden="true">⠿</span> Pages</span> <button type="button" class="btn btn-small" data-addpage-open aria-expanded="${UI.adding}">+ Add page</button></div>${UI.adding ? addPageForm() : ""}${allPages().map((p) => {
         const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
-        return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span>${liveChip(p)}</button>`;
-      }).join("")}</div>
-      <div class="side-sec layers"><div class="side-label">Layers · ${esc(page.name)}</div>${page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")}
-        <button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>
-      <div class="side-sec sources-sec" id="side-sources">${sourcesInner()}</div>`;
+        return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span><span class="dot ${pageIsLive(p) ? "placed" : "draft"}" title="${pageIsLive(p) ? "Live" : "Work in progress"}"></span></button>`;
+      }).join("")}</div>`,
+      layers: `<div class="side-sec layers" data-block="layers"><div class="side-label" data-blockdrag="layers"><span><span class="lay-grip" aria-hidden="true">⠿</span> Layers · ${esc(page.name)}</span></div>${page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")}
+        <button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`,
+      sources: `<div class="side-sec sources-sec" data-block="sources" id="side-sources">${sourcesInner()}</div>`,
+    };
+    el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>${pubActions(curPage())}</div>`
+      + UI.blocks.map((b) => blocks[b]).join("");
   } else if (UI.rail === "modules") {
     const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
     el.innerHTML = `<div class="side-head"><h2>Modules ${closeX}</h2><p>Pick a group, then <b>+ Add</b> or drag a module onto the page. It goes ${after ? `after <b>${esc(after.name)}</b>` : "at the end"} on <b>${esc(pageView(S.page).name)}</b>.</p></div>
@@ -1640,12 +1710,12 @@ function addPage() {
   const err = !name ? "Give the page a name." : slugProblem(slug);
   if (err) { $("#np-err").textContent = err; return; }
   let id = slug.slice(0, 50); while (PAGE_LIST.some((p) => p.id === id) || S.pages[id]) id = `${slug.slice(0, 50)}-${Math.random().toString(36).slice(2, 5)}`;
-  S.pageList.push({ id, name, path: "/" + slug });
+  S.pageList.push({ id, name, path: "/" + slug, unpublished: true });
   S.pages[id] = START_WITH[$("#np-start").value].map((t) => ({ uid: `${t}-${Math.random().toString(36).slice(2, 6)}`, t, name: TPL[t].name }));
   rebuildSlots();
   UI.adding = false; NAV_VIEW = "editor"; S.page = id; selected = openCard = curSec = null;
   render(); applyNav(); window.scrollTo({ top: 0 });
-  toast(`Added ${name}. It goes live at /${slug} when you publish.`);
+  toast(`Added ${name} as work in progress. It goes live at /${slug} when you publish it.`);
 }
 let deleteArmed = null;
 function deletePage(id) {
@@ -1722,7 +1792,9 @@ document.addEventListener("click", (e) => {
   if (d.railOpen) { UI.rail = d.railOpen; UI.open = true; UI.cat = null; NAV_VIEW = "editor"; saveUI(); applyNav(); return; }
   if (d.navClose != null) { UI.open = false; UI.cat = null; applyNav(); return; }
   if (d.navBack != null) { NAV_VIEW = "editor"; if (UI.rail === "cms" || UI.rail === "settings") UI.rail = "pages"; saveUI(); applyNav(); return; }
-  if (d.navPublish != null) { $("#publish").click(); renderSide(); setTimeout(() => renderSide(), 4100); return; }
+  if (d.pub != null) return publishPage();
+  if (d.savework != null) return saveWork();
+  if (d.unpub != null) return unpublishPage();
   if (d.modcat != null) { UI.cat = UI.cat === d.modcat || !d.modcat ? null : d.modcat; applyNav(); return; }
   if (d.cmsdb) { UI.cms = d.cmsdb; NAV_VIEW = "cms"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
   if (d.setnav) { UI.set = d.setnav; NAV_VIEW = "settings"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
@@ -1777,6 +1849,49 @@ document.addEventListener("change", (e) => {
   }
 });
 addEventListener("resize", () => { document.documentElement.dataset.docked = docked(); });
+
+// Move Pages, Layers and Sources above or below each other: drag a block by its title.
+let bd = null;
+document.addEventListener("pointerdown", (e) => {
+  const h = e.target.closest("#side [data-blockdrag]");
+  if (!h || e.button > 0 || e.target.closest("button, input, select")) return;
+  bd = { id: h.dataset.blockdrag, y: e.clientY, started: false };
+});
+document.addEventListener("pointermove", (e) => {
+  if (!bd) return;
+  if (!bd.started) { if (Math.abs(e.clientY - bd.y) < 6) return; bd.started = true; document.querySelector(`#side [data-block="${bd.id}"]`)?.classList.add("is-moving"); document.body.classList.add("is-dragging"); }
+  document.querySelectorAll("#side [data-block]").forEach((x) => x.classList.remove("drop-before", "drop-after"));
+  const el = document.elementFromPoint(e.clientX, e.clientY)?.closest("#side [data-block]");
+  bd.target = null;
+  if (el && el.dataset.block !== bd.id) { const r = el.getBoundingClientRect(), after = e.clientY > r.top + r.height / 2; el.classList.add(after ? "drop-after" : "drop-before"); bd.target = el.dataset.block; bd.after = after; }
+});
+document.addEventListener("pointerup", () => {
+  if (!bd) return;
+  const d = bd; bd = null; document.body.classList.remove("is-dragging");
+  if (!d.started) return;
+  if (d.target) { const o = UI.blocks.filter((x) => x !== d.id); const i = o.indexOf(d.target); o.splice(d.after ? i + 1 : i, 0, d.id); UI.blocks = o; saveUI(); }
+  renderSide();
+});
+
+// Resize the panel by dragging its right edge. Past the narrowest size, letting go closes it.
+const SIDE_MIN = 220, SIDE_MAX = 520, SIDE_CLOSE = SIDE_MIN - 70;
+let rz = null;
+$("#side-resize").addEventListener("pointerdown", (e) => { if (e.button > 0) return; e.preventDefault(); rz = { x: e.clientX, w: UI.w, now: UI.w }; $("#side-resize").setPointerCapture(e.pointerId); document.body.classList.add("is-resizing"); });
+$("#side-resize").addEventListener("pointermove", (e) => {
+  if (!rz) return;
+  rz.now = rz.w + (e.clientX - rz.x);
+  document.documentElement.style.setProperty("--side-w", Math.min(SIDE_MAX, Math.max(SIDE_MIN, rz.now)) + "px");
+  $("#side").classList.toggle("will-close", rz.now < SIDE_CLOSE);
+  fit();
+});
+const endResize = () => {
+  if (!rz) return;
+  const w = rz.now; rz = null; document.body.classList.remove("is-resizing"); $("#side").classList.remove("will-close");
+  if (w < SIDE_CLOSE) { document.documentElement.style.setProperty("--side-w", UI.w + "px"); UI.open = false; UI.cat = null; applyNav(); toast("Panel closed. Click an icon on the left to open it again."); return; }
+  UI.w = Math.round(Math.min(SIDE_MAX, Math.max(SIDE_MIN, w))); saveUI(); fit();
+};
+$("#side-resize").addEventListener("pointerup", endResize);
+$("#side-resize").addEventListener("pointercancel", endResize);
 applyNav();
 
 render();
