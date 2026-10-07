@@ -594,6 +594,13 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .src-img .im { position: relative; }
 .src-img .im video { width: 100%; height: 100%; object-fit: cover; }
 .upload small { display: block; color: var(--ink-3); font-size: 10.5px; }
+.upload.is-busy { border-style: solid; border-color: var(--accent); color: var(--ink); text-align: left; gap: 8px; }
+.up-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-bar { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.up-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--accent); transition: width 0.2s ease; }
+.up-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.up-row small { color: var(--ink-2); }
+.up-row .btn { padding: 2px 10px; font-size: 11px; }
 .crop-frame video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 .video-title { font-size: 40px; line-height: 1.1; letter-spacing: -1.5px; font-weight: 300; margin: 0; }
 .video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--cm-midnight); display: grid; place-items: center; }
@@ -1333,7 +1340,7 @@ const SRC_GROUPS = [
 ];
 function sourceItems(id) {
   if (id === "images") return `<div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im">${isVideo(im.src) ? `<video src="${esc(im.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(im.src)}" alt="">`}</div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
-      <label class="upload" for="upload">+ Upload an image or video${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`;
+      ${UP ? upBox() : `<label class="upload" for="upload">+ Upload an image or video${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`}`;
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
   return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0">${o.image ? `<img src="${esc(o.image)}" alt="">` : `<span class="src-noimg"></span>`}<span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
@@ -1521,7 +1528,27 @@ document.addEventListener("change", (e) => {
 // with a one-time link from the Studio API, and remembers it in the draft (S.media) so it
 // stays in Sources. The prototype keeps uploads in this browser only.
 const MB = 1048576;
+// The upload in progress: { name, loaded, total, stop }. While set, Sources shows a progress
+// bar (with Cancel) in place of the upload box, so only one file goes up at a time.
+let UP = null;
+const mb = (n) => (n / MB).toFixed(n < 10 * MB ? 1 : 0);
+function upBox() {
+  const pct = UP.total ? Math.round((UP.loaded / UP.total) * 100) : 0;
+  return `<div class="upload is-busy" role="status" aria-live="polite"><span class="up-name">${UP.saving ? "Saving" : "Uploading"} ${esc(UP.name)}</span><div class="up-bar" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div><div class="up-row"><small>${pct}% · ${mb(UP.loaded)} of ${mb(UP.total)} MB</small>${UP.saving ? "" : `<button type="button" class="btn" data-up-cancel>Cancel</button>`}</div></div>`;
+}
+// Update the bar in place (no full redraw on every progress tick).
+function upPaint() {
+  const box = document.querySelector("#side .upload.is-busy");
+  if (!box || !UP) return renderSources();
+  const pct = UP.total ? Math.round((UP.loaded / UP.total) * 100) : 0;
+  box.querySelector(".up-bar i").style.width = pct + "%";
+  box.querySelector(".up-bar").setAttribute("aria-valuenow", pct);
+  box.querySelector(".up-row small").textContent = `${pct}% · ${mb(UP.loaded)} of ${mb(UP.total)} MB`;
+}
+const upDone = () => { UP = null; renderSources(); };
+document.addEventListener("click", (e) => { if (e.target.closest?.("[data-up-cancel]") && UP) { UP.stop?.(); upDone(); toast("Upload cancelled."); } });
 async function uploadMedia(f) {
+  if (UP) return toast("One upload at a time: wait for this one to finish.");
   const video = f.type.startsWith("video/");
   if (video && !/^video\/(mp4|webm)$/.test(f.type)) return toast("Videos need to be MP4 or WebM.");
   if (!video && !/^image\/(jpeg|png|webp|gif|avif)$/.test(f.type)) return toast("Images need to be JPG, PNG, WebP, GIF or AVIF.");
@@ -1530,24 +1557,42 @@ async function uploadMedia(f) {
   const add = (src, keep) => {
     IMAGES.unshift({ id: "up-" + Date.now(), src, name: f.name, kind: video ? "video" : "photo" });
     if (keep) { (S.media ||= []).unshift({ src, name: f.name.slice(0, 80), kind: video ? "video" : "photo" }); save(); }
-    UI.src.add("images"); renderSources();
+    UI.src.add("images"); UP = null; renderSources();
     toast(`Added to Images & video. Drag it onto a photo, a background or a Video module.${big}`);
   };
+  UP = { name: f.name, loaded: 0, total: f.size };
+  UI.src.add("images"); renderSources();
   if (!LIVE) {
-    if (!video && f.size > 3e6) return toast("Pick an image under 3 MB for the prototype.");
-    if (video) return add(URL.createObjectURL(f), false);
-    const r = new FileReader(); r.onload = () => add(r.result, false); r.readAsDataURL(f); return;
+    // Prototype: the file is read into this browser; the bar shows the read.
+    if (!video && f.size > 3e6) { upDone(); return toast("Pick an image under 3 MB for the prototype."); }
+    const r = new FileReader();
+    UP.stop = () => r.abort();
+    r.onprogress = (ev) => { if (UP && ev.lengthComputable) { UP.loaded = ev.loaded; upPaint(); } };
+    r.onload = () => { if (!UP) return; UP.loaded = f.size; upPaint(); add(video ? URL.createObjectURL(f) : r.result, false); };
+    r.onerror = () => { upDone(); toast("Couldn't read that file."); };
+    if (video) r.readAsArrayBuffer(f); else r.readAsDataURL(f);
+    return;
   }
-  toast(`Uploading ${f.name}…`);
   try {
     const res = await fetch(API + "?action=upload-url", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: f.type, size: f.size }) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j.error || "Couldn't start the upload");
+    if (!UP) return;  // cancelled meanwhile
     const fd = new FormData(); fd.append("cacheControl", "31536000"); fd.append("", f);
-    const up = await fetch(j.uploadUrl, { method: "PUT", body: fd, headers: { "x-upsert": "false" } });
-    if (!up.ok) throw new Error("The upload didn't finish. Try again.");
+    // XMLHttpRequest (not fetch) so the bar can follow the upload.
+    await new Promise((ok, fail) => {
+      const x = new XMLHttpRequest();
+      UP.stop = () => x.abort();
+      x.open("PUT", j.uploadUrl); x.setRequestHeader("x-upsert", "false");
+      x.upload.onprogress = (ev) => { if (UP && ev.lengthComputable) { UP.loaded = Math.min(f.size, ev.loaded); upPaint(); } };
+      x.upload.onload = () => { if (UP) { UP.loaded = f.size; UP.saving = true; renderSources(); } };
+      x.onload = () => (x.status >= 200 && x.status < 300 ? ok() : fail(new Error("The upload didn't finish. Try again.")));
+      x.onerror = () => fail(new Error("The upload stopped: check your connection and try again."));
+      x.onabort = () => fail(null);
+      x.send(fd);
+    });
     add(j.publicUrl, true);
-  } catch (e) { toast(e.message); }
+  } catch (e) { if (UP) upDone(); if (e) toast(e.message); }
 }
 
 // Drag and drop from Sources onto a card (draft) or a dotted box (placed).
