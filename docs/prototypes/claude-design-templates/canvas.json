@@ -22,6 +22,97 @@
       "x": 1360,
       "y": 12000
     },
+    "card_1120.dc.html": {
+      "h": 800,
+      "title": "card \u00b7 1120 \u00d7 800",
+      "w": 1120,
+      "x": 1040,
+      "y": 15300
+    },
+    "card_1280.dc.html": {
+      "h": 800,
+      "title": "card \u00b7 1280 \u00d7 800",
+      "w": 1280,
+      "x": 0,
+      "y": 16220
+    },
+    "card_1440.dc.html": {
+      "h": 800,
+      "title": "card \u00b7 1440 \u00d7 800",
+      "w": 1440,
+      "x": 1360,
+      "y": 16220
+    },
+    "card_160.dc.html": {
+      "h": 240,
+      "title": "card \u00b7 160 \u00d7 240",
+      "w": 160,
+      "x": 0,
+      "y": 13060
+    },
+    "card_1600.dc.html": {
+      "h": 960,
+      "title": "card \u00b7 1600 \u00d7 960",
+      "w": 1600,
+      "x": 0,
+      "y": 17140
+    },
+    "card_1760.dc.html": {
+      "h": 960,
+      "title": "card \u00b7 1760 \u00d7 960",
+      "w": 1760,
+      "x": 0,
+      "y": 18220
+    },
+    "card_1920.dc.html": {
+      "h": 960,
+      "title": "card \u00b7 1920 \u00d7 960",
+      "w": 1920,
+      "x": 0,
+      "y": 19300
+    },
+    "card_320.dc.html": {
+      "h": 480,
+      "title": "card \u00b7 320 \u00d7 480",
+      "w": 320,
+      "x": 240,
+      "y": 13060
+    },
+    "card_480.dc.html": {
+      "h": 640,
+      "title": "card \u00b7 480 \u00d7 640",
+      "w": 480,
+      "x": 0,
+      "y": 14220
+    },
+    "card_640.dc.html": {
+      "h": 640,
+      "title": "card \u00b7 640 \u00d7 640",
+      "w": 640,
+      "x": 560,
+      "y": 14220
+    },
+    "card_800.dc.html": {
+      "h": 960,
+      "title": "card \u00b7 800 \u00d7 960",
+      "w": 800,
+      "x": 1280,
+      "y": 14220
+    },
+    "card_960.dc.html": {
+      "h": 800,
+      "title": "card \u00b7 960 \u00d7 800",
+      "w": 960,
+      "x": 0,
+      "y": 15300
+    },
+    "card_image-text.dc.html": {
+      "h": 1060,
+      "title": "card \u00b7 image-text 352",
+      "w": 352,
+      "x": 640,
+      "y": 13060
+    },
     "footer_desktop.dc.html": {
       "h": 380,
       "title": "footer \u00b7 desktop 1280",
@@ -223,6 +314,13 @@
     "view": "canvas"
   },
   "notes": {
+    "cards-note": {
+      "fill": "orange",
+      "text": "The 13 cards from the design system\n\nMobile: Card-160, Card-320, Card-Image-Text. Tablet to desktop: Card-480 to Card-1920 (photo fills the card; wide cards put the words in a see-through panel).\n\nFilled with the original sample (CPO\u2192CIO). Each element's data-spot is its content field: ct100, ct200, ct300, cs, cb, tags, cp, cpdt, image (CI-01).\n\nSame as the cards on /design-system (components/Card.tsx).",
+      "w": 380,
+      "x": 2680,
+      "y": 13060
+    },
     "foot-note": {
       "fill": "orange",
       "text": "Footer: same on every page\n\nDesktop: two rows split by a white hairline, with a back-to-top button. Tablet and phone: one column, no back-to-top.",
@@ -260,6 +358,14 @@
       "w": 240,
       "x": 0,
       "y": 11740
+    },
+    "t-cards": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Cards",
+      "w": 240,
+      "x": 0,
+      "y": 12800
     },
     "t-footer": {
       "kind": "title1",
@@ -364,7 +470,20 @@
     "footer_tablet.dc.html",
     "footer_phone.dc.html",
     "buttons_desktop.dc.html",
-    "buttons_phone.dc.html"
+    "buttons_phone.dc.html",
+    "card_160.dc.html",
+    "card_320.dc.html",
+    "card_image-text.dc.html",
+    "card_480.dc.html",
+    "card_640.dc.html",
+    "card_800.dc.html",
+    "card_960.dc.html",
+    "card_1120.dc.html",
+    "card_1280.dc.html",
+    "card_1440.dc.html",
+    "card_1600.dc.html",
+    "card_1760.dc.html",
+    "card_1920.dc.html"
   ],
   "pages": [],
   "title": "ClearMark Studio Templates",
