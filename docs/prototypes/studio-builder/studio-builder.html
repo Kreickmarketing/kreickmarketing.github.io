@@ -60,7 +60,9 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 .note b { color: var(--ink); }
 
 /* ── Panes ── */
-.panes { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr) minmax(240px, 0.7fr); gap: 16px; padding-block: 16px 32px; align-items: start; }
+.panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 16px; padding-block: 16px 32px; align-items: start; }
+.pane-preview { grid-row: 1 / span 2; }
+.pane-cards, .pane-sources { grid-column: 2; }
 .pane { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .pane-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; min-height: 32px; }
 .pane-head h2 { font-size: 15px; font-weight: 700; }
@@ -356,8 +358,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 
 /* ── Studio on smaller screens ── */
 @media (max-width: 1180px) {
-  .panes { grid-template-columns: minmax(0, 1.3fr) minmax(300px, 1fr); }
-  .pane-sources { grid-column: 1 / -1; }
   .sources { position: static; max-height: none; }
   .src-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
 }
@@ -474,6 +474,39 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 .set-field .slug-row input { border: 0; background: none; padding-left: 2px; min-width: 0; }
 .slug-err { color: var(--bad) !important; }
 .side-label .btn { text-transform: none; letter-spacing: 0; }
+.layers { gap: 0; }
+.lay-sec { border-radius: 8px; }
+.lay-sec.is-open { background: color-mix(in srgb, var(--panel) 55%, transparent); }
+.lay-sec.drop-before { box-shadow: 0 -3px 0 var(--accent); }
+.lay-sec.drop-after { box-shadow: 0 3px 0 var(--accent); }
+.lay-sec.is-moving { opacity: 0.45; }
+.lay-row { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 8px; border-radius: 8px; font-size: 13.5px; cursor: pointer; user-select: none; }
+.lay-row:hover { background: var(--panel); }
+.lay-row[aria-current="true"] { background: var(--accent-soft); }
+.lay-head { touch-action: none; font-weight: 600; }
+.lay-row .grow { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lay-row .sub { color: var(--ink-3); font-size: 11.5px; font-family: var(--f-mono); font-weight: 400; }
+.lay-row .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--ink-3); }
+.lay-row .dot.placed { background: var(--placed); } .lay-row .dot.draft { background: var(--draft); }
+.lay-grip { color: var(--ink-3); width: 10px; letter-spacing: -1px; cursor: grab; }
+.lay-chev { width: 14px; height: 14px; flex: none; color: var(--ink-3); transition: transform 0.15s; }
+.lay-sec.is-open .lay-chev { transform: rotate(90deg); }
+.lay-spot { padding-left: 40px; color: var(--ink-2); font-size: 13px; }
+.lay-spot[aria-current="true"] { color: var(--ink); }
+.lay-ico { width: 15px; height: 15px; flex: none; color: var(--ink-3); }
+.lay-kind { font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+.lay-tools { display: none; gap: 2px; }
+.lay-row:hover .lay-tools, .lay-row:focus-within .lay-tools { display: inline-flex; }
+.lay-btn { border: 0; background: none; color: var(--ink-2); width: 24px; height: 24px; border-radius: 6px; padding: 0; font-size: 13px; }
+.lay-btn:hover:not(:disabled) { background: var(--panel-2); color: var(--ink); }
+.lay-btn:disabled { opacity: 0.3; }
+.lay-x:hover { color: var(--bad) !important; }
+.touch-only { display: none; }
+@media (hover: none) { .lay-tools { display: inline-flex; } .touch-only { display: inline-block; } }
+.crumb { margin: 0; font-size: 12px; color: var(--ink-3); }
+.crumb b { color: var(--ink); font-weight: 600; }
+.spot-list { display: flex; flex-direction: column; gap: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
+.spot-list .lay-spot { padding-left: 8px; }
 .empty-state { border: 1.5px dashed var(--line); border-radius: 12px; padding: 48px 24px; text-align: center; color: var(--ink-2); }
 
 /* Phones: the rail becomes a bar along the bottom; panels open as a sheet above it */
@@ -529,11 +562,11 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
     <div class="meter-bar"><i id="meter-bar" style="width:0"></i></div>
   </div>
 </header>
-<p class="note" id="proto-note"><b>Prototype.</b> Try it: click a dotted box, type into its card, press <b>Place in preview</b>. Drag images, Playbook lines and offers from Sources onto a card or straight onto a dotted box. Add sections from <b>Modules</b> (side nav) and remove them with <b>× Remove</b>. Drag a section's blue tag (or its name in the card list) to move it. Drag offer cards, selling points, tags and logos to reorder them, and drag the founder photo to the other side to swap it with the text. Nothing here touches the live site.</p>
+<p class="note" id="proto-note"><b>Prototype.</b> Pick a layer on the left (or click a dotted box) and fill it in <b>Edit</b>. Drag a section in Layers, or its blue tag in the preview, to move it. Add sections from <b>Modules</b>. Nothing here touches the live site.</p>
 
 <div class="seg tabs-phone" role="tablist" aria-label="Show">
   <button type="button" data-tab="preview" aria-pressed="true">Preview</button>
-  <button type="button" data-tab="cards" aria-pressed="false">Cards</button>
+  <button type="button" data-tab="cards" aria-pressed="false">Edit</button>
   <button type="button" data-tab="sources" aria-pressed="false">Sources</button>
 </div>
 
@@ -555,8 +588,7 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 
   <section class="pane pane-cards" aria-labelledby="cc-title">
     <div class="pane-head">
-      <h2 id="cc-title">Content cards · <span id="cc-page">Home</span></h2>
-      <button type="button" class="btn btn-small" data-rail-open="modules">+ Add a section</button>
+      <h2 id="cc-title">Edit <span id="cc-page" hidden>Home</span></h2>
     </div>
     <div class="cards" id="cards"></div>
   </section>
@@ -976,30 +1008,20 @@ function renderTemplates() {
       <button type="button" class="btn btn-small btn-primary" data-addtpl="${t.id}">+ Add</button></div>`).join("")}</div>`;
 }
 
+// The Edit pane shows one spot at a time: the one picked in Layers (left) or in the preview.
 function renderCards() {
-  if (filter === "templates") return renderTemplates();
-  const page = pageView(S.page);
-  const secs = page.sections;
-  const html = secs.map((sec, si) => {
-    const cards = sec.slots.map((sl) => {
-      const s = status(sl.id), isOpen = openCard === sl.id;
-      return `<div class="ccard is-${s}${selected === sl.id ? " is-selected" : ""}" data-card="${sl.id}" ${isOpen ? "open-card" : ""}>
-        <button type="button" class="ccard-head" data-toggle="${sl.id}" aria-expanded="${isOpen}">
-          <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
-          <span class="ccard-title">${esc(sl.label)}</span>${sl.optional ? `<span class="pill pill-opt">Optional</span>` : ""}
-          <span class="chip">${KIND_CHIP(sl)}</span><span class="pill pill-${s}">${s[0].toUpperCase() + s.slice(1)}</span>
-        </button>${isOpen ? `<div class="ccard-body">${cardBody(sl.id)}</div>` : ""}</div>`;
-    }).join("");
-    const fixed = sec.slots.length ? "" : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`;
-    return `<div class="sec-group${curSec === sec.id ? " is-current" : ""}" data-secid="${sec.id}">
-      <div class="group-label sec-head" data-secdrag="${sec.id}" title="Drag to move this section"><span><span class="grip" aria-hidden="true">⠿</span>${esc(sec.name)} ${TPL[sec.template].name !== sec.name ? `<span class="tpl-name">${esc(TPL[sec.template].name)}</span>` : ""}</span>
-        <span class="sec-head-btns">${sec.flip ? `<button type="button" class="btn btn-small" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}
-          <button type="button" class="x" data-secmove="${sec.id}:-1" aria-label="Move ${esc(sec.name)} up" ${si === 0 ? "disabled" : ""}>↑</button>
-          <button type="button" class="x" data-secmove="${sec.id}:1" aria-label="Move ${esc(sec.name)} down" ${si === secs.length - 1 ? "disabled" : ""}>↓</button>
-          <button type="button" class="x x-remove" data-secremove="${sec.id}" aria-label="Remove ${esc(sec.name)}" title="Remove section">×</button></span></div>
-      ${cards}${fixed}</div>`;
-  }).join("");
-  $("#cards").innerHTML = html + `<button type="button" class="add-section" data-rail-open="modules">+ Add a section from Modules</button>`;
+  const page = pageView(S.page), sl = selected && SLOTS[selected];
+  const sec = sl ? page.sections.find((x) => x.id === sl.section) : page.sections.find((x) => x.id === curSec);
+  if (sl && sec) {
+    const s = status(sl.id);
+    $("#cards").innerHTML = `<p class="crumb">${esc(sec.name)} › <b>${esc(sl.label)}</b></p>
+      <div class="ccard is-${s} is-selected" data-card="${sl.id}" open-card><div class="ccard-head"><span class="ccard-title">${esc(sl.label)}</span>${sl.optional ? `<span class="pill pill-opt">Optional</span>` : ""}<span class="chip">${KIND_CHIP(sl)}</span><span class="pill pill-${s}">${s[0].toUpperCase() + s.slice(1)}</span></div>
+      <div class="ccard-body">${cardBody(sl.id)}</div></div>`;
+  } else if (sec) {
+    $("#cards").innerHTML = `<p class="crumb"><b>${esc(sec.name)}</b> · ${esc(TPL[sec.template].name)}</p>${sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`}`;
+  } else {
+    $("#cards").innerHTML = `<p class="hint" style="margin:0">Pick a layer on the left, or click a dotted box in the preview, to edit it here.</p>`;
+  }
 }
 
 // ── Sections: move, add, remove ──
@@ -1243,7 +1265,7 @@ document.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   const base = { x: e.clientX, y: e.clientY, started: false, target: null, after: false };
   if (tpl) sd = { ...base, mode: "template", tpl: tpl.dataset.tpldrag, scope: "#site" };
-  else if (sec) sd = { ...base, mode: "section", id: sec.dataset.secdrag, scope: sec.closest("#site") ? "#site" : "#cards" };
+  else if (sec) sd = { ...base, mode: "section", id: sec.dataset.secdrag, scope: sec.closest("#site") ? "#site" : sec.closest("#side") ? "#side" : "#cards" };
   else if (item) { const [slot, i] = item.dataset.item.split(":"); sd = { ...base, mode: "item", slot, from: +i, axis: SLOTS[slot].axis === "x" ? "x" : "y" }; }
   else sd = { ...base, mode: "photo", id: photo.dataset.photoflip };
   e.target.setPointerCapture?.(e.pointerId);
@@ -1391,7 +1413,7 @@ document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.t
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set() };
 try { const u = JSON.parse(localStorage.getItem(UI_KEY)); if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k]; } catch {}
 const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
@@ -1454,12 +1476,8 @@ function renderSide() {
         const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
         return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span>${liveChip(p)}</button>`;
       }).join("")}</div>
-      <div class="side-sec"><div class="side-label">Sections · ${esc(page.name)}</div>${page.sections.map((sec) => {
-        const ids = sec.slots.map((s) => s.id).filter((id) => !SLOTS[id].optional || status(id) !== "empty");
-        const n = ids.filter((id) => status(id) === "placed").length;
-        const st = !ids.length || n === ids.length ? "placed" : ids.some((id) => status(id) !== "empty") ? "draft" : "";
-        return `<button type="button" class="side-row" data-navsec="${sec.id}" aria-current="${curSec === sec.id}"><span class="dot ${st}"></span><span class="grow">${esc(sec.name)}</span><span class="sub">${ids.length ? `${n}/${ids.length}` : "fixed"}</span></button>`;
-      }).join("")}<button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`;
+      <div class="side-sec layers"><div class="side-label">Layers · ${esc(page.name)}</div>${page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")}
+        <button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`;
   } else if (UI.rail === "modules") {
     const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
     el.innerHTML = `<div class="side-head"><h2>Modules ${closeX}</h2><p>Pick a group, then <b>+ Add</b> or drag a module onto the page. It goes ${after ? `after <b>${esc(after.name)}</b>` : "at the end"} on <b>${esc(pageView(S.page).name)}</b>.</p></div>
@@ -1478,6 +1496,22 @@ function renderSide() {
       <div class="side-sec"><div class="side-label">Site</div>${row("general", '<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>', "General")}${row("domains", '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/>', "Domain names")}</div>
       <div class="side-sec"><div class="side-label">Page settings</div>${PAGE_LIST.map((p) => row("page:" + p.id, '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>', p.name, p.path)).join("")}</div>`;
   }
+}
+
+// ── Layers: sections (drag to move) with their spots inside, like Figma's layer list ──
+const KIND_ICON = { text: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>', link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>', image: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/>', logos: '<rect x="3" y="8" width="7" height="8" rx="1"/><rect x="14" y="8" width="7" height="8" rx="1"/>', list: '<path d="M9 6h12M9 12h12M9 18h12M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>', offers: '<rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/>' };
+const spotRow = (sl) => { const st = status(sl.id); return `<div class="lay-row lay-spot" data-navslot="${sl.id}" role="button" tabindex="0" aria-current="${selected === sl.id}">${svg(KIND_ICON[sl.kind] || KIND_ICON.text, "lay-ico")}<span class="grow">${esc(sl.label)}</span><span class="lay-kind">${esc(KIND_CHIP(sl))}</span><span class="dot ${st === "empty" ? "" : st}" title="${st}"></span></div>`; };
+const secOpen = (id) => curSec === id || UI.exp.has(id);
+function layerHtml(sec, si, total) {
+  const ids = sec.slots.map((s) => s.id).filter((id) => !SLOTS[id].optional || status(id) !== "empty");
+  const n = ids.filter((id) => status(id) === "placed").length, open = secOpen(sec.id);
+  const st = !ids.length || n === ids.length ? "placed" : ids.some((id) => status(id) !== "empty") ? "draft" : "";
+  return `<div class="lay-sec${open ? " is-open" : ""}" data-secid="${sec.id}">
+    <div class="lay-row lay-head" data-secdrag="${sec.id}" data-navsec="${sec.id}" role="button" tabindex="0" aria-expanded="${open}" aria-current="${curSec === sec.id && !selected}" title="Drag to move">
+      <span class="lay-grip" aria-hidden="true">⠿</span>${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}<span class="grow">${esc(sec.name)}</span>
+      <span class="lay-tools">${sec.flip ? `<button type="button" class="lay-btn" data-flip="${sec.id}" title="Swap photo and text" aria-label="Swap photo and text">⇄</button>` : ""}<button type="button" class="lay-btn touch-only" data-secmove="${sec.id}:-1" aria-label="Move up" ${si === 0 ? "disabled" : ""}>↑</button><button type="button" class="lay-btn touch-only" data-secmove="${sec.id}:1" aria-label="Move down" ${si === total - 1 ? "disabled" : ""}>↓</button><button type="button" class="lay-btn lay-x" data-secremove="${sec.id}" title="Remove section" aria-label="Remove ${esc(sec.name)}">×</button></span>
+      <span class="sub">${ids.length ? `${n}/${ids.length}` : "fixed"}</span><span class="dot ${st}"></span></div>
+    ${open ? sec.slots.map(spotRow).join("") : ""}</div>`;
 }
 
 // ── CMS screen ──
@@ -1638,9 +1672,14 @@ function railGo(r, fromHover) {
 // In Collapsed / Expand-on-hover (and on phones) the panel floats; it closes after you pick something.
 const closeIfFloating = () => { if (!docked() && UI.open) { UI.open = false; UI.cat = null; applyNav(); } };
 document.addEventListener("click", (e) => {
-  const t = e.target.closest("button, a, [data-page]");
+  const t = e.target.closest("button, a, [data-page], [data-navsec], [data-navslot]");
   if (!t) return;
   const d = t.dataset;
+  if (d.navslot) {
+    const sl = SLOTS[d.navslot]; if (!sl) return;
+    NAV_VIEW = "editor"; selected = openCard = sl.id; curSec = sl.section;
+    render(); applyNav(); scrollToSlot(sl.id); if (isPhone()) setTab("cards"); closeIfFloating(); return;
+  }
   if (t.id === "rail-logo") return openPop("#logo-menu", t);
   if (d.sidebarMenu != null) return openPop("#sidebar-menu", t);
   if (d.sidebar) { UI.sidebar = d.sidebar; UI.open = d.sidebar === "expanded"; UI.cat = null; closePops(); saveUI(); applyNav(); toast({ expanded: "Panel stays open.", collapsed: "Panel opens when you click an icon.", hover: "Panel opens when you point at an icon." }[d.sidebar]); return; }
@@ -1659,8 +1698,10 @@ document.addEventListener("click", (e) => {
   if (d.setnav) { UI.set = d.setnav; NAV_VIEW = "settings"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
   if (d.navsec) {
     const sec = pageView(S.page).sections.find((x) => x.id === d.navsec); if (!sec) return;
-    NAV_VIEW = "editor"; curSec = sec.id; selected = openCard = sec.slots[0]?.id || null;
-    render(); applyNav(); scrollToSection(sec.id); if (isPhone()) setTab("preview"); closeIfFloating(); return;
+    // Click a section: open it (and select it); click the open one again to fold it.
+    if (secOpen(sec.id) && curSec === sec.id && !selected) { UI.exp.delete(sec.id); curSec = null; }
+    else { UI.exp.add(sec.id); curSec = sec.id; selected = openCard = null; }
+    NAV_VIEW = "editor"; render(); applyNav(); if (curSec) scrollToSection(sec.id); return;
   }
   if (d.page && t.closest("#side")) { NAV_VIEW = "editor"; applyNav(); closeIfFloating(); return; }
   if (d.addtpl && t.closest("#fly")) { if (isPhone()) setTab("preview"); closeIfFloating(); return; }
@@ -1670,6 +1711,7 @@ document.addEventListener("pointerdown", (e) => {
   if (!e.target.closest(".pop, #rail-logo, [data-sidebar-menu]")) closePops();
   if (!docked() && UI.open && !e.target.closest(".side, .rail, .fly, .pop, .confirm-backdrop")) { UI.open = false; UI.cat = null; applyNav(); }
 }, true);
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-navsec], [data-navslot]")) { e.preventDefault(); e.target.click(); } });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { closePops(); if (!docked() && UI.open && !pendingRemove) { UI.open = false; UI.cat = null; applyNav(); } } });
 // Expand on hover: point at an icon to open its panel; move away to close it.
 let hoverT = null;
