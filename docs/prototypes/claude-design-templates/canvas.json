@@ -169,7 +169,7 @@
       "fill": "orange",
       "maxH": 720,
       "size": 24,
-      "text": "How this canvas works\n\n1. One row per Studio template, at Desktop 1280 \u00b7 Tablet 768 \u00b7 Phone 390.\n\n2. Change anything. Keep the board names and the spot names (shown in each element's data-spot) so Claude can match your changes back to Studio.\n\n3. Colors and type: use the ClearMark values. Anything off-system is snapped to the nearest ClearMark color, text style or 32px step on the way back, and listed for you.\n\n4. To try it first: comment on its row \"READY logos\" and send it to Claude. Claude puts it in the Studio prototype for you to check.\n\n5. To put it live: comment \"push live logos\" and send it to Claude (or type /push-live logos in a Claude chat). Claude checks it, then it's on clearmark.bz in about 2 minutes.",
+      "text": "How this canvas works\n\n1. One row per Studio template, at Desktop 1280 \u00b7 Tablet 768 \u00b7 Phone 390.\n\n2. Change anything. Keep the board names and the spot names (shown in each element's data-spot) so Claude can match your changes back to Studio.\n\n3. Colors and type: use the ClearMark values. Anything off-system is snapped to the nearest ClearMark color, text style or 32px step on the way back, and listed for you.\n\n4. Check it: type /push-check logos in Claude (or comment \"push check logos\" on its row and send it to Claude). Claude brings it into the Studio prototype, tests it and shows you. Nothing goes live.\n\n5. Put it live: when you're happy, type /push-live (or comment \"push live\" and send it to Claude). It's on clearmark.bz in about 2 minutes.",
       "w": 420,
       "x": 1360,
       "y": 0
