@@ -608,6 +608,8 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
 .side-resize[hidden] { display: none; }
 body.is-resizing { cursor: col-resize; user-select: none; }
 .side.will-close { opacity: 0.45; }
+.prev-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.prev-actions:empty { display: none; }
 .dev-range { color: var(--ink-3); font-family: var(--f-mono); font-size: 12px; white-space: nowrap; }
 .bg-drop { display: none; position: absolute; top: 72px; right: 32px; z-index: 30; width: 300px; min-height: 150px; border: 4px dashed #fff; border-radius: 18px; background: rgba(28, 32, 38, 0.55); color: #fff; font-family: var(--f-mono); font-size: 22px; font-weight: 700; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; }
 .bg-drop small { font-size: 14px; font-weight: 400; opacity: 0.8; }
@@ -737,8 +739,9 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 
 <main class="panes" id="panes" data-tab="preview">
   <section class="pane pane-preview" aria-label="Preview">
-    <div class="pane-head" style="justify-content:flex-end">
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <div class="pane-head">
+      <div class="prev-actions" id="prev-actions"></div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-left:auto">
         <span class="dev-range" id="dev-range"></span>
         <div class="seg" role="group" aria-label="Preview width">
           <button type="button" class="dev-btn" data-device="desktop" aria-pressed="true" aria-label="Desktop, 1280 wide" title="Desktop · 1280"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg></button>
@@ -2039,9 +2042,13 @@ function pubActions(p) {
   const live = pageIsLive(p);
   return `<div class="pub-actions">
     <button type="button" class="btn btn-primary btn-wide" data-pub ${pubBusy ? "disabled" : ""}>${pubBusy === "publish" ? "Publishing…" : pubArmed ? "Tap again to publish" : "Publish"}</button>
-    <div class="pub-row"><button type="button" class="btn btn-outline" data-savework ${pubBusy ? "disabled" : ""} title="Keep your changes as work in progress. Nothing changes on the live site.">${pubBusy === "save" ? "Saving…" : "Save changes"}</button>
-      <button type="button" class="btn btn-outline" data-unpub ${pubBusy || !live || p.id === "home" ? "disabled" : ""} title="${p.id === "home" ? "Home always stays live" : live ? "Take this page off the live site; it stays here" : "This page isn't live"}">${pubBusy === "unpublish" ? "Unpublishing…" : unpubArmed ? "Tap again" : "Unpublish"}</button></div>
     <p class="pub-status"><span class="dot ${live ? "placed" : "draft"}"></span>${esc(p.name)}: ${live ? "Live" : "Work in progress"}</p></div>`;
+}
+// Save changes and Unpublish sit at the left of the bar above the preview (Oct 7).
+function workActions(p) {
+  const live = pageIsLive(p);
+  return `<button type="button" class="btn btn-outline" data-savework ${pubBusy ? "disabled" : ""} title="Keep your changes as work in progress. Nothing changes on the live site.">${pubBusy === "save" ? "Saving…" : "Save changes"}</button>
+      <button type="button" class="btn btn-outline" data-unpub ${pubBusy || !live || p.id === "home" ? "disabled" : ""} title="${p.id === "home" ? "Home always stays live" : live ? "Take this page off the live site; it stays here" : "This page isn't live"}">${pubBusy === "unpublish" ? "Unpublishing…" : unpubArmed ? "Tap again" : "Unpublish"}</button>`;
 }
 
 function setTab(tab) { $("#panes").dataset.tab = tab; document.querySelectorAll("[data-tab]").forEach((b) => b.tagName === "BUTTON" && b.setAttribute("aria-pressed", b.dataset.tab === tab)); }
@@ -2124,6 +2131,7 @@ function applyNav() {
 const closeX = `<button type="button" class="x side-close" data-nav-close aria-label="Close panel">×</button>`;
 
 function renderSide() {
+  { const pa = document.getElementById("prev-actions"); if (pa) pa.innerHTML = workActions(curPage()); }
   if (!UI.open) return;
   const el = $("#side");
   if (UI.rail === "pages") {
