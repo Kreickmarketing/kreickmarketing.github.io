@@ -503,6 +503,27 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 .lay-x:hover { color: var(--bad) !important; }
 .touch-only { display: none; }
 @media (hover: none) { .lay-tools { display: inline-flex; } .touch-only { display: inline-block; } }
+/* Sources in the left nav */
+.sources-sec { gap: 0; }
+button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); text-align: left; font: inherit; font-weight: 600; }
+.src-body { padding: 4px 4px 8px; display: flex; flex-direction: column; gap: 4px; }
+.side .src-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.side .src-img figcaption { font-size: 10.5px; padding: 3px 5px; }
+.side .src-img .im { aspect-ratio: 1; overflow: hidden; }
+.side .src-img .im img { display: block; }
+.side .upload { padding: 8px; font-size: 11.5px; }
+.side .upload input { font-size: 11px; }
+.src-row { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; cursor: grab; }
+.src-row:hover { background: var(--panel); border-color: var(--line); }
+.src-row.is-picked { outline: 2px solid var(--accent); }
+.src-line { flex-direction: column; align-items: flex-start; gap: 2px; }
+.src-line b { font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; }
+.src-line span { font-size: 12.5px; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.src-line .flag { color: var(--draft); font-size: 11px; }
+.src-card img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex: none; }
+.src-card .grow { display: flex; flex-direction: column; min-width: 0; }
+.src-card .grow b { font-size: 13px; font-weight: 600; }
+.src-card .grow span { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .crumb { margin: 0; font-size: 12px; color: var(--ink-3); }
 .crumb b { color: var(--ink); font-weight: 600; }
 .spot-list { display: flex; flex-direction: column; gap: 2px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
@@ -567,7 +588,6 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 <div class="seg tabs-phone" role="tablist" aria-label="Show">
   <button type="button" data-tab="preview" aria-pressed="true">Preview</button>
   <button type="button" data-tab="cards" aria-pressed="false">Edit</button>
-  <button type="button" data-tab="sources" aria-pressed="false">Sources</button>
 </div>
 
 <main class="panes" id="panes" data-tab="preview">
@@ -593,17 +613,6 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
     <div class="cards" id="cards"></div>
   </section>
 
-  <aside class="pane pane-sources" aria-labelledby="src-title">
-    <div class="pane-head">
-      <h2 id="src-title">Sources</h2>
-      <div class="seg" role="group" aria-label="Source">
-        <button type="button" data-src="images" aria-pressed="true">Images</button>
-        <button type="button" data-src="playbook" aria-pressed="false">Playbook</button>
-        <button type="button" data-src="offers" aria-pressed="false">Offers</button>
-      </div>
-    </div>
-    <div class="sources" id="sources"></div>
-  </aside>
 </main>
 <div class="toast" id="toast" hidden></div>
 <div class="confirm-backdrop" id="confirm" hidden>
@@ -691,7 +700,7 @@ const TEMPLATES = [
     { key: "logos", label: "Logos", kind: "logos", max: 10, axis: "x", source: "Images · Platform logos" },
   ]},
   { id: "offers", name: "Offer cards", type: "offersonly", about: "Up to four offer cards from the CMS, side by side.", slots: [
-    { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Offers" },
+    { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
   ]},
   { id: "points", name: "Points", type: "points", about: "Up to three titled points in a list, no photo.", slots: [
     { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · How the team works" },
@@ -1080,23 +1089,28 @@ function closeRemove(yes) {
 }
 function syncFilter() { document.querySelectorAll("[data-filter]").forEach((b) => b.matches(".seg button") && b.setAttribute("aria-pressed", b.dataset.filter === filter)); }
 
-// ── Sources pane ──
+// ── Sources (left nav, under Layers): images, Playbook lines and CMS cards to drag onto spots ──
 const accepts = (sl, p) => (p.type === "image" && (sl.kind === "image" || sl.kind === "logos")) || (p.type === "text" && (sl.kind === "text" || sl.kind === "list")) || (p.type === "offer" && sl.kind === "offers");
 const pickedName = () => picked.type === "image" ? IMAGES.find((i) => i.src === picked.value)?.name || "Uploaded image" : picked.type === "offer" ? offerById(picked.value).title : `“${picked.value.slice(0, 40)}${picked.value.length > 40 ? "…" : ""}”`;
-function renderSources() {
-  const el = $("#sources");
-  if (srcTab === "images") {
-    el.innerHTML = `<p class="hint" style="margin:0">Drag onto a card or a dotted box. Or tap to select, then “Use selected” on a card.</p>
-      <div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0"><div class="im"><img src="${esc(im.src)}" alt=""></div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
-      <label class="upload" for="upload">Add your own image (stays in this browser)<input type="file" id="upload" accept="image/*"></label>`;
-  } else if (srcTab === "playbook") {
-    el.innerHTML = `<p class="hint" style="margin:0">Lines from the ClearMark Brand Playbook (v3). Drag onto a text card or dotted box.</p>
-      ${PLAYBOOK.map((p) => `<button type="button" class="src-text${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</button>`).join("")}`;
-  } else {
-    el.innerHTML = `<p class="hint" style="margin:0">Offers from the CMS (offer ladder in the Playbook; prices are estimates to validate). Drag onto an Offer cards spot.</p>
-      ${OFFERS.map((o) => `<button type="button" class="src-text${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}"><b>${esc(o.status)} · ${esc(o.price)}</b><span>${esc(o.title)}</span><span class="hint">${esc(o.sub)}</span></button>`).join("")}`;
-  }
+// Each group folds open like a section in Layers. Drag an item onto a dotted box or the
+// Edit pane; on a phone, tap it, then tap a dotted box.
+const SRC_GROUPS = [
+  { id: "images", name: "Images", icon: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/>', count: () => IMAGES.length },
+  { id: "playbook", name: "Playbook", icon: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>', count: () => PLAYBOOK.length },
+  { id: "cms", name: "CMS Cards", icon: '<rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/>', count: () => OFFERS.length },
+];
+function sourceItems(id) {
+  if (id === "images") return `<div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im"><img src="${esc(im.src)}" alt=""></div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
+      <label class="upload" for="upload">+ Add your own image (stays in this browser)<input type="file" id="upload" accept="image/*"></label>`;
+  if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
+  return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0"><img src="${esc(o.image)}" alt=""><span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
+const sourcesInner = () => `<div class="side-label">Sources</div>${SRC_GROUPS.map((g) => {
+  const open = UI.src.has(g.id);
+  return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-srcgroup="${g.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}${svg(g.icon, "lay-ico")}<span class="grow">${g.name}</span><span class="sub">${g.count()}</span></button>
+    ${open ? `<div class="src-body">${sourceItems(g.id)}</div>` : ""}</div>`;
+}).join("")}`;
+function renderSources() { const box = document.getElementById("side-sources"); if (box) box.innerHTML = sourcesInner(); }
 
 // ── Putting content into a spot ──
 function fill(id, p, place) {
@@ -1413,7 +1427,7 @@ document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.t
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set() };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]) };
 try { const u = JSON.parse(localStorage.getItem(UI_KEY)); if (u) for (const k of ["sidebar", "rail", "cms", "set"]) if (typeof u[k] === "string") UI[k] = u[k]; } catch {}
 const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
@@ -1477,7 +1491,8 @@ function renderSide() {
         return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span>${liveChip(p)}</button>`;
       }).join("")}</div>
       <div class="side-sec layers"><div class="side-label">Layers · ${esc(page.name)}</div>${page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")}
-        <button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>`;
+        <button type="button" class="side-row" data-rail-open="modules">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button></div>
+      <div class="side-sec sources-sec" id="side-sources">${sourcesInner()}</div>`;
   } else if (UI.rail === "modules") {
     const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
     el.innerHTML = `<div class="side-head"><h2>Modules ${closeX}</h2><p>Pick a group, then <b>+ Add</b> or drag a module onto the page. It goes ${after ? `after <b>${esc(after.name)}</b>` : "at the end"} on <b>${esc(pageView(S.page).name)}</b>.</p></div>
@@ -1672,9 +1687,12 @@ function railGo(r, fromHover) {
 // In Collapsed / Expand-on-hover (and on phones) the panel floats; it closes after you pick something.
 const closeIfFloating = () => { if (!docked() && UI.open) { UI.open = false; UI.cat = null; applyNav(); } };
 document.addEventListener("click", (e) => {
-  const t = e.target.closest("button, a, [data-page], [data-navsec], [data-navslot]");
+  const t = e.target.closest("button, a, [data-page], [data-navsec], [data-navslot], [data-pick]");
   if (!t) return;
   const d = t.dataset;
+  if (d.srcgroup) { UI.src.has(d.srcgroup) ? UI.src.delete(d.srcgroup) : UI.src.add(d.srcgroup); renderSources(); return; }
+  // Phones can't drag: tap a source, the panel closes, then tap a dotted box.
+  if (d.pick) { if (isPhone() && picked) { setTab("preview"); closeIfFloating(); } return; }
   if (d.navslot) {
     const sl = SLOTS[d.navslot]; if (!sl) return;
     NAV_VIEW = "editor"; selected = openCard = sl.id; curSec = sl.section;
