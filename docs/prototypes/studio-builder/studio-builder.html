@@ -572,9 +572,9 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
     <p>ClearMark · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span> <button type="button" class="btn btn-small" id="page-edit" data-setnav="page:home">Edit address</button></p>
   </div>
   <div class="top-actions">
-    <button class="btn" id="place-all" type="button">Place all drafts</button>
+    <button class="btn" id="place-all" type="button" title="Put every spot you've typed into, but not yet placed, onto this page's preview in one go">Place all drafts</button>
     <span class="save-state mono" id="save-state" hidden></span>
-    <button class="btn" id="reset" type="button">Reset prototype</button>
+    <button class="btn" id="reset" type="button" title="Prototype only: erase everything here and go back to the starting example">Reset prototype</button>
     <button class="btn btn-primary" id="publish" type="button">Publish</button>
   </div>
   <div class="meter" aria-live="polite">
@@ -1073,11 +1073,22 @@ function askRemove(id) {
   const filled = sec.slots.filter((sl) => status(sl.id) !== "empty").length;
   $("#confirm-title").textContent = `Remove “${sec.name}”?`;
   $("#confirm-text").textContent = filled ? `This deletes the section and the ${filled} ${filled === 1 ? "spot" : "spots"} you've filled in it. You can't undo this.` : "This deletes the section from the page. You can add it again from Modules.";
+  $("#confirm-yes").textContent = "Yes, remove"; $("#confirm-no").textContent = "No, keep module";
+  $("#confirm").hidden = false;
+  $("#confirm-no").focus();
+}
+// Reset (prototype only) asks twice: the button turns into "Tap again to reset", then this box.
+function askReset() {
+  pendingRemove = "__reset__";
+  $("#confirm-title").textContent = "Erase everything in this prototype?";
+  $("#confirm-text").textContent = "Every page, section, text and image you've placed here goes back to the starting example, and any pages you added are deleted. You can't undo this. (The live site isn't touched.)";
+  $("#confirm-yes").textContent = "Yes, erase it all"; $("#confirm-no").textContent = "No, keep my work";
   $("#confirm").hidden = false;
   $("#confirm-no").focus();
 }
 function closeRemove(yes) {
   const id = pendingRemove; pendingRemove = null; $("#confirm").hidden = true;
+  if (id === "__reset__") { if (yes) resetAll(); else toast("Nothing was erased."); return; }
   if (!yes || !id) return;
   const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
   l.splice(i, 1);
@@ -1395,8 +1406,9 @@ $("#place-all").onclick = () => {
 let resetArmed = false;
 $("#reset").onclick = () => {
   if (!resetArmed) { resetArmed = true; $("#reset").textContent = "Tap again to reset"; setTimeout(() => { resetArmed = false; $("#reset").textContent = "Reset prototype"; }, 3000); return; }
-  resetArmed = false; S = seed(); PAGE_LIST = S.pageList; rebuildSlots(); selected = openCard = picked = curSec = null; $("#reset").textContent = "Reset prototype"; render(); toast("Back to the starting example.");
+  resetArmed = false; $("#reset").textContent = "Reset prototype"; askReset();
 };
+function resetAll() { S = seed(); PAGE_LIST = S.pageList; rebuildSlots(); selected = openCard = picked = curSec = null; render(); toast("Back to the starting example."); }
 let publishArmed = false;
 $("#publish").onclick = async () => {
   if (!LIVE) return toast("Prototype: Publish goes live once this design moves into the real Studio.");
