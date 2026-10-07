@@ -493,6 +493,13 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 .slug-row .mono { color: var(--ink-3); font-size: 13px; white-space: nowrap; }
 .set-field .slug-row input { border: 0; background: none; padding-left: 2px; min-width: 0; }
 .slug-err { color: var(--bad) !important; }
+.anchor-ed { margin-top: 12px; }
+.anchor-in { display: flex; align-items: center; gap: 6px; }
+.anchor-in > span { font-family: var(--f-mono); color: var(--ink-2); font-size: 15px; }
+.anchor-in .input { flex: 1; font-family: var(--f-mono); }
+.anchor-ed .source { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-3); }
+.anchor-ed .set-link { font-family: var(--f-mono); }
+.anchor-ed .btn { padding: 2px 10px; font-size: 11px; }
 .side-label .btn { text-transform: none; letter-spacing: 0; }
 .layers { gap: 0; }
 .lay-sec { border-radius: 8px; }
@@ -1207,11 +1214,53 @@ function cardBody(id) {
 // the page if its address changes) or a web address (https://… or mailto:…). Links apply at once.
 const linkMode = {};
 const URL_OK = (u) => /^https:\/\/[^\s"'<>]+\.[^\s"'<>]+$/i.test(u) || /^mailto:[^\s"'<>@]+@[^\s"'<>]+$/i.test(u);
+// Link names (#anchors): a section, or one element in it, can be given a name so links can
+// jump straight to it (clearmark.bz/#solutions). Names live in S.anchors, keyed by the
+// section's id ("<uid>") or the element's spot id ("<uid>.<key>"). Links store that key, not
+// the name, so renaming never breaks a link. A section with no name uses its id; an element
+// with no name can't be linked to.
+const ANCHOR_RE = /^[a-z][a-z0-9-]{0,39}$/;
+function pageRefs(pid) {
+  const out = [];
+  for (const sec of pageView(pid).sections) {
+    out.push({ ref: sec.id, label: sec.name, el: false });
+    for (const sl of sec.slots) if (S.anchors?.[sl.id]) out.push({ ref: sl.id, label: `${sec.name} › ${sl.label}`, el: true });
+  }
+  return out;
+}
+// ref → name for one page (first use of a name wins; a clash falls back to the section's id).
+function anchorMap(pid) {
+  const m = {}, used = new Set();
+  for (const r of pageRefs(pid)) {
+    const a = S.anchors?.[r.ref], name = a && ANCHOR_RE.test(a) && !used.has(a) ? a : r.el ? "" : r.ref;
+    if (name && !used.has(name)) { m[r.ref] = name; used.add(name); }
+  }
+  return m;
+}
+function anchorProblem(ref, name) {
+  if (!name) return "";
+  if (!ANCHOR_RE.test(name)) return "Use lower-case letters, numbers and dashes, starting with a letter (e.g. solutions).";
+  const m = anchorMap(S.page);
+  if (Object.entries(m).some(([r, a]) => r !== ref && a === name)) return `Another part of this page is already called #${name}.`;
+  return "";
+}
 function resolveLink(v) {
   v = String(v || "");
   if (!v.startsWith("page:")) return v;
-  const [pid, sec] = v.slice(5).split("#"), p = PAGE_LIST.find((x) => x.id === pid);
-  return p ? p.path + (sec ? "#" + sec : "") : "";
+  const [pid, ref] = v.slice(5).split("#"), p = PAGE_LIST.find((x) => x.id === pid);
+  if (!p) return "";
+  const m = ref ? anchorMap(pid) : {}, a = ref ? m[ref] || m[ref.split(".")[0]] || "" : "";
+  return p.path + (a ? "#" + a : "");
+}
+// The "Link name" field, under a section's spot list or an element's card.
+function anchorField(ref, el) {
+  const v = S.anchors?.[ref] || "", m = anchorMap(S.page), now = m[ref] || "", page = PAGE_LIST.find((x) => x.id === S.page);
+  const fid = "anc-" + ref.replace(/\W/g, "-"), url = page && now ? SITE_URL + page.path + "#" + now : "";
+  return `<div class="field anchor-ed"><label for="${fid}">Link name${el ? " (optional)" : ""}</label>
+    <div class="anchor-in"><span aria-hidden="true">#</span><input class="input" id="${fid}" data-anchor="${ref}" value="${esc(v)}" placeholder="${esc(el ? "e.g. pricing-button" : ref)}" autocapitalize="off" spellcheck="false" maxlength="40"></div>
+    <small class="slug-err" id="${fid}-err"></small>
+    <p class="source">${url ? `Link: <a class="set-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(page.path + "#" + now)}</a><button type="button" class="btn" data-copyanchor="${esc(url)}">Copy</button>` : "Give it a name to link straight to it from any button or the nav."}</p>
+    <p class="source">Buttons and the nav can pick it under “Page on this site”. Renaming it later keeps those links working.</p></div>`;
 }
 function linkEditor(id) {
   const v = String(S.slots[id].placed || S.slots[id].value || ""), mode = linkMode[id] || (v && !v.startsWith("page:") ? "url" : "page");
@@ -1219,7 +1268,7 @@ function linkEditor(id) {
   const target = PAGE_LIST.find((p) => p.id === pid), now = resolveLink(v);
   const body = mode === "page"
     ? `<select class="input" data-linkpage="${id}" aria-label="Page"><option value="">Choose a page…</option>${PAGE_LIST.map((p) => `<option value="${p.id}" ${p.id === pid ? "selected" : ""}>${esc(p.name)} · ${esc(p.path)}</option>`).join("")}</select>
-       ${target ? `<select class="input" data-linksec="${id}" aria-label="Part of the page"><option value="">Top of the page</option>${pageView(target.id).sections.map((x) => `<option value="${x.id}" ${x.id === sec ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}`
+       ${target ? `<select class="input" data-linksec="${id}" aria-label="Part of the page"><option value="">Top of the page</option>${(() => { const m = anchorMap(target.id); return pageRefs(target.id).map((x) => `<option value="${x.ref}" ${x.ref === sec ? "selected" : ""}>${x.el ? "↳ " : ""}${esc(x.label)} · #${esc(m[x.ref] || "")}</option>`).join(""); })()}</select>` : ""}`
     : `<input class="input" data-linkurl="${id}" value="${esc(v.startsWith("page:") ? "" : v)}" inputmode="url" placeholder="https://calendly.com/… or mailto:you@clearmark.bz" autocapitalize="off" spellcheck="false"><small class="slug-err" id="link-err-${id.replace(/\W/g, "-")}"></small>`;
   return `<div class="field link-ed"><label>Button goes to</label>
     <div class="seg" role="group" aria-label="Link type"><button type="button" data-linkmode="${id}:page" aria-pressed="${mode === "page"}">Page on this site</button><button type="button" data-linkmode="${id}:url" aria-pressed="${mode === "url"}">Web address</button></div>
@@ -1278,9 +1327,9 @@ function renderCards() {
     const s = status(sl.id);
     $("#cards").innerHTML = `<p class="crumb">${esc(sec.name)} › <b>${esc(sl.label)}</b></p>
       <div class="ccard is-${s} is-selected" data-card="${sl.id}" open-card><div class="ccard-head"><span class="ccard-title">${esc(sl.label)}</span>${sl.optional ? `<span class="pill pill-opt">Optional</span>` : ""}<span class="chip">${KIND_CHIP(sl)}</span><span class="pill pill-${s}">${s[0].toUpperCase() + s.slice(1)}</span></div>
-      <div class="ccard-body">${cardBody(sl.id)}</div></div>`;
+      <div class="ccard-body">${cardBody(sl.id)}${anchorField(sl.id, true)}</div></div>`;
   } else if (sec) {
-    $("#cards").innerHTML = `<p class="crumb"><b>${esc(sec.name)}</b> · ${esc(TPL[sec.template].name)}</p>${sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`}`;
+    $("#cards").innerHTML = `<p class="crumb"><b>${esc(sec.name)}</b> · ${esc(TPL[sec.template].name)}</p>${sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`}${anchorField(sec.id, false)}`;
   } else {
     $("#cards").innerHTML = "";
   }
@@ -1529,6 +1578,12 @@ document.addEventListener("change", (e) => {
     if (v && !parseEmbed(v)) { const err = document.getElementById("embed-err"); if (err) err.textContent = "Paste a YouTube or Vimeo link (starting with https://)."; return; }
     snap(id); S.slots[id] = { value: v, placed: v }; render(); toast(v ? "Video set." : "Video removed."); return;
   }
+  if (t.dataset.anchor != null) {
+    const ref = t.dataset.anchor, v = t.value.trim().toLowerCase(), err = document.getElementById(t.id + "-err"), bad = anchorProblem(ref, v);
+    if (bad) { if (err) err.textContent = bad; return; }
+    S.anchors ||= {}; if (v) S.anchors[ref] = v; else delete S.anchors[ref];
+    render(); toast(v ? `Named #${v}. Links to it now use that name.` : "Link name removed."); return;
+  }
   if (t.dataset.linkpage != null) { setLink(t.dataset.linkpage, t.value ? "page:" + t.value : ""); return; }
   if (t.dataset.linksec != null) { const cur = String(S.slots[t.dataset.linksec].placed || "").slice(5).split("#")[0]; setLink(t.dataset.linksec, "page:" + cur + (t.value ? "#" + t.value : "")); return; }
   if (t.dataset.linkurl != null) {
@@ -1618,6 +1673,10 @@ document.addEventListener("click", (e) => {
   const nav = b.closest(".site-nav"), open = !nav.classList.contains("is-open");
   nav.classList.toggle("is-open", open); b.setAttribute("aria-expanded", open); b.setAttribute("aria-label", open ? "Close menu" : "Open menu");
 }, true);
+document.addEventListener("click", (e) => {
+  const b = e.target.closest?.("[data-copyanchor]"); if (!b) return;
+  navigator.clipboard?.writeText(b.dataset.copyanchor).then(() => toast("Link copied."), () => toast(b.dataset.copyanchor));
+});
 document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.closest?.("#site [data-navmenu]")) { e.preventDefault(); e.target.click(); } });
 
 // Drag and drop from Sources onto a card (draft) or a dotted box (placed).

@@ -58,14 +58,17 @@ export type BuilderState = {
   // Image focus points (% from top-left) and zoom (1–3×): Desktop, plus optional tablet/phone crops.
   crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown; tablet?: unknown; phone?: unknown }>;
   pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
+  // Link names (#anchors) set in Studio, keyed by section id ("<uid>") or element ("<uid>.<key>").
+  anchors?: Record<string, unknown>;
 };
 
 // One section of a live page. Most are finished HTML; the mailing list and
 // Calendly need real React parts (the sign-up form), so they carry their text instead.
 export type LiveSection =
-  | { kind: "html"; id: string; className: string; html: string }
-  | { kind: "mail"; id: string; className: string; label: string; headline: string; intro: string; nameLabel: string; emailLabel: string; button: string; thanks: string }
-  | { kind: "calendly"; id: string; className: string };
+  // id: the section's address on the page (its link name, or its uid); uid: Studio's own id.
+  | { kind: "html"; id: string; uid: string; className: string; html: string }
+  | { kind: "mail"; id: string; uid: string; className: string; label: string; headline: string; intro: string; nameLabel: string; emailLabel: string; button: string; thanks: string }
+  | { kind: "calendly"; id: string; uid: string; className: string };
 
 // css: Tablet/Phone crops (rules for the page's 1000px and 700px breakpoints).
 export type LivePage = { sections: LiveSection[]; css: string; navOverPhoto: boolean };
@@ -160,7 +163,7 @@ function cropParts(c: unknown): { x: number; y: number; z: number } | null {
   return { x: Math.round(o.x as number), y: Math.round(o.y as number), z: ok(o.z, 1, 3) ? Math.round((o.z as number) * 100) / 100 : 1 };
 }
 // Tablet / Phone crops for one section → container rules (same breakpoints as the page).
-function cropRules(uid: string, crops: BuilderState["crop"]): string {
+function cropRules(uid: string, secId: string, crops: BuilderState["crop"]): string {
   const out: string[] = [];
   for (const [id, c] of Object.entries(crops || {})) {
     if (!id.startsWith(uid + ".")) continue;
@@ -168,7 +171,7 @@ function cropRules(uid: string, crops: BuilderState["crop"]): string {
     if (!ID.test(key) || !c || typeof c !== "object") continue;
     for (const [bp, w] of [["tablet", 1000], ["phone", 700]] as const) {
       const v = cropParts((c as Record<string, unknown>)[bp]);
-      if (v) out.push(`@container (max-width: ${w}px) { .site [id="${uid}"] :is(img, video)[data-slot=".${key}"] { object-position: ${v.x}% ${v.y}% !important; transform: ${v.z > 1 ? `scale(${v.z})` : "none"} !important; transform-origin: ${v.x}% ${v.y}% !important; } }`);
+      if (v) out.push(`@container (max-width: ${w}px) { .site [id="${secId}"] :is(img, video)[data-slot=".${key}"] { object-position: ${v.x}% ${v.y}% !important; transform: ${v.z > 1 ? `scale(${v.z})` : "none"} !important; transform-origin: ${v.x}% ${v.y}% !important; } }`);
     }
   }
   return out.join("\n");
@@ -182,6 +185,27 @@ function cropStyle(c: unknown): string {
 }
 
 // ── A whole live page ──
+// Link names on one page: ref ("<uid>" or "<uid>.<key>") → name. Same rules as Studio's
+// anchorMap(): a section without a (valid, unused) name keeps its uid; an element needs one.
+const ANCHOR = /^[a-z][a-z0-9-]{0,39}$/;
+function anchorsOn(state: BuilderState, pageId: string): Record<string, string> {
+  const list = Array.isArray(state?.pages?.[pageId]) ? state.pages![pageId] : [];
+  const names = state.anchors && typeof state.anchors === "object" ? state.anchors : {};
+  const tpls: Record<string, Template> = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
+  const out: Record<string, string> = {}, used = new Set<string>();
+  const take = (ref: string, fallback: string) => {
+    const a = str(names[ref]), name = a && ANCHOR.test(a) && !used.has(a) ? a : fallback;
+    if (name && !used.has(name)) { out[ref] = name; used.add(name); }
+  };
+  for (const inst of list) {
+    const uid = str(inst?.uid), tpl = tpls[str(inst?.t)];
+    if (!tpl || !ID.test(uid)) continue;
+    take(uid, uid);
+    for (const sl of tpl.slots) if (str(names[`${uid}.${sl.key}`])) take(`${uid}.${sl.key}`, "");
+  }
+  return out;
+}
+
 // cms: the site's CMS items visitors may see (published only), for offer cards.
 export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem[] = []): LivePage | null {
   const list = Array.isArray(state?.pages?.[pageId]) ? state.pages![pageId] : null;
@@ -192,31 +216,40 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
   // so they follow the page's current address. A missing or unpublished page means no link.
   const pages = pagesOf(state);
   const offer = offerCards(cms);
+  const anchorCache: Record<string, Record<string, string>> = {};
+  const anchorsFor = (pid: string) => (anchorCache[pid] ||= anchorsOn(state, pid));
   const link = (v: unknown) => {
     const s = str(v);
     if (!s.startsWith("page:")) return s;
-    const [pid, sec] = s.slice(5).split("#");
+    const [pid, ref] = s.slice(5).split("#");
     const p = pages.find((x) => x.id === pid && !x.unpublished);
-    return p ? p.path + (sec && ID.test(sec) ? "#" + sec : "") : "";
+    if (!p) return "";
+    // ref is a section or element id; the address uses its link name (an element that lost
+    // its name falls back to its section).
+    const m = ref ? anchorsFor(pid) : {}, a = ref ? m[ref] || m[ref.split(".")[0]] || "" : "";
+    return p.path + (a ? "#" + a : "");
   };
+  const here = anchorsFor(pageId);
   const sections: LiveSection[] = [];
   for (const inst of list) {
     const tpl = tpls[str(inst?.t)], uid = str(inst?.uid);
     if (!tpl || !ID.test(uid)) continue;
     const P = (key: string) => slots[`${uid}.${key}`]?.placed;
-    const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}`;
+    const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}`, id = here[uid] || uid;
     // Mailing list: wording left empty in Studio falls back to the starting words.
-    if (tpl.type === "mail") sections.push({ kind: "mail", id: uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
+    if (tpl.type === "mail") sections.push({ kind: "mail", id, uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
       nameLabel: str(P("name")) || "Name", emailLabel: str(P("email")) || "Email", button: str(P("button")) || "Sign up", thanks: str(P("thanks")) });
-    else if (tpl.type === "calendly") sections.push({ kind: "calendly", id: uid, className });
+    else if (tpl.type === "calendly") sections.push({ kind: "calendly", id, uid, className });
     else {
       // A section with nothing placed in it is left off the live page.
-      const html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer);
-      if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id: uid, className, html });
+      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer);
+      // Named elements get their link name as an id (the first element drawn for that spot).
+      for (const sl of tpl.slots) { const a = here[`${uid}.${sl.key}`]; if (a) html = html.replace(`data-slot=".${sl.key}"`, `id="${a}" data-slot=".${sl.key}"`); }
+      if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id, uid, className, html });
     }
   }
   const first = tpls[str(list[0]?.t)];
-  const css = sections.map((x) => cropRules(x.id, state.crop)).filter(Boolean).join("\n");
+  const css = sections.map((x) => cropRules(x.uid, x.id, state.crop)).filter(Boolean).join("\n");
   return { sections, css, navOverPhoto: !!first && PHOTO_TOP.includes(first.type) };
 }
 

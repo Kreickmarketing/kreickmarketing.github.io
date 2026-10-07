@@ -12,13 +12,15 @@ const JUMPS: [string, string][] = [["Solutions", "solutions"], ["Platforms", "pl
 // which escapes all text and only allows safe links and local images. `paths` are the pages'
 // addresses (set in Studio), so About and Pricing link to wherever those pages live.
 export default function BuilderPage({ page, livePages = [], paths = {} }: { page: LivePage; livePages?: string[]; paths?: Record<string, string> }) {
-  const ids = new Set(page.sections.map((s) => s.id));
+  // Studio ids (uid) decide which links show; the address uses each section's link name.
+  const ids = new Set(page.sections.map((s) => s.uid));
+  const addr = (uid: string) => page.sections.find((s) => s.uid === uid)?.id ?? uid;
   // The nav's links: About and Pricing follow the pages' addresses; Solutions and Platforms
   // jump to that section, shown only when the page has it.
-  const pricing = livePages.includes("pricing") && paths.pricing ? paths.pricing : ids.has("sol-offers") ? "#sol-offers" : null;
+  const pricing = livePages.includes("pricing") && paths.pricing ? paths.pricing : ids.has("sol-offers") ? `#${addr("sol-offers")}` : null;
   const items: NavItem[] = [
     { label: "About", href: paths.about ?? "/about" },
-    ...JUMPS.filter(([, id]) => ids.has(id)).map(([label, id]) => ({ label, href: `/#${id}` })),
+    ...JUMPS.filter(([, id]) => ids.has(id)).map(([label, id]) => ({ label, href: `/#${addr(id)}` })),
     ...(pricing ? [{ label: "Pricing", href: pricing }] : []),
   ];
   return (
