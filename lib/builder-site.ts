@@ -13,7 +13,7 @@
 // files, links must be https, mailto or on-site, and page addresses must be
 // simple lower-case slugs that don't clash with the site's own routes.
 
-type Slot = { key: string; kind: "text" | "link" | "image" | "logos" | "list" | "offers" };
+type Slot = { key: string; kind: "text" | "link" | "image" | "logos" | "list" | "offers" | "embed" };
 type Template = { id: string; type: string; slots: Slot[] };
 
 const s = (key: string, kind: Slot["kind"]): Slot => ({ key, kind });
@@ -29,6 +29,7 @@ const TEMPLATES: Template[] = [
   { id: "quote", type: "quote", slots: [s("text", "text"), s("by", "text")] },
   { id: "mailing", type: "mail", slots: [s("label", "text"), s("headline", "text"), s("intro", "text"), s("name", "text"), s("email", "text"), s("button", "text"), s("thanks", "text")] },
   { id: "page-hero", type: "pagehero", slots: [s("image", "image"), s("headline", "text")] },
+  { id: "video", type: "video", slots: [s("headline", "text"), s("video", "embed")] },
   { id: "calendly", type: "calendly", slots: [] },
 ];
 
@@ -40,7 +41,7 @@ const OFFERS: Record<string, { title: string; sub: string; price: string; note: 
   leadgen: { title: "Working Interview", sub: "A fast proof-of-work build, money-back", price: "$37", note: "one-time", image: "/studio-media/rock-climb.jpg", status: "Draft" },
 };
 
-const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", calendly: "std" };
+const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", video: "std", calendly: "std" };
 const PHOTO_TOP = ["hero", "pagehero", "plat"];
 
 export type BuilderState = {
@@ -65,10 +66,35 @@ const esc = (t: unknown) => String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "
 const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 const ID = /^[a-z0-9-]{1,60}$/;
 
-export function safeImage(v: unknown): string | null {
+// Files Studio uploads live in the public Supabase Storage bucket "studio-media".
+const UPLOADS = `${(process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/$/, "")}/storage/v1/object/public/studio-media/`;
+function localOrUpload(v: unknown, ext: string): string | null {
   let src = str(v);
   if (src.startsWith("media/")) src = "/studio-media/" + src.slice(6);
-  return /^\/[a-z0-9._/-]+\.(jpe?g|png|webp|gif|svg|avif)$/i.test(src) && !src.includes("..") ? src : null;
+  if (src.includes("..")) return null;
+  if (new RegExp(`^\\/[a-z0-9._/-]+\\.(${ext})$`, "i").test(src)) return src;
+  if (UPLOADS.startsWith("https://") && src.startsWith(UPLOADS) && new RegExp(`^[A-Za-z0-9._/-]+\\.(${ext})$`, "i").test(src.slice(UPLOADS.length))) return src;
+  return null;
+}
+export function safeImage(v: unknown): string | null { return localOrUpload(v, "jpe?g|png|webp|gif|svg|avif"); }
+export function safeVideo(v: unknown): string | null { return localOrUpload(v, "mp4|webm"); }
+// A photo spot holds an image, or a short video that plays silently on a loop.
+function mediaTag(v: unknown, attrs: string): string {
+  const video = safeVideo(v);
+  if (video) return `<video ${attrs} src="${esc(video)}" muted autoplay loop playsinline preload="metadata" aria-hidden="true"></video>`;
+  const img = safeImage(v);
+  return img ? `<img ${attrs} src="${esc(img)}" alt="">` : "";
+}
+// YouTube / Vimeo links (ids checked strictly) or an uploaded video, for the Video module.
+function embedHtml(v: unknown): string {
+  const u = str(v);
+  let m = u.match(/^https:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  const frame = (src: string, title: string) => `<iframe src="${esc(src)}" title="${title}" loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  if (m) return frame(`https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&playsinline=1`, "YouTube video");
+  m = u.match(/^https:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d{6,12})(?:\/([0-9a-f]{6,20}))?/);
+  if (m) return frame(`https://player.vimeo.com/video/${m[1]}?${m[2] ? `h=${m[2]}&` : ""}dnt=1&title=0&byline=0&portrait=0`, "Vimeo video");
+  const file = safeVideo(u);
+  return file ? `<video src="${esc(file)}" controls playsinline preload="metadata"></video>` : "";
 }
 export function safeHref(v: unknown): string | null {
   const href = str(v);
@@ -83,8 +109,8 @@ const hasText = (r: Record<string, unknown>) => Object.values(r).some((x) => str
 function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
   const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
-  const bg = (key: string) => { const src = safeImage(P(key)); return `<div class="hero-bg">${src ? `<img data-slot=".${key}" src="${esc(src)}"${crop(key)} alt="">` : ""}</div>`; };
-  const photo = (key: string) => { const src = safeImage(P(key)); return src ? `<div class="crop-clip"><img class="photo" data-slot=".${key}" src="${esc(src)}"${crop(key)} alt=""></div>` : "<div></div>"; };
+  const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
+  const photo = (key: string) => { const tag = mediaTag(P(key), `class="photo" data-slot=".${key}"${crop(key)}`); return tag ? `<div class="crop-clip">${tag}</div>` : "<div></div>"; };
   const points = (key: string) => { const v = rows(P(key)).filter(hasText); return v.length ? `<div class="points" data-slot=".${key}">${v.map((r) => `<div class="point"><b>${esc(str(r.title))}</b><p>${esc(str(r.proof))}</p></div>`).join("")}</div>` : ""; };
   const logos = (key: string, cls: string) => { const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean); return v.length ? `<div class="${cls}" data-slot=".${key}">${v.map((src) => `<img src="${esc(src)}" alt="">`).join("")}</div>` : ""; };
 
@@ -105,6 +131,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     case "quote": { const q = str(P("text")); return `${q ? `<blockquote data-slot=".text">“${esc(q)}”</blockquote>` : ""}${text("by", "cite")}`; }
     case "pagehero": return `${bg("image")}<div class="hero-main">${text("headline", "h1")}</div>`;
     case "points": return points("points");
+    case "video": { const v = embedHtml(P("video")); return v ? `${text("headline", "h2", "video-title")}<div class="video-frame" data-slot=".video">${v}</div>` : ""; }
     case "header": { const body = str(P("body")); return `<div class="sh">${text("tagline", "p", "tagline")}<div>${lines("headline", "h2")}${body ? `<p class="body" data-slot=".body">${esc(body)}</p>` : ""}</div></div>`; }
     case "offersonly": {
       const ids = Array.isArray(P("cards")) ? (P("cards") as unknown[]) : [];
@@ -154,7 +181,7 @@ export function renderLivePage(state: BuilderState, pageId: string): LivePage | 
     else {
       // A section with nothing placed in it is left off the live page.
       const html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link);
-      if (/<(img|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id: uid, className, html });
+      if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id: uid, className, html });
     }
   }
   const first = tpls[str(list[0]?.t)];

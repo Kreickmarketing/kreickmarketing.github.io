@@ -250,7 +250,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 
 .hero { min-height: 760px; color: #fff; background: var(--cm-midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
 .hero-bg { position: absolute; inset: 0; z-index: 0; }
-.hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.hero-bg :is(img, video) { width: 100%; height: 100%; object-fit: cover; }
 .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
 .hero-bg .slot { position: absolute; inset: 24px; z-index: 1; min-height: 0; font-size: 18px; place-items: start end; padding: 64px 24px; }
 .hero > *:not(.hero-bg):not(.sec-tag) { position: relative; z-index: 2; }
@@ -276,7 +276,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .sh h2 span { display: block; }
 .sh p.body { font-size: 20px; line-height: 1.45; color: var(--cm-iron); margin: 16px 0 0; max-width: 640px; }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-.split img.photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--cm-clay); }
+.split :is(img, video).photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--cm-clay); }
 .split .slot.photo { aspect-ratio: 4 / 5; }
 .points { display: flex; flex-direction: column; gap: 24px; }
 .point { border-top: 1px solid var(--cm-clay); padding-top: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -329,7 +329,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 @container (max-width: 1000px) {
   .split { grid-template-columns: 1fr; gap: 32px; }
   .split.flip > :first-child { order: 0; }
-  .split img.photo, .split .slot.photo { aspect-ratio: 4 / 3; }
+  .split :is(img, video).photo, .split .slot.photo { aspect-ratio: 4 / 3; }
   .point { grid-template-columns: 1fr 2fr; }
   .plat { min-height: 0; }
   .hero h1 { font-size: 56px; line-height: 54px; letter-spacing: -2px; }
@@ -350,7 +350,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .std, .mail { padding: 64px 20px; }
   .sh, .split, .mail, .point { grid-template-columns: 1fr; }
   .split.flip > :first-child { order: 0; }
-  .split img.photo, .split .slot.photo { aspect-ratio: 4 / 5; }
+  .split :is(img, video).photo, .split .slot.photo { aspect-ratio: 4 / 5; }
   .sh h2 { font-size: 36px; letter-spacing: -1.5px; }
   .plat-logos { grid-template-columns: repeat(2, 1fr); }
   .plat-foot { gap: 32px; }
@@ -583,6 +583,17 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .side::-webkit-scrollbar-thumb, .blk-body::-webkit-scrollbar-thumb { background: transparent; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
 .side:hover::-webkit-scrollbar-thumb, .blk-body:hover::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.28); }
 .side::-webkit-scrollbar-track, .blk-body::-webkit-scrollbar-track { background: transparent; }
+.vid-badge { position: absolute; right: 4px; bottom: 4px; background: rgba(28, 32, 38, 0.8); color: #fff; font-size: 10px; border-radius: 4px; padding: 1px 5px; pointer-events: none; }
+.src-img .im { position: relative; }
+.src-img .im video { width: 100%; height: 100%; object-fit: cover; }
+.upload small { display: block; color: var(--ink-3); font-size: 10.5px; }
+.crop-frame video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.video-title { font-size: 40px; line-height: 1.1; letter-spacing: -1.5px; font-weight: 300; margin: 0; }
+.video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--cm-midnight); display: grid; place-items: center; }
+.video-frame img, .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.video-play { position: relative; z-index: 1; width: 96px; height: 96px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); color: var(--cm-midnight); display: grid; place-items: center; font-size: 36px; padding-left: 6px; }
+.video-tag { position: absolute; z-index: 1; left: 16px; bottom: 16px; color: #fff; font-family: var(--f-mono); font-size: 16px; background: rgba(28, 32, 38, 0.7); padding: 2px 10px; border-radius: 999px; }
+.video-slot { aspect-ratio: 16 / 9; }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
 .crop-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; user-select: none; }
 .crop-hint { position: absolute; left: 8px; bottom: 8px; background: rgba(28, 32, 38, 0.78); color: #fff; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; pointer-events: none; }
@@ -774,6 +785,10 @@ const TEMPLATES = [
     { key: "image", label: "Hero image", kind: "image", source: "Images" },
     { key: "headline", label: "Headline", kind: "text", limit: 60, source: "Your own words" },
   ]},
+  { id: "video", name: "Video", type: "video", about: "A video with sound: a YouTube or Vimeo link, or a video you uploaded.", slots: [
+    { key: "headline", label: "Title", kind: "text", limit: 60, optional: true, source: "Optional, above the video" },
+    { key: "video", label: "Video", kind: "embed", about: "Paste a YouTube or Vimeo link, or drag an uploaded video here.", source: "YouTube · Vimeo · Sources → Images & video" },
+  ]},
   { id: "calendly", name: "Calendly booking", type: "calendly", about: "Your 15-minute call calendar. Nothing to fill.", slots: [] },
 ];
 // How templates look is decided in code (and in Claude Design), not here.
@@ -863,6 +878,8 @@ delete S.design; delete S.customTpls;
 if (!Array.isArray(S.pageList)) S.pageList = structuredClone(START_PAGES);
 for (const p of S.pageList) S.pages[p.id] = (S.pages[p.id] || []).filter((inst) => TPL[inst.t]);
 PAGE_LIST = S.pageList;
+// Files uploaded in live Studio before (kept in the draft).
+for (const m of (Array.isArray(S.media) ? S.media : []).slice().reverse()) if (m?.src && !IMAGES.some((i) => i.src === m.src)) IMAGES.unshift({ id: "up-" + IMAGES.length, src: m.src, name: m.name || "Upload", kind: m.kind === "video" ? "video" : "photo" });
 // Open a page straight from a link: /clrcrm/studio/builder?page=about
 { const want = new URLSearchParams(location.search).get("page"); if (want && PAGE_LIST.some((p) => p.id === want)) S.page = want; }
 rebuildSlots();
@@ -937,12 +954,24 @@ const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${
 const cropOf = (id) => { const c = S.crop?.[id]; return c && Number.isFinite(c.x) && Number.isFinite(c.y) ? c : null; };
 const zoomOf = (c) => (c && Number.isFinite(c.z) ? Math.min(3, Math.max(1, c.z)) : 1);
 const cropCss = (id) => { const c = cropOf(id); if (!c) return ""; const z = zoomOf(c); return `object-position:${c.x}% ${c.y}%` + (z > 1 ? `;transform:scale(${z});transform-origin:${c.x}% ${c.y}%` : ""); };
+// A photo spot can hold an image or a short video (MP4/WebM): videos play silently on a loop.
+const isVideo = (src) => /^(blob:|data:video\/)/i.test(src || "") || /\.(mp4|webm)(\?.*)?$/i.test(src || "");
+const media = (attrs, src, alt = "") => isVideo(src) ? `<video ${attrs} src="${esc(src)}" muted autoplay loop playsinline preload="metadata"></video>` : `<img ${attrs} src="${esc(src)}" alt="${esc(alt)}">`;
+// The Video module takes a YouTube or Vimeo link, or an uploaded video.
+function parseEmbed(v) {
+  v = String(v || "").trim(); if (!v) return null;
+  let m = v.match(/^https:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (m) return { type: "youtube", id: m[1] };
+  m = v.match(/^https:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?(\d{6,12})(?:\/([0-9a-f]{6,20}))?/);
+  if (m) return { type: "vimeo", id: m[1], hash: m[2] || "" };
+  return isVideo(v) ? { type: "file", src: v } : null;
+}
 const cropAttr = (id) => cropCss(id) ? ` style="${cropCss(id)}"` : "";
-const photoBox = (sec, id, alt = "") => { const photo = P(id); return photo ? `<div class="crop-clip"><img ${filledAttr(id).replace('class="', 'class="photo ')}${cropAttr(id)} src="${esc(photo)}" alt="${esc(alt)}" data-photoflip="${sec.id}" draggable="false"></div>` : slotBox(id, "photo").replace("<div ", `<div data-photoflip="${sec.id}" `); };
+const photoBox = (sec, id, alt = "") => { const photo = P(id); return photo ? `<div class="crop-clip">${media(`${filledAttr(id).replace('class="', 'class="photo ')}${cropAttr(id)} data-photoflip="${sec.id}" draggable="false"`, photo, alt)}</div>` : slotBox(id, "photo").replace("<div ", `<div data-photoflip="${sec.id}" `); };
 const SECTION_HTML = {
   hero: (sec, k) => {
     const img = P(k("image")), q = P(k("quote")), st = P(k("stat")), btn = P(k("button"));
-    return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))}${cropAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div>
+    return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
       <div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}
         ${btn ? `<span ${filledAttr(k("button")).replace('class="', 'class="cta ')}>${esc(btn)} →</span>` : slotBox(k("button"), "on-dark", "align-self:flex-start;min-width:220px")}
         ${P(k("link")) ? "" : `<div style="max-width:320px">${slotBox(k("link"), "on-dark")}</div>`}</div>
@@ -960,7 +989,7 @@ const SECTION_HTML = {
       ${P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${[1, 2, 3].map((n) => slotBox(k("points"), "", "min-height:110px").replace(esc(SLOTS[k("points")].label), `Point ${n}`)).join("")}</div>`}</div>`,
   plat: (sec, k) => {
     const img = P(k("image")), tags = P(k("tags")), logos = P(k("logos"));
-    return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))}${cropAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div>
+    return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
       <div class="sh">${text(k("label"), "p", "tagline", "on-dark")}${lines(k("headline"), "h2", "", "on-dark")}</div>
       <div class="plat-foot">${tags ? `<ul ${filledAttr(k("tags")).replace('class="', 'class="tag-pills ')}>${tags.map((t, i) => `<li data-item="${k("tags")}:${i}">${esc(t.tag)}</li>`).join("")}</ul>` : slotBox(k("tags"), "on-dark")}
       ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}</div>`;
@@ -972,7 +1001,7 @@ const SECTION_HTML = {
     return `<div>${own("label", "p", "tagline")}${text(k("headline"), "h2")}${text(k("intro"), "p")}</div>
       <div class="fake-form">${own("name", "div")}${own("email", "div")}${own("button", "span", "cta cta-red", "align-self:flex-start")}${own("thanks", "p", "mail-thanks")}</div>`;
   },
-  pagehero: (sec, k) => { const img = P(k("image")); return `<div class="hero-bg">${img ? `<img ${filledAttr(k("image"))}${cropAttr(k("image"))} src="${esc(img)}" alt="">` : slotBox(k("image"), "on-dark")}</div><div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}</div>`; },
+  pagehero: (sec, k) => { const img = P(k("image")); return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div><div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}</div>`; },
   story: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photoBox(sec, k("photo"))}${P(k("body")) ? `<p ${filledAttr(k("body")).replace('class="', 'class="body ')} style="font-size:20px;line-height:1.5;color:var(--cm-iron)">${esc(P(k("body")))}</p>` : slotBox(k("body"), "", "min-height:240px")}</div>`,
   points: (sec, k) => P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${slotBox(k("points"), "", "min-height:160px")}</div>`,
   // A heading block: tagline on the left; headline (and an optional paragraph) on the right.
@@ -982,9 +1011,15 @@ const SECTION_HTML = {
     return `<div class="sh">${text(k("tagline"), "p", "tagline")}<div>${lines(k("headline"), "h2")}${bodyHtml}</div></div>`;
   },
   offersonly: (sec, k) => offersBlock(k("cards"), SLOTS[k("cards")].max),
+  video: (sec, k) => {
+    const e = parseEmbed(P(k("video")));
+    const inner = !e ? slotBox(k("video"), "video-slot") : `<div ${filledAttr(k("video")).replace('class="', 'class="video-frame ')}>${e.type === "file" ? `<video src="${esc(e.src)}" muted controls playsinline preload="metadata"></video>`
+      : e.type === "youtube" ? `<img src="https://i.ytimg.com/vi/${e.id}/hqdefault.jpg" alt=""><span class="video-play">▶</span><span class="video-tag">YouTube</span>` : `<span class="video-play">▶</span><span class="video-tag">Vimeo</span>`}</div>`;
+    return `${text(k("headline"), "h2", "video-title", "slot-optional")}${inner}`;
+  },
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
-const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", calendly: "std" };
+const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", video: "std", calendly: "std" };
 
 const PHOTO_TOP = ["hero", "pagehero", "plat"];
 function pageHtml(page, live = true) {
@@ -1035,13 +1070,18 @@ function cardBody(id) {
     if (sl.key === "button" && SLOTS[linkId]) ed += linkEditor(linkId);
   } else if (sl.kind === "link") {
     ed = linkEditor(id);
+  } else if (sl.kind === "embed") {
+    const e = parseEmbed(v), shown = /^https:/i.test(v) ? v : "";
+    ed = `<div class="field"><label for="in-${id}">Video link</label><input class="input" id="in-${id}" data-embed="${id}" value="${esc(shown)}" placeholder="https://www.youtube.com/watch?v=… or https://vimeo.com/…" autocapitalize="off" spellcheck="false"><small class="slug-err" id="embed-err"></small></div>
+      <p class="source">${e ? `Now: ${e.type === "youtube" ? "YouTube" : e.type === "vimeo" ? "Vimeo" : "your uploaded video"}${shown ? ` · <a class="set-link" href="${esc(shown)}" target="_blank" rel="noopener noreferrer">open ↗</a>` : ""}` : "Or drag a video from Sources → Images & video onto it."}</p>
+      <p class="source">YouTube keeps a small logo and suggests your own videos at the end. Vimeo (paid plan) and uploaded videos show nothing extra.</p>`;
   } else if (sl.kind === "image") {
     const c = cropOf(id), bgShape = sl.key === "image";
     ed = v ? `<div class="field"><label>Crop · ${c ? "your focus point" : "auto (centre)"}</label>
-        <div class="crop-frame" data-crop="${id}" style="${bgShape ? "aspect-ratio:16 / 9" : "aspect-ratio:4 / 5;width:auto;height:280px;margin-inline:auto"}"><img src="${esc(v)}" alt="" style="${cropCss(id)}" draggable="false"><span class="crop-dot" style="left:${c ? c.x : 50}%;top:${c ? c.y : 50}%"></span><span class="crop-hint">⇕ Mouse wheel to zoom · <b class="crop-z">${zoomOf(c).toFixed(1)}×</b></span></div>
+        <div class="crop-frame" data-crop="${id}" style="${bgShape ? "aspect-ratio:16 / 9" : "aspect-ratio:4 / 5;width:auto;height:280px;margin-inline:auto"}">${media(`style="${cropCss(id)}" draggable="false"`, v)}<span class="crop-dot" style="left:${c ? c.x : 50}%;top:${c ? c.y : 50}%"></span><span class="crop-hint">⇕ Mouse wheel to zoom · <b class="crop-z">${zoomOf(c).toFixed(1)}×</b></span></div>
         <p class="source">Click or drag on the photo to choose what stays in view at every screen size. Scroll the mouse wheel over it to zoom in or out.</p>
         <div class="card-actions"><button type="button" class="btn btn-small" data-zoom="${id}:-1" aria-label="Zoom out" ${zoomOf(c) <= 1 ? "disabled" : ""}>−</button><button type="button" class="btn btn-small" data-zoom="${id}:1" aria-label="Zoom in" ${zoomOf(c) >= 3 ? "disabled" : ""}>+</button><button type="button" class="btn btn-small" data-cropauto="${id}" ${c ? "" : "disabled"}>Auto (centre, no zoom)</button></div></div>`
-      : `<div class="dropzone">Drop an image here, or on the preview.</div>`;
+      : `<div class="dropzone">Drop an image or video here, or on the preview.</div>`;
   } else if (sl.kind === "logos") {
     ed = `<div class="field"><label>Logos · ${v.length}/${sl.max}</label><div class="pick-grid">${v.map((s, i) => `<figure><img src="${esc(s)}" alt=""><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove logo ${i + 1}">×</button></figure>`).join("")}</div></div><div class="dropzone">Drop logos here, or tap them in Sources.</div>`;
   } else if (sl.kind === "offers") {
@@ -1093,7 +1133,7 @@ function linkEditor(id) {
 }
 function setLink(id, val) { snap(id); S.slots[id] = { value: val, placed: val }; render(); toast(val ? "Link updated." : "Link removed."); }
 
-const KIND_CHIP = (sl) => sl.kind === "text" ? `text · ${sl.limit}` : sl.kind === "list" ? `list · ${sl.max}` : sl.kind === "logos" ? `logos · ${sl.max}` : sl.kind === "offers" ? `cards · ${sl.max}` : sl.kind;
+const KIND_CHIP = (sl) => sl.kind === "embed" ? "video" : sl.kind === "text" ? `text · ${sl.limit}` : sl.kind === "list" ? `list · ${sl.max}` : sl.kind === "logos" ? `logos · ${sl.max}` : sl.kind === "offers" ? `cards · ${sl.max}` : sl.kind;
 
 // Small line drawings of each template, for the Templates list.
 function tplThumb(type) {
@@ -1113,6 +1153,7 @@ function tplThumb(type) {
     mail: L("M8 14h28", 3) + L("M8 22h24", 1.2) + R(44, 10, 28, 6) + R(44, 20, 28, 6) + R(44, 30, 14, 6, 3),
     pagehero: F(1, 1, 78, 30) + L("M8 22h40", 3),
     calendly: R(16, 8, 48, 32) + L("M16 16h48M28 8v-2M52 8v-2"),
+    video: F(14, 6, 52, 32) + L("M36 15l10 7-10 7z", 2),
   }[type] || "";
   return `<svg viewBox="0 0 80 48" class="tpl-thumb" aria-hidden="true">${R(1, 1, 78, 46, 4)}${g}</svg>`;
 }
@@ -1210,18 +1251,18 @@ function closeRemove(yes) {
 function syncFilter() { document.querySelectorAll("[data-filter]").forEach((b) => b.matches(".seg button") && b.setAttribute("aria-pressed", b.dataset.filter === filter)); }
 
 // ── Sources (left nav, under Layers): images, Playbook lines and CMS cards to drag onto spots ──
-const accepts = (sl, p) => (p.type === "image" && (sl.kind === "image" || sl.kind === "logos")) || (p.type === "text" && (sl.kind === "text" || sl.kind === "list")) || (p.type === "offer" && sl.kind === "offers");
+const accepts = (sl, p) => (p.type === "image" && (sl.kind === "image" || (sl.kind === "logos" && !isVideo(p.value)) || (sl.kind === "embed" && isVideo(p.value)))) || (p.type === "text" && (sl.kind === "text" || sl.kind === "list")) || (p.type === "offer" && sl.kind === "offers");
 const pickedName = () => picked.type === "image" ? IMAGES.find((i) => i.src === picked.value)?.name || "Uploaded image" : picked.type === "offer" ? offerById(picked.value).title : `“${picked.value.slice(0, 40)}${picked.value.length > 40 ? "…" : ""}”`;
 // Each group folds open like a section in Layers. Drag an item onto a dotted box or the
 // Edit pane; on a phone, tap it, then tap a dotted box.
 const SRC_GROUPS = [
-  { id: "images", name: "Images", icon: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/>', count: () => IMAGES.length },
+  { id: "images", name: "Images & video", icon: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/>', count: () => IMAGES.length },
   { id: "playbook", name: "Playbook", icon: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>', count: () => PLAYBOOK.length },
   { id: "cms", name: "CMS Cards", icon: '<rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/>', count: () => OFFERS.length },
 ];
 function sourceItems(id) {
-  if (id === "images") return `<div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im"><img src="${esc(im.src)}" alt=""></div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
-      <label class="upload" for="upload">+ Add your own image (stays in this browser)<input type="file" id="upload" accept="image/*"></label>`;
+  if (id === "images") return `<div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im">${isVideo(im.src) ? `<video src="${esc(im.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(im.src)}" alt="">`}</div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
+      <label class="upload" for="upload">+ Upload an image or video${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`;
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
   return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0"><img src="${esc(o.image)}" alt=""><span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
@@ -1264,9 +1305,9 @@ function revert(id) {
 }
 function fill(id, p, place) {
   const sl = SLOTS[id], st = S.slots[id];
-  if (!accepts(sl, p)) { toast(`${sl.label} takes ${sl.kind === "offers" ? "offer cards" : sl.kind === "image" || sl.kind === "logos" ? "images" : "text"}.`); return; }
+  if (!accepts(sl, p)) { toast(`${sl.label} takes ${sl.kind === "offers" ? "offer cards" : sl.kind === "embed" ? "a video" : sl.kind === "logos" ? "images (not video)" : sl.kind === "image" ? "images or video" : "text"}.`); return; }
   snap(id);
-  if (sl.kind === "image") st.value = p.value;
+  if (sl.kind === "image" || sl.kind === "embed") st.value = p.value;
   else if (sl.kind === "logos") { if (st.value.length >= sl.max) return toast(`${sl.label} holds up to ${sl.max}.`); if (!st.value.includes(p.value)) st.value = [...st.value, p.value]; }
   else if (sl.kind === "offers") { if (st.value.length >= sl.max) return toast(`${sl.label} holds up to ${sl.max}.`); if (!st.value.includes(p.value)) st.value = [...st.value, p.value]; }
   else if (sl.kind === "text") st.value = p.value;
@@ -1387,6 +1428,11 @@ function refreshCard(id, input) {
 }
 document.addEventListener("change", (e) => {
   const t = e.target;
+  if (t.dataset.embed) {
+    const id = t.dataset.embed, v = t.value.trim();
+    if (v && !parseEmbed(v)) { const err = document.getElementById("embed-err"); if (err) err.textContent = "Paste a YouTube or Vimeo link (starting with https://)."; return; }
+    snap(id); S.slots[id] = { value: v, placed: v }; render(); toast(v ? "Video set." : "Video removed."); return;
+  }
   if (t.dataset.linkpage != null) { setLink(t.dataset.linkpage, t.value ? "page:" + t.value : ""); return; }
   if (t.dataset.linksec != null) { const cur = String(S.slots[t.dataset.linksec].placed || "").slice(5).split("#")[0]; setLink(t.dataset.linksec, "page:" + cur + (t.value ? "#" + t.value : "")); return; }
   if (t.dataset.linkurl != null) {
@@ -1396,14 +1442,41 @@ document.addEventListener("change", (e) => {
   }
   if (t.dataset.addoffer && t.value) { snap(t.dataset.addoffer); S.slots[t.dataset.addoffer].value.push(t.value); render(); }
   if (t.id === "guides") { S.guides = t.checked; render(); }
-  if (t.id === "upload" && t.files[0]) {
-    const f = t.files[0];
-    if (f.size > 3e6) return toast("Pick an image under 3 MB for the prototype.");
-    const r = new FileReader();
-    r.onload = () => { IMAGES.unshift({ id: "up-" + Date.now(), src: r.result, name: f.name, kind: "photo" }); renderSources(); toast("Added to Images. Drag it onto a spot."); };
-    r.readAsDataURL(f);
-  }
+  if (t.id === "upload" && t.files[0]) { uploadMedia(t.files[0]); t.value = ""; }
 });
+
+// ── Uploads (images and video). Live Studio sends the file straight to Supabase Storage
+// with a one-time link from the Studio API, and remembers it in the draft (S.media) so it
+// stays in Sources. The prototype keeps uploads in this browser only.
+const MB = 1048576;
+async function uploadMedia(f) {
+  const video = f.type.startsWith("video/");
+  if (video && !/^video\/(mp4|webm)$/.test(f.type)) return toast("Videos need to be MP4 or WebM.");
+  if (!video && !/^image\/(jpeg|png|webp|gif|avif)$/.test(f.type)) return toast("Images need to be JPG, PNG, WebP, GIF or AVIF.");
+  if (f.size > 50 * MB) return toast("That file is over 50 MB, the most Supabase takes. Shorten or compress it first.");
+  const big = video && f.size > 8 * MB ? ` It's ${(f.size / MB).toFixed(1)} MB: every visit downloads it, so aim for under 5 MB for backgrounds.` : "";
+  const add = (src, keep) => {
+    IMAGES.unshift({ id: "up-" + Date.now(), src, name: f.name, kind: video ? "video" : "photo" });
+    if (keep) { (S.media ||= []).unshift({ src, name: f.name.slice(0, 80), kind: video ? "video" : "photo" }); save(); }
+    UI.src.add("images"); renderSources();
+    toast(`Added to Images & video. Drag it onto a photo, a background or a Video module.${big}`);
+  };
+  if (!LIVE) {
+    if (!video && f.size > 3e6) return toast("Pick an image under 3 MB for the prototype.");
+    if (video) return add(URL.createObjectURL(f), false);
+    const r = new FileReader(); r.onload = () => add(r.result, false); r.readAsDataURL(f); return;
+  }
+  toast(`Uploading ${f.name}…`);
+  try {
+    const res = await fetch(API + "?action=upload-url", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: f.type, size: f.size }) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || "Couldn't start the upload");
+    const fd = new FormData(); fd.append("cacheControl", "31536000"); fd.append("", f);
+    const up = await fetch(j.uploadUrl, { method: "PUT", body: fd, headers: { "x-upsert": "false" } });
+    if (!up.ok) throw new Error("The upload didn't finish. Try again.");
+    add(j.publicUrl, true);
+  } catch (e) { toast(e.message); }
+}
 
 // Drag and drop from Sources onto a card (draft) or a dotted box (placed).
 let dragging = null;
@@ -1668,6 +1741,7 @@ const MOD_ICON = {
   lists: '<path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
   logos: '<circle cx="6" cy="12" r="3"/><rect x="11" y="9" width="5" height="6" rx="1"/><path d="M19 9l2.5 6h-5z"/>',
   cms: '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
+  video: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>',
   forms: '<rect x="3" y="5" width="18" height="5" rx="1.5"/><rect x="3" y="13" width="11" height="5" rx="2.5"/>',
 };
 const svg = (paths, cls = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${paths}</svg>`;
@@ -1680,6 +1754,7 @@ function modCats() {
     { id: "lists", name: "Points & quotes", color: "var(--iron-moss)", tpls: ["points", "quote"] },
     { id: "logos", name: "Logos", color: "var(--deep-taupe)", tpls: ["logos"] },
     { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offers"] },
+    { id: "video", name: "Video", color: "", tpls: ["video"] },
     { id: "forms", name: "Forms & embeds", color: "var(--merlot)", tpls: ["mailing", "calendly"] },
   ];
   return cats;
@@ -1739,7 +1814,7 @@ function renderSide() {
 }
 
 // ── Layers: sections (drag to move) with their spots inside, like Figma's layer list ──
-const KIND_ICON = { text: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>', link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>', image: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/>', logos: '<rect x="3" y="8" width="7" height="8" rx="1"/><rect x="14" y="8" width="7" height="8" rx="1"/>', list: '<path d="M9 6h12M9 12h12M9 18h12M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>', offers: '<rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/>' };
+const KIND_ICON = { embed: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>', text: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>', link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>', image: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/>', logos: '<rect x="3" y="8" width="7" height="8" rx="1"/><rect x="14" y="8" width="7" height="8" rx="1"/>', list: '<path d="M9 6h12M9 12h12M9 18h12M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>', offers: '<rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/>' };
 const spotRow = (sl) => { const st = status(sl.id); return `<div class="lay-row lay-spot" data-navslot="${sl.id}" role="button" tabindex="0" aria-current="${selected === sl.id}">${svg(KIND_ICON[sl.kind] || KIND_ICON.text, "lay-ico")}<span class="grow">${esc(sl.label)}</span><span class="lay-kind">${esc(KIND_CHIP(sl))}</span><span class="dot ${st === "empty" ? "" : st}" title="${st}"></span></div>`; };
 const secOpen = (id) => curSec === id || UI.exp.has(id);
 function layerHtml(sec, si, total) {
@@ -2067,11 +2142,11 @@ function applyCrop(id) {
   const css = cropCss(id), c = cropOf(id), frame = document.querySelector(`[data-crop="${id}"]`);
   const set = (im) => { im.style.objectPosition = ""; im.style.transform = ""; im.style.transformOrigin = ""; im.style.cssText += ";" + css; };
   if (frame) {
-    set(frame.querySelector("img"));
+    set(frame.querySelector("img, video"));
     Object.assign(frame.querySelector(".crop-dot").style, { left: (c ? c.x : 50) + "%", top: (c ? c.y : 50) + "%" });
     frame.querySelector(".crop-z").textContent = zoomOf(c).toFixed(1) + "×";
   }
-  document.querySelectorAll(`#site img[data-slot="${id}"]`).forEach(set);
+  document.querySelectorAll(`#site img[data-slot="${id}"], #site video[data-slot="${id}"]`).forEach(set);
 }
 // Zoom: mouse wheel over the photo (or the − + buttons). Each pause counts as one change for Revert.
 let zoomT = null, zoomSnapped = false;

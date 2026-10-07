@@ -3,11 +3,16 @@ import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import { livePageIds, withUnpublished, type BuilderState } from "@/lib/builder-site";
 
-// Save (PUT), Publish (POST ?action=publish) and Unpublish one page
-// (POST ?action=unpublish&page=<id>) for the Studio builder.
+// Save (PUT), Publish (POST ?action=publish), Unpublish one page
+// (POST ?action=unpublish&page=<id>) and start an upload (POST ?action=upload-url)
+// for the Studio builder.
 // Every call checks the login again; Supabase's row rules (RLS) are the second lock.
 const MAX_BYTES = 2_000_000;
 const fail = (error: string, status = 400) => NextResponse.json({ error }, { status });
+const UPLOAD_TYPES: Record<string, string> = {
+  "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif",
+  "video/mp4": "mp4", "video/webm": "webm",
+};
 
 async function siteId() {
   const supabase = await getServerSupabase();
@@ -33,10 +38,26 @@ export async function PUT(request: Request) {
 
 export async function POST(request: Request) {
   const params = new URL(request.url).searchParams, action = params.get("action");
-  if (action !== "publish" && action !== "unpublish") return fail("Unknown action");
+  if (action !== "publish" && action !== "unpublish" && action !== "upload-url") return fail("Unknown action");
   if (!(await getCrmMember())) return fail("You're logged out. Log in again", 401);
   const { supabase, id } = await siteId();
   if (!id) return fail("Site not found", 404);
+  if (action === "upload-url") {
+    // A one-time link the browser uses to send the file straight to Supabase Storage
+    // (so big videos don't pass through Vercel). The bucket also enforces type and size.
+    let body: { type?: unknown; size?: unknown };
+    try { body = await request.json(); } catch { return fail("That request isn't readable"); }
+    const ext = UPLOAD_TYPES[String(body.type)];
+    if (!ext) return fail("Use a JPG, PNG, WebP, GIF or AVIF image, or an MP4 or WebM video");
+    const size = Number(body.size);
+    if (!(size > 0 && size <= 50 * 1024 * 1024)) return fail("Files can be up to 50 MB");
+    // File names aren't kept in the address (they can name clients); a random name instead.
+    const path = `${new Date().toISOString().slice(0, 7)}/${crypto.randomUUID()}.${ext}`;
+    const bucket = supabase.storage.from("studio-media");
+    const { data, error } = await bucket.createSignedUploadUrl(path);
+    if (error || !data) return fail(error?.message || "Couldn't start the upload", 500);
+    return NextResponse.json({ ok: true, uploadUrl: data.signedUrl, publicUrl: bucket.getPublicUrl(path).data.publicUrl });
+  }
   if (action === "unpublish") {
     // Take one page off the live site now; it stays in Studio (draft) as work in progress.
     const page = params.get("page") || "";

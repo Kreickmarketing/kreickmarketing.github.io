@@ -23,7 +23,7 @@
 .site .bnav .pill-cta:hover { text-decoration: none; background: rgba(255, 255, 255, 0.14); }
 .site .hero { min-height: 760px; color: var(--white); background: var(--midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
 .site .hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
-.site .hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.site .hero-bg :is(img, video) { width: 100%; height: 100%; object-fit: cover; }
 .site .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
 .site .hero-main { display: flex; flex-direction: column; gap: 32px; max-width: 760px; }
 .site .hero h1 { font-size: 64px; line-height: 68px; letter-spacing: -3px; font-weight: 700; margin: 0; }
@@ -47,7 +47,7 @@
 .site .sh h2 span { display: block; }
 .site .sh p.body { font-size: 20px; line-height: 1.45; color: var(--iron-pine); margin: 16px 0 0; max-width: 640px; }
 .site .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-.site .split img.photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--clay); }
+.site .split :is(img, video).photo { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 18px; background: var(--clay); }
 /* Holds a zoomed photo inside its frame (Studio crop). */
 .site .crop-clip { display: block; overflow: hidden; border-radius: 18px; }
 .site .points { display: flex; flex-direction: column; gap: 24px; }
@@ -118,10 +118,10 @@
 
 /* Photo shape per size, and the phone nav. */
 @container (max-width: 1000px) {
-  .site .split img.photo { aspect-ratio: 4 / 3; }
+  .site .split :is(img, video).photo { aspect-ratio: 4 / 3; }
 }
 @container (max-width: 700px) {
-  .site .split img.photo { aspect-ratio: 4 / 5; }
+  .site .split :is(img, video).photo { aspect-ratio: 4 / 5; }
   .site .bnav { padding: 20px; }
   .site .bnav img { height: 30px; }
   .site .bnav li:not(:last-child) { display: none; }
@@ -135,3 +135,8 @@
 
 /* Calendly booking. */
 .site .calendly { border: 1px solid var(--clay); border-radius: 18px; background: var(--white); padding: 48px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; color: var(--iron-pine); font-size: 18px; }
+
+/* Video module (Studio): YouTube / Vimeo / uploaded video, 16:9 with rounded corners. */
+.site .video-title { font-size: 40px; line-height: 1.1; letter-spacing: -1.5px; font-weight: 300; margin: 0; }
+.site .video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--midnight); }
+.site .video-frame iframe, .site .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }

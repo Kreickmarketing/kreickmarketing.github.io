@@ -1,4 +1,4 @@
-# Project status (updated Oct 7, 2026, Studio side nav)
+# Project status (updated Oct 7, 2026, Studio live with video and uploads)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
@@ -11,6 +11,7 @@
 - `components/`: Card (13 sizes), Hero, SectionHeader, Credibility, Platforms, SiteNav (+ SiteTabBar), Footer. All size themselves by their own width.
 - `app/design-system/`: the design system page and its sample content.
 - `app/clrcrm/`: team area (login, Studio, CRM, playbook, interview).
+- Uploads: Supabase Storage bucket `studio-media` (clearmark-test), see `supabase/studio-media.sql`.
 - `supabase/`: SQL for signups, crm_members, clients, products, and Studio (`studio.sql`: sites, pages, collections, items, media, tags, versions). Project clearmark-test only.
 - `lib/studio.ts`: the shape of a Studio page (sections → components or a card grid).
 - `docs/design-system/`: text-styles.md, cards.md (content fields, card specs).
