@@ -971,7 +971,7 @@ const TEMPLATES = [
     { key: "tags", label: "+ Tags", kind: "list", max: 9, axis: "x", cols: [{ key: "tag", label: "Tag", limit: 30 }], source: "Business areas you serve" },
     { key: "logos", label: "Logos", kind: "logos", max: 10, axis: "x", source: "Images · Platform logos" },
   ]},
-  { id: "offers", name: "Offer cards", type: "offersonly", about: "Up to four offer cards from the CMS, side by side.", slots: [
+  { id: "offers", name: "Offer cards", type: "offersonly", hidden: true, about: "Up to four offer cards from the CMS, side by side.", slots: [
     { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
   ]},
   // Offer cards built from the design-system cards (canvas rows Offer Card Full / Two / Three, Oct 8).
@@ -1465,11 +1465,11 @@ function setLink(id, val) { snap(id); S.slots[id] = { value: val, placed: val };
 const KIND_CHIP = (sl) => sl.kind === "embed" ? "video" : sl.kind === "text" ? `text · ${sl.limit}` : sl.kind === "list" ? `list · ${sl.max}` : sl.kind === "logos" ? `logos · ${sl.max}` : sl.kind === "offers" ? `cards · ${sl.max}` : sl.kind;
 
 // Small line drawings of each template, for the Templates list.
-function tplThumb(type) {
+function tplThumb(type, id = "") {
   const L = (d, w = 1.5) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round"/>`;
   const R = (x, y, w, h, r = 2, dash = false) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="currentColor" stroke-width="1.5"${dash ? ' stroke-dasharray="3 2"' : ""}/>`;
   const F = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="currentColor" opacity="0.25"/>`;
-  const g = {
+  let g = {
     hero: F(1, 1, 78, 46) + L("M8 24h40M8 30h28", 3) + R(8, 36, 16, 6, 3),
     header: L("M8 12h14") + L("M34 12h36M34 19h28", 3) + L("M34 28h36M34 33h30", 1.2),
     cred: L("M8 24h14") + [30, 42, 54, 66].map((x) => R(x, 19, 9, 10)).join(""),
@@ -1477,14 +1477,18 @@ function tplThumb(type) {
     story: F(6, 6, 28, 36) + L("M42 12h32M42 18h30M42 24h32M42 30h26", 1.2),
     plat: F(1, 1, 78, 46) + L("M8 9h10M30 9h40") + [8, 22, 36].map((x) => R(x, 32, 12, 6, 3)).join(""),
     offersonly: [6, 30, 54].map((x) => F(x, 8, 20, 32)).join(""),
-    ocards: [6, 30, 54].map((x) => F(x, 8, 20, 32)).join(""),
+    // The three design-system offer layouts: one wide card (words in a panel), two squares, three tall cards.
+    "offer-full": F(4, 6, 72, 36) + R(9, 12, 22, 18, 2) + L("M13 17h12M13 22h9", 1.5) + R(9, 34, 11, 4, 2) + L("M60 36h11", 2.5),
+    "offer-two": [6, 42].map((x) => F(x, 8, 32, 32) + L(`M${x + 4} 13h14M${x + 4} 17h10`, 1.5) + L(`M${x + 4} 32h24`, 1) + L(`M${x + 20} 36h8`, 2.5)).join(""),
+    "offer-three": [7, 30, 53].map((x) => F(x, 9, 20, 30) + L(`M${x + 3} 14h10M${x + 3} 18h7`, 1.5) + L(`M${x + 3} 32h14`, 1) + L(`M${x + 11} 35h6`, 2)).join(""),
     points: L("M8 12h20M36 12h36M8 24h20M36 24h36M8 36h20M36 36h36"),
     quote: L("M10 14h60M10 21h56M10 28h40", 2.5) + L("M10 38h20", 1.2),
     mail: L("M8 14h28", 3) + L("M8 22h24", 1.2) + R(44, 10, 28, 6) + R(44, 20, 28, 6) + R(44, 30, 14, 6, 3),
     pagehero: F(1, 1, 78, 30) + L("M8 22h40", 3),
     calendly: R(16, 8, 48, 32) + L("M16 16h48M28 8v-2M52 8v-2"),
     video: F(14, 6, 52, 32) + L("M36 15l10 7-10 7z", 2),
-  }[type] || "";
+  };
+  g = g[id] || g[type] || "";
   return `<svg viewBox="0 0 80 48" class="tpl-thumb" aria-hidden="true">${R(1, 1, 78, 46, 4)}${g}</svg>`;
 }
 
@@ -1492,8 +1496,8 @@ function renderTemplates() {
   const page = pageView(S.page);
   const after = curSec && page.sections.find((x) => x.id === curSec);
   $("#cards").innerHTML = `<p class="hint" style="margin:0">Each template is a section designed in code. <b style="color:var(--ink-2)">+ Add</b> puts it ${after ? `after <b style="color:var(--ink)">${esc(after.name)}</b>` : "at the end of the page"}; or drag it onto the preview, where a blue line shows where it lands.</p>
-    <div class="tpl-list">${TEMPLATES.map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">
-      ${tplThumb(t.type)}<div class="tpl-text"><b>${esc(t.name)}</b><span>${esc(t.about)}</span><span class="chip" style="align-self:flex-start">${t.slots.length ? `${t.slots.length} ${t.slots.length === 1 ? "spot" : "spots"}` : "nothing to fill"}${t.flip ? " · photo left or right" : ""}</span></div>
+    <div class="tpl-list">${TEMPLATES.filter((t) => !t.hidden).map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">
+      ${tplThumb(t.type, t.id)}<div class="tpl-text"><b>${esc(t.name)}</b><span>${esc(t.about)}</span><span class="chip" style="align-self:flex-start">${t.slots.length ? `${t.slots.length} ${t.slots.length === 1 ? "spot" : "spots"}` : "nothing to fill"}${t.flip ? " · photo left or right" : ""}</span></div>
       <button type="button" class="btn btn-small btn-primary" data-addtpl="${t.id}">+ Add</button></div>`).join("")}</div>`;
 }
 
@@ -1689,7 +1693,7 @@ const modulesInner = () => {
   return `${modCats().map((c) => {
     const open = UI.mods.has(c.id);
     return `<div class="lay-sec${open ? " is-open" : ""}"><button type="button" class="lay-row lay-head src-head" data-modgroup="${c.id}" aria-expanded="${open}">${svg('<path d="m9 6 6 6-6 6"/>', "lay-chev")}${svg(MOD_ICON[c.id], "lay-ico")}<span class="grow">${esc(c.name)}</span><span class="sub">${c.tpls.length}</span></button>
-      ${open ? `<div class="src-body">${c.tpls.map((id) => TPL[id]).map((t) => `<div class="mod-item" data-tpldrag="${t.id}" title="Drag onto the page">${tplThumb(t.type)}<span class="grow"><b>${esc(t.name)}</b><span>${esc(t.about)}</span></span><button type="button" class="btn btn-small btn-outline" data-addtpl="${t.id}" title="${esc(where)}">+ Add</button></div>`).join("")}</div>` : ""}</div>`;
+      ${open ? `<div class="src-body">${c.tpls.map((id) => TPL[id]).map((t) => `<div class="mod-item" data-tpldrag="${t.id}" title="Drag onto the page">${tplThumb(t.type, t.id)}<span class="grow"><b>${esc(t.name)}</b><span>${esc(t.about)}</span></span><button type="button" class="btn btn-small btn-outline" data-addtpl="${t.id}" title="${esc(where)}">+ Add</button></div>`).join("")}</div>` : ""}</div>`;
   }).join("")}`;
 };
 function renderModules() { const box = document.getElementById("side-modules"); if (box) box.innerHTML = modulesInner(); }
@@ -2232,7 +2236,7 @@ function modCats() {
     { id: "photo", name: "Photo + text", color: "var(--tangerine-burst)", tpls: ["photo-points", "photo-text", "photo-tags"] },
     { id: "lists", name: "Points & quotes", color: "var(--iron-moss)", tpls: ["points", "quote"] },
     { id: "logos", name: "Logos", color: "var(--deep-taupe)", tpls: ["logos"] },
-    { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offers", "offer-full", "offer-two", "offer-three"] },
+    { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offer-full", "offer-two", "offer-three"] },
     { id: "video", name: "Video", color: "", tpls: ["video"] },
     { id: "forms", name: "Forms & embeds", color: "var(--merlot)", tpls: ["mailing", "calendly"] },
   ];
