@@ -28,6 +28,7 @@ const TEMPLATES: Template[] = [
   { id: "offers", type: "offersonly", slots: [s("cards", "offers")] },
   // Design-system offer cards (canvas: Offer Card Full / Two / Three). Sizes per screen: builder-site.css.
   { id: "system", type: "system", slots: [s("image", "image"), s("label", "text"), s("headline", "text"), s("answer", "text"), s("cards", "list")] },
+  { id: "engine", type: "engine", slots: [s("image", "image"), s("nodes", "list"), s("headline", "text"), s("body", "text")] },
   { id: "offer-full", type: "ocards", slots: [s("cards", "offers")] },
   { id: "offer-two", type: "ocards", slots: [s("cards", "offers")] },
   { id: "offer-three", type: "ocards", slots: [s("cards", "offers")] },
@@ -53,8 +54,8 @@ function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
   };
 }
 
-const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", system: "std plat sys", video: "std", calendly: "std" };
-const PHOTO_TOP = ["hero", "pagehero", "plat", "system"];
+const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std" };
+const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 
 export type BuilderState = {
   pages?: Record<string, { uid: string; t: string; name?: string }[]>;
@@ -166,6 +167,17 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const icons = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><path d=\"M5 12h22M5 20h12M15 4v16\"/><path d=\"M20 26l3 3 6-7\"/>", "<rect x=\"3\" y=\"5\" width=\"26\" height=\"18\" rx=\"2\"/><path d=\"M7 15h4l2-4 3 7 2-3h3\"/><path d=\"M24 30s-5-3-5-6a2.5 2.5 0 0 1 5-1 2.5 2.5 0 0 1 5 1c0 3-5 6-5 6z\"/>", "<path d=\"M3 16h10l8-9h7M24 3l4 4-4 4\"/><path d=\"M13 16l8 9h7M24 21l4 4-4 4\"/>", "<path d=\"M5 28v-3M11 28v-6M17 28v-9M23 28v-12M29 28v-15\"/><path d=\"M4 18l8-7 6 4 11-10M24 5h5v5\"/>"];
       const cards = rows(P("cards")).filter(hasText).slice(0, 4);
       return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p><svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg></article>`).join("")}</div>` : ""}`;
+    }
+    case "engine": {
+      // Engine (T.O.E.): the icon for each place, the fan + laptop drawing, then the words. Hover moves: builder-site.css.
+      const icons = ["<path d=\"M20 8a9 9 0 1 0 2.6 6.4\"/><path d=\"M22 6v5h-5\"/><path d=\"M14 10v5l3 2\"/>", "<rect x=\"5\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M9 12h4M9 16h3\"/><circle cx=\"20\" cy=\"14\" r=\"2\"/><path d=\"M20 16v4l-3 3\"/>", "<path d=\"M5 9V6h3M20 6h3v3M23 19v3h-3M8 22H5v-3\"/><circle cx=\"12\" cy=\"11\" r=\"2\"/><path d=\"M9 19l2-4 3 2\"/><path d=\"M19 14l4 7h-8z\"/><path d=\"M19 17v2\"/>", "<path d=\"M6 22v-2M10 22v-5M14 22v-8M18 22v-6M22 22v-11\"/><path d=\"M5 15l6-6 4 3 8-7M19 5h4v4\"/>", "<circle cx=\"11\" cy=\"10\" r=\"4\"/><path d=\"M4 23c0-4 3-6 7-6s7 2 7 6\"/><path d=\"M21 9v6M18 12h6\"/>"];
+      const fan = "<svg class=\"eng-fan\" viewBox=\"0 0 1280 560\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M550 480H405A235 235 0 0 1 460 328.9L552.7 406.7\"/><path d=\"M552.7 406.7L448.5 319.3A250 250 0 0 1 575.3 238.5L620.2 406.1\"/><path d=\"M620.2 406.1L572.2 226.9A262 262 0 0 1 707.8 226.9L659.8 406.1\"/><path d=\"M659.8 406.1L705.2 236.6A252 252 0 0 1 833 318L727.3 406.7\"/><path d=\"M727.3 406.7L820 328.9A235 235 0 0 1 875 480H730\"/><path d=\"M405 480H552M728 480H875\"/><rect x=\"552\" y=\"408\" width=\"176\" height=\"108\" rx=\"8\"/><path d=\"M544 516H736L754 544H526Z\"/><path d=\"M624 533h32\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g fill=\"currentColor\"><path d=\"M596 454a22 22 0 1 0 22 22h-22z\"/><path d=\"M600 450v-18a18 18 0 0 1 18 18z\"/><rect x=\"650\" y=\"484\" width=\"9\" height=\"13\" rx=\"2\"/><rect x=\"664\" y=\"475\" width=\"9\" height=\"22\" rx=\"2\"/><rect x=\"678\" y=\"479\" width=\"9\" height=\"18\" rx=\"2\"/><rect x=\"692\" y=\"461\" width=\"9\" height=\"36\" rx=\"2\"/></g><path d=\"M650 468l13-15 11 9 20-22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
+      const nodes = rows(P("nodes")).filter(hasText).slice(0, 5);
+      const icon = (i: number) => `<svg viewBox="0 0 28 28" aria-hidden="true">${icons[i]}</svg>`;
+      const words = (r: Record<string, unknown>) => `<h3>${esc(str(r.title))}</h3><p>${esc(str(r.text)).replace(/\n/g, "<br>")}</p>`;
+      return `${bg("image")}<div class="eng-stage">${fan}${nodes.map((r, i) => `<div class="eng-node eng-n${i + 1}" tabindex="0"><span class="eng-dot">${icon(i)}</span><div class="eng-label">${words(r)}</div></div>`).join("")}</div>`
+        + `<div class="eng-copy">${text("headline", "h2", "eng-head")}${text("body", "p", "eng-body")}</div>`
+        + (nodes.length ? `<ol class="eng-list" data-slot=".nodes">${nodes.map((r, i) => `<li><span class="eng-dot">${icon(i)}</span><div>${words(r)}</div></li>`).join("")}</ol>` : "");
     }
     case "ocards": {
       const ids = Array.isArray(P("cards")) ? (P("cards") as unknown[]) : [];

@@ -46,6 +46,9 @@
   --orange-crush: #E8714B;
   --burnt-sienna: #DB6931;
 
+  /* Added Oct 8 for the Engine (T.O.E.) circles; not in the style guide yet */
+  --deep-teal: #01717D;
+
   /* What each color is used for on the site */
   --color-page: var(--clay-light);
   --color-surface: var(--white);
