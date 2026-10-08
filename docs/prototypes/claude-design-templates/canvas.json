@@ -13,126 +13,134 @@
       "title": "buttons · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 19320
+      "y": 21420
     },
     "buttons_phone.dc.html": {
       "h": 680,
       "title": "buttons · phone 390",
       "w": 390,
       "x": 1360,
-      "y": 19320
+      "y": 21420
     },
     "card_1120.dc.html": {
       "h": 800,
       "title": "card · 1120 × 800",
       "w": 1120,
       "x": 1040,
-      "y": 22620
+      "y": 24720
     },
     "card_1280.dc.html": {
       "h": 800,
       "title": "card · 1280 × 800",
       "w": 1280,
       "x": 0,
-      "y": 23540
+      "y": 25640
     },
     "card_1440.dc.html": {
       "h": 800,
       "title": "card · 1440 × 800",
       "w": 1440,
       "x": 1360,
-      "y": 23540
+      "y": 25640
     },
     "card_160.dc.html": {
       "h": 240,
       "title": "card · 160 × 240",
       "w": 160,
       "x": 0,
-      "y": 20380
+      "y": 22480
     },
     "card_1600.dc.html": {
       "h": 960,
       "title": "card · 1600 × 960",
       "w": 1600,
       "x": 0,
-      "y": 24460
+      "y": 26560
     },
     "card_1760.dc.html": {
       "h": 960,
       "title": "card · 1760 × 960",
       "w": 1760,
       "x": 0,
-      "y": 25540
+      "y": 27640
     },
     "card_1920.dc.html": {
       "h": 960,
       "title": "card · 1920 × 960",
       "w": 1920,
       "x": 0,
-      "y": 26620
+      "y": 28720
     },
     "card_320.dc.html": {
       "h": 480,
       "title": "card · 320 × 480",
       "w": 320,
       "x": 240,
-      "y": 20380
+      "y": 22480
     },
     "card_480.dc.html": {
       "h": 640,
       "title": "card · 480 × 640",
       "w": 480,
       "x": 0,
-      "y": 21540
+      "y": 23640
     },
     "card_640.dc.html": {
       "h": 640,
       "title": "card · 640 × 640",
       "w": 640,
       "x": 560,
-      "y": 21540
+      "y": 23640
     },
     "card_800.dc.html": {
       "h": 960,
       "title": "card · 800 × 960",
       "w": 800,
       "x": 1280,
-      "y": 21540
+      "y": 23640
     },
     "card_960.dc.html": {
       "h": 800,
       "title": "card · 960 × 800",
       "w": 960,
       "x": 0,
-      "y": 22620
+      "y": 24720
     },
     "card_image-text.dc.html": {
       "h": 1060,
       "title": "card · image-text 352",
       "w": 352,
       "x": 640,
-      "y": 20380
+      "y": 22480
+    },
+    "engine_desktop.dc.html": {
+      "h": 1600,
+      "is_interactive": true,
+      "title": "engine · desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 9220
     },
     "footer_desktop.dc.html": {
       "h": 380,
       "title": "footer · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 18520
+      "y": 20620
     },
     "footer_phone.dc.html": {
       "h": 520,
       "title": "footer · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 18520
+      "y": 20620
     },
     "footer_tablet.dc.html": {
       "h": 480,
       "title": "footer · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 18520
+      "y": 20620
     },
     "heading_desktop.dc.html": {
       "h": 360,
@@ -202,28 +210,28 @@
       "title": "mailing · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 16320
+      "y": 18420
     },
     "mailing_phone.dc.html": {
       "h": 700,
       "title": "mailing · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 16320
+      "y": 18420
     },
     "mailing_tablet.dc.html": {
       "h": 640,
       "title": "mailing · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 16320
+      "y": 18420
     },
     "nav_desktop.dc.html": {
       "h": 104,
       "title": "nav · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 17540
+      "y": 19640
     },
     "nav_phone.dc.html": {
       "h": 432,
@@ -231,7 +239,7 @@
       "title": "nav · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 17540
+      "y": 19640
     },
     "nav_tablet.dc.html": {
       "h": 464,
@@ -239,91 +247,91 @@
       "title": "nav · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 17540
+      "y": 19640
     },
     "offer-full_desktop.dc.html": {
       "h": 792,
       "title": "offer-full · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 11300
+      "y": 13400
     },
     "offer-full_phone.dc.html": {
       "h": 553,
       "title": "offer-full · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 11300
+      "y": 13400
     },
     "offer-full_tablet.dc.html": {
       "h": 736,
       "title": "offer-full · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 11300
+      "y": 13400
     },
     "offer-three_desktop.dc.html": {
       "h": 608,
       "title": "offer-three · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 13980
+      "y": 16080
     },
     "offer-three_phone.dc.html": {
       "h": 1691,
       "title": "offer-three · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 13980
+      "y": 16080
     },
     "offer-three_tablet.dc.html": {
       "h": 352,
       "title": "offer-three · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 13980
+      "y": 16080
     },
     "offer-two_desktop.dc.html": {
       "h": 624,
       "title": "offer-two · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 12720
+      "y": 14820
     },
     "offer-two_phone.dc.html": {
       "h": 273,
       "title": "offer-two · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 12720
+      "y": 14820
     },
     "offer-two_tablet.dc.html": {
       "h": 536,
       "title": "offer-two · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 12720
+      "y": 14820
     },
     "offers_desktop.dc.html": {
       "h": 720,
       "title": "offers · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 9220
+      "y": 11320
     },
     "offers_phone.dc.html": {
       "h": 1700,
       "title": "offers · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 9220
+      "y": 11320
     },
     "offers_tablet.dc.html": {
       "h": 1180,
       "title": "offers · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 9220
+      "y": 11320
     },
     "photo-points_desktop.dc.html": {
       "h": 780,
@@ -403,14 +411,21 @@
       "text": "The 13 cards from the design system\n\nMobile: Card-160, Card-320, Card-Image-Text. Tablet to desktop: Card-480 to Card-1920 (photo fills the card; wide cards put the words in a see-through panel).\n\nFilled with the original sample (CPO→CIO). Each element's data-spot is its content field: ct100, ct200, ct300, cs, cb, tags, cp, cpdt, image (CI-01).\n\nSame as the cards on /design-system (components/Card.tsx).",
       "w": 380,
       "x": 2680,
-      "y": 20380
+      "y": 22480
+    },
+    "engine-note": {
+      "fill": "orange",
+      "text": "Engine (T.O.E. diagram), desktop\n\nPress Play and move over an icon: it and its words slide outward from the centre, and back when you move away.\n\nEvery word is real text (click to edit). The fan and laptop are drawn lines, so they stay sharp at any size.\n\nTablet and phone come next.",
+      "w": 380,
+      "x": 1360,
+      "y": 9220
     },
     "foot-note": {
       "fill": "orange",
       "text": "Footer: same on every page\n\nDesktop: two rows split by a white hairline, with a back-to-top button. Tablet and phone: one column, no back-to-top.",
       "w": 380,
       "x": 2680,
-      "y": 18520
+      "y": 20620
     },
     "hero-full": {
       "fill": "orange",
@@ -433,14 +448,14 @@
       "text": "Global nav: same on every page\n\nShown on its Midnight bar (pages that start without a photo). Over a photo (Home) the bar is see-through: see the Hero boards.\n\nTablet and phone: logo and a menu button. Press Play on those boards and click it: the lines turn into an X and the menu slides open over the page (About, Solutions, Platforms, Pricing, Book a call). Click the X to close it. The light area under the bar stands in for the page.",
       "w": 380,
       "x": 2680,
-      "y": 17540
+      "y": 19640
     },
     "offer-cards-note": {
       "fill": "orange",
       "text": "Offer card templates, built from the design-system cards\n\nFull: Card-1280 on desktop (grows to Card-1920 on wider screens), Card-640 on tablet, Card-320 on phone.\nTwo: Card-640 ×2 · Card-320 ×2 · Card-160 ×2.\nThree: Card-320 ×3 · Card-160 ×3 · Card-320 ×3 stacked on phone.\n\nFilled with the real offers. Fields: ct100 title, ct200 subtitle, cp price, cpdt price note, tags, image (CI-01).",
       "w": 380,
       "x": 2680,
-      "y": 11300
+      "y": 13400
     },
     "system-note": {
       "fill": "orange",
@@ -455,7 +470,7 @@
       "text": "Buttons",
       "w": 240,
       "x": 0,
-      "y": 19060
+      "y": 21160
     },
     "t-cards": {
       "kind": "title1",
@@ -463,7 +478,15 @@
       "text": "Cards",
       "w": 240,
       "x": 0,
-      "y": 20120
+      "y": 22220
+    },
+    "t-engine": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Engine (T.O.E. diagram)",
+      "w": 240,
+      "x": 0,
+      "y": 8960
     },
     "t-footer": {
       "kind": "title1",
@@ -471,7 +494,7 @@
       "text": "Footer",
       "w": 240,
       "x": 0,
-      "y": 18260
+      "y": 20360
     },
     "t-heading": {
       "kind": "title1",
@@ -503,7 +526,7 @@
       "text": "Mailing list",
       "w": 240,
       "x": 0,
-      "y": 16060
+      "y": 18160
     },
     "t-nav": {
       "kind": "title1",
@@ -511,7 +534,7 @@
       "text": "Global nav",
       "w": 240,
       "x": 0,
-      "y": 17280
+      "y": 19380
     },
     "t-offer-full": {
       "kind": "title1",
@@ -519,7 +542,7 @@
       "text": "Offer Card Full",
       "w": 240,
       "x": 0,
-      "y": 11040
+      "y": 13140
     },
     "t-offer-three": {
       "kind": "title1",
@@ -527,7 +550,7 @@
       "text": "Offer Card Three",
       "w": 240,
       "x": 0,
-      "y": 13720
+      "y": 15820
     },
     "t-offer-two": {
       "kind": "title1",
@@ -535,7 +558,7 @@
       "text": "Offer Card Two",
       "w": 240,
       "x": 0,
-      "y": 12460
+      "y": 14560
     },
     "t-offers": {
       "kind": "title1",
@@ -543,7 +566,7 @@
       "text": "Offer cards (live today)",
       "w": 240,
       "x": 0,
-      "y": 8960
+      "y": 11060
     },
     "t-photo-points": {
       "kind": "title1",
@@ -590,6 +613,7 @@
     "system_desktop.dc.html",
     "system_tablet.dc.html",
     "system_phone.dc.html",
+    "engine_desktop.dc.html",
     "offers_desktop.dc.html",
     "offers_tablet.dc.html",
     "offers_phone.dc.html",
