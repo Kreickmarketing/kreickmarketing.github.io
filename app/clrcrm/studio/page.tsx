@@ -13,11 +13,6 @@ export default async function MySites() {
         <h1>My Sites</h1>
       </div>
 
-      <p className="studio-builder-link">
-        <a href="/clrcrm/studio/builder" className="button button-action">Open Studio for ClearMark →</a>
-        <span>The new editor: templates, dotted spots, Publish. The site cards below open the older editor.</span>
-      </p>
-
       {sites.length === 0 ? (
         <p className="studio-empty">No sites yet.</p>
       ) : (
@@ -26,7 +21,10 @@ export default async function MySites() {
             <li key={s.id}>
               {s.status === "coming"
                 ? <div className="studio-site studio-site-coming" aria-disabled="true"><SiteCard site={s} /></div>
-                : <Link href={`/clrcrm/studio/${s.slug}`} className="studio-site"><SiteCard site={s} /></Link>}
+                // ClearMark opens the Studio builder (a full page load: it isn't a React page).
+                : s.slug === "clearmark"
+                  ? <a href="/clrcrm/studio/builder" className="studio-site"><SiteCard site={s} /></a>
+                  : <Link href={`/clrcrm/studio/${s.slug}`} className="studio-site"><SiteCard site={s} /></Link>}
             </li>
           ))}
         </ul>

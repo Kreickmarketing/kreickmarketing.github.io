@@ -284,5 +284,3 @@ a.studio-row-title:hover { text-decoration: underline; }
 .pe-insert[hidden], .pe-layers[hidden] { display: none; }
 
 /* Link to the new Studio builder on My Sites. */
-.studio-builder-link { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin: 0 0 24px; }
-.studio-builder-link span { color: var(--sage-mist); font-size: 14px; }
