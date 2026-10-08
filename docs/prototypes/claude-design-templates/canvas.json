@@ -1,4 +1,5 @@
 {
+  "v": 3,
   "attachments": {},
   "boards": {
     "Main.dc.html": {
@@ -177,25 +178,25 @@
       "y": 1100
     },
     "logos_desktop.dc.html": {
-      "h": 160,
+      "h": 332,
       "title": "logos · desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 2520
+      "y": 2436
     },
     "logos_phone.dc.html": {
-      "h": 280,
+      "h": 232,
       "title": "logos · phone 390",
       "w": 390,
       "x": 2208,
-      "y": 2520
+      "y": 2436
     },
     "logos_tablet.dc.html": {
-      "h": 200,
+      "h": 214,
       "title": "logos · tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 2520
+      "y": 2436
     },
     "mailing_desktop.dc.html": {
       "h": 440,
@@ -467,7 +468,7 @@
       "text": "Logo row",
       "w": 240,
       "x": 0,
-      "y": 2260
+      "y": 2176
     },
     "t-mailing": {
       "kind": "title1",
@@ -589,6 +590,5 @@
     "card_1920.dc.html"
   ],
   "pages": [],
-  "title": "ClearMark Studio Templates",
-  "v": 3
+  "title": "ClearMark Studio Templates"
 }
