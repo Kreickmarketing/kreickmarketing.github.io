@@ -2014,7 +2014,7 @@ function refreshCard(id, input) {
   if (c) { const lim = SLOTS[id].kind === "text" ? SLOTS[id].limit : SLOTS[id].cols.find((x) => x.key === input.dataset.cell.split(":")[2]).limit; c.textContent = `${input.value.length}/${lim}`; c.classList.toggle("over", input.value.length > lim); }
   const card = document.querySelector(`[data-card="${id}"]`), s = status(id);
   card.className = `ccard is-${s} is-selected`;
-  const pill = card.querySelector(".ccard-head .pill:last-child"); pill.className = `pill pill-${s}`; pill.textContent = s[0].toUpperCase() + s.slice(1);
+  const pill = document.querySelector('[data-eblock="spot"] .ed-extra .pill'); if (pill) { pill.className = `pill pill-${s}`; pill.textContent = s[0].toUpperCase() + s.slice(1); }
   const rv = card.querySelector("[data-revert]"); if (rv) rv.disabled = !HIST[revertTarget(id)]?.length;
   const place = card.querySelector("[data-place]"); place.disabled = !(s === "draft" && !isEmpty(S.slots[id].value) && !overLimit(id));
   save();
