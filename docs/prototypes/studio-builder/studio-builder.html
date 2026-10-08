@@ -811,6 +811,35 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .oc-grid .slot.oc-slot { aspect-ratio: 2 / 3; min-height: 0; }
 .t-offer-full .oc-grid .slot.oc-slot { aspect-ratio: 1280 / 800; }
 .t-offer-two .oc-grid .slot.oc-slot { aspect-ratio: 1 / 1; }
+
+/* System template (Oct 8, canvas row "System template"): photo background, label + statement,
+   then up to four numbered cards in Midnight at 85%. Desktop 4 across · tablet 2 × 2 · phone stacked. */
+.sys { padding: 64px; display: flex; flex-direction: column; justify-content: space-between; gap: 96px; min-height: 0; }
+.sys .hero-bg::after { background: rgba(28, 32, 38, 0.3); }
+.sys .hero-bg :is(img, video) { object-position: left center; }
+.sys-top { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+.sys-statement { display: flex; flex-direction: column; }
+.sys-head, .sys-answer { margin: 0; font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 300; }
+.sys-answer { font-weight: 700; }
+.sys-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+.sys-card { box-sizing: border-box; min-height: 320px; padding: 32px; border-radius: 32px; background: color-mix(in srgb, var(--cm-midnight) 85%, transparent); display: flex; flex-direction: column; gap: 16px; }
+.sys-num { margin: 0; font-size: 12px; line-height: 12px; letter-spacing: 3px; font-weight: 700; }
+.sys-card h3 { margin: 0; font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 300; }
+.sys-card p.sys-text { margin: 0; font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 300; }
+.sys-card svg { width: 48px; height: 48px; margin-top: auto; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+@container (max-width: 1000px) {
+  .sys { padding: 64px 32px; gap: 64px; }
+  .sys-top { grid-template-columns: 1fr; gap: 16px; }
+  .sys-head, .sys-answer { font-size: 40px; line-height: 36px; letter-spacing: -2px; }
+  .sys-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sys-card { min-height: 260px; }
+}
+@container (max-width: 700px) {
+  .sys { padding: 64px 16px; gap: 48px; }
+  .sys-head, .sys-answer { font-size: 36px; line-height: 36px; letter-spacing: -1.5px; }
+  .sys-cards { grid-template-columns: 1fr; gap: 16px; }
+  .sys-card { min-height: 232px; }
+}
 </style>
 
 <nav class="rail" id="rail" aria-label="Studio">
@@ -980,6 +1009,13 @@ const TEMPLATES = [
     { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
   ]},
   // Offer cards built from the design-system cards (canvas rows Offer Card Full / Two / Three, Oct 8).
+  { id: "system", name: "System template", type: "system", about: "Full photo with a label and a big statement, then up to four numbered cards in see-through Midnight.", slots: [
+    { key: "image", label: "Background image", kind: "image", source: "Images" },
+    { key: "label", label: "Label", kind: "text", limit: 24, source: "e.g. “Why it matters”" },
+    { key: "headline", label: "Statement", kind: "text", limit: 200, long: true, source: "One or two sentences" },
+    { key: "answer", label: "Bold line", kind: "text", limit: 40, optional: true, source: "e.g. “Our answer is:”" },
+    { key: "cards", label: "Cards", kind: "list", max: 4, axis: "x", cols: [{ key: "title", label: "Title", limit: 40 }, { key: "text", label: "Text", limit: 140, long: true }], about: "Numbered 01–04 with an icon, in this order.", source: "Playbook" },
+  ]},
   { id: "offer-full", name: "Offer Card Full", type: "ocards", about: "One offer, full width: Card-1280 on desktop (grows to 1920), Card-640 on tablet, Card-320 on phone.", slots: [
     { key: "cards", label: "Offer card", kind: "offers", max: 1, axis: "x", about: "From the CMS. Edit the offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
   ]},
@@ -1195,6 +1231,9 @@ function offersBlock(id, max) {
   return v ? `<div class="offer-grid ${filledAttr(id).match(/class="([^"]*)"/)[1]}" data-slot="${id}">${cells.join("")}</div>` : `<div class="offer-grid">${cells.join("")}</div>`;
 }
 
+// System template cards: number and icon come from the card's place (01–04).
+const SYS_ICONS = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><path d=\"M5 12h22M5 20h12M15 4v16\"/><path d=\"M20 26l3 3 6-7\"/>", "<rect x=\"3\" y=\"5\" width=\"26\" height=\"18\" rx=\"2\"/><path d=\"M7 15h4l2-4 3 7 2-3h3\"/><path d=\"M24 30s-5-3-5-6a2.5 2.5 0 0 1 5-1 2.5 2.5 0 0 1 5 1c0 3-5 6-5 6z\"/>", "<path d=\"M3 16h10l8-9h7M24 3l4 4-4 4\"/><path d=\"M13 16l8 9h7M24 21l4 4-4 4\"/>", "<path d=\"M5 28v-3M11 28v-6M17 28v-9M23 28v-12M29 28v-15\"/><path d=\"M4 18l8-7 6 4 11-10M24 5h5v5\"/>"];
+const sysCard = (r, i, attr = "") => `<article class="sys-card" ${attr}><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(r.title)}</h3><p class="sys-text">${esc(r.text)}</p><svg viewBox="0 0 32 32" aria-hidden="true">${SYS_ICONS[i % 4]}</svg></article>`;
 // Each template's drawing. `k(key)` is the full id of one of this section's spots.
 const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${id}:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("");
 // Crop: which part of a photo stays in view when it's cut to fit (a focus point; none = centre).
@@ -1255,6 +1294,12 @@ const SECTION_HTML = {
   },
   photopoints: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photoBox(sec, k("photo"))}
       ${P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${[1, 2, 3].map((n) => slotBox(k("points"), "", "min-height:110px").replace(esc(SLOTS[k("points")].label), `Point ${n}`)).join("")}</div>`}</div>`,
+  system: (sec, k) => {
+    const img = P(k("image")), cards = P(k("cards"));
+    return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
+      <div class="sys-top">${text(k("label"), "p", "tagline", "on-dark")}<div class="sys-statement">${text(k("headline"), "h2", "sys-head", "on-dark")}${text(k("answer"), "p", "sys-answer", "on-dark slot-optional")}</div></div>
+      ${cards ? `<div ${filledAttr(k("cards")).replace('class="', 'class="sys-cards ')}>${cards.map((r, i) => sysCard(r, i, `data-item="${k("cards")}:${i}"`)).join("")}</div>` : `<div class="sys-cards">${slotBox(k("cards"), "on-dark", "grid-column:1/-1;min-height:200px")}</div>`}`;
+  },
   plat: (sec, k) => {
     const img = P(k("image")), tags = P(k("tags")), logos = P(k("logos"));
     return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
@@ -1288,9 +1333,9 @@ const SECTION_HTML = {
   },
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
-const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", video: "std", calendly: "std" };
+const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", system: "std plat sys on-dark", video: "std", calendly: "std" };
 
-const PHOTO_TOP = ["hero", "pagehero", "plat"];
+const PHOTO_TOP = ["hero", "pagehero", "plat", "system"];
 const CHROME_MAX = { links: 7, label: 30, text: 140 };
 const chromeOwn = (kind, pid = S.page) => S.chromePage?.[pid]?.[kind] || null;
 const chromeFor = (kind, pid = S.page) => chromeOwn(kind, pid) || S.chrome[kind];
@@ -1486,6 +1531,7 @@ function tplThumb(type, id = "") {
     "offer-full": F(4, 6, 72, 36) + R(9, 12, 22, 18, 2) + L("M13 17h12M13 22h9", 1.5) + R(9, 34, 11, 4, 2) + L("M60 36h11", 2.5),
     "offer-two": [6, 42].map((x) => F(x, 8, 32, 32) + L(`M${x + 4} 13h14M${x + 4} 17h10`, 1.5) + L(`M${x + 4} 32h24`, 1) + L(`M${x + 20} 36h8`, 2.5)).join(""),
     "offer-three": [7, 30, 53].map((x) => F(x, 9, 20, 30) + L(`M${x + 3} 14h10M${x + 3} 18h7`, 1.5) + L(`M${x + 3} 32h14`, 1) + L(`M${x + 11} 35h6`, 2)).join(""),
+    system: F(1, 1, 78, 46) + L("M8 9h10") + L("M42 9h28M42 14h22", 2) + [6, 24, 42, 60].map((x) => R(x, 27, 14, 15, 2)).join(""),
     points: L("M8 12h20M36 12h36M8 24h20M36 24h36M8 36h20M36 36h36"),
     quote: L("M10 14h60M10 21h56M10 28h40", 2.5) + L("M10 38h20", 1.2),
     mail: L("M8 14h28", 3) + L("M8 22h24", 1.2) + R(44, 10, 28, 6) + R(44, 20, 28, 6) + R(44, 30, 14, 6, 3),
@@ -2238,7 +2284,7 @@ function modCats() {
   const cats = [
     { id: "heroes", name: "Heroes", color: "var(--cm-cherry)", tpls: ["hero", "page-hero"] },
     { id: "headings", name: "Headings", color: "var(--aegean)", tpls: ["heading"] },
-    { id: "photo", name: "Photo + text", color: "var(--tangerine-burst)", tpls: ["photo-points", "photo-text", "photo-tags"] },
+    { id: "photo", name: "Photo + text", color: "var(--tangerine-burst)", tpls: ["photo-points", "photo-text", "photo-tags", "system"] },
     { id: "lists", name: "Points & quotes", color: "var(--iron-moss)", tpls: ["points", "quote"] },
     { id: "logos", name: "Logos", color: "var(--deep-taupe)", tpls: ["logos"] },
     { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offer-full", "offer-two", "offer-three"] },

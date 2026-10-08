@@ -273,3 +273,32 @@
   .site .t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
   .site .t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
 }
+
+/* System template (Oct 8, canvas row "System template"): photo background, label + statement,
+   then up to four numbered cards in Midnight at 85%. Desktop 4 across · tablet 2 × 2 · phone stacked. */
+.site .sys { padding: 64px; display: flex; flex-direction: column; justify-content: space-between; gap: 96px; min-height: 0; }
+.site .sys .hero-bg::after { background: rgba(28, 32, 38, 0.3); }
+.site .sys .hero-bg :is(img, video) { object-position: left center; }
+.site .sys-top { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+.site .sys-statement { display: flex; flex-direction: column; }
+.site .sys-head, .site .sys-answer { margin: 0; font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 300; }
+.site .sys-answer { font-weight: 700; }
+.site .sys-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+.site .sys-card { box-sizing: border-box; min-height: 320px; padding: 32px; border-radius: 32px; background: color-mix(in srgb, var(--midnight) 85%, transparent); display: flex; flex-direction: column; gap: 16px; }
+.site .sys-num { margin: 0; font-size: 12px; line-height: 12px; letter-spacing: 3px; font-weight: 700; }
+.site .sys-card h3 { margin: 0; font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 300; }
+.site .sys-card p.sys-text { margin: 0; font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 300; }
+.site .sys-card svg { width: 48px; height: 48px; margin-top: auto; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+@container (max-width: 1000px) {
+  .site .sys { padding: 64px 32px; gap: 64px; }
+  .site .sys-top { grid-template-columns: 1fr; gap: 16px; }
+  .site .sys-head, .site .sys-answer { font-size: 40px; line-height: 36px; letter-spacing: -2px; }
+  .site .sys-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site .sys-card { min-height: 260px; }
+}
+@container (max-width: 700px) {
+  .site .sys { padding: 64px 16px; gap: 48px; }
+  .site .sys-head, .site .sys-answer { font-size: 36px; line-height: 36px; letter-spacing: -1.5px; }
+  .site .sys-cards { grid-template-columns: 1fr; gap: 16px; }
+  .site .sys-card { min-height: 232px; }
+}
