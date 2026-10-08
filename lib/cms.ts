@@ -47,15 +47,18 @@ export const LEGACY_OFFER_IDS: Record<string, string> = {
 };
 
 // ── Checking an item before it's saved ──
-export const LIMITS = { title: 300, text: 2000, csWords: 144, clWords: 1500, cl: 15000, tags: 20, tag: 100, lines: 10, line: 200, alt: 200 };
+export const LIMITS = { title: 300, text: 2000, csWords: 144, clWords: 1500, cl: 15000, tags: 20, tag: 100, lines: 10, line: 200, alt: 200, media: 30 };
 const words = (t: string) => (t.trim() ? t.trim().split(/\s+/).length : 0);
 export const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const okHref = (h: string) => !h || /^https:\/\/[^\s"'<>]+$/i.test(h) || /^mailto:[^\s"'<>]+$/i.test(h) || (/^\/[a-z0-9._/#?=&-]*$/i.test(h) && !h.startsWith("//"));
 
-export type ItemInput = Partial<Omit<CmsItem, "media" | "sort">> & { image?: { url?: string; alt?: string } | null };
+// media: the item's whole media list (images CI-01 …, videos CV-01 …), replacing what's saved.
+// image: the older way (main image only), still accepted.
+export type ItemInput = Partial<Omit<CmsItem, "media" | "sort">> & { image?: { url?: string; alt?: string } | null; media?: { code?: string; url?: string; alt?: string }[] | null };
+export const MEDIA_CODE = /^C[IV]-\d{2}$/;
 
 // Returns the clean item, or a message saying what to fix.
-export function checkItem(x: ItemInput, imageOk: (url: string) => boolean): { item?: Required<Omit<ItemInput, "id" | "image">> & { id?: string; image: { url: string; alt: string } | null }; error?: string } {
+export function checkItem(x: ItemInput, imageOk: (url: string) => boolean, videoOk: (url: string) => boolean = () => false): { item?: Required<Omit<ItemInput, "id" | "image" | "media">> & { id?: string; image: { url: string; alt: string } | null; media: CmsMedia[] | null }; error?: string } {
   const t = (v: unknown, max: number) => s(v).trim().slice(0, max + 1);
   const item = {
     id: s(x.id) || undefined, collection: s(x.collection), slug: s(x.slug).trim(), status: x.status === "published" ? "published" as const : "draft" as const,
@@ -65,6 +68,7 @@ export function checkItem(x: ItemInput, imageOk: (url: string) => boolean): { it
     cpdt: (Array.isArray(x.cpdt) ? x.cpdt : []).map((l) => s(l).trim()).filter(Boolean),
     tags: [...new Set((Array.isArray(x.tags) ? x.tags : []).map((l) => s(l).trim()).filter(Boolean))],
     image: x.image && s(x.image.url) ? { url: s(x.image.url), alt: s(x.image.alt).trim() } : null,
+    media: Array.isArray(x.media) ? x.media.map((m) => ({ code: s(m?.code), url: s(m?.url), alt: s(m?.alt).trim() })).filter((m) => m.url) : null,
   };
   if (!["products", "portfolio"].includes(item.collection)) return { error: "Unknown database" };
   if (!item.ct100) return { error: "Give it a title (CT100)." };
@@ -78,6 +82,17 @@ export function checkItem(x: ItemInput, imageOk: (url: string) => boolean): { it
   if (item.cpdt.length > LIMITS.lines || item.cpdt.some((l) => l.length > LIMITS.line)) return { error: `Price dates (CPDT): up to ${LIMITS.lines} short lines.` };
   if (item.tags.length > LIMITS.tags || item.tags.some((l) => l.length > LIMITS.tag)) return { error: `Up to ${LIMITS.tags} tags, each up to ${LIMITS.tag} characters.` };
   if (item.image && (!imageOk(item.image.url) || item.image.alt.length > LIMITS.alt)) return { error: "That image can't be used (it must be one of the site's images or an upload)." };
+  if (item.media) {
+    if (item.media.length > LIMITS.media) return { error: `Up to ${LIMITS.media} images and videos per item.` };
+    const codes = new Set<string>();
+    for (const m of item.media) {
+      if (!MEDIA_CODE.test(m.code) || codes.has(m.code)) return { error: "A media number (CI-01 …, CV-01 …) is missing or used twice." };
+      codes.add(m.code);
+      if (m.alt.length > LIMITS.alt) return { error: "A media description is too long." };
+      const ok = m.code.startsWith("CV") ? videoOk(m.url) : imageOk(m.url);
+      if (!ok) return { error: `${m.code} can't be used (it must be one of the site's ${m.code.startsWith("CV") ? "videos" : "images"} or an upload).` };
+    }
+  }
   return { item };
 }
 

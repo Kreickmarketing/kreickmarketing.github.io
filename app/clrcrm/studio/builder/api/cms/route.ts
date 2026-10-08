@@ -1,7 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
-import { safeImage } from "@/lib/builder-site";
+import { safeImage, safeVideo } from "@/lib/builder-site";
 import { checkItem, loadCms, tagSlug, type ItemInput } from "@/lib/cms";
 
 // Save one CMS item (Products / Portfolio) from Studio: POST { item }.
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   if (!(await getCrmMember())) return fail("You're logged out. Log in again", 401);
   let body: { item?: ItemInput };
   try { body = await request.json(); } catch { return fail("That request isn't readable"); }
-  const { item, error } = checkItem(body.item || {}, (url) => !!safeImage(url));
+  const { item, error } = checkItem(body.item || {}, (url) => !!safeImage(url), (url) => !!safeVideo(url));
   if (!item) return fail(error || "That item isn't valid");
 
   const supabase = await getServerSupabase();
@@ -41,11 +41,20 @@ export async function POST(request: Request) {
     id = made.id as string;
   }
 
-  // Main image (CI-01): replace it. Other media (CI-02 …, videos) are left as they are.
-  await supabase.from("media").delete().eq("item_id", id).eq("code", "CI-01");
-  if (item.image) {
-    const { error: e } = await supabase.from("media").insert({ item_id: id, code: "CI-01", url: item.image.url, alt: item.image.alt || null, sort_order: 0 });
-    if (e) return fail(e.message, 500);
+  // Media. With a full list (Studio, Oct 8): replace all the item's images and videos.
+  // Older callers send only the main image (CI-01): replace just that one.
+  if (item.media) {
+    await supabase.from("media").delete().eq("item_id", id);
+    if (item.media.length) {
+      const { error: e } = await supabase.from("media").insert(item.media.map((m, n) => ({ item_id: id, code: m.code, url: m.url, alt: m.alt || null, sort_order: n })));
+      if (e) return fail(e.message, 500);
+    }
+  } else {
+    await supabase.from("media").delete().eq("item_id", id).eq("code", "CI-01");
+    if (item.image) {
+      const { error: e } = await supabase.from("media").insert({ item_id: id, code: "CI-01", url: item.image.url, alt: item.image.alt || null, sort_order: 0 });
+      if (e) return fail(e.message, 500);
+    }
   }
 
   // Tags: each made once per site and reused; this item's list is replaced in order.

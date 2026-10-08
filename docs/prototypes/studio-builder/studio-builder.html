@@ -678,6 +678,11 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .cms-img { border: 2px solid transparent; border-radius: 8px; padding: 0; background: var(--panel); aspect-ratio: 1; overflow: hidden; }
 .cms-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cms-img.is-on { border-color: var(--accent); }
+.cms-img { position: relative; }
+.cms-img video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cms-img .vid-badge { position: absolute; left: 6px; bottom: 6px; }
+.cms-img .media-no { position: absolute; top: 4px; right: 4px; background: var(--accent); color: var(--ground); font-family: var(--f-mono); font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 999px; }
+.cms-empty { margin: 0; font-size: 12px; color: var(--ink-3); }
 .cms-noimg { color: var(--ink-3); font-size: 12px; }
 .set-field textarea { font: inherit; }
 .crop-frame { position: relative; width: 100%; max-height: 280px; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; background: var(--ground); }
@@ -2355,7 +2360,12 @@ function renderCmsItem() {
   const f = (k, code, label, help = "", long = false, ph = "") => `<label class="set-field"><span>${label} ${CF(code)}</span>${long
     ? `<textarea data-cf="${k}" placeholder="${esc(ph)}" rows="${k === "cl" ? 10 : 4}">${esc(k === "cpdt" ? it.cpdt.join("\n") : it[k])}</textarea>`
     : `<input type="text" data-cf="${k}" value="${esc(it[k])}" placeholder="${esc(ph)}">`}${help ? `<small>${help}</small>` : ""}</label>`;
-  const photos = IMAGES.filter((m) => m.kind !== "logo" && !isVideo(m.src) && !m.src.startsWith("data:") && !m.src.startsWith("blob:"));
+  const usable = (m) => m.kind !== "logo" && !m.src.startsWith("data:") && !m.src.startsWith("blob:");
+  const photos = IMAGES.filter((m) => usable(m) && !isVideo(m.src)), videos = IMAGES.filter((m) => usable(m) && isVideo(m.src));
+  // Extra images (CI-02 …) and videos (CV-01 …): click to add or remove; the number shows the order.
+  const extra = it.media.filter((m) => /^CI-/.test(m.code) && m.code !== "CI-01"), vids = it.media.filter((m) => /^CV-/.test(m.code));
+  const pickRow = (list, chosen, attr, video) => list.map((m) => { const c = chosen.find((x) => x.url === m.src);
+    return `<button type="button" class="cms-img${c ? " is-on" : ""}" ${attr}="${esc(m.src)}" title="${esc(m.name)}" aria-pressed="${!!c}">${video ? `<video src="${esc(m.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(m.src)}" alt="">`}${c ? `<span class="media-no">${esc(c.code)}</span>` : ""}</button>`; }).join("");
   $("#view-cms").innerHTML = `<div class="view-head"><button type="button" class="btn btn-small" data-cmsback>${cmsDirty && cmsLeaveArmed ? "Leave without saving?" : `← ${cmsName(col)}`}</button><h2>${esc(it.ct100 || "New item")}</h2>
       <button type="button" class="btn" data-cmsdiscard ${cmsDirty ? "" : "disabled"}>Discard changes</button><button type="button" class="btn btn-primary" data-cmssave>${it.id ? "Save" : "Add item"}</button></div>
     <div class="set-col">
@@ -2370,7 +2380,9 @@ function renderCmsItem() {
       <div class="set-card"><h3>Media</h3><div class="set-field"><span>Main image ${CF("CI-01")}</span>
           <div class="cms-imgs">${photos.map((m) => `<button type="button" class="cms-img${img?.url === m.src ? " is-on" : ""}" data-cmsimg="${esc(m.src)}" title="${esc(m.name)}"><img src="${esc(m.src)}" alt=""></button>`).join("")}<button type="button" class="cms-img cms-noimg${img ? "" : " is-on"}" data-cmsimg="" title="No image">None</button></div>
           <small>Upload more in Pages → Sources → Images &amp; video.</small></div>
-        <label class="set-field"><span>Image description (for screen readers)</span><input type="text" data-cf="alt" value="${esc(img?.alt || "")}" placeholder="What the photo shows"></label></div>
+        <label class="set-field"><span>Image description (for screen readers)</span><input type="text" data-cf="alt" value="${esc(img?.alt || "")}" placeholder="What the photo shows"></label>
+        <div class="set-field"><span>More images ${CF("CI-02 …")}</span><div class="cms-imgs">${pickRow(photos, extra, "data-cmsmore", false)}</div><small>Click to add or remove. Numbered in the order you pick them.</small></div>
+        <div class="set-field"><span>Videos ${CF("CV-01 …")}</span>${videos.length ? `<div class="cms-imgs">${pickRow(videos, vids, "data-cmsvid", true)}</div><small>Click to add or remove. MP4 or WebM; best under 5 MB.</small>` : `<p class="cms-empty">No videos yet. Upload one in Pages → Sources → Images &amp; video (MP4 or WebM).</p>`}</div></div>
       <div class="set-card"><h3>Tags</h3><label class="set-field"><span>Tags</span><input type="text" data-cf="tags" value="${esc(it.tags.join(", "))}" placeholder="Hybrid course, Leadership upskilling"><small>Comma-separated. The first tag is the small “+” label on cards.</small></label></div>
       <p class="slug-err" id="cms-err"></p>
     </div>`;
@@ -2384,7 +2396,8 @@ async function saveCmsItem() {
   if (CMS.some((x) => x.collection === it.collection && x.slug === it.slug && x.id !== it.id)) return err("Another item already uses that slug.");
   const img = it.media.find((m) => m.code === "CI-01");
   const payload = { id: it.id || undefined, collection: it.collection, slug: it.slug, status: it.status, ct100: it.ct100, ct200: it.ct200, ct300: it.ct300, cs: it.cs, cl: it.cl, cb: it.cb, cbl: it.cbl,
-    cp: it.cp, cpt: it.cpt, cps: it.cps, cpd: it.cpd, cpdt: it.cpdt, tags: it.tags, image: img ? { url: img.url, alt: img.alt } : null };
+    cp: it.cp, cpt: it.cpt, cps: it.cps, cpd: it.cpd, cpdt: it.cpdt, tags: it.tags, image: img ? { url: img.url, alt: img.alt } : null,
+    media: it.media.map((m) => ({ code: m.code, url: m.url, alt: m.alt || "" })) };
   if (LIVE) {
     try {
       const res = await fetch(API + "/cms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ item: payload }) });
@@ -2580,6 +2593,17 @@ document.addEventListener("click", (e) => {
   if (d.cmsdiscard != null) { openCmsItem(cmsEdit?.id || "new"); toast("Changes discarded."); return; }
   if (d.cmssave != null) return saveCmsItem();
   if (d.cmsstatus && cmsEdit) { cmsEdit.status = d.cmsstatus; cmsDirty = true; renderCms(); return; }
+  if ((d.cmsmore != null || d.cmsvid != null) && cmsEdit) {
+    const video = d.cmsvid != null, url = video ? d.cmsvid : d.cmsmore, pre = video ? "CV-" : "CI-";
+    const inList = (m) => m.code.startsWith(pre) && (video || m.code !== "CI-01");
+    const list = cmsEdit.media.filter(inList), on = list.some((m) => m.url === url);
+    if (!on && cmsEdit.media.length >= 30) return toast("Up to 30 images and videos per item.");
+    const next = on ? list.filter((m) => m.url !== url) : [...list, { code: "", url, alt: "" }];
+    // Renumber: images from CI-02 (CI-01 is the main image), videos from CV-01.
+    next.forEach((m, n) => (m.code = pre + String(n + (video ? 1 : 2)).padStart(2, "0")));
+    cmsEdit.media = [...cmsEdit.media.filter((m) => !inList(m)), ...next];
+    cmsDirty = true; renderCms(); return;
+  }
   if (d.cmsimg != null && cmsEdit) { const alt = cmsEdit.media.find((m) => m.code === "CI-01")?.alt || ""; cmsEdit.media = cmsEdit.media.filter((m) => m.code !== "CI-01"); if (d.cmsimg) cmsEdit.media.unshift({ code: "CI-01", url: d.cmsimg, alt }); cmsDirty = true; renderCms(); return; }
   if (d.cmsdb) { cmsEdit = null; UI.cms = d.cmsdb; NAV_VIEW = "cms"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
   if (d.setnav) { UI.set = d.setnav; NAV_VIEW = "settings"; saveUI(); applyNav(); closeIfFloating(); window.scrollTo({ top: 0 }); return; }
