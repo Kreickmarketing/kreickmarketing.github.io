@@ -348,6 +348,36 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .lay-pinned .chip { font-size: 10px; padding: 1px 6px; }
 .chrome-ed { display: flex; flex-direction: column; gap: 14px; }
 .chrome-ed h3 { margin: 0; font-size: 15px; }
+/* Edit panel (Oct 8): looks like the left panel. Fixed down the right on laptops (stays put while
+   the page scrolls), its own scroll, sections that fold. Phones keep it under the Edit tab. */
+#cards.ed-panel { gap: 0; }
+.ed-blk { padding: 12px 8px; }
+.ed-blk .blk-title { cursor: pointer; }
+.ed-blk .blk-title > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ed-blk .ed-extra { display: inline-flex; gap: 4px; flex: none; text-transform: none; letter-spacing: 0; font-weight: 600; }
+.ed-blk .ed-extra .chip, .ed-blk .ed-extra .pill { font-size: 10px; padding: 1px 6px; }
+.ed-body { padding: 4px 8px 4px; display: flex; flex-direction: column; gap: 12px; }
+.ed-body .chrome-ed, .ed-body .ccard-body { gap: 12px; padding: 0; }
+.ed-body .ccard { background: none; border: 0; box-shadow: none; border-radius: 0; }
+.ed-body .ccard.drop-ok { background: color-mix(in srgb, var(--accent) 14%, transparent); outline: 2px dashed var(--accent); }
+.ed-body .spot-list { background: none; border: 0; padding: 0; }
+.ed-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: -4px; }
+.ed-body .clink { border: 0; background: none; border-radius: 8px; padding: 4px 0; gap: 6px; }
+.ed-body .clink.is-open { background: var(--panel); padding: 6px 8px 10px 0; }
+.ed-body .note { background: none; border: 0; padding: 0; color: var(--ink-3); }
+.ed-sub { color: var(--ink-3); font-size: 11.5px; font-weight: 400; text-transform: none; letter-spacing: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clink-tog { flex: none; width: 24px; height: 28px; display: grid; place-items: center; border: 0; background: none; color: var(--ink-3); border-radius: 6px; padding: 0; }
+.clink-tog:hover { color: var(--ink); background: var(--panel); }
+.clink-tog svg { width: 13px; height: 13px; transition: transform 0.15s; }
+.clink.is-open .clink-tog svg { transform: rotate(90deg); }
+.clink .ed-now { margin: -2px 0 0 30px; font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 761px) {
+  :root { --edit-w: 320px; }
+  html.has-edit body { padding-right: calc(var(--edit-w) + 16px); }
+  .panes { grid-template-columns: minmax(0, 1fr); }
+  .pane-cards { position: fixed; top: 0; bottom: 0; right: 0; width: var(--edit-w); z-index: 35; background: var(--panel-2); border-left: 1px solid var(--line); overflow: auto; overscroll-behavior: contain; gap: 0; }
+  .edit-float { position: static; gap: 0; }
+}
 .chrome-ed .note { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
 .chrome-ed .row-btns { display: flex; flex-wrap: wrap; gap: 6px; }
 .clink { border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: var(--panel-2); }
@@ -638,8 +668,8 @@ body.drag-image #site img[data-slot]:not(.bg-drop) { outline: 3px dashed rgba(0,
 .blk-resize:hover::after, body.is-resizing-v .blk-resize::after { height: 3px; top: 3px; background: var(--accent); }
 body.is-resizing-v { cursor: row-resize; user-select: none; }
 /* Scrollbars like Figma: thin, and only while the pointer is over that area */
-.side, .blk-body { scrollbar-width: thin; scrollbar-color: transparent transparent; }
-.side:hover, .blk-body:hover { scrollbar-color: rgba(255, 255, 255, 0.28) transparent; }
+.side, .blk-body, .pane-cards { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.side:hover, .blk-body:hover, .pane-cards:hover { scrollbar-color: rgba(255, 255, 255, 0.28) transparent; }
 .side::-webkit-scrollbar, .blk-body::-webkit-scrollbar { width: 8px; }
 .side::-webkit-scrollbar-thumb, .blk-body::-webkit-scrollbar-thumb { background: transparent; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
 .side:hover::-webkit-scrollbar-thumb, .blk-body:hover::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.28); }
@@ -948,9 +978,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 
   <section class="pane pane-cards" aria-labelledby="cc-title">
     <div class="edit-float" id="edit-float">
-      <div class="pane-head">
-        <h2 id="cc-title">Edit <span id="cc-page" hidden>Home</span></h2>
-      </div>
+      <span id="cc-page" hidden>Home</span>
       <div class="cards" id="cards"></div>
     </div>
   </section>
@@ -1509,8 +1537,7 @@ function cardBody(id) {
       ${rows.length < sl.max ? `<button type="button" class="add-row" data-addrow="${id}">+ Add row (${rows.length}/${sl.max})</button>` : ""}`;
   }
   const s = status(id);
-  return `${sl.about ? `<p class="about">${esc(sl.about)}</p>` : ""}<p class="source"><b>Best source:</b> ${esc(sl.source || "Your own words")}</p>
-    ${picked && accepts(sl, picked) ? `<div class="picked-bar"><span>Selected: ${esc(pickedName())}</span><button type="button" class="btn btn-small" data-use="${id}">Use selected</button></div>` : ""}
+  return `${picked && accepts(sl, picked) ? `<div class="picked-bar"><span>Selected: ${esc(pickedName())}</span><button type="button" class="btn btn-small" data-use="${id}">Use selected</button></div>` : ""}
     ${ed}
     <div class="card-actions">
       <button type="button" class="btn btn-small btn-primary" data-place="${id}" ${s === "draft" && !isEmpty(st.value) && !overLimit(id) ? "" : "disabled"}>Place in preview</button>
@@ -1564,11 +1591,10 @@ function resolveLink(v) {
 function anchorField(ref, el) {
   const v = S.anchors?.[ref] || "", m = anchorMap(S.page), now = m[ref] || "", page = PAGE_LIST.find((x) => x.id === S.page);
   const fid = "anc-" + ref.replace(/\W/g, "-"), url = page && now ? SITE_URL + page.path + "#" + now : "";
-  return `<div class="field anchor-ed"><label for="${fid}">Link name${el ? " (optional)" : ""}</label>
-    <div class="anchor-in"><span aria-hidden="true">#</span><input class="input" id="${fid}" data-anchor="${ref}" value="${esc(v)}" placeholder="${esc(el ? "e.g. pricing-button" : ref)}" autocapitalize="off" spellcheck="false" maxlength="40"></div>
+  return `<div class="field anchor-ed">
+    <div class="anchor-in"><span aria-hidden="true">#</span><input class="input" id="${fid}" aria-label="Link name${el ? " (optional)" : ""}" data-anchor="${ref}" value="${esc(v)}" placeholder="${esc(el ? "e.g. pricing-button" : ref)}" autocapitalize="off" spellcheck="false" maxlength="40"></div>
     <small class="slug-err" id="${fid}-err"></small>
-    <p class="source">${url ? `Link: <a class="set-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(page.path + "#" + now)}</a><button type="button" class="btn" data-copyanchor="${esc(url)}">Copy</button>` : "Give it a name to link straight to it from any button or the nav."}</p>
-    <p class="source">Buttons and the nav can pick it under “Page on this site”. Renaming it later keeps those links working.</p></div>`;
+    ${url ? `<p class="source">Link: <a class="set-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(page.path + "#" + now)}</a><button type="button" class="btn" data-copyanchor="${esc(url)}">Copy</button></p>` : ""}</div>`;
 }
 function linkEditor(id) {
   const v = String(S.slots[id].placed || S.slots[id].value || ""), mode = linkMode[id] || (v && !v.startsWith("page:") ? "url" : "page");
@@ -1628,28 +1654,50 @@ function renderTemplates() {
 
 // The Edit pane shows one spot at a time: the one picked in Layers (left) or in the preview.
 // Line the Edit pane up with the spot (or section) being edited; sticky keeps it in view while you scroll.
+// Folding sections in the Edit panel, like the left panel's (Oct 8). EUI.closed = folded
+// sections; EUI.open = nav/footer links opened to show where they go (folded by default).
+const EUI = { closed: new Set(), open: new Set() };
+try { const u = JSON.parse(localStorage.getItem("studio-edit-ui") || "{}"); if (Array.isArray(u.closed)) EUI.closed = new Set(u.closed.filter((x) => typeof x === "string")); } catch {}
+const saveEUI = () => { try { localStorage.setItem("studio-edit-ui", JSON.stringify({ closed: [...EUI.closed] })); } catch {} };
+const ED_CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lay-chev blk-chev" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+function eBlock(id, title, body, extra = "") {
+  const shut = EUI.closed.has(id);
+  return `<div class="side-sec blk ed-blk${shut ? " is-closed" : ""}"><div class="side-label blk-title" data-eblock="${esc(id)}" role="button" tabindex="0" aria-expanded="${!shut}" title="Click to ${shut ? "open" : "fold"}"><span>${ED_CHEV} ${title}</span>${extra ? `<span class="ed-extra">${extra}</span>` : ""}</div>${shut ? "" : `<div class="ed-body">${body}</div>`}</div>`;
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest?.("[data-eblock], [data-clinktog]"); if (!t) return;
+  if (t.dataset.eblock) { const b = t.dataset.eblock; EUI.closed.has(b) ? EUI.closed.delete(b) : EUI.closed.add(b); saveEUI(); }
+  else { const k = t.dataset.clinktog; EUI.open.has(k) ? EUI.open.delete(k) : EUI.open.add(k); }
+  renderCards();
+});
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-eblock]")) { e.preventDefault(); e.target.click(); } });
 function placeEdit() {
   const box = $("#edit-float"); if (!box) return;
+  // Laptops: the panel is fixed down the right, so it doesn't need lining up.
+  if (matchMedia("(min-width: 761px)").matches) { box.style.marginTop = "0"; return; }
   const target = (selected && document.querySelector(`#site [data-slot="${selected}"]`)) || (curSec?.startsWith("@") && document.querySelector(`#site [data-chrome="${curSec.slice(1)}"]`)) || (curSec && document.querySelector(`#site [data-secid="${curSec}"]`));
   if (!target || matchMedia("(max-width: 760px)").matches) { box.style.marginTop = "0"; return; }
   const pane = box.parentElement, top = target.getBoundingClientRect().top - pane.getBoundingClientRect().top - 40;
   box.style.marginTop = Math.max(0, Math.min(top, pane.clientHeight - box.offsetHeight)) + "px";
 }
 function renderCards() {
-  if (curSec?.startsWith("@")) { $("#cards").innerHTML = chromeEditor(curSec.slice(1)); $("#panes").classList.remove("no-edit"); requestAnimationFrame(placeEdit); return; }
+  $("#cards").classList.add("ed-panel");
+  if (curSec?.startsWith("@")) { $("#cards").innerHTML = chromeEditor(curSec.slice(1)); $("#panes").classList.remove("no-edit"); document.documentElement.classList.add("has-edit"); requestAnimationFrame(placeEdit); return; }
   const page = pageView(S.page), sl = selected && SLOTS[selected];
   const sec = sl ? page.sections.find((x) => x.id === sl.section) : page.sections.find((x) => x.id === curSec);
   if (sl && sec) {
     const s = status(sl.id);
-    $("#cards").innerHTML = `<p class="crumb">${esc(sec.name)} › <b>${esc(sl.label)}</b></p>
-      <div class="ccard is-${s} is-selected" data-card="${sl.id}" open-card><div class="ccard-head"><span class="ccard-title">${esc(sl.label)}</span>${sl.optional ? `<span class="pill pill-opt">Optional</span>` : ""}<span class="chip">${KIND_CHIP(sl)}</span><span class="pill pill-${s}">${s[0].toUpperCase() + s.slice(1)}</span></div>
-      <div class="ccard-body">${cardBody(sl.id)}${anchorField(sl.id, true)}</div></div>`;
+    const chips = `<div class="ed-chips">${sl.optional ? `<span class="pill pill-opt">Optional</span>` : ""}<span class="chip">${KIND_CHIP(sl)}</span></div>`;
+    $("#cards").innerHTML = eBlock("spot", esc(sl.label), `${chips}<div class="ccard is-${s} is-selected" data-card="${sl.id}" open-card><div class="ccard-body">${cardBody(sl.id)}</div></div>`, `<span class="pill pill-${s}">${s[0].toUpperCase() + s.slice(1)}</span>`)
+      + eBlock("anchor", "Link name", anchorField(sl.id, true), `<span class="chip">optional</span>`);
   } else if (sec) {
-    $("#cards").innerHTML = `<p class="crumb"><b>${esc(sec.name)}</b> · ${esc(TPL[sec.template].name)}</p>${sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`}${anchorField(sec.id, false)}`;
+    $("#cards").innerHTML = eBlock("section", esc(sec.name), sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`, `<span class="chip">${esc(TPL[sec.template].name)}</span>`)
+      + eBlock("anchor", "Link name", anchorField(sec.id, false));
   } else {
     $("#cards").innerHTML = "";
   }
   $("#panes").classList.toggle("no-edit", !sec);
+  document.documentElement.classList.toggle("has-edit", !!sec);
   requestAnimationFrame(placeEdit);
 }
 
@@ -1682,29 +1730,29 @@ function chromeEditor(kind) {
   const page = pageView(S.page), own = !!chromeOwn(kind), name = CHROME_NAME[kind];
   const sharing = allPages().filter((p) => !chromeOwn(kind, p.id)).length;
   const scope = `<div class="seg" role="group" aria-label="Where changes go"><button type="button" data-cscope="${kind}~all" aria-pressed="${!own}">All pages (default)</button><button type="button" data-cscope="${kind}~page" aria-pressed="${own}">Only ${esc(page.name)}</button></div>
-    <p class="note">${own ? `${esc(page.name)} has its own ${name.toLowerCase()}. Changes here only change this page.` : `Changes here change every page using the default (${sharing} of ${allPages().length} pages).`}</p>
+    ${own ? "" : `<p class="note">Changes here change every page using the default (${sharing} of ${allPages().length} pages).</p>`}
     ${own ? `<div class="row-btns"><button type="button" class="btn btn-small" data-cdefault="${kind}">Make this the default</button><button type="button" class="btn btn-small" data-creset="${kind}">Reset to default</button></div>` : ""}`;
   let body = "";
   if (kind === "nav") {
     const n = chromeTarget("nav"), links = n.links || [];
-    body = `<p class="group-label">Links · ${links.length}/${CHROME_MAX.links}</p>
-      ${links.map((l, i) => `<div class="clink"><div class="clink-head"><input class="input" data-cf="nav|links.${i}.label" value="${esc(l.label)}" maxlength="${CHROME_MAX.label}" aria-label="Link ${i + 1} text" placeholder="Link text">
+    const blk = (id, title, html, extra) => eBlock("nav-" + id, title, `<div class="chrome-ed">${html}</div>`, extra);
+    body = blk("links", `Links · ${links.length}/${CHROME_MAX.links}`, `${links.map((l, i) => { const k = `nav|links.${i}.link`, on = EUI.open.has(k), now = resolveLink(l.link); return `<div class="clink${on ? " is-open" : ""}"><div class="clink-head"><button type="button" class="clink-tog" data-clinktog="${k}" aria-expanded="${on}" aria-label="${on ? "Hide" : "Show"} where ${esc(l.label || "this link")} goes">${ED_CHEV}</button><input class="input" data-cf="nav|links.${i}.label" value="${esc(l.label)}" maxlength="${CHROME_MAX.label}" aria-label="Link ${i + 1} text" placeholder="Link text">
         <button type="button" class="lay-btn" data-cmove="nav~${i}~-1" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="lay-btn" data-cmove="nav~${i}~1" aria-label="Move down" ${i === links.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="lay-btn lay-x" data-cdel="nav~${i}" aria-label="Remove ${esc(l.label || "link")}">×</button></div>
-        ${linkPick(`nav|links.${i}.link`, l.link)}</div>`).join("")}
+        ${on ? linkPick(k, l.link) : `<p class="ed-now">${now ? esc(now) : "Not linked yet"}</p>`}</div>`; }).join("")}
       ${links.length < CHROME_MAX.links ? `<button type="button" class="btn btn-small" data-cadd="nav">+ Add link</button>` : ""}
-      <p class="group-label">Button</p>
-      ${cText("nav", "cta.label", "Button text", CHROME_MAX.label, "Leave empty to hide the button.")}
-      ${linkPick("nav|cta.link", n.cta?.link, "Button goes to")}
-      <p class="note">Tablet and phone: the menu button opens these same links and the button.</p>`;
+      <p class="note">Tablet and phone: the menu button opens these same links and the button.</p>`)
+      + blk("button", "Button", `${cText("nav", "cta.label", "Button text", CHROME_MAX.label, "Leave empty to hide the button.")}
+      ${linkPick("nav|cta.link", n.cta?.link, "Button goes to")}`);
   } else {
-    body = `${cText("footer", "tagline", "Tagline", CHROME_MAX.text)}
-      <p class="group-label">Meeting link</p>${cText("footer", "meetLabel", "Text", CHROME_MAX.label, "Leave empty to hide it.")}${linkPick("footer|meetLink", chromeGet("footer", "meetLink"))}
+    const blk = (id, title, html) => eBlock("footer-" + id, title, `<div class="chrome-ed">${html}</div>`);
+    body = blk("words", "Words", `${cText("footer", "tagline", "Tagline", CHROME_MAX.text)}
       ${cText("footer", "address", "Address", CHROME_MAX.text)}
-      ${cText("footer", "copyright", "Copyright line", CHROME_MAX.text, "{year} becomes the current year.")}
-      <p class="group-label">Privacy</p>${cText("footer", "privacyLabel", "Text", CHROME_MAX.label)}${linkPick("footer|privacyLink", chromeGet("footer", "privacyLink"))}
-      <p class="group-label">Terms</p>${cText("footer", "termsLabel", "Text", CHROME_MAX.label)}${linkPick("footer|termsLink", chromeGet("footer", "termsLink"))}`;
+      ${cText("footer", "copyright", "Copyright line", CHROME_MAX.text, "{year} becomes the current year.")}`)
+      + blk("meet", "Meeting link", `${cText("footer", "meetLabel", "Text", CHROME_MAX.label, "Leave empty to hide it.")}${linkPick("footer|meetLink", chromeGet("footer", "meetLink"))}`)
+      + blk("privacy", "Privacy", `${cText("footer", "privacyLabel", "Text", CHROME_MAX.label)}${linkPick("footer|privacyLink", chromeGet("footer", "privacyLink"))}`)
+      + blk("terms", "Terms", `${cText("footer", "termsLabel", "Text", CHROME_MAX.label)}${linkPick("footer|termsLink", chromeGet("footer", "termsLink"))}`);
   }
-  return `<p class="crumb"><b>${name}</b> · ${own ? "this page" : "default"}</p><div class="chrome-ed">${scope}${body}</div>`;
+  return eBlock(kind + "-scope", name, `<div class="chrome-ed">${scope}</div>`, `<span class="chip">${own ? "this page" : "default"}</span>`) + body;
 }
 const openChrome = (kind) => { curSec = "@" + kind; selected = openCard = null; NAV_VIEW = "editor"; render(); applyNav(); document.querySelector(`#site [data-chrome="${kind}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
 // Redraw just the preview (while typing, so the field keeps focus).
@@ -1716,7 +1764,7 @@ document.addEventListener("click", (e) => {
   const d = b.dataset;
   if (d.chromeopen) return openChrome(d.chromeopen);
   if (d.cmode) { const [key, m] = d.cmode.split("~"); linkMode[key] = m; return renderCards(); }
-  if (d.cadd) { const n = chromeTarget("nav"); if (n.links.length >= CHROME_MAX.links) return; n.links.push({ label: "", link: "" }); render(); document.querySelector(`[data-cf="nav|links.${n.links.length - 1}.label"]`)?.focus(); return; }
+  if (d.cadd) { const n = chromeTarget("nav"); if (n.links.length >= CHROME_MAX.links) return; n.links.push({ label: "", link: "" }); EUI.open.add(`nav|links.${n.links.length - 1}.link`); EUI.closed.delete("nav-links"); render(); document.querySelector(`[data-cf="nav|links.${n.links.length - 1}.label"]`)?.focus(); return; }
   if (d.cmove) { const [, i, dir] = d.cmove.split("~"), l = chromeTarget("nav").links, a = +i, z = a + +dir; if (z < 0 || z >= l.length) return; [l[a], l[z]] = [l[z], l[a]]; return render(); }
   if (d.cdel) { const [, i] = d.cdel.split("~"), l = chromeTarget("nav").links, gone = l.splice(+i, 1)[0]; render(); return toast(`Removed ${gone?.label || "the link"}.`); }
   if (d.cscope) {
@@ -1942,7 +1990,7 @@ document.addEventListener("click", (e) => {
     render(); return;
   }
   if (d.device) { S.device = d.device; render(); return; }
-  if (d.filter) { filter = d.filter; syncFilter(); renderCards(); if (filter === "templates") $("#cc-title").scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
+  if (d.filter) { filter = d.filter; syncFilter(); renderCards(); if (filter === "templates") $("#cards").scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
   if (d.src) { srcTab = d.src; document.querySelectorAll("[data-src]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.src === srcTab)); renderSources(); return; }
   if (d.tab) { setTab(d.tab); return; }
 });
