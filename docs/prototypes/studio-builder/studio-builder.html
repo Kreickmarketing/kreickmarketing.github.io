@@ -703,8 +703,8 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 }
 /* Offer Card Full / Two / Three (Oct 8): the design-system cards (docs/design-system/cards.md).
    Full: Card-1280 → 640 → 320 · Two: 640 ×2 → 320 ×2 → 160 ×2 · Three: 320 ×3 → 160 ×3 → 320 stacked.
-   Margins: 32px a side on desktop and tablet, 16px on phone. */
-.ocards { padding: 96px 32px; }
+   Margins: 16px top and bottom; 32px a side on desktop and tablet, 16px on phone. */
+.ocards { padding: 16px 32px; }
 .oc-grid { display: grid; gap: 32px; }
 .oc { position: relative; overflow: hidden; display: flex; flex-direction: column; color: #fff; background: var(--cm-midnight); min-width: 0; }
 .oc > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -743,7 +743,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
 .t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
 @container (max-width: 1000px) {
-  .ocards { padding: 64px 32px; }
+  .ocards { padding: 16px 32px; }
   .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
   .t-offer-full .oc { aspect-ratio: 1 / 1; border-radius: 32px; padding: 32px; justify-content: space-between; }
   .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
@@ -773,7 +773,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   .t-offer-three .oc-price small { font-size: 8px; line-height: 10px; letter-spacing: -1px; font-weight: 600; }
 }
 @container (max-width: 700px) {
-  .ocards { padding: 64px 16px; }
+  .ocards { padding: 16px; }
   .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
   .t-offer-full .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
   .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
