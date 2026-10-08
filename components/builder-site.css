@@ -171,3 +171,105 @@
 .site .video-title { font-size: 40px; line-height: 1.1; letter-spacing: -1.5px; font-weight: 300; margin: 0; }
 .site .video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--midnight); }
 .site .video-frame iframe, .site .video-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* Offer Card Full / Two / Three (Oct 8): the design-system cards (docs/design-system/cards.md).
+   Full: Card-1280 → 640 → 320 · Two: 640 ×2 → 320 ×2 → 160 ×2 · Three: 320 ×3 → 160 ×3 → 320 stacked.
+   Margins: 32px a side on desktop and tablet, 16px on phone. */
+.site .ocards { padding: 96px 32px; }
+.site .oc-grid { display: grid; gap: 32px; }
+.site .oc { position: relative; overflow: hidden; display: flex; flex-direction: column; color: var(--white); background: var(--midnight); min-width: 0; }
+.site .oc > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.site .oc > :not(img) { position: relative; z-index: 1; }
+.site .oc-top { display: flex; flex-direction: column; }
+.site .oc h3, .site .oc p { margin: 0; }
+.site .oc-foot { display: flex; align-items: flex-end; gap: 32px; }
+.site .oc-tag { align-items: center; gap: 8px; padding: 8px 16px 8px 8px; border: 1px solid currentColor; border-radius: 999px; font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; white-space: nowrap; }
+.site .oc-tag svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; flex: none; }
+.site .oc-price { margin-left: auto; text-align: right; flex: none; display: flex; flex-direction: column; }
+.site .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+.site .t-offer-full .oc { aspect-ratio: 1280 / 800; border-radius: 32px; padding: 64px; justify-content: flex-end; }
+.site .t-offer-full .oc-top { position: absolute; left: 64px; top: 50%; transform: translateY(-50%); width: 448px; max-width: calc(100% - 128px); box-sizing: border-box; padding: 64px; border-radius: 32px; background: color-mix(in srgb, var(--midnight) 55%, transparent); backdrop-filter: blur(16px); gap: 8px; }
+.site .t-offer-full .oc-t { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 700; }
+.site .t-offer-full .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.site .t-offer-full .oc-foot { justify-content: space-between; border-top: 0; padding-top: 0px; }
+.site .t-offer-full .oc-tag { display: inline-flex; }
+.site .t-offer-full .oc-price b { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 800; }
+.site .t-offer-full .oc-price small { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 600; }
+.site .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.site .t-offer-two .oc { aspect-ratio: 1 / 1; border-radius: 32px; padding: 32px; justify-content: space-between; }
+.site .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+.site .t-offer-two .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 700; }
+.site .t-offer-two .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.site .t-offer-two .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+.site .t-offer-two .oc-tag { display: inline-flex; }
+.site .t-offer-two .oc-price b { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 800; }
+.site .t-offer-two .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+.site .t-offer-three .oc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.site .t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+.site .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+.site .t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.site .t-offer-three .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+.site .t-offer-three .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+.site .t-offer-three .oc-tag { display: none; }
+.site .t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+.site .t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+@container (max-width: 1000px) {
+  .site .ocards { padding: 64px 32px; }
+  .site .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+  .site .t-offer-full .oc { aspect-ratio: 1 / 1; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .site .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .site .t-offer-full .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 700; }
+  .site .t-offer-full .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .site .t-offer-full .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .site .t-offer-full .oc-tag { display: inline-flex; }
+  .site .t-offer-full .oc-price b { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 800; }
+  .site .t-offer-full .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .site .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+  .site .t-offer-two .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .site .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .site .t-offer-two .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .site .t-offer-two .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .site .t-offer-two .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .site .t-offer-two .oc-tag { display: none; }
+  .site .t-offer-two .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+  .site .t-offer-two .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .site .t-offer-three .oc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .site .t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 16px; padding: 16px; justify-content: space-between; }
+  .site .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 0px; }
+  .site .t-offer-three .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 700; }
+  .site .t-offer-three .oc-s { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 700; }
+  .site .t-offer-three .oc-foot { justify-content: flex-end; border-top: 0; padding-top: 0px; }
+  .site .t-offer-three .oc-tag { display: none; }
+  .site .t-offer-three .oc-price b { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 800; }
+  .site .t-offer-three .oc-price small { font-size: 8px; line-height: 10px; letter-spacing: -1px; font-weight: 600; }
+}
+@container (max-width: 700px) {
+  .site .ocards { padding: 64px 16px; }
+  .site .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+  .site .t-offer-full .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .site .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .site .t-offer-full .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .site .t-offer-full .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .site .t-offer-full .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .site .t-offer-full .oc-tag { display: none; }
+  .site .t-offer-full .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+  .site .t-offer-full .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .site .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .site .t-offer-two .oc { aspect-ratio: 2 / 3; border-radius: 16px; padding: 16px; justify-content: space-between; }
+  .site .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 0px; }
+  .site .t-offer-two .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 700; }
+  .site .t-offer-two .oc-s { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 700; }
+  .site .t-offer-two .oc-foot { justify-content: flex-end; border-top: 0; padding-top: 0px; }
+  .site .t-offer-two .oc-tag { display: none; }
+  .site .t-offer-two .oc-price b { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 800; }
+  .site .t-offer-two .oc-price small { font-size: 8px; line-height: 10px; letter-spacing: -1px; font-weight: 600; }
+  .site .t-offer-three .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+  .site .t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .site .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .site .t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .site .t-offer-three .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .site .t-offer-three .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .site .t-offer-three .oc-tag { display: none; }
+  .site .t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+  .site .t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+}

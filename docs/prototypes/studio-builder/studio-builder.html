@@ -701,6 +701,111 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   .side-close { display: inline-flex; }
   .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
 }
+/* Offer Card Full / Two / Three (Oct 8): the design-system cards (docs/design-system/cards.md).
+   Full: Card-1280 → 640 → 320 · Two: 640 ×2 → 320 ×2 → 160 ×2 · Three: 320 ×3 → 160 ×3 → 320 stacked.
+   Margins: 32px a side on desktop and tablet, 16px on phone. */
+.ocards { padding: 96px 32px; }
+.oc-grid { display: grid; gap: 32px; }
+.oc { position: relative; overflow: hidden; display: flex; flex-direction: column; color: #fff; background: var(--cm-midnight); min-width: 0; }
+.oc > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.oc > :not(img) { position: relative; z-index: 1; }
+.oc-top { display: flex; flex-direction: column; }
+.oc h3, .oc p { margin: 0; }
+.oc-foot { display: flex; align-items: flex-end; gap: 32px; }
+.oc-tag { align-items: center; gap: 8px; padding: 8px 16px 8px 8px; border: 1px solid currentColor; border-radius: 999px; font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; white-space: nowrap; }
+.oc-tag svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; flex: none; }
+.oc-price { margin-left: auto; text-align: right; flex: none; display: flex; flex-direction: column; }
+.t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+.t-offer-full .oc { aspect-ratio: 1280 / 800; border-radius: 32px; padding: 64px; justify-content: flex-end; }
+.t-offer-full .oc-top { position: absolute; left: 64px; top: 50%; transform: translateY(-50%); width: 448px; max-width: calc(100% - 128px); box-sizing: border-box; padding: 64px; border-radius: 32px; background: color-mix(in srgb, var(--cm-midnight) 55%, transparent); backdrop-filter: blur(16px); gap: 8px; }
+.t-offer-full .oc-t { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 700; }
+.t-offer-full .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.t-offer-full .oc-foot { justify-content: space-between; border-top: 0; padding-top: 0px; }
+.t-offer-full .oc-tag { display: inline-flex; }
+.t-offer-full .oc-price b { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 800; }
+.t-offer-full .oc-price small { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 600; }
+.t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.t-offer-two .oc { aspect-ratio: 1 / 1; border-radius: 32px; padding: 32px; justify-content: space-between; }
+.t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+.t-offer-two .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 700; }
+.t-offer-two .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.t-offer-two .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+.t-offer-two .oc-tag { display: inline-flex; }
+.t-offer-two .oc-price b { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 800; }
+.t-offer-two .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+.t-offer-three .oc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+.t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+.t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+.t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.t-offer-three .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+.t-offer-three .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+.t-offer-three .oc-tag { display: none; }
+.t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+.t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+@container (max-width: 1000px) {
+  .ocards { padding: 64px 32px; }
+  .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+  .t-offer-full .oc { aspect-ratio: 1 / 1; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .t-offer-full .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 700; }
+  .t-offer-full .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .t-offer-full .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .t-offer-full .oc-tag { display: inline-flex; }
+  .t-offer-full .oc-price b { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 800; }
+  .t-offer-full .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+  .t-offer-two .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .t-offer-two .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .t-offer-two .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-two .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .t-offer-two .oc-tag { display: none; }
+  .t-offer-two .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+  .t-offer-two .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-three .oc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 16px; padding: 16px; justify-content: space-between; }
+  .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 0px; }
+  .t-offer-three .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-three .oc-s { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-three .oc-foot { justify-content: flex-end; border-top: 0; padding-top: 0px; }
+  .t-offer-three .oc-tag { display: none; }
+  .t-offer-three .oc-price b { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 800; }
+  .t-offer-three .oc-price small { font-size: 8px; line-height: 10px; letter-spacing: -1px; font-weight: 600; }
+}
+@container (max-width: 700px) {
+  .ocards { padding: 64px 16px; }
+  .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+  .t-offer-full .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .t-offer-full .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .t-offer-full .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-full .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .t-offer-full .oc-tag { display: none; }
+  .t-offer-full .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+  .t-offer-full .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .t-offer-two .oc { aspect-ratio: 2 / 3; border-radius: 16px; padding: 16px; justify-content: space-between; }
+  .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 0px; }
+  .t-offer-two .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-two .oc-s { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-two .oc-foot { justify-content: flex-end; border-top: 0; padding-top: 0px; }
+  .t-offer-two .oc-tag { display: none; }
+  .t-offer-two .oc-price b { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 800; }
+  .t-offer-two .oc-price small { font-size: 8px; line-height: 10px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-three .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
+  .t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
+  .t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .t-offer-three .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-three .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
+  .t-offer-three .oc-tag { display: none; }
+  .t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
+  .t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+}
+.oc .offer-draft { z-index: 3; }
+.oc-grid .slot.oc-slot { aspect-ratio: 2 / 3; min-height: 0; }
+.t-offer-full .oc-grid .slot.oc-slot { aspect-ratio: 1280 / 800; }
+.t-offer-two .oc-grid .slot.oc-slot { aspect-ratio: 1 / 1; }
 </style>
 
 <nav class="rail" id="rail" aria-label="Studio">
@@ -868,6 +973,16 @@ const TEMPLATES = [
   ]},
   { id: "offers", name: "Offer cards", type: "offersonly", about: "Up to four offer cards from the CMS, side by side.", slots: [
     { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
+  ]},
+  // Offer cards built from the design-system cards (canvas rows Offer Card Full / Two / Three, Oct 8).
+  { id: "offer-full", name: "Offer Card Full", type: "ocards", about: "One offer, full width: Card-1280 on desktop (grows to 1920), Card-640 on tablet, Card-320 on phone.", slots: [
+    { key: "cards", label: "Offer card", kind: "offers", max: 1, axis: "x", about: "From the CMS. Edit the offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
+  ]},
+  { id: "offer-two", name: "Offer Card Two", type: "ocards", about: "Two offers side by side: Card-640 ×2 on desktop, Card-320 ×2 on tablet, Card-160 ×2 on phone.", slots: [
+    { key: "cards", label: "Offer cards", kind: "offers", max: 2, axis: "x", about: "From the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
+  ]},
+  { id: "offer-three", name: "Offer Card Three", type: "ocards", about: "Three offers: Card-320 ×3 on desktop, Card-160 ×3 on tablet, stacked Card-320 on phone.", slots: [
+    { key: "cards", label: "Offer cards", kind: "offers", max: 3, axis: "x", about: "From the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
   ]},
   { id: "points", name: "Points", type: "points", about: "Up to three titled points in a list, no photo.", slots: [
     { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · How the team works" },
@@ -1057,6 +1172,15 @@ const text = (id, tag, cls = "", extraSlotCls = "") => { const v = P(id); return
 const lines = (id, tag, cls = "", extra = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${v.map((r) => `<span>${esc(r.line)}</span>`).join("")}</${tag}>` : slotBox(id, extra); };
 const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY_OFFER_IDS[oid] || oid));
 const offerCard = (o, i, id) => `<article class="offer" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span class="mono" style="font-size:13px">${o.tag ? `+ ${esc(o.tag)}` : ""}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`;
+// Design-system offer card (Offer Card Full / Two / Three): its size per screen comes from CSS.
+const OC_PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}</div></article>`;
+function ocBlock(id, max) {
+  const v = P(id), items = v ? v.map(offerById).filter(Boolean) : [];
+  const cells = items.map((o, i) => ocCard(o, i, id));
+  for (let i = items.length; i < max; i++) cells.push(slotBox(id, "oc-slot", "").replace(esc(SLOTS[id].label), max > 1 ? `Offer card ${i + 1}` : "Offer card"));
+  return v ? `<div class="oc-grid ${filledAttr(id).match(/class="([^"]*)"/)[1]}" data-slot="${id}">${cells.join("")}</div>` : `<div class="oc-grid">${cells.join("")}</div>`;
+}
 function offersBlock(id, max) {
   const v = P(id);
   const items = v ? v.map(offerById).filter(Boolean) : [];
@@ -1150,6 +1274,7 @@ const SECTION_HTML = {
     return `<div class="sh">${text(k("tagline"), "p", "tagline")}<div>${lines(k("headline"), "h2")}${bodyHtml}</div></div>`;
   },
   offersonly: (sec, k) => offersBlock(k("cards"), SLOTS[k("cards")].max),
+  ocards: (sec, k) => ocBlock(k("cards"), SLOTS[k("cards")].max),
   video: (sec, k) => {
     const e = parseEmbed(P(k("video")));
     const inner = !e ? slotBox(k("video"), "video-slot") : `<div ${filledAttr(k("video")).replace('class="', 'class="video-frame ')}>${e.type === "file" ? `<video src="${esc(e.src)}" muted controls playsinline preload="metadata"></video>`
@@ -1158,7 +1283,7 @@ const SECTION_HTML = {
   },
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
-const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", video: "std", calendly: "std" };
+const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", video: "std", calendly: "std" };
 
 const PHOTO_TOP = ["hero", "pagehero", "plat"];
 const CHROME_MAX = { links: 7, label: 30, text: 140 };
@@ -1352,6 +1477,7 @@ function tplThumb(type) {
     story: F(6, 6, 28, 36) + L("M42 12h32M42 18h30M42 24h32M42 30h26", 1.2),
     plat: F(1, 1, 78, 46) + L("M8 9h10M30 9h40") + [8, 22, 36].map((x) => R(x, 32, 12, 6, 3)).join(""),
     offersonly: [6, 30, 54].map((x) => F(x, 8, 20, 32)).join(""),
+    ocards: [6, 30, 54].map((x) => F(x, 8, 20, 32)).join(""),
     points: L("M8 12h20M36 12h36M8 24h20M36 24h36M8 36h20M36 36h36"),
     quote: L("M10 14h60M10 21h56M10 28h40", 2.5) + L("M10 38h20", 1.2),
     mail: L("M8 14h28", 3) + L("M8 22h24", 1.2) + R(44, 10, 28, 6) + R(44, 20, 28, 6) + R(44, 30, 14, 6, 3),
@@ -2106,7 +2232,7 @@ function modCats() {
     { id: "photo", name: "Photo + text", color: "var(--tangerine-burst)", tpls: ["photo-points", "photo-text", "photo-tags"] },
     { id: "lists", name: "Points & quotes", color: "var(--iron-moss)", tpls: ["points", "quote"] },
     { id: "logos", name: "Logos", color: "var(--deep-taupe)", tpls: ["logos"] },
-    { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offers"] },
+    { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offers", "offer-full", "offer-two", "offer-three"] },
     { id: "video", name: "Video", color: "", tpls: ["video"] },
     { id: "forms", name: "Forms & embeds", color: "var(--merlot)", tpls: ["mailing", "calendly"] },
   ];

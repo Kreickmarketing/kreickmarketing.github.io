@@ -26,6 +26,10 @@ const TEMPLATES: Template[] = [
   { id: "photo-text", type: "story", slots: [s("photo", "image"), s("body", "text")] },
   { id: "photo-tags", type: "plat", slots: [s("image", "image"), s("label", "text"), s("headline", "list"), s("tags", "list"), s("logos", "logos")] },
   { id: "offers", type: "offersonly", slots: [s("cards", "offers")] },
+  // Design-system offer cards (canvas: Offer Card Full / Two / Three). Sizes per screen: builder-site.css.
+  { id: "offer-full", type: "ocards", slots: [s("cards", "offers")] },
+  { id: "offer-two", type: "ocards", slots: [s("cards", "offers")] },
+  { id: "offer-three", type: "ocards", slots: [s("cards", "offers")] },
   { id: "points", type: "points", slots: [s("points", "list")] },
   { id: "quote", type: "quote", slots: [s("text", "text"), s("by", "text")] },
   { id: "mailing", type: "mail", slots: [s("label", "text"), s("headline", "text"), s("intro", "text"), s("name", "text"), s("email", "text"), s("button", "text"), s("thanks", "text")] },
@@ -48,7 +52,7 @@ function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
   };
 }
 
-const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", video: "std", calendly: "std" };
+const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", video: "std", calendly: "std" };
 const PHOTO_TOP = ["hero", "pagehero", "plat"];
 
 export type BuilderState = {
@@ -156,6 +160,12 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const ids = Array.isArray(P("cards")) ? (P("cards") as unknown[]) : [];
       const cards = ids.map(offer).filter((o): o is OfferCard => !!o);
       return cards.length ? `<div class="offer-grid" data-slot=".cards">${cards.map((o) => `<article class="offer">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span style="font-family:var(--font-button);font-size:13px">${o.tag ? `+ ${esc(o.tag)}` : ""}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`).join("")}</div>` : "";
+    }
+    case "ocards": {
+      const ids = Array.isArray(P("cards")) ? (P("cards") as unknown[]) : [];
+      const cards = ids.map(offer).filter((o): o is OfferCard => !!o);
+      const plus = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+      return cards.length ? `<div class="oc-grid" data-slot=".cards">${cards.map((o) => `<article class="oc">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${plus}${esc(o.tag)}</span>` : ""}${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}</div></article>`).join("")}</div>` : "";
     }
     default: return "";
   }
