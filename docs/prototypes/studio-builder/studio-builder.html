@@ -362,15 +362,13 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .ed-body .ccard.drop-ok { background: color-mix(in srgb, var(--accent) 14%, transparent); outline: 2px dashed var(--accent); }
 .ed-body .spot-list { background: none; border: 0; padding: 0; }
 .ed-chips { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: -4px; }
-.ed-body .clink { border: 0; background: none; border-radius: 8px; padding: 4px 0; gap: 6px; }
-.ed-body .clink.is-open { background: var(--panel); padding: 6px 8px 10px 0; }
+.ed-rows { display: flex; flex-direction: column; gap: 2px; margin: 0 -8px; }
+.ed-rows .lay-head { font-weight: 600; }
+.ed-rows .sub { max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ed-rows .lay-row:hover .sub, .ed-rows .lay-row:focus-within .sub { display: none; }
+.ed-body .ed-in { padding: 4px 8px 12px 30px; gap: 10px; }
 .ed-body .note { background: none; border: 0; padding: 0; color: var(--ink-3); }
 .ed-sub { color: var(--ink-3); font-size: 11.5px; font-weight: 400; text-transform: none; letter-spacing: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.clink-tog { flex: none; width: 24px; height: 28px; display: grid; place-items: center; border: 0; background: none; color: var(--ink-3); border-radius: 6px; padding: 0; }
-.clink-tog:hover { color: var(--ink); background: var(--panel); }
-.clink-tog svg { width: 13px; height: 13px; transition: transform 0.15s; }
-.clink.is-open .clink-tog svg { transform: rotate(90deg); }
-.clink .ed-now { margin: -2px 0 0 30px; font-family: var(--f-mono); font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (min-width: 761px) {
   :root { --edit-w: 320px; }
   html.has-edit body { padding-right: calc(var(--edit-w) + 16px); }
@@ -380,10 +378,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 }
 .chrome-ed .note { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
 .chrome-ed .row-btns { display: flex; flex-wrap: wrap; gap: 6px; }
-.clink { border: 1px solid var(--line); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: var(--panel-2); }
-.clink-head { display: flex; gap: 6px; align-items: center; }
-.clink-head .input { flex: 1; }
-.clink .field { margin: 0; }
 .chrome-ed .source { margin: 6px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-3); overflow-wrap: anywhere; }
 .chrome-ed .field > label { display: block; margin-bottom: 6px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
 .chrome-ed .seg + .note { margin-top: -4px; }
@@ -1665,12 +1659,12 @@ function eBlock(id, title, body, extra = "") {
   return `<div class="side-sec blk ed-blk${shut ? " is-closed" : ""}"><div class="side-label blk-title" data-eblock="${esc(id)}" role="button" tabindex="0" aria-expanded="${!shut}" title="Click to ${shut ? "open" : "fold"}"><span>${ED_CHEV} ${title}</span>${extra ? `<span class="ed-extra">${extra}</span>` : ""}</div>${shut ? "" : `<div class="ed-body">${body}</div>`}</div>`;
 }
 document.addEventListener("click", (e) => {
-  const t = e.target.closest?.("[data-eblock], [data-clinktog]"); if (!t) return;
+  const t = e.target.closest?.("[data-eblock], [data-clinktog]"); if (!t || (t.dataset.clinktog && e.target.closest("button"))) return;
   if (t.dataset.eblock) { const b = t.dataset.eblock; EUI.closed.has(b) ? EUI.closed.delete(b) : EUI.closed.add(b); saveEUI(); }
   else { const k = t.dataset.clinktog; EUI.open.has(k) ? EUI.open.delete(k) : EUI.open.add(k); }
   renderCards();
 });
-document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-eblock]")) { e.preventDefault(); e.target.click(); } });
+document.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target.matches?.("[data-eblock], [data-clinktog]")) { e.preventDefault(); e.target.click(); } });
 function placeEdit() {
   const box = $("#edit-float"); if (!box) return;
   // Laptops: the panel is fixed down the right, so it doesn't need lining up.
@@ -1730,16 +1724,20 @@ function chromeEditor(kind) {
   const page = pageView(S.page), own = !!chromeOwn(kind), name = CHROME_NAME[kind];
   const sharing = allPages().filter((p) => !chromeOwn(kind, p.id)).length;
   const scope = `<div class="seg" role="group" aria-label="Where changes go"><button type="button" data-cscope="${kind}~all" aria-pressed="${!own}">All pages (default)</button><button type="button" data-cscope="${kind}~page" aria-pressed="${own}">Only ${esc(page.name)}</button></div>
-    ${own ? "" : `<p class="note">Changes here change every page using the default (${sharing} of ${allPages().length} pages).</p>`}
+
     ${own ? `<div class="row-btns"><button type="button" class="btn btn-small" data-cdefault="${kind}">Make this the default</button><button type="button" class="btn btn-small" data-creset="${kind}">Reset to default</button></div>` : ""}`;
   let body = "";
   if (kind === "nav") {
     const n = chromeTarget("nav"), links = n.links || [];
     const blk = (id, title, html, extra) => eBlock("nav-" + id, title, `<div class="chrome-ed">${html}</div>`, extra);
-    body = blk("links", `Links · ${links.length}/${CHROME_MAX.links}`, `${links.map((l, i) => { const k = `nav|links.${i}.link`, on = EUI.open.has(k), now = resolveLink(l.link); return `<div class="clink${on ? " is-open" : ""}"><div class="clink-head"><button type="button" class="clink-tog" data-clinktog="${k}" aria-expanded="${on}" aria-label="${on ? "Hide" : "Show"} where ${esc(l.label || "this link")} goes">${ED_CHEV}</button><input class="input" data-cf="nav|links.${i}.label" value="${esc(l.label)}" maxlength="${CHROME_MAX.label}" aria-label="Link ${i + 1} text" placeholder="Link text">
-        <button type="button" class="lay-btn" data-cmove="nav~${i}~-1" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="lay-btn" data-cmove="nav~${i}~1" aria-label="Move down" ${i === links.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="lay-btn lay-x" data-cdel="nav~${i}" aria-label="Remove ${esc(l.label || "link")}">×</button></div>
-        ${on ? linkPick(k, l.link) : `<p class="ed-now">${now ? esc(now) : "Not linked yet"}</p>`}</div>`; }).join("")}
-      ${links.length < CHROME_MAX.links ? `<button type="button" class="btn btn-small" data-cadd="nav">+ Add link</button>` : ""}
+    const LINK_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="lay-ico" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>';
+    // Each link is a row like Modules' groups: arrow, icon, its text, where it goes. Open it to edit.
+    body = blk("links", `Links · ${links.length}/${CHROME_MAX.links}`, `<div class="ed-rows">${links.map((l, i) => { const k = `nav|links.${i}.link`, on = EUI.open.has(k), now = resolveLink(l.link);
+      return `<div class="lay-sec${on ? " is-open" : ""}"><div class="lay-row lay-head" data-clinktog="${k}" role="button" tabindex="0" aria-expanded="${on}">${ED_CHEV.replace("lay-chev blk-chev", "lay-chev")}${LINK_ICO}<span class="grow">${esc(l.label || "New link")}</span>
+        <span class="lay-tools"><button type="button" class="lay-btn" data-cmove="nav~${i}~-1" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="lay-btn" data-cmove="nav~${i}~1" aria-label="Move down" ${i === links.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="lay-btn lay-x" data-cdel="nav~${i}" aria-label="Remove ${esc(l.label || "link")}">×</button></span>
+        <span class="sub">${now ? esc(now) : "no link"}</span></div>
+        ${on ? `<div class="ed-in chrome-ed"><div class="field"><label for="nl-${i}">Text</label><input class="input" id="nl-${i}" data-cf="nav|links.${i}.label" value="${esc(l.label)}" maxlength="${CHROME_MAX.label}"></div>${linkPick(k, l.link)}</div>` : ""}</div>`; }).join("")}</div>
+      ${links.length < CHROME_MAX.links ? `<button type="button" class="btn btn-small btn-outline" data-cadd="nav">+ Add link</button>` : ""}
       <p class="note">Tablet and phone: the menu button opens these same links and the button.</p>`)
       + blk("button", "Button", `${cText("nav", "cta.label", "Button text", CHROME_MAX.label, "Leave empty to hide the button.")}
       ${linkPick("nav|cta.link", n.cta?.link, "Button goes to")}`);
