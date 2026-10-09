@@ -137,11 +137,17 @@ h1, h2, h3 { margin: 0; text-wrap: balance; }
 textarea.input { resize: vertical; min-height: 72px; line-height: 1.4; }
 .count { position: absolute; right: 8px; bottom: 8px; font-family: var(--f-mono); font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; pointer-events: none; }
 .count.over { color: var(--bad); font-weight: 700; }
-.rows { display: flex; flex-direction: column; gap: 6px; }
+.rows { display: flex; flex-direction: column; gap: 16px; }
 .row-btns { display: flex; flex-direction: column; gap: 2px; }
 .row-btns .x { height: 24px; font-size: 12px; padding: 0; }
 .row-btns .x:disabled { opacity: 0.3; }
-.row { display: grid; grid-template-columns: 20px repeat(var(--cols), minmax(0, 1fr)) 28px; gap: 6px; align-items: start; }
+.row { display: grid; grid-template-columns: 20px minmax(0, 1fr) 28px; gap: 8px 6px; align-items: start; }
+/* Each column of a list row gets its own line with a small label above it (Oct 9). */
+.row .field + .field { grid-column: 2; }
+.row .row-btns { grid-column: 3; grid-row: 1 / span 3; }
+.row:has(.field > span) :is(.row-n, .row-btns) { margin-top: 19px; }
+.row:has(.field > span) .row-n { padding-top: 7px; }
+.row .field > span { font-size: 11px; color: var(--ink-3); }
 .row-n { font-family: var(--f-mono); color: var(--draft); font-weight: 700; padding-top: 7px; font-size: 12px; }
 .row .input { padding-right: 44px; }
 .x { width: 28px; height: 32px; border: 1px solid var(--line); background: var(--panel-2); border-radius: 6px; color: var(--ink-2); }
@@ -480,7 +486,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .panes[data-tab="sources"] .pane-preview, .panes[data-tab="sources"] .pane-cards { display: none; }
   .canvas-wrap { padding: 8px; }
   .row { grid-template-columns: 16px minmax(0, 1fr) 28px; }
-  .row .field + .field { grid-column: 2; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 
@@ -1663,7 +1668,7 @@ function cardBody(id) {
   } else if (sl.kind === "list") {
     const rows = v.length ? v : [];
     ed = `<div class="field"><label>Content · up to ${sl.max} ${sl.max === 1 ? "row" : "rows"}</label><div class="rows">${rows.map((r, i) => `<div class="row" style="--cols:${sl.cols.length}"><span class="row-n">${i + 1}</span>
-      ${sl.cols.map((c) => { const val = r[c.key] || ""; return `<div class="field">${c.long ? `<textarea class="input" rows="2" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}">${esc(val)}</textarea>` : `<input class="input" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}" value="${esc(val)}">`}${counter(val.length, c.limit)}</div>`; }).join("")}
+      ${sl.cols.map((c) => { const val = r[c.key] || ""; return `<div class="field">${sl.cols.length > 1 ? `<span aria-hidden="true">${esc(c.label)}</span>` : ""}${c.long ? `<textarea class="input" rows="2" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}">${esc(val)}</textarea>` : `<input class="input" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}" value="${esc(val)}">`}${counter(val.length, c.limit)}</div>`; }).join("")}
       <span class="row-btns"><button type="button" class="x" data-move="${id}:${i}:-1" aria-label="Move row ${i + 1} up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="x" data-move="${id}:${i}:1" aria-label="Move row ${i + 1} down" ${i === rows.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove row ${i + 1}">×</button></span></div>`).join("")}</div></div>
       ${rows.length < sl.max ? `<button type="button" class="add-row" data-addrow="${id}">+ Add row (${rows.length}/${sl.max})</button>` : ""}`;
   }
