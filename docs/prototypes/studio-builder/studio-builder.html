@@ -918,6 +918,18 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   .eng-list .eng-dot { width: 48px; height: 48px; }
   .eng-list .eng-dot svg { width: 24px; height: 24px; }
 }
+/* System template + Photo background + tags (Oct 9): same frame as Offer Card Full. The photo is a
+   card inset from the page edge with 32px corners; outside it is the page colour.
+   Around the card: 16/32px desktop and tablet, 8/16px phone. Inside the card: 64px desktop, 32px tablet and phone. */
+.sec.t-system, .sec.t-photo-tags { background: var(--cm-clay-light); padding: 80px 96px; }
+.sec.t-system > .hero-bg, .sec.t-photo-tags > .hero-bg { inset: 16px 32px; border-radius: 32px; overflow: hidden; }
+@container (max-width: 1000px) {
+  .sec.t-system, .sec.t-photo-tags { padding: 48px 64px; }
+}
+@container (max-width: 700px) {
+  .sec.t-system, .sec.t-photo-tags { padding: 40px 48px; }
+  .sec.t-system > .hero-bg, .sec.t-photo-tags > .hero-bg { inset: 8px 16px; }
+}
 </style>
 
 <nav class="rail" id="rail" aria-label="Studio">
