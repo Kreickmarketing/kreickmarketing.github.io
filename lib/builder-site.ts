@@ -23,7 +23,7 @@ const TEMPLATES: Template[] = [
   { id: "heading", type: "header", slots: [s("tagline", "text"), s("headline", "list"), s("body", "text")] },
   { id: "logos", type: "cred", slots: [s("label", "text"), s("logos", "logos")] },
   { id: "photo-points", type: "photopoints", slots: [s("photo", "image"), s("points", "list")] },
-  { id: "photo-text", type: "story", slots: [s("photo", "image"), s("body", "text")] },
+  { id: "photo-text", type: "story", slots: [s("photo", "image"), s("body", "text"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("rings", "list")] },
   { id: "photo-tags", type: "plat", slots: [s("image", "image"), s("label", "text"), s("headline", "list"), s("tags", "list"), s("logos", "logos")] },
   { id: "offers", type: "offersonly", slots: [s("cards", "offers")] },
   // Design-system offer cards (canvas: Offer Card Full / Two / Three). Sizes per screen: builder-site.css.
@@ -134,12 +134,15 @@ const hasText = (r: Record<string, unknown>) => Object.values(r).some((x) => str
 // A one-character symbol such as $ goes before the number; %, x and words go after.
 // The numbers count up in the browser (components/CountUp.tsx); without it they simply show.
 const statNum = (v: unknown) => parseFloat(str(v).replace(/[^0-9.-]/g, "")) || 0;
-function statValue(n: string, unit: string, delay: number): string {
-  const u = unit.trim(), num = `<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`;
+function withUnit(num: string, unit: string): string {
+  const u = unit.trim();
   if (!u) return num;
   if (u.length === 1 && !/[\p{L}%]/u.test(u)) return esc(u) + num;
   return num + (/^\p{L}{2}/u.test(u) ? " " : "") + esc(u);
 }
+const statValue = (n: string, unit: string, delay: number) => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit);
+// Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare).
+const gcClass = (v: unknown) => ({ red: " gc-red", blue: " gc-blue", yellow: " gc-yellow" } as Record<string, string>)[str(v).toLowerCase()] || "";
 function growPath(end: number, max: number, seed: number): string {
   const W = 312, H = 120, pts: [number, number][] = [];
   for (let i = 0; i <= 10; i++) {
@@ -153,11 +156,25 @@ function growPath(end: number, max: number, seed: number): string {
   }
   return d;
 }
-function statChart(st: Record<string, unknown>): string {
-  const a = statNum(st.from), b = statNum(st.to), max = Math.max(a, b, 1) * 1.1, da = growPath(a, max, 1), db = growPath(b, max, 4), unit = str(st.unit);
-  return `<aside class="hstat" data-slot=".stat"><small>${esc(str(st.kicker))}</small>`
-    + `<svg class="hstat-chart" viewBox="0 0 312 120" aria-hidden="true"><path class="hstat-grid" d="M0 0.5H312M0 40.5H312M0 80.5H312M0 119.5H312"/><path class="hstat-area" d="${db} L312 120 L0 120Z"/><path class="hstat-a" pathLength="1" d="${da}"/><path class="hstat-b" pathLength="1" d="${db}"/></svg>`
-    + `<div class="hstat-keys"><p class="hstat-key a"><b>${statValue(str(st.from), unit, 1600)}</b><span>${esc(str(st.fromLabel))}</span></p><p class="hstat-key b"><b>${statValue(str(st.to), unit, 1750)}</b><span>${esc(str(st.toLabel))}</span></p></div></aside>`;
+function lineGraph(d: Record<string, unknown>, unit: string, delay: number): string {
+  const a = statNum(d.from), b = statNum(d.to), max = Math.max(a, b, 1) * 1.1, da = growPath(a, max, 1), db = growPath(b, max, 4);
+  return `<svg class="hstat-chart" viewBox="0 0 312 120" aria-hidden="true"><path class="hstat-grid" d="M0 0.5H312M0 40.5H312M0 80.5H312M0 119.5H312"/><path class="hstat-area${gcClass(d.toColor)}" d="${db} L312 120 L0 120Z"/><path class="hstat-a${gcClass(d.fromColor)}" pathLength="1" d="${da}"/><path class="hstat-b${gcClass(d.toColor)}" pathLength="1" d="${db}"/></svg>`
+    + `<div class="hstat-keys"><p class="hstat-key a${gcClass(d.fromColor)}"><b>${statValue(str(d.from), unit, delay)}</b><span>${esc(str(d.fromLabel))}</span></p><p class="hstat-key b${gcClass(d.toColor)}"><b>${statValue(str(d.to), unit, delay + 150)}</b><span>${esc(str(d.toLabel))}</span></p></div>`;
+}
+const statChart = (st: Record<string, unknown>) => `<aside class="hstat" data-slot=".stat"><small>${esc(str(st.kicker))}</small>${lineGraph(st, str(st.unit), 1600)}</aside>`;
+// Bars on a tidy scale (0 to five even steps), labels under the bars, the scale on the right.
+function barsGraph(rows: Record<string, unknown>[], unit: string): string {
+  const vals = rows.map((r) => Math.max(0, statNum(r.value))), want = Math.max(...vals, 1) / 5, p = Math.pow(10, Math.floor(Math.log10(want)));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9) ?? 10 * p, top = step * 5, slot = 236 / rows.length, bw = Math.min(28, slot * 0.55);
+  const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit)}</text>`; }).join("");
+  const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = slot * n + (slot - bw) / 2; return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${600 + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(str(r.label))}</text>`; }).join("");
+  return `<svg class="gfx-plot" viewBox="0 0 280 150" role="img" aria-label="${esc(rows.map((r) => `${str(r.label)} ${str(r.value)}${unit}`).join(", "))}">${grid}${bars}</svg>`;
+}
+// Rings fill from zero to the number: out of 100 for % (or no measure), otherwise out of the larger number.
+function ringsGraph(rows: Record<string, unknown>[], unit: string, delay: number): string {
+  const u = unit.trim() || "%", vals = rows.map((r) => Math.max(0, statNum(r.value))), max = u === "%" ? 100 : Math.max(...vals, 1);
+  return `<div class="gfx-rings">${rows.map((r, n) => { const pct = Math.min(100, (vals[n] / max) * 100);
+    return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(str(r.value), u, delay + n * 150)}</b></div><span>${esc(str(r.label))}</span></div>`; }).join("")}</div>`;
 }
 
 // ── Drawing each template (live mode: empty spots are simply left out) ──
@@ -190,7 +207,13 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     }
     case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row")}`;
     case "photopoints": return `<div class="split${flip ? " flip" : ""}">${photo("photo")}${points("points")}</div>`;
-    case "story": { const body = str(P("body")); return `<div class="split${flip ? " flip" : ""}">${photo("photo")}${body ? `<p class="body" data-slot=".body" style="font-size:20px;line-height:1.5;color:var(--iron-pine)">${esc(body)}</p>` : ""}</div>`; }
+    case "story": {
+      // The first filled graph (line, then bars, then rings) sits as a card over the photo.
+      const body = str(P("body")), unit = str(P("graphUnit")), title = str(P("graphTitle"));
+      const ln = rows(P("line")).filter(hasText), br = rows(P("bars")).filter(hasText).slice(0, 6), rg = rows(P("rings")).filter(hasText).slice(0, 2);
+      const pick = ln.length ? ["line", lineGraph(ln[0], unit, 600)] : br.length ? ["bars", barsGraph(br, unit)] : rg.length ? ["rings", ringsGraph(rg, unit, 600)] : null;
+      const card = pick ? `<aside class="gfx" data-slot=".${pick[0]}">${title ? `<small>${esc(title)}</small>` : ""}${pick[1]}</aside>` : "";
+      return `<div class="split${flip ? " flip" : ""}">${card ? `<div class="gfx-wrap">${photo("photo")}${card}</div>` : photo("photo")}${body ? `<p class="body" data-slot=".body" style="font-size:20px;line-height:1.5;color:var(--iron-pine)">${esc(body)}</p>` : ""}</div>`; }
     case "plat": {
       const tags = rows(P("tags")).map((r) => str(r.tag)).filter(Boolean);
       return `${bg("image")}<div class="sh">${text("label", "p", "tagline")}${lines("headline", "h2")}</div><div class="plat-foot">${tags.length ? `<ul class="tag-pills" data-slot=".tags">${tags.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}${mq("logos")}</div>`;
