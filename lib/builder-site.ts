@@ -206,7 +206,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
   };
   // Photo + text and Photo + points: the first filled graph (line, then bars, then rings) as a card over the photo.
   const photoWithGraph = () => { const g = pickGraph(P, "line", 600); return g ? `<div class="gfx-wrap">${photo("photo")}<aside class="gfx" data-slot=".${g.key}">${g.html}</aside></div>` : photo("photo"); };
-  const logos = (key: string, cls: string) => { const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean); return v.length ? `<div class="${cls}" data-slot=".${key}">${v.map((src) => `<img src="${esc(src)}" alt="">`).join("")}</div>` : ""; };
+  const logos = (key: string, cls: string, max = 20) => { const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean).slice(0, max); return v.length ? `<div class="${cls}" data-slot=".${key}">${v.map((src) => `<img src="${esc(src)}" alt="">`).join("")}</div>` : ""; };
 
   switch (type) {
     case "hero": {
@@ -218,7 +218,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       return `${bg("image")}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}</div>`
         + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${esc(str(q.name))}</b><span>${esc(str(q.quote))}</span></figure>` : "<div></div>"}${st}</div>` : "");
     }
-    case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row")}`;
+    case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row", 10)}`;
     case "photopoints": return `<div class="split${flip ? " flip" : ""}">${photoWithGraph()}${points("points")}</div>`;
     case "story": {
       const body = str(P("body"));
