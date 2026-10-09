@@ -22,7 +22,7 @@ const TEMPLATES: Template[] = [
   { id: "hero", type: "hero", slots: [s("image", "image"), s("headline", "text"), s("button", "text"), s("link", "link"), s("quote", "list"), s("stat", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("bars", "list"), s("rings", "list")] },
   { id: "heading", type: "header", slots: [s("tagline", "text"), s("headline", "list"), s("body", "text")] },
   { id: "logos", type: "cred", slots: [s("label", "text"), s("logos", "logos")] },
-  { id: "photo-points", type: "photopoints", slots: [s("photo", "image"), s("points", "list")] },
+  { id: "photo-points", type: "photopoints", slots: [s("photo", "image"), s("points", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("rings", "list")] },
   { id: "photo-text", type: "story", slots: [s("photo", "image"), s("body", "text"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("rings", "list")] },
   { id: "photo-tags", type: "plat", slots: [s("image", "image"), s("label", "text"), s("headline", "list"), s("tags", "list"), s("logos", "logos")] },
   { id: "offers", type: "offersonly", slots: [s("cards", "offers")] },
@@ -204,6 +204,8 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     });
     return `<div class="plat-logos mq" data-slot=".${key}">${rows.join("")}</div>`;
   };
+  // Photo + text and Photo + points: the first filled graph (line, then bars, then rings) as a card over the photo.
+  const photoWithGraph = () => { const g = pickGraph(P, "line", 600); return g ? `<div class="gfx-wrap">${photo("photo")}<aside class="gfx" data-slot=".${g.key}">${g.html}</aside></div>` : photo("photo"); };
   const logos = (key: string, cls: string) => { const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean); return v.length ? `<div class="${cls}" data-slot=".${key}">${v.map((src) => `<img src="${esc(src)}" alt="">`).join("")}</div>` : ""; };
 
   switch (type) {
@@ -217,12 +219,10 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
         + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${esc(str(q.name))}</b><span>${esc(str(q.quote))}</span></figure>` : "<div></div>"}${st}</div>` : "");
     }
     case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row")}`;
-    case "photopoints": return `<div class="split${flip ? " flip" : ""}">${photo("photo")}${points("points")}</div>`;
+    case "photopoints": return `<div class="split${flip ? " flip" : ""}">${photoWithGraph()}${points("points")}</div>`;
     case "story": {
-      // The first filled graph (line, then bars, then rings) sits as a card over the photo.
-      const body = str(P("body")), g = pickGraph(P, "line", 600);
-      const card = g ? `<aside class="gfx" data-slot=".${g.key}">${g.html}</aside>` : "";
-      return `<div class="split${flip ? " flip" : ""}">${card ? `<div class="gfx-wrap">${photo("photo")}${card}</div>` : photo("photo")}${body ? `<p class="body" data-slot=".body" style="font-size:20px;line-height:1.5;color:var(--iron-pine)">${esc(body)}</p>` : ""}</div>`; }
+      const body = str(P("body"));
+      return `<div class="split${flip ? " flip" : ""}">${photoWithGraph()}${body ? `<p class="body" data-slot=".body" style="font-size:20px;line-height:1.5;color:var(--iron-pine)">${esc(body)}</p>` : ""}</div>`; }
     case "plat": {
       const tags = rows(P("tags")).map((r) => str(r.tag)).filter(Boolean);
       return `${bg("image")}<div class="sh">${text("label", "p", "tagline")}${lines("headline", "h2")}</div><div class="plat-foot">${tags.length ? `<ul class="tag-pills" data-slot=".tags">${tags.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}${mq("logos")}</div>`;

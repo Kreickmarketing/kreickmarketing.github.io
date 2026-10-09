@@ -1213,6 +1213,7 @@ const TEMPLATES = [
   { id: "photo-points", name: "Photo + points", type: "photopoints", flip: true, about: "A tall photo beside up to three titled points. Photo can sit left or right.", slots: [
     { key: "photo", label: "Photo", kind: "image", source: "Images · Founder photo" },
     { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · Selling points 1–3" },
+    ...graphSlots("line", "red, blue or yellow", "Playbook · Proof"),
   ]},
   { id: "photo-text", name: "Photo + text", type: "story", flip: true, about: "A tall photo beside a longer paragraph. Photo can sit left or right.", slots: [
     { key: "photo", label: "Photo", kind: "image", source: "Images" },
@@ -1568,7 +1569,7 @@ function pickGraph(k, lineKey, delay) {
 }
 // No graph yet: dotted spots show the three options (Studio only; the site shows nothing).
 const graphSpots = (k, lineKey, cls) => `<div class="${cls}">${[lineKey, "bars", "rings"].map((t) => slotBox(k(t), "on-dark slot-optional")).join("")}</div>`;
-// Photo + text: the graph as a card over the photo.
+// Photo + text and Photo + points: the graph as a card over the photo.
 function graphCard(sec, k) {
   const g = pickGraph(k, "line", 600);
   return g ? `<aside ${filledAttr(k(g.key)).replace('class="', 'class="gfx ')} data-gfx="${sec.id}:${g.key}">${g.html}</aside>` : graphSpots(k, "line", "gfx gfx-empty");
@@ -1617,7 +1618,7 @@ const SECTION_HTML = {
     return `${text(k("label"), "p", "tagline", "on-dark")}
       ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="logo-row ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : `<div class="logo-row">${slotBox(k("logos"), "on-dark", "flex:1;min-height:72px")}</div>`}`;
   },
-  photopoints: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}">${photoBox(sec, k("photo"))}
+  photopoints: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}"><div class="gfx-wrap">${photoBox(sec, k("photo"))}${graphCard(sec, k)}</div>
       ${P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${[1, 2, 3].map((n) => slotBox(k("points"), "", "min-height:110px").replace(esc(SLOTS[k("points")].label), `Point ${n}`)).join("")}</div>`}</div>`,
   system: (sec, k) => {
     const img = P(k("image")), cards = P(k("cards"));
