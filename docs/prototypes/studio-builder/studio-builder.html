@@ -319,6 +319,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .gfx-wrap { position: relative; }
 .gfx { position: absolute; left: 8%; bottom: 8%; z-index: 3; width: min(340px, 84%); box-sizing: border-box; padding: 20px; border-radius: 18px; background: rgba(28,32,38,0.55); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); color: #fff; display: flex; flex-direction: column; gap: 14px; }
 .gfx small { font-size: 15px; line-height: 20px; }
+.gfx.gfx-empty { gap: 8px; padding: 12px; }
+.gfx-empty .slot { min-height: 40px; padding: 8px; font-size: 14px; }
 .gfx .hstat-chart { height: auto; }
 .gfx .hstat-key b { font-size: 26px; line-height: 28px; }
 .gfx-plot { display: block; width: 100%; height: auto; overflow: visible; }
@@ -1550,7 +1552,9 @@ const graphRows = (v) => (Array.isArray(v) ? v.filter((r) => r && Object.values(
 function graphCard(sec, k) {
   const ln = graphRows(P(k("line"))), br = graphRows(P(k("bars"))), rg = graphRows(P(k("rings"))), u = P(k("graphUnit")) || "", t = P(k("graphTitle"));
   const pick = ln.length ? ["line", lineGraph({ ...ln[0], unit: u }, 600)] : br.length ? ["bars", barsGraph(br, u)] : rg.length ? ["rings", ringsGraph(rg, u, 600)] : null;
-  return pick ? `<aside ${filledAttr(k(pick[0])).replace('class="', `class="gfx gfx-${pick[0]} `)} data-gfx="${sec.id}:${pick[0]}">${t ? `<small>${esc(t)}</small>` : ""}${pick[1]}</aside>` : "";
+  // No graph yet: dotted spots on the photo show the three options (Studio only; the site shows nothing).
+  if (!pick) return `<div class="gfx gfx-empty">${["line", "bars", "rings"].map((t) => slotBox(k(t), "on-dark slot-optional")).join("")}</div>`;
+  return `<aside ${filledAttr(k(pick[0])).replace('class="', `class="gfx gfx-${pick[0]} `)} data-gfx="${sec.id}:${pick[0]}">${t ? `<small>${esc(t)}</small>` : ""}${pick[1]}</aside>`;
 }
 // Counts each [data-count] number up from zero alongside its line (skipped for reduced motion).
 function countUp(root) {
