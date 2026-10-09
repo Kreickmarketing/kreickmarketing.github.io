@@ -962,18 +962,18 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 }
 /* Photo + points and Photo + text (Oct 9): desktop 96px all round, photo and points in two equal columns
    96px apart, the photo square (so the text column is exactly the photo's width). Tablet and phone
-   keep their stacked layout and photo shapes (4:3, 4:5). */
+   keep their stacked layout and photo shapes (4:3, 4:5). Both photos are square on desktop. */
 .sec.t-photo-points, .sec.t-photo-text { padding: 96px; }
 .sec.t-photo-points .split, .sec.t-photo-text .split { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 96px; }
-.sec.t-photo-points .split :is(img, video).photo, .sec.t-photo-points .split .slot.photo { aspect-ratio: 1 / 1; }
+.sec.t-photo-points .split :is(img, video).photo, .sec.t-photo-points .split .slot.photo, .sec.t-photo-text .split :is(img, video).photo, .sec.t-photo-text .split .slot.photo { aspect-ratio: 1 / 1; }
 @container (max-width: 1000px) {
   .sec.t-photo-points, .sec.t-photo-text { padding: 96px 64px; }
   .sec.t-photo-points .split, .sec.t-photo-text .split { grid-template-columns: 1fr; gap: 32px; }
-  .sec.t-photo-points .split :is(img, video).photo, .sec.t-photo-points .split .slot.photo { aspect-ratio: 4 / 3; }
+  .sec.t-photo-points .split :is(img, video).photo, .sec.t-photo-points .split .slot.photo, .sec.t-photo-text .split :is(img, video).photo, .sec.t-photo-text .split .slot.photo { aspect-ratio: 4 / 3; }
 }
 @container (max-width: 700px) {
   .sec.t-photo-points, .sec.t-photo-text { padding: 64px 20px; }
-  .sec.t-photo-points .split :is(img, video).photo, .sec.t-photo-points .split .slot.photo { aspect-ratio: 4 / 5; }
+  .sec.t-photo-points .split :is(img, video).photo, .sec.t-photo-points .split .slot.photo, .sec.t-photo-text .split :is(img, video).photo, .sec.t-photo-text .split .slot.photo { aspect-ratio: 4 / 5; }
 }
 </style>
 
