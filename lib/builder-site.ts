@@ -130,6 +130,36 @@ export function safeHref(v: unknown): string | null {
 const rows = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.filter((r) => r && typeof r === "object") : []);
 const hasText = (r: Record<string, unknown>) => Object.values(r).some((x) => str(x));
 
+// Hero stat chart: two numbers drawn as two rising lines (same drawing as Studio).
+// A one-character symbol such as $ goes before the number; %, x and words go after.
+// The numbers count up in the browser (components/CountUp.tsx); without it they simply show.
+const statNum = (v: unknown) => parseFloat(str(v).replace(/[^0-9.-]/g, "")) || 0;
+function statValue(n: string, unit: string, delay: number): string {
+  const u = unit.trim(), num = `<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`;
+  if (!u) return num;
+  if (u.length === 1 && !/[\p{L}%]/u.test(u)) return esc(u) + num;
+  return num + (/^\p{L}{2}/u.test(u) ? " " : "") + esc(u);
+}
+function growPath(end: number, max: number, seed: number): string {
+  const W = 312, H = 120, pts: [number, number][] = [];
+  for (let i = 0; i <= 10; i++) {
+    const t = i / 10, v = end * (0.04 + 0.96 * (0.25 * t + 0.75 * t * t)) + end * 0.07 * Math.sin(i * 2.1 + seed) * t * (1 - t);
+    pts.push([W * t, H - 2 - (Math.max(0, v) / max) * (H - 12)]);
+  }
+  let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
+    d += ` C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+function statChart(st: Record<string, unknown>): string {
+  const a = statNum(st.from), b = statNum(st.to), max = Math.max(a, b, 1) * 1.1, da = growPath(a, max, 1), db = growPath(b, max, 4), unit = str(st.unit);
+  return `<aside class="hstat" data-slot=".stat"><small>${esc(str(st.kicker))}</small>`
+    + `<svg class="hstat-chart" viewBox="0 0 312 120" aria-hidden="true"><path class="hstat-grid" d="M0 0.5H312M0 40.5H312M0 80.5H312M0 119.5H312"/><path class="hstat-area" d="${db} L312 120 L0 120Z"/><path class="hstat-a" pathLength="1" d="${da}"/><path class="hstat-b" pathLength="1" d="${db}"/></svg>`
+    + `<div class="hstat-keys"><p class="hstat-key a"><b>${statValue(str(st.from), unit, 1600)}</b><span>${esc(str(st.fromLabel))}</span></p><p class="hstat-key b"><b>${statValue(str(st.to), unit, 1750)}</b><span>${esc(str(st.toLabel))}</span></p></div></aside>`;
+}
+
 // ── Drawing each template (live mode: empty spots are simply left out) ──
 function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
@@ -156,7 +186,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const btn = str(P("button")), href = safeHref(link(P("link")));
       const q = rows(P("quote")).filter(hasText)[0], st = rows(P("stat")).filter(hasText)[0];
       return `${bg("image")}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}</div>`
-        + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${esc(str(q.name))}</b><span>${esc(str(q.quote))}</span></figure>` : "<div></div>"}${st ? `<aside class="stat-card" data-slot=".stat"><small>${esc(str(st.kicker))}</small><b>${esc(str(st.value))}</b></aside>` : ""}</div>` : "");
+        + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${esc(str(q.name))}</b><span>${esc(str(q.quote))}</span></figure>` : "<div></div>"}${st ? (str(st.to) || str(st.from) ? statChart(st) : `<aside class="stat-card" data-slot=".stat"><small>${esc(str(st.kicker))}</small><b>${esc(str(st.value))}</b></aside>`) : ""}</div>` : "");
     }
     case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row")}`;
     case "photopoints": return `<div class="split${flip ? " flip" : ""}">${photo("photo")}${points("points")}</div>`;

@@ -58,6 +58,33 @@
 .site .stat-card { background: var(--white); color: var(--midnight); border-radius: 18px; padding: 24px; width: 260px; display: flex; flex-direction: column; gap: 6px; }
 .site .stat-card small { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--iron-pine); font-weight: 700; }
 .site .stat-card b { font-size: 44px; line-height: 1; letter-spacing: -2px; }
+/* Hero stat chart (Oct 9): two numbers drawn as two rising lines, in the testimonial's see-through style. */
+.site .hstat { flex: none; width: 360px; max-width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.14); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.site .hstat small { font-size: 12px; line-height: 16px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
+.site .hstat-chart { display: block; width: 100%; height: 120px; overflow: visible; }
+.site .hstat-grid { fill: none; stroke: rgba(255,255,255,0.18); stroke-width: 1; }
+.site .hstat-a, .site .hstat-b { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; }
+.site .hstat-a { stroke: rgba(255,255,255,0.6); }
+.site .hstat-b { stroke: var(--rogue-cherry); }
+.site .hstat-area { fill: var(--rogue-cherry); opacity: 0.28; }
+.site .hstat-keys { display: flex; gap: 32px; }
+.site .hstat-key { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.site .hstat-key b { font-size: 32px; line-height: 32px; letter-spacing: -1px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.site .hstat-key.a b { color: rgba(255,255,255,0.7); }
+.site .hstat-key > span { display: flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; }
+.site .hstat-key > span::before { content: ""; flex: none; width: 14px; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.6); }
+.site .hstat-key.b > span::before { background: var(--rogue-cherry); }
+/* Arrival on page load: the testimonial rises in, then the chart card, then its lines draw
+   while the numbers count up (components/CountUp.tsx). */
+@keyframes rise-in { from { opacity: 0; transform: translateY(24px); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes line-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes area-in { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.site .hero .glass { animation: rise-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both; }
+.site .hstat { animation: rise-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 1s both; }
+.site .hstat-a { animation: line-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s both; }
+.site .hstat-b { animation: line-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.75s both; }
+.site .hstat-area { animation: area-in 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.75s both; }
+@media (prefers-reduced-motion: reduce) { .site .hero .glass, .site .hstat, .site .hstat-a, .site .hstat-b, .site .hstat-area { animation: none; } }
 
 .site .cred { background: var(--charcoal); color: var(--white); padding: 96px 64px 224px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: center; }
 /* Tagline: one size on every template (styles/typography.css): 16px desktop, 14px tablet, 12px phone; spacing 3px. */
@@ -122,6 +149,7 @@
   .site .point { grid-template-columns: 1fr 2fr; }
   .site .plat { min-height: 0; }
   .site .hero h1 { font-size: 56px; line-height: 54px; letter-spacing: -2px; }
+  .site .hero-bottom:has(.hstat) { flex-direction: column; align-items: flex-start; gap: 16px; }
   .site .plat-foot { gap: 40px; }
 }
 /* Phone-width page: same blocks, stacked. */

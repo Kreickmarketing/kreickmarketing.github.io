@@ -1,5 +1,6 @@
 import SignupForm from "./SignupForm";
 import NavMenu, { type NavItem } from "./NavMenu";
+import CountUp from "./CountUp";
 import type { LivePage } from "@/lib/builder-site";
 import "./builder-site.css";
 
@@ -30,6 +31,7 @@ export default function BuilderPage({ page, livePages = [], paths = {} }: { page
     <div className="site">
       {/* Tablet / Phone photo crops set in Studio (numbers only, checked in lib/builder-site.ts). */}
       {page.css && <style dangerouslySetInnerHTML={{ __html: page.css }} />}
+      <CountUp />
       <header className={`bnav${page.navOverPhoto ? "" : " nav-bar"}`}>
         <a href="/" aria-label="ClearMark home"><img src="/studio-media/logo-white.png" alt="ClearMark Training" /></a>
         <nav aria-label="Main">
