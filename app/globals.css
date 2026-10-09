@@ -6,7 +6,7 @@
 :root {
   --font-family-title: var(--font-saira);
   --font-family-body: var(--font-saira);
-  --font-family-button: var(--font-courier-prime);
+  --font-family-button: var(--font-saira);
   --gutter: 24px;
   --max-width: 1200px;
 }
@@ -26,7 +26,7 @@ body {
 a { color: var(--color-link); }
 :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 
-/* Buttons: Courier Prime, pill shaped */
+/* Buttons: Saira, pill shaped */
 .button {
   display: inline-flex;
   align-items: center;

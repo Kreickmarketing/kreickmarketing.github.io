@@ -99,7 +99,7 @@ export default function DesignSystemPage() {
             <p className="text-xs-normal">Heading and body typeface</p>
             <p className="ds-saira">Saira</p>
             <p className="text-md-medium">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br />abcdefghijklmnopqrstuvwxyz<br />1234567890!@#$%^&amp;*()</p>
-            <p className="text-xs-normal ds-note">Buttons use Courier Prime.</p>
+            <p className="text-xs-normal ds-note">Buttons use Saira.</p>
           </div>
 
           <div className="ds-two">
@@ -157,7 +157,7 @@ export default function DesignSystemPage() {
 
           <div className="ds-btn-group">
             <h3 className="as-h6 ds-group">Pill buttons</h3>
-            <p className="text-md-light ds-lede">Set in Courier Prime. Rogue Cherry for the main action.</p>
+            <p className="text-md-light ds-lede">Set in Saira. Rogue Cherry for the main action.</p>
             <div className="ds-buttons">
               <span className="button button-action">Book a call</span>
               <span className="button button-dark">Secondary</span>

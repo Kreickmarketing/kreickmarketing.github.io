@@ -49,11 +49,11 @@
 .site .hero-bg :is(img, video) { width: 100%; height: 100%; object-fit: cover; }
 .site .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
 .site .hero-main { display: flex; flex-direction: column; gap: 32px; max-width: 760px; }
-.site .hero h1 { font-size: 64px; line-height: 68px; letter-spacing: -3px; font-weight: 700; margin: 0; }
+.site .hero h1 { font-size: 64px; line-height: 68px; letter-spacing: -3px; font-weight: 200; margin: 0; }
 .site .cta { display: inline-flex; align-items: center; gap: 12px; background: var(--white); color: var(--midnight); border-radius: 999px; padding: 14px 28px; font-family: var(--font-button); font-size: 18px; font-weight: 700; align-self: flex-start; }
 .site .cta-red { background: var(--rogue-cherry); color: var(--white); }
 .site .hero-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
-.site .glass { background: rgba(255,255,255,0.14); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 24px; max-width: 520px; display: flex; flex-direction: column; gap: 12px; font-size: 17px; }
+.site .glass { background: rgba(255,255,255,0.14); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 24px; width: 760px; max-width: 100%; display: flex; flex-direction: column; gap: 12px; font-size: 17px; }
 .site .glass b { font-size: 15px; }
 .site .stat-card { background: var(--white); color: var(--midnight); border-radius: 18px; padding: 24px; width: 260px; display: flex; flex-direction: column; gap: 6px; }
 .site .stat-card small { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--iron-pine); font-weight: 700; }

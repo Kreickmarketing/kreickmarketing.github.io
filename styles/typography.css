@@ -3,7 +3,7 @@
   --font-display: var(--font-family-title), sans-serif;   /* Saira */
   --font-heading: var(--font-family-title), sans-serif;    /* Saira */
   --font-body: var(--font-family-body), sans-serif;        /* Saira */
-  --font-button: var(--font-family-button), monospace;     /* Courier Prime */
+  --font-button: var(--font-family-button), sans-serif;    /* Saira (was Courier Prime until Oct 9, 2026) */
 
   /* Type scale — Clean increments with 1.2x line-height (body) & 0.9x line-height (headlines) */
   

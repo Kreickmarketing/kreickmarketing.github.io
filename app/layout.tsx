@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { Saira, Courier_Prime } from "next/font/google";
+import { Saira } from "next/font/google";
 import "./globals.css";
 
-// Brand fonts: Saira for headings and body, Courier Prime for buttons.
+// Brand font: Saira for headings, body and buttons (buttons were Courier Prime until Oct 9, 2026).
 const saira = Saira({ subsets: ["latin"], variable: "--font-saira" });
-const courierPrime = Courier_Prime({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-courier-prime" });
 
 export const metadata: Metadata = {
   title: "ClearMark",
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${saira.variable} ${courierPrime.variable}`}>
+    <html lang="en" className={saira.variable}>
       <body>{children}</body>
     </html>
   );

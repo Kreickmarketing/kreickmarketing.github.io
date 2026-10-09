@@ -22,7 +22,7 @@
 - Colors live in `styles/colors.css`. Use the named variables (e.g. `var(--midnight)`), never raw hex codes in components.
 - Primaries: White, Clay Light (page background), Clay, Midnight (text, dark areas), Rogue Cherry (main action buttons), Tidal Azure.
 - Neutral and secondary hex values marked "approx" are placeholders until the exact Figma values are added.
-- Type rules live in `styles/typography.css`: Saira for headings and body, Courier Prime for buttons. Use the `h1`-`h6`, `.tagline` and `.text-{size}-{weight}` classes rather than new font sizes.
+- Type rules live in `styles/typography.css`: Saira for headings, body and buttons (Courier Prime is no longer used for buttons, Oct 9, 2026). Use the `h1`-`h6`, `.tagline` and `.text-{size}-{weight}` classes rather than new font sizes.
 - Buttons are pill shaped. Logo files are in `public/`.
 
 ## Rules
