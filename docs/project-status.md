@@ -1,4 +1,4 @@
-# Project status (updated Oct 9, 2026, Hero + Photo + text graphs checked, not live)
+# Project status (updated Oct 9, 2026, Hero + Photo + text graphs live)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
