@@ -939,6 +939,26 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 @container (max-width: 700px) {
   .sec.t-heading { padding: 64px 20px; }
 }
+/* Photo + tags logos (Oct 9): two rows that loop sideways, like Midday's integrations strip.
+   Top row (first half) slides left, bottom row slides right, ~20px a second; edges fade out;
+   pointing at it pauses it; no movement for visitors who turn motion off. Up to 20 logos. */
+.plat-foot { min-width: 0; }
+.mq-row { min-width: 0; overflow: hidden; }
+.plat-logos.mq { min-width: 0; width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 32px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent); mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent); }
+.mq-track { display: flex; align-items: center; width: max-content; animation: mq-left var(--mq-time, 60s) linear infinite; }
+.mq-right .mq-track { animation-name: mq-right; }
+.mq-track img { flex: none; height: 36px; width: auto; max-width: none; margin-right: 64px; object-fit: contain; }
+.plat-logos.mq:hover .mq-track { animation-play-state: paused; }
+@keyframes mq-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes mq-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .mq-track { animation: none; } }
+@container (max-width: 1000px) {
+  .mq-track img { height: 32px; margin-right: 32px; }
+}
+@container (max-width: 700px) {
+  .plat-logos.mq { gap: 24px; }
+  .mq-track img { height: 30px; margin-right: 32px; }
+}
 </style>
 
 <nav class="rail" id="rail" aria-label="Studio">
@@ -1100,7 +1120,7 @@ const TEMPLATES = [
     { key: "label", label: "Label", kind: "text", limit: 24, source: "e.g. “Platforms”" },
     { key: "headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "e.g. “For any business. / On any platform.”" },
     { key: "tags", label: "+ Tags", kind: "list", max: 9, axis: "x", cols: [{ key: "tag", label: "Tag", limit: 30 }], source: "Business areas you serve" },
-    { key: "logos", label: "Logos", kind: "logos", max: 10, axis: "x", source: "Images · Platform logos" },
+    { key: "logos", label: "Logos", kind: "logos", max: 20, axis: "x", about: "Up to 20. Two rows that slide sideways: the first half on top (moving left), the rest below (moving right).", source: "Images · Platform logos" },
   ]},
   { id: "offers", name: "Offer cards", type: "offersonly", hidden: true, about: "Up to four offer cards from the CMS, side by side.", slots: [
     { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
@@ -1383,6 +1403,17 @@ function parseEmbed(v) {
 }
 const cropAttr = (id) => cropCss(id) ? ` style="${cropCss(id)}"` : "";
 const photoBox = (sec, id, alt = "") => { const photo = P(id); return photo ? `<div class="crop-clip">${media(`${filledAttr(id).replace('class="', 'class="photo ')}${cropAttr(id)} data-photoflip="${sec.id}" draggable="false"`, photo, alt)}</div>` : slotBox(id, "photo").replace("<div ", `<div data-photoflip="${sec.id}" `); };
+// Sliding logo rows (Photo + tags): first half on top (moves left), the rest below (moves right).
+// Each row's set repeats until it is long enough, then twice over so the loop has no seam.
+// `first` draws the real logos (draggable in the preview); `copy` draws the repeats.
+function mqRows(list, first, copy) {
+  const half = Math.ceil(list.length / 2), rows = [list.slice(0, half).map((s, i) => [s, i]), list.slice(half).map((s, i) => [s, half + i])].filter((r) => r.length);
+  return rows.map((r, n) => {
+    const reps = Math.max(1, Math.ceil(8 / r.length)), set = Array.from({ length: reps }, (_, k) => r.map(([s, i]) => (k ? copy(s) : first(s, i))).join("")).join("");
+    const setCopy = Array.from({ length: reps }, () => r.map(([s]) => copy(s)).join("")).join("");
+    return `<div class="mq-row ${n ? "mq-right" : "mq-left"}"><div class="mq-track" style="--mq-time:${r.length * reps * 9}s">${set}<span style="display:contents" aria-hidden="true">${setCopy}</span></div></div>`;
+  }).join("");
+}
 const SECTION_HTML = {
   hero: (sec, k) => {
     const img = P(k("image")), q = P(k("quote")), st = P(k("stat")), btn = P(k("button"));
@@ -1421,7 +1452,7 @@ const SECTION_HTML = {
     return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
       <div class="sh">${text(k("label"), "p", "tagline", "on-dark")}${lines(k("headline"), "h2", "", "on-dark")}</div>
       <div class="plat-foot">${tags ? `<ul ${filledAttr(k("tags")).replace('class="', 'class="tag-pills ')}>${tags.map((t, i) => `<li data-item="${k("tags")}:${i}">${esc(t.tag)}</li>`).join("")}</ul>` : slotBox(k("tags"), "on-dark")}
-      ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos ')}>${logos.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}</div>`;
+      ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos mq ')}>${mqRows(logos, (src, i) => `<img src="${esc(src)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`, (src) => `<img src="${esc(src)}" alt="" draggable="false">`)}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}</div>`;
   },
   quote: (sec, k) => `${P(k("text")) ? `<blockquote ${filledAttr(k("text"))}>“${esc(P(k("text")))}”</blockquote>` : slotBox(k("text"), "", "min-height:120px")}${text(k("by"), "cite")}`,
   mail: (sec, k) => {

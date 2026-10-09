@@ -137,6 +137,18 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
   const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
   const photo = (key: string) => { const tag = mediaTag(P(key), `class="photo" data-slot=".${key}"${crop(key)}`); return tag ? `<div class="crop-clip">${tag}</div>` : "<div></div>"; };
   const points = (key: string) => { const v = rows(P(key)).filter(hasText); return v.length ? `<div class="points" data-slot=".${key}">${v.map((r) => `<div class="point"><b>${esc(str(r.title))}</b><p>${esc(str(r.proof))}</p></div>`).join("")}</div>` : ""; };
+  // Photo + tags: up to 20 logos in two sliding rows (first half moves left, the rest right).
+  // Each row repeats until long enough, then twice over (the copy hidden from screen readers) for a seamless loop.
+  const mq = (key: string) => {
+    const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean).slice(0, 20) as string[];
+    if (!v.length) return "";
+    const half = Math.ceil(v.length / 2), img = (src: string) => `<img src="${esc(src)}" alt="">`;
+    const rows = [v.slice(0, half), v.slice(half)].filter((r) => r.length).map((r, n) => {
+      const reps = Math.max(1, Math.ceil(8 / r.length)), set = Array.from({ length: reps }, () => r.map(img).join("")).join("");
+      return `<div class="mq-row ${n ? "mq-right" : "mq-left"}"><div class="mq-track" style="--mq-time:${r.length * reps * 9}s">${set}<span style="display:contents" aria-hidden="true">${set}</span></div></div>`;
+    });
+    return `<div class="plat-logos mq" data-slot=".${key}">${rows.join("")}</div>`;
+  };
   const logos = (key: string, cls: string) => { const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean); return v.length ? `<div class="${cls}" data-slot=".${key}">${v.map((src) => `<img src="${esc(src)}" alt="">`).join("")}</div>` : ""; };
 
   switch (type) {
@@ -151,7 +163,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     case "story": { const body = str(P("body")); return `<div class="split${flip ? " flip" : ""}">${photo("photo")}${body ? `<p class="body" data-slot=".body" style="font-size:20px;line-height:1.5;color:var(--iron-pine)">${esc(body)}</p>` : ""}</div>`; }
     case "plat": {
       const tags = rows(P("tags")).map((r) => str(r.tag)).filter(Boolean);
-      return `${bg("image")}<div class="sh">${text("label", "p", "tagline")}${lines("headline", "h2")}</div><div class="plat-foot">${tags.length ? `<ul class="tag-pills" data-slot=".tags">${tags.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}${logos("logos", "plat-logos")}</div>`;
+      return `${bg("image")}<div class="sh">${text("label", "p", "tagline")}${lines("headline", "h2")}</div><div class="plat-foot">${tags.length ? `<ul class="tag-pills" data-slot=".tags">${tags.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}${mq("logos")}</div>`;
     }
     case "quote": { const q = str(P("text")); return `${q ? `<blockquote data-slot=".text">“${esc(q)}”</blockquote>` : ""}${text("by", "cite")}`; }
     case "pagehero": return `${bg("image")}<div class="hero-main">${text("headline", "h1")}</div>`;

@@ -377,3 +377,24 @@
 @container (max-width: 700px) {
   .site .sec.t-heading { padding: 64px 20px; }
 }
+
+/* Photo + tags logos (Oct 9): two rows that loop sideways, like Midday's integrations strip.
+   Top row (first half) slides left, bottom row slides right, ~20px a second; edges fade out;
+   pointing at it pauses it; no movement for visitors who turn motion off. Up to 20 logos. */
+.site .plat-foot { min-width: 0; }
+.site .mq-row { min-width: 0; overflow: hidden; }
+.site .plat-logos.mq { min-width: 0; width: 100%; display: flex; flex-direction: column; align-items: stretch; gap: 32px; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent); mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent); }
+.site .mq-track { display: flex; align-items: center; width: max-content; animation: mq-left var(--mq-time, 60s) linear infinite; }
+.site .mq-right .mq-track { animation-name: mq-right; }
+.site .mq-track img { flex: none; height: 36px; width: auto; max-width: none; margin-right: 64px; object-fit: contain; }
+.site .plat-logos.mq:hover .mq-track { animation-play-state: paused; }
+@keyframes mq-left { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes mq-right { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .site .mq-track { animation: none; } }
+@container (max-width: 1000px) {
+  .site .mq-track img { height: 32px; margin-right: 32px; }
+}
+@container (max-width: 700px) {
+  .site .plat-logos.mq { gap: 24px; }
+  .site .mq-track img { height: 30px; margin-right: 32px; }
+}
