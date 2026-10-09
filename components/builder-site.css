@@ -84,9 +84,12 @@
 .site .hstat .hstat-a { animation: line-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s both; }
 .site .hstat .hstat-b { animation: line-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.75s both; }
 .site .hstat .hstat-area { animation: area-in 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.75s both; }
-@media (prefers-reduced-motion: reduce) { .site .hero .glass, .site .hstat, .site .hstat :is(.hstat-a, .hstat-b, .hstat-area) { animation: none; } }
-/* Graph colours: only brand colours. red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare. */
-.site .gc-red { --gc: var(--rogue-cherry); } .site .gc-blue { --gc: var(--tidal-azure); } .site .gc-yellow { --gc: var(--solar-flare); }
+.site .hstat .gfx-bar { animation: bar-grow 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.site .hstat .gfx-arc { animation: ring-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .site .hero .glass, .site .hstat, .site .hstat :is(.hstat-a, .hstat-b, .hstat-area, .gfx-bar, .gfx-arc) { animation: none; } }
+/* Graph colours: only brand colours. red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare,
+   green = Emerald Tide, white = White. Hero offers blue, red, green, white; Photo + text red, blue, yellow. */
+.site .gc-red { --gc: var(--rogue-cherry); } .site .gc-blue { --gc: var(--tidal-azure); } .site .gc-yellow { --gc: var(--solar-flare); } .site .gc-green { --gc: var(--emerald-tide); } .site .gc-white { --gc: var(--white); }
 .site .hstat-a[class*="gc-"], .site .hstat-b[class*="gc-"] { stroke: var(--gc); }
 .site .hstat-area[class*="gc-"] { fill: var(--gc); }
 .site .hstat-key[class*="gc-"] > span::before { background: var(--gc); }
@@ -95,7 +98,7 @@
    .wait, then .play), then the graph draws. Without that script it simply shows. */
 .site .gfx-wrap { position: relative; }
 .site .gfx { position: absolute; left: 8%; bottom: 8%; z-index: 3; width: min(340px, 84%); box-sizing: border-box; padding: 20px; border-radius: 18px; background: rgba(28,32,38,0.55); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); color: var(--white); display: flex; flex-direction: column; gap: 14px; }
-.site .gfx small { font-size: 15px; line-height: 20px; }
+.site .gfx small { font-size: 12px; line-height: 16px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
 .site .gfx .hstat-chart { height: auto; }
 .site .gfx .hstat-key b { font-size: 26px; line-height: 28px; }
 .site .gfx-plot { display: block; width: 100%; height: auto; overflow: visible; }

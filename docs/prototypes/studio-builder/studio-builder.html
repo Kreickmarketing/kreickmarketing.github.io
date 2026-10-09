@@ -26,7 +26,7 @@
   /* ClearMark color names (styles/colors.css) */
   --white: #FFFFFF; --clay-light: #F6F5F2; --clay: #E1DDD5; --midnight: #1C2026; --rogue-cherry: #DB1F3D; --tidal-azure: #0099CE;
   --sage-mist: #B2AFA7; --deep-taupe: #858278; --iron-pine: #444D4D; --charcoal: #2C3139; --solar-flare: #F5DE73; --honey-brass: #C8A74B;
-  --tangerine-burst: #E48F46; --iron-moss: #336A4E; --frosted-mint: #ABCFA1; --cobalt-wave: #294079; --aegean: #2D6AA5; --merlot: #91272B; --lavender-mist: #C6B7E1; --deep-teal: #01717D; --solar-flare: #F5DE73;
+  --tangerine-burst: #E48F46; --iron-moss: #336A4E; --frosted-mint: #ABCFA1; --cobalt-wave: #294079; --aegean: #2D6AA5; --merlot: #91272B; --lavender-mist: #C6B7E1; --deep-teal: #01717D; --emerald-tide: #469C6F;
   --f-display: "Saira", "Segoe UI", system-ui, sans-serif;
   --f-mono: "Courier Prime", "Courier New", ui-monospace, monospace;
   --f-button: var(--f-display);  /* buttons: Saira (Oct 9, 2026) */
@@ -308,9 +308,14 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .intro .hstat .hstat-a { animation: line-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.6s both; }
 .intro .hstat .hstat-b { animation: line-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.75s both; }
 .intro .hstat .hstat-area { animation: area-in 1.6s cubic-bezier(0.4, 0, 0.2, 1) 1.75s both; }
-@media (prefers-reduced-motion: reduce) { .intro .hero .glass, .intro .hstat, .intro .hstat :is(.hstat-a, .hstat-b, .hstat-area) { animation: none; } }
-/* Graph colours: only brand colours. red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare. */
-.gc-red { --gc: var(--cm-cherry); } .gc-blue { --gc: var(--cm-azure); } .gc-yellow { --gc: var(--solar-flare); }
+.intro .hstat .gfx-bar { animation: bar-grow 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.intro .hstat .gfx-arc { animation: ring-draw 1.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.hstat.hstat-empty { gap: 8px; padding: 12px; }
+.hstat-empty .slot { min-height: 40px; padding: 8px; font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .intro .hero .glass, .intro .hstat, .intro .hstat :is(.hstat-a, .hstat-b, .hstat-area, .gfx-bar, .gfx-arc) { animation: none; } }
+/* Graph colours: only brand colours. red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare,
+   green = Emerald Tide, white = White. Hero offers blue, red, green, white; Photo + text red, blue, yellow. */
+.gc-red { --gc: var(--cm-cherry); } .gc-blue { --gc: var(--cm-azure); } .gc-yellow { --gc: var(--solar-flare); } .gc-green { --gc: var(--emerald-tide); } .gc-white { --gc: var(--cm-white); }
 .hstat-a[class*="gc-"], .hstat-b[class*="gc-"] { stroke: var(--gc); }
 .hstat-area[class*="gc-"] { fill: var(--gc); }
 .hstat-key[class*="gc-"] > span::before { background: var(--gc); }
@@ -318,7 +323,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
    line chart, bars or rings. It rises in when scrolled into view, then the graph draws. */
 .gfx-wrap { position: relative; }
 .gfx { position: absolute; left: 8%; bottom: 8%; z-index: 3; width: min(340px, 84%); box-sizing: border-box; padding: 20px; border-radius: 18px; background: rgba(28,32,38,0.55); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); color: #fff; display: flex; flex-direction: column; gap: 14px; }
-.gfx small { font-size: 15px; line-height: 20px; }
+.gfx small { font-size: 12px; line-height: 16px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
 .gfx.gfx-empty { gap: 8px; padding: 12px; }
 .gfx-empty .slot { min-height: 40px; padding: 8px; font-size: 14px; }
 .gfx .hstat-chart { height: auto; }
@@ -1179,6 +1184,14 @@ rebuildOffers();
 // ── Templates: section designs, made in code. Each has named spots to fill. ──
 // kind: text (limit) · link · image · logos (max) · list (max rows, columns with limits) · offers (max)
 // axis "x": items in the spot sit side by side, so dragging reorders left/right.
+// Graph spots, shared by Hero and Photo + text. `colours` is the wording shown on each Colour field.
+const graphSlots = (lineKey, colours, lineSource) => [
+  { key: "graphTitle", label: "Small title", kind: "text", limit: 32, optional: true, about: "Small heading on the graph card.", source: "e.g. “Customer feedback”" },
+  { key: "graphUnit", label: "Graph measure", kind: "text", limit: 8, optional: true, about: "%, $, MPH, days… Rings use % when left empty.", source: "e.g. %" },
+  { key: lineKey, label: "Graph: line", kind: "list", max: 1, cols: [{ key: "from", label: "First number", limit: 10 }, { key: "fromLabel", label: "First label", limit: 16 }, { key: "fromColor", label: `First colour: ${colours}`, limit: 6 }, { key: "to", label: "Second number", limit: 10 }, { key: "toLabel", label: "Second label", limit: 16 }, { key: "toColor", label: `Second colour: ${colours}`, limit: 6 }], optional: true, about: "Two numbers drawn as two rising lines. Fill one graph; line shows first, then bars, then rings.", source: lineSource },
+  { key: "bars", label: "Graph: bars", kind: "list", max: 6, cols: [{ key: "label", label: "Label", limit: 6 }, { key: "value", label: "Number", limit: 10 }, { key: "color", label: `Colour: ${colours}`, limit: 6 }], optional: true, about: "Up to six bars that grow from the bottom.", source: "e.g. Q1–Q5" },
+  { key: "rings", label: "Graph: rings", kind: "list", max: 2, cols: [{ key: "value", label: "Number", limit: 10 }, { key: "label", label: "Label", limit: 24 }, { key: "color", label: `Colour: ${colours}`, limit: 6 }], optional: true, about: "One or two rings that fill from zero to the number.", source: "e.g. 70 · Customer feedback" },
+];
 const TEMPLATES = [
   { id: "hero", name: "Hero", type: "hero", about: "Full-width photo with the headline and a button. Best as the first section.", slots: [
     { key: "image", label: "Hero image", kind: "image", about: "Full-width photo behind the headline.", source: "Images" },
@@ -1186,7 +1199,7 @@ const TEMPLATES = [
     { key: "button", label: "Button text", kind: "text", limit: 22, about: "What the white button says.", source: "Usually “Book a call”" },
     { key: "link", label: "Button link", kind: "link", about: "Where the button goes.", source: "Your Calendly link" },
     { key: "quote", label: "Testimonial", kind: "list", max: 1, cols: [{ key: "name", label: "Name", limit: 40 }, { key: "quote", label: "Quote", limit: 220, long: true }], optional: true, about: "See-through panel, bottom left. Hidden on phones.", source: "A client quote you have permission to use" },
-    { key: "stat", label: "Stat chart", kind: "list", max: 1, cols: [{ key: "kicker", label: "Small title", limit: 32 }, { key: "from", label: "First number", limit: 10 }, { key: "fromLabel", label: "First label", limit: 16 }, { key: "to", label: "Second number", limit: 10 }, { key: "toLabel", label: "Second label", limit: 16 }, { key: "unit", label: "Measure (%, $, MPH, days…)", limit: 8 }], optional: true, about: "See-through chart card, bottom right: each number grows as a line. Hidden on phones.", source: "Playbook · Proof 1 (17% → 54%)" },
+    ...graphSlots("stat", "blue, red, green or white", "Playbook · Proof 1 (17% → 54%)"),
   ]},
   { id: "heading", name: "Heading", type: "header", about: "Tagline on the left; a two-line headline and an optional paragraph on the right.", slots: [
     { key: "tagline", label: "Tagline", kind: "text", limit: 24, source: "One or two words, e.g. “Solutions”" },
@@ -1204,11 +1217,7 @@ const TEMPLATES = [
   { id: "photo-text", name: "Photo + text", type: "story", flip: true, about: "A tall photo beside a longer paragraph. Photo can sit left or right.", slots: [
     { key: "photo", label: "Photo", kind: "image", source: "Images" },
     { key: "body", label: "Text", kind: "text", limit: 600, long: true, source: "Playbook · Positioning statement" },
-    { key: "graphTitle", label: "Graph title", kind: "text", limit: 32, optional: true, about: "Small title on the graph card.", source: "e.g. “Customer feedback”" },
-    { key: "graphUnit", label: "Graph measure", kind: "text", limit: 8, optional: true, about: "%, $, MPH, days… Rings use % when left empty.", source: "e.g. %" },
-    { key: "line", label: "Graph: line", kind: "list", max: 1, cols: [{ key: "from", label: "First number", limit: 10 }, { key: "fromLabel", label: "First label", limit: 16 }, { key: "fromColor", label: "First colour: red, blue or yellow", limit: 6 }, { key: "to", label: "Second number", limit: 10 }, { key: "toLabel", label: "Second label", limit: 16 }, { key: "toColor", label: "Second colour: red, blue or yellow", limit: 6 }], optional: true, about: "Two numbers drawn as two rising lines. Fill one graph; line shows first, then bars, then rings.", source: "Playbook · Proof" },
-    { key: "bars", label: "Graph: bars", kind: "list", max: 6, cols: [{ key: "label", label: "Label", limit: 6 }, { key: "value", label: "Number", limit: 10 }, { key: "color", label: "Colour: red, blue or yellow", limit: 6 }], optional: true, about: "Up to six bars that grow from the bottom.", source: "e.g. Q1–Q5" },
-    { key: "rings", label: "Graph: rings", kind: "list", max: 2, cols: [{ key: "value", label: "Number", limit: 10 }, { key: "label", label: "Label", limit: 24 }, { key: "color", label: "Colour: red, blue or yellow", limit: 6 }], optional: true, about: "One or two rings that fill from zero to the number.", source: "e.g. 70 · Customer feedback" },
+    ...graphSlots("line", "red, blue or yellow", "Playbook · Proof"),
   ]},
   { id: "photo-tags", name: "Photo background + tags", type: "plat", about: "Full-width photo with a headline, + tags and a logo grid.", slots: [
     { key: "image", label: "Background image", kind: "image", source: "Images · Platforms background" },
@@ -1321,7 +1330,9 @@ function seed() {
   set("hero.headline", "Your single source of truth shouldn't be a person.");
   set("hero.button", "Book a call");
   set("hero.link", "https://calendly.com/andrew-clearmark/15min");
-  set("hero.stat", [{ kicker: "Email click-through", from: "17", fromLabel: "Before", to: "54", toLabel: "After", unit: "%" }]);
+  set("hero.graphTitle", "Email click-through");
+  set("hero.graphUnit", "%");
+  set("hero.stat", [{ from: "17", fromLabel: "Before", to: "54", toLabel: "After" }]);
   set("credibility.label", "Speaker & certifications:", false);
   set("platforms.label", "Platforms");
   set("platforms.headline", [{ line: "For any business." }, { line: "On any platform." }]);
@@ -1511,8 +1522,8 @@ function withUnit(num, unit) {
   return num + (/^\p{L}{2}/u.test(u) ? " " : "") + esc(u);
 }
 const statValue = (n, unit, delay) => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit);
-// Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare).
-const gcClass = (v) => ({ red: " gc-red", blue: " gc-blue", yellow: " gc-yellow" })[String(v ?? "").trim().toLowerCase()] || "";
+// Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare, green = Emerald Tide, white).
+const gcClass = (v) => ({ red: " gc-red", blue: " gc-blue", yellow: " gc-yellow", green: " gc-green", white: " gc-white" })[String(v ?? "").trim().toLowerCase()] || "";
 // A rising line from near zero to `end` (out of `max`), with a gentle wobble so it reads as real data.
 function growPath(end, max, seed) {
   const W = 312, H = 120, pts = [];
@@ -1532,13 +1543,12 @@ function lineGraph(d, delay) {
   return `<svg class="hstat-chart" viewBox="0 0 312 120" aria-hidden="true"><path class="hstat-grid" d="M0 0.5H312M0 40.5H312M0 80.5H312M0 119.5H312"/><path class="hstat-area${gcClass(d.toColor)}" d="${db} L312 120 L0 120Z"/><path class="hstat-a${gcClass(d.fromColor)}" pathLength="1" d="${da}"/><path class="hstat-b${gcClass(d.toColor)}" pathLength="1" d="${db}"/></svg>
     <div class="hstat-keys"><p class="hstat-key a${gcClass(d.fromColor)}"><b>${statValue(d.from, d.unit, delay)}</b><span>${esc(d.fromLabel)}</span></p><p class="hstat-key b${gcClass(d.toColor)}"><b>${statValue(d.to, d.unit, delay + 150)}</b><span>${esc(d.toLabel)}</span></p></div>`;
 }
-const statChart = (st, attrs) => `<aside ${attrs}><small>${esc(st.kicker)}</small>${lineGraph(st, 1600)}</aside>`;
 // Bars on a tidy scale (0 to five even steps), labels under the bars, the scale on the right.
-function barsGraph(rows, unit) {
+function barsGraph(rows, unit, delay) {
   const vals = rows.map((r) => Math.max(0, statNum(r.value))), want = Math.max(...vals, 1) / 5, p = Math.pow(10, Math.floor(Math.log10(want)));
   const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9), top = step * 5, slot = 236 / rows.length, bw = Math.min(28, slot * 0.55);
   const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit)}</text>`; }).join("");
-  const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = slot * n + (slot - bw) / 2; return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${600 + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(r.label)}</text>`; }).join("");
+  const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = slot * n + (slot - bw) / 2; return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${delay + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(r.label)}</text>`; }).join("");
   return `<svg class="gfx-plot" viewBox="0 0 280 150" role="img" aria-label="${esc(rows.map((r) => `${r.label} ${r.value}${unit || ""}`).join(", "))}">${grid}${bars}</svg>`;
 }
 // Rings fill from zero to the number: out of 100 for % (or no measure), otherwise out of the larger number.
@@ -1547,14 +1557,28 @@ function ringsGraph(rows, unit, delay) {
   return `<div class="gfx-rings">${rows.map((r, n) => { const pct = Math.min(100, (vals[n] / max) * 100);
     return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(r.value, u, delay + n * 150)}</b></div><span>${esc(r.label)}</span></div>`; }).join("")}</div>`;
 }
-// Photo + text: the first filled graph (line, then bars, then rings) as a card over the photo.
+// The first filled graph (line, then bars, then rings) with its small heading. Hero saved its title
+// and measure inside the line row before Oct 9 (kicker, unit); those still work.
 const graphRows = (v) => (Array.isArray(v) ? v.filter((r) => r && Object.values(r).some((x) => String(x ?? "").trim())) : []);
+function pickGraph(k, lineKey, delay) {
+  const ln = graphRows(P(k(lineKey)))[0], br = graphRows(P(k("bars"))).slice(0, 6), rg = graphRows(P(k("rings"))).slice(0, 2);
+  const u = P(k("graphUnit")) || ln?.unit || "", t = P(k("graphTitle")) || ln?.kicker || "";
+  const pick = ln && (ln.from || ln.to) ? [lineKey, lineGraph({ ...ln, unit: u }, delay)] : br.length ? ["bars", barsGraph(br, u, delay)] : rg.length ? ["rings", ringsGraph(rg, u, delay)] : null;
+  return pick && { key: pick[0], html: `${t ? `<small>${esc(t)}</small>` : ""}${pick[1]}` };
+}
+// No graph yet: dotted spots show the three options (Studio only; the site shows nothing).
+const graphSpots = (k, lineKey, cls) => `<div class="${cls}">${[lineKey, "bars", "rings"].map((t) => slotBox(k(t), "on-dark slot-optional")).join("")}</div>`;
+// Photo + text: the graph as a card over the photo.
 function graphCard(sec, k) {
-  const ln = graphRows(P(k("line"))), br = graphRows(P(k("bars"))), rg = graphRows(P(k("rings"))), u = P(k("graphUnit")) || "", t = P(k("graphTitle"));
-  const pick = ln.length ? ["line", lineGraph({ ...ln[0], unit: u }, 600)] : br.length ? ["bars", barsGraph(br, u)] : rg.length ? ["rings", ringsGraph(rg, u, 600)] : null;
-  // No graph yet: dotted spots on the photo show the three options (Studio only; the site shows nothing).
-  if (!pick) return `<div class="gfx gfx-empty">${["line", "bars", "rings"].map((t) => slotBox(k(t), "on-dark slot-optional")).join("")}</div>`;
-  return `<aside ${filledAttr(k(pick[0])).replace('class="', `class="gfx gfx-${pick[0]} `)} data-gfx="${sec.id}:${pick[0]}">${t ? `<small>${esc(t)}</small>` : ""}${pick[1]}</aside>`;
+  const g = pickGraph(k, "line", 600);
+  return g ? `<aside ${filledAttr(k(g.key)).replace('class="', 'class="gfx ')} data-gfx="${sec.id}:${g.key}">${g.html}</aside>` : graphSpots(k, "line", "gfx gfx-empty");
+}
+// Hero: the graph in the see-through card, bottom right. An old one-number stat keeps its white card.
+function heroGraph(k) {
+  const old = graphRows(P(k("stat")))[0];
+  if (old && !old.from && !old.to && old.value) return `<aside ${filledAttr(k("stat")).replace('class="', 'class="stat-card ')}><small>${esc(old.kicker)}</small><b>${esc(old.value)}</b></aside>`;
+  const g = pickGraph(k, "stat", 1600);
+  return g ? `<aside ${filledAttr(k(g.key)).replace('class="', 'class="hstat ')}>${g.html}</aside>` : graphSpots(k, "stat", "hstat hstat-empty");
 }
 // Counts each [data-count] number up from zero alongside its line (skipped for reduced motion).
 function countUp(root) {
@@ -1585,7 +1609,7 @@ const SECTION_HTML = {
         ${P(k("link")) ? "" : `<div style="max-width:320px">${slotBox(k("link"), "on-dark")}</div>`}</div>
       <div class="hero-bottom">
         ${q ? `<figure ${filledAttr(k("quote")).replace('class="', 'class="glass ')} style="margin:0"><b>${esc(q[0].name)}</b><span>${esc(q[0].quote)}</span></figure>` : `<div style="width:520px">${slotBox(k("quote"), "on-dark", "min-height:140px")}</div>`}
-        ${st ? (st[0].to || st[0].from ? statChart(st[0], filledAttr(k("stat")).replace('class="', 'class="hstat ')) : `<aside ${filledAttr(k("stat")).replace('class="', 'class="stat-card ')}><small>${esc(st[0].kicker)}</small><b>${esc(st[0].value)}</b></aside>`) : `<div style="width:360px">${slotBox(k("stat"), "on-dark", "min-height:140px")}</div>`}
+        ${heroGraph(k)}
       </div>`;
   },
   cred: (sec, k) => {
