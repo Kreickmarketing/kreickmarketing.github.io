@@ -367,3 +367,13 @@
   .site .sec.t-system, .site .sec.t-photo-tags { padding: 40px 48px; }
   .site .sec.t-system > .hero-bg, .site .sec.t-photo-tags > .hero-bg { inset: 8px 16px; }
 }
+
+/* Heading (Oct 9, canvas): more room under it. Desktop 96px top, 64px sides, 160px bottom
+   (board 164, snapped to the 32px grid); tablet 64px top, 32px sides, 128px bottom; phone as before. */
+.site .sec.t-heading { padding: 96px 64px 160px; }
+@container (max-width: 1000px) {
+  .site .sec.t-heading { padding: 64px 32px 128px; }
+}
+@container (max-width: 700px) {
+  .site .sec.t-heading { padding: 64px 20px; }
+}
