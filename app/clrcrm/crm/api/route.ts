@@ -1,0 +1,112 @@
+import { NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
+import { STAGES, STATUSES, dealOut, displayName, groupOut, noteOut, personOut } from "@/lib/crm-v2";
+
+// Saves changes made in the new CRM (clrcrm/crm). One POST per change, { action, ... }.
+// Only CRM members get past the check, every value is checked here, and Row Level
+// Security on the crm_* tables checks again in Supabase.
+export const dynamic = "force-dynamic";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const GROUP_ID = /^[a-z0-9-]{1,40}$/;
+const COLOR = /^#[0-9A-Fa-f]{6}$/;
+const text = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+const fail = (error: string, status = 400) => NextResponse.json({ error }, { status });
+const today = () => new Date().toISOString().slice(0, 10);
+
+// The company row for a name typed in the CRM: found, or made. "" or "—" means none.
+async function companyId(supabase: SupabaseClient, name: string) {
+  if (!name || name === "—") return null;
+  const { data: found } = await supabase.from("crm_companies").select("id").eq("name", name).maybeSingle();
+  if (found) return found.id as string;
+  const { data: made, error } = await supabase.from("crm_companies").insert({ name }).select("id").single();
+  if (error) throw new Error(error.message);
+  return made.id as string;
+}
+
+export async function POST(request: Request) {
+  const member = await getCrmMember();
+  if (!member) return fail("Log in again", 401);
+  const me = displayName(member.username);
+  let b: Record<string, unknown>;
+  try { b = await request.json(); } catch { return fail("Bad request"); }
+  const supabase = await getServerSupabase();
+
+  try {
+    switch (b.action) {
+      case "addPerson": {
+        const name = text(b.name, 200), company = text(b.company, 200), group = text(b.group, 40);
+        if (!name) return fail("A name is needed");
+        const status = (STATUSES as readonly string[]).includes(String(b.status)) ? String(b.status) : null;
+        const { data, error } = await supabase.from("crm_people").insert({
+          name, company_id: await companyId(supabase, company), title: text(b.title, 200) || null, status, owner: me,
+          last_interaction: today(), groups: GROUP_ID.test(group) ? [group] : ["pipeline"], recap: ["New record. Add a note or run the research assistant."],
+        }).select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ person: personOut(data, company, 0) });
+      }
+      case "addDeal": {
+        const name = text(b.name, 200), company = text(b.company, 200);
+        if (!name) return fail("A deal name is needed");
+        const stage = (STAGES as readonly string[]).includes(String(b.stage)) ? String(b.stage) : "Lead";
+        const value = Math.min(Math.max(Math.round(Number(b.value) || 0), 0), 1_000_000_000);
+        const { data, error } = await supabase.from("crm_deals").insert({ name, company_id: await companyId(supabase, company), stage, value, owners: [me] }).select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ deal: dealOut(data, company) });
+      }
+      case "moveDeal": {
+        const id = String(b.id), stage = String(b.stage);
+        if (!UUID.test(id) || !(STAGES as readonly string[]).includes(stage)) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_deals").update({ stage }).eq("id", id).select("id");
+        if (error) throw new Error(error.message);
+        if (!data?.length) return fail("That deal wasn't found", 404);
+        return NextResponse.json({ ok: true });
+      }
+      case "addNote": {
+        const personId = String(b.personId), body = text(b.body, 5000);
+        if (!UUID.test(personId) || !body) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_notes").insert({ person_id: personId, author: me, body }).select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ note: noteOut(data) });
+      }
+      case "addToGroup": {
+        const personId = String(b.personId), groupId = String(b.groupId);
+        if (!UUID.test(personId) || !GROUP_ID.test(groupId)) return fail("Bad request");
+        const { data: p, error } = await supabase.from("crm_people").select("groups").eq("id", personId).single();
+        if (error) throw new Error(error.message);
+        const groups = Array.isArray(p.groups) ? (p.groups as string[]) : [];
+        if (!groups.includes(groupId)) {
+          const { error: e2 } = await supabase.from("crm_people").update({ groups: [...groups, groupId] }).eq("id", personId);
+          if (e2) throw new Error(e2.message);
+        }
+        return NextResponse.json({ ok: true });
+      }
+      case "addGroup": {
+        const name = text(b.name, 60), color = String(b.color);
+        if (!name) return fail("A group name is needed");
+        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "group";
+        const { data: last } = await supabase.from("crm_groups").select("sort").order("sort", { ascending: false }).limit(1).maybeSingle();
+        const { data, error } = await supabase.from("crm_groups").insert({
+          id: `${slug}-${Math.random().toString(36).slice(2, 7)}`, name, icon: [...name][0].toUpperCase(),
+          color: COLOR.test(color) ? color : "#0099CE", sort: (Number(last?.sort) || 0) + 1,
+        }).select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ group: groupOut(data) });
+      }
+      case "orderGroups": {
+        const ids = Array.isArray(b.ids) ? b.ids.map(String).filter((x) => GROUP_ID.test(x)).slice(0, 50) : [];
+        for (const [i, id] of ids.entries()) {
+          const { error } = await supabase.from("crm_groups").update({ sort: i }).eq("id", id);
+          if (error) throw new Error(error.message);
+        }
+        return NextResponse.json({ ok: true });
+      }
+      default:
+        return fail("Unknown action");
+    }
+  } catch (e) {
+    console.error("CRM save failed:", e);
+    return fail("Not saved", 500);
+  }
+}
