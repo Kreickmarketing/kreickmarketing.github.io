@@ -1,9 +1,9 @@
-# Project status (updated Oct 9, 2026, Hero + Photo + text graphs live)
+# Project status (updated Oct 13, 2026, new CRM prototype live at /clrcrm/crm)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
 - Design system: /design-system (colors, type, buttons, nav, footer, components, grid, content fields, 13 cards).
-- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio/builder (Studio: templates and dotted spots, saves to Supabase, Publish puts Home, About, Pricing and Book a call live; each page shows its live link; side nav with logo menu, Pages (+ Add page), Modules, CMS, Settings (page addresses); no Design view: design comes from Claude Design), /clrcrm/studio (My Sites and the older editor), /clrcrm/crm (CRM: 6 leads, 11 products in Supabase), /clrcrm/interview (interview drill).
+- Team area (login "andrew"): /clrcrm (Brand Playbook), /clrcrm/studio/builder (Studio: templates and dotted spots, saves to Supabase, Publish puts Home, About, Pricing and Book a call live; each page shows its live link; side nav with logo menu, Pages (+ Add page), Modules, CMS, Settings (page addresses); no Design view: design comes from Claude Design), /clrcrm/studio (My Sites and the older editor), /clrcrm/crm (new CRM prototype, Oct 13: people, companies, deals board, messages, dashboards, assistants, Author Portal builder; sample data kept in the browser, nothing saves yet; source `docs/prototypes/crm/crm.html`, from the Claude prototype https://claude.ai/artifact/7omMyg89EDXmAfd3qBHwfy), /clrcrm/crm/pipeline (old CRM: 6 leads, 11 products in Supabase, with its Database, Funnel, Products and Clients tabs; team menu → "Old CRM"), /clrcrm/interview (interview drill).
 - Kreick Marketing site (separate repo kreickmarketing-site): https://kreickmarketing.vercel.app (Gigs, 6 case studies, AI Explorations).
 
 ## Where things live in this repo

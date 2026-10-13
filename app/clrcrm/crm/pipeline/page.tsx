@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { STAGES, isOpen, money, shortDate, today, weighted, daysSince } from "./data";
-import { getClients } from "./queries";
-import StageAge from "./StageAge";
+import { STAGES, isOpen, money, shortDate, today, weighted, daysSince } from "../data";
+import { getClients } from "../queries";
+import StageAge from "../StageAge";
 
 export default async function CrmHome() {
   const clients = await getClients();

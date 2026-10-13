@@ -18,7 +18,7 @@ export default async function CrmLayout({ children }: { children: React.ReactNod
   if (!member) redirect("/clrcrm/login?denied=1");
 
   return (
-    <CrmShell current="crm" username={member.username}>
+    <CrmShell current="crmold" username={member.username}>
       <CrmTabs />
       <main className="crm-app">{children}</main>
     </CrmShell>

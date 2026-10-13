@@ -4,6 +4,7 @@ import { signOut } from "./actions";
 const tools = [
   { key: "studio", label: "Studio", href: "/clrcrm/studio", external: false },
   { key: "crm", label: "CRM", href: "/clrcrm/crm", external: false },
+  { key: "crmold", label: "Old CRM (leads in Supabase)", href: "/clrcrm/crm/pipeline", external: false },
   { key: "playbook", label: "Playbook", href: "/clrcrm", external: false },
   { key: "interview", label: "Interview app", href: "/clrcrm/interview", external: false },
 ] as const;
