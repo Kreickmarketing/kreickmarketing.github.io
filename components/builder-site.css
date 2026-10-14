@@ -173,7 +173,7 @@
 @container (max-width: 1000px) { .site .sec.quote-sec { padding-block: 128px; } }
 @container (max-width: 700px) { .site .sec.quote-sec { padding-block: 64px; } }
 
-.site .mail { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 96px 64px; background: var(--white); }
+.site .mail { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 96px 64px; background: var(--clay-light); }
 .site .mail h2 { font-size: 52px; line-height: 1; letter-spacing: -2px; font-weight: 700; margin: 8px 0 16px; }
 .site .mail p { font-size: 20px; color: var(--iron-pine); margin: 0; }
 
