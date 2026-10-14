@@ -47,6 +47,17 @@ function client() {
   return new Anthropic();
 }
 
+// Ask Claude with the server-side fallback; if this account's requests reject the fallback
+// option itself (a 400 that names it), ask again without it.
+async function ask(ai: Anthropic, params: Omit<Anthropic.Beta.MessageCreateParamsNonStreaming, "betas" | "fallbacks">) {
+  try {
+    return await ai.beta.messages.create({ ...FALLBACK, ...params });
+  } catch (e) {
+    if (e instanceof Anthropic.BadRequestError && /fallback/i.test(e.message)) return ai.beta.messages.create(params);
+    throw e;
+  }
+}
+
 function check(msg: Anthropic.Beta.BetaMessage) {
   if (msg.stop_reason === "refusal") throw new AiError("Claude declined this one");
 }
@@ -54,8 +65,7 @@ function check(msg: Anthropic.Beta.BetaMessage) {
 // Recap assistant: returns 2-4 short points and saves them on the person.
 export async function writeRecap(supabase: SupabaseClient, personId: string) {
   const ctx = await personContext(supabase, personId);
-  const msg = await client().beta.messages.create({
-    ...FALLBACK,
+  const msg = await ask(client(), {
     model: MODEL,
     max_tokens: 4000,
     output_config: {
@@ -94,8 +104,7 @@ export async function research(supabase: SupabaseClient, personId: string) {
   let msg: Anthropic.Beta.BetaMessage | null = null;
   // A long search can pause; send the paused turn back to let it finish (at most 3 times).
   for (let i = 0; i < 4; i++) {
-    msg = await ai.beta.messages.create({
-      ...FALLBACK,
+    msg = await ask(ai, {
       model: MODEL,
       max_tokens: 8000,
       output_config: { effort: "medium" },

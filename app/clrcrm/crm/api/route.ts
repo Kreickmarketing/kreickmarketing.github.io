@@ -231,7 +231,12 @@ export async function POST(request: Request) {
     if (e instanceof Anthropic.PermissionDeniedError) return fail("Claude's key can't use this model or tool", 502);
     if (e instanceof Anthropic.RateLimitError) return fail("Claude is busy right now; try again in a minute", 503);
     if (e instanceof Anthropic.APIConnectionError) return fail("Couldn't reach Claude; try again", 503);
-    if (e instanceof Anthropic.APIError) { console.error("Claude error:", e.status, e.message); return fail(`Claude couldn't answer (error ${e.status ?? "?"})`, 502); }
+    if (e instanceof Anthropic.APIError) {
+      console.error("Claude error:", e.status, e.message);
+      // Anthropic's own reason (e.g. "Your credit balance is too low…"); it never contains the key.
+      const why = String((e.error as { error?: { message?: unknown } } | undefined)?.error?.message ?? "").slice(0, 200);
+      return fail(`Claude couldn't answer (error ${e.status ?? "?"}${why ? `: ${why}` : ""})`, 502);
+    }
     console.error("CRM save failed:", e);
     return fail("Not saved", 500);
   }
