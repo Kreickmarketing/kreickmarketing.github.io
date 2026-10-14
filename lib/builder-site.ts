@@ -68,8 +68,8 @@ export type BuilderState = {
   flip?: Record<string, boolean>;
   // System sections whose cards show no icons (Studio: Card icons → Show icons off).
   noIcons?: Record<string, boolean>;
-  // Section background choice (Quote, Spacers): "white", "cream" or "black"; missing = the template's default
-  // (Quote: Cream/Clay; Spacer: the page background).
+  // Section background choice (Quote, Spacers): "white" (shown as Clay Light), "cream" (Clay) or "black" (Midnight);
+  // missing = the template's default (Quote: Cream; Spacer: Clay Light, the page background).
   bg?: Record<string, unknown>;
   // Image focus points (% from top-left) and zoom (1–3×): Desktop, plus optional tablet/phone crops.
   crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown; tablet?: unknown; phone?: unknown }>;

@@ -602,7 +602,7 @@
     },
     "spacers-note": {
       "fill": "orange",
-      "text": "Spacers: empty space between two sections\n\n16, 32, 64 and 96px tall, the same at every screen size. Nothing to fill; they take the page background.\n\nIn Studio: Modules → Spacers. Studio shows a faint blue stripe so you can find and move them; the live site shows nothing but space.",
+      "text": "Spacers: empty space between two sections\n\n16, 32, 64 and 96px tall, the same at every screen size. Nothing to fill.\n\nBackground: Clay Light (the page background, default), Cream or Black, to match the sections above and below.\n\nIn Studio: Modules → Spacers. Studio shows a faint blue stripe so you can find and move them; the live site shows only the space.",
       "w": 380,
       "x": 1360,
       "y": 11320
@@ -617,7 +617,7 @@
     },
     "quote-note": {
       "fill": "orange",
-      "text": "Quote: background option (Studio)\n\nEach Quote section can be White, Cream or Black. Cream is the Clay shown on these boards (the default).\n\nBlack: Midnight background, the quote turns white and the name line light Clay.\n\nIn Studio: click the section, then Background in the right panel (or the ◐ button on its tag).",
+      "text": "Quote: background option (Studio)\n\nEach Quote section can be Cream, Clay Light or Black. Cream is the Clay shown on these boards (the default). Clay Light is the page background.\n\nBlack: Midnight background, the quote turns white and the name line light Clay.\n\nIn Studio: click the section, then Background in the right panel (or the ◐ button on its tag).",
       "w": 380,
       "x": 2680,
       "y": 12360

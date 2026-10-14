@@ -390,8 +390,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .quote-sec { background: var(--cm-clay); }
 .quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
 .quote-sec cite { font-style: normal; font-size: 17px; color: var(--cm-iron); }
-/* Background choice (Quote, Spacers): White, Cream (Clay), Black (Midnight, white words). */
-.sec.bg-white { background-color: #fff; }
+/* Background choice (Quote, Spacers): Clay Light (the page background; class bg-white), Cream (Clay), Black (Midnight, white words). */
+.sec.bg-white { background-color: var(--cm-clay-light); }
 .sec.bg-cream { background-color: var(--cm-clay); }
 .sec.bg-black { background-color: var(--cm-midnight); color: #fff; }
 .quote-sec.bg-black cite { color: var(--cm-clay); }
@@ -1940,7 +1940,7 @@ const TEMPLATES = [
   { id: "points", name: "Points", type: "points", about: "Up to three titled points in a list, no photo.", slots: [
     { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · How the team works" },
   ]},
-  { id: "quote", name: "Quote", type: "quote", bgChoice: ["cream", "white", "black"], about: "One large quote with a name and title. Background: White, Cream or Black.", slots: [
+  { id: "quote", name: "Quote", type: "quote", bgChoice: ["cream", "white", "black"], about: "One large quote with a name and title. Background: Cream, Clay Light or Black.", slots: [
     { key: "text", label: "Quote", kind: "text", limit: 200, long: true, source: "Playbook · Supporting quote (needs approval)" },
     { key: "by", label: "Name and title", kind: "text", limit: 60, source: "Playbook · Quote by" },
   ]},
@@ -1964,10 +1964,10 @@ const TEMPLATES = [
   ]},
   { id: "calendly", name: "Calendly booking", type: "calendly", about: "Your 15-minute call calendar. Nothing to fill.", slots: [] },
   // Vertical spacers (Oct 14): empty space between sections. Nothing to fill.
-  { id: "spacer-16", name: "Spacer 16px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 16px tall at every screen size.", slots: [] },
-  { id: "spacer-32", name: "Spacer 32px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 32px tall at every screen size.", slots: [] },
-  { id: "spacer-64", name: "Spacer 64px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 64px tall at every screen size.", slots: [] },
-  { id: "spacer-96", name: "Spacer 96px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 96px tall at every screen size.", slots: [] },
+  { id: "spacer-16", name: "Spacer 16px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 16px tall at every screen size.", slots: [] },
+  { id: "spacer-32", name: "Spacer 32px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 32px tall at every screen size.", slots: [] },
+  { id: "spacer-64", name: "Spacer 64px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 64px tall at every screen size.", slots: [] },
+  { id: "spacer-96", name: "Spacer 96px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 96px tall at every screen size.", slots: [] },
 ];
 // How templates look is decided in code (and in Claude Design), not here.
 const TPL = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
@@ -2354,8 +2354,8 @@ const SECTION_HTML = {
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
 // Section background choice (Quote and Spacers, Oct 14). A template's bgChoice lists its options, the first being its
-// default (nothing saved). Cream = Clay (the Quote's original); Page = the page background (Spacers' original).
-const BG_NAME = { page: "Page", white: "White", cream: "Cream", black: "Black" };
+// default (nothing saved). Clay Light = the page background (Spacers' default; saved as "white"); Cream = Clay (the Quote's default).
+const BG_NAME = { white: "Clay Light", cream: "Cream", black: "Black" };
 const bgOf = (sec) => S.bg[sec.id] || sec.bgChoice[0];
 const SECTION_CLASS = { spacer: "spacer", hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
 
@@ -2621,7 +2621,7 @@ function renderCards() {
       + eBlock("anchor", "Link name", anchorField(sl.id, true), `<span class="chip">optional</span>`);
   } else if (sec) {
     $("#cards").innerHTML = eBlock("section", esc(sec.name), sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`, `<span class="chip">${esc(TPL[sec.template].name)}</span>`)
-      + (sec.bgChoice ? eBlock("bg", "Background", `<div class="seg" role="group" aria-label="Background">${sec.bgChoice.map((v) => `<button type="button" data-secbg="${sec.id}:${v}" aria-pressed="${bgOf(sec) === v}">${BG_NAME[v]}${v === sec.bgChoice[0] ? " (default)" : ""}</button>`).join("")}</div><p class="hint" style="margin:0">${sec.type === "spacer" ? "Match the sections above and below. Page is the page’s own background." : "Black turns the words white."}</p>`) : "")
+      + (sec.bgChoice ? eBlock("bg", "Background", `<div class="seg" role="group" aria-label="Background">${sec.bgChoice.map((v) => `<button type="button" data-secbg="${sec.id}:${v}" aria-pressed="${bgOf(sec) === v}">${BG_NAME[v]}${v === sec.bgChoice[0] ? " (default)" : ""}</button>`).join("")}</div><p class="hint" style="margin:0">${sec.type === "spacer" ? "Match the sections above and below. Clay Light is the page’s own background." : "Black turns the words white."}</p>`) : "")
       + eBlock("anchor", "Link name", anchorField(sec.id, false));
   } else {
     $("#cards").innerHTML = "";
