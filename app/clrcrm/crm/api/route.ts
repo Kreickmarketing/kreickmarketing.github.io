@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
-import { STAGES, STATUSES, dealOut, displayName, groupOut, noteOut, personOut } from "@/lib/crm-v2";
+import { STAGES, STATUSES, companyOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
 
 // Saves changes made in the new CRM (clrcrm/crm). One POST per change, { action, ... }.
 // Only CRM members get past the check, every value is checked here, and Row Level
@@ -70,7 +70,8 @@ export async function POST(request: Request) {
         }).eq("id", id).select("*").single();
         if (error) throw new Error(error.message);
         const { count } = await supabase.from("crm_notes").select("id", { count: "exact", head: true }).eq("person_id", id);
-        return NextResponse.json({ person: personOut(data, company, count ?? 0) });
+        const { count: rem } = await supabase.from("crm_reminders").select("id", { count: "exact", head: true }).eq("person_id", id).eq("done", false);
+        return NextResponse.json({ person: personOut(data, company, count ?? 0, rem ?? 0) });
       }
       case "deletePerson": {
         const id = String(b.id);
@@ -96,6 +97,62 @@ export async function POST(request: Request) {
         if (error) throw new Error(error.message);
         if (!data?.length) return fail("That deal wasn't found", 404);
         return NextResponse.json({ ok: true });
+      }
+      case "addCompany":
+      case "updateCompany": {
+        const id = String(b.id ?? ""), name = text(b.name, 200);
+        if (!name || (b.action === "updateCompany" && !UUID.test(id))) return fail(name ? "Bad request" : "A company name is needed");
+        const row = { name, industry: opt(b.industry, 200), market: opt(b.market, 100), status: opt(b.status, 40) };
+        const q = b.action === "addCompany" ? supabase.from("crm_companies").insert(row) : supabase.from("crm_companies").update(row).eq("id", id);
+        const { data, error } = await q.select("*").single();
+        if (error?.code === "23505") return fail("A company with that name already exists", 409);
+        if (error) throw new Error(error.message);
+        const { count } = await supabase.from("crm_people").select("id", { count: "exact", head: true }).eq("company_id", data.id);
+        const { data: deal } = await supabase.from("crm_deals").select("id").eq("company_id", data.id).limit(1).maybeSingle();
+        return NextResponse.json({ company: companyOut(data, count ?? 0, (deal?.id as string) ?? null) });
+      }
+      case "deleteCompany": {
+        const id = String(b.id);
+        if (!UUID.test(id)) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_companies").delete().eq("id", id).select("id");
+        if (error) throw new Error(error.message);
+        if (!data?.length) return fail("That company wasn't found", 404);
+        return NextResponse.json({ ok: true });
+      }
+      case "deleteNote": {
+        const id = String(b.id);
+        if (!UUID.test(id)) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_notes").delete().eq("id", id).select("id");
+        if (error) throw new Error(error.message);
+        if (!data?.length) return fail("That note wasn't found", 404);
+        return NextResponse.json({ ok: true });
+      }
+      case "addInteraction": {
+        const personId = String(b.personId), title = text(b.title, 300), date = text(b.date, 10);
+        const kind = ["mail", "meet", "call"].includes(String(b.kind)) ? String(b.kind) : "mail";
+        if (!UUID.test(personId) || !title || !/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) return fail(title ? "Bad request" : "Say what happened");
+        const { data, error } = await supabase.from("crm_interactions").insert({ person_id: personId, kind, title, who: opt(b.who, 300) ?? me, happened_on: date }).select("*").single();
+        if (error) throw new Error(error.message);
+        // Keep "Last interaction" on the person up to date.
+        const { data: p } = await supabase.from("crm_people").select("last_interaction").eq("id", personId).single();
+        const last = !p?.last_interaction || String(p.last_interaction) < date ? date : String(p.last_interaction);
+        if (last === date) await supabase.from("crm_people").update({ last_interaction: date }).eq("id", personId);
+        return NextResponse.json({ interaction: ixOut(data), last });
+      }
+      case "addReminder": {
+        const personId = String(b.personId), title = text(b.title, 300), due = text(b.due, 10);
+        if (!UUID.test(personId) || !title) return fail(title ? "Bad request" : "Say what to follow up on");
+        if (due && (!/^\d{4}-\d{2}-\d{2}$/.test(due) || Number.isNaN(Date.parse(due)))) return fail("That date doesn't look right");
+        const { data, error } = await supabase.from("crm_reminders").insert({ person_id: personId, title, due: due || null, created_by: me }).select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ reminder: reminderOut(data) });
+      }
+      case "setReminderDone": {
+        const id = String(b.id);
+        if (!UUID.test(id)) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_reminders").update({ done: b.done === true }).eq("id", id).select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ reminder: reminderOut(data) });
       }
       case "moveDeal": {
         const id = String(b.id), stage = String(b.stage);

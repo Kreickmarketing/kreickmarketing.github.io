@@ -20,24 +20,31 @@ export const dealOut = (d: Row, company: string) => ({
   id: s(d.id), name: s(d.name), company: company || "—", stage: s(d.stage), value: Number(d.value) || 0,
   est: d.estimate === true, owner: Array.isArray(d.owners) ? d.owners : [], tasks: Number(d.tasks) || 0, created: s(d.created_at).slice(0, 7),
 });
-export const personOut = (p: Row, company: string, notes: number) => ({
+export const personOut = (p: Row, company: string, notes: number, rem = 0) => ({
   id: s(p.id), name: s(p.name), company: company || "—", title: s(p.title) || "—", status: s(p.status) || null,
   last: day(p.last_interaction) || day(p.created_at), deal: s(p.deal_id) || null, email: s(p.email), phone: s(p.phone),
-  market: s(p.market) || "—", owner: s(p.owner) || "—", notes, rem: Number(p.reminders) || 0, via: s(p.introduced_by) || "—",
+  market: s(p.market) || "—", owner: s(p.owner) || "—", notes, rem, via: s(p.introduced_by) || "—",
   recap: Array.isArray(p.recap) ? p.recap : [], groups: Array.isArray(p.groups) ? p.groups : [],
 });
-export const noteOut = (n: Row) => [s(n.author), shortDay(s(n.created_at)), s(n.body)];
+// Notes and interactions as rows the page reads: [author, date, text, id] and [kind, title, who, date].
+export const noteOut = (n: Row) => [s(n.author), shortDay(s(n.created_at)), s(n.body), s(n.id)];
+export const ixOut = (i: Row) => [s(i.kind), s(i.title), s(i.who), shortDay(s(i.happened_on))];
+export const reminderOut = (r: Row) => ({ id: s(r.id), person: s(r.person_id), title: s(r.title), due: day(r.due) || null, done: r.done === true });
+export const companyOut = (c: Row, people: number, deal: string | null) => ({
+  id: s(c.id), name: s(c.name), industry: s(c.industry) || "—", market: s(c.market) || "—", status: s(c.status) || null, people, deal,
+});
 
 export async function loadCrm(supabase: SupabaseClient) {
-  const [groups, companies, deals, people, notes, ix] = await Promise.all([
+  const [groups, companies, deals, people, notes, ix, rems] = await Promise.all([
     supabase.from("crm_groups").select("*").order("sort").order("created_at"),
     supabase.from("crm_companies").select("*").order("name"),
     supabase.from("crm_deals").select("*").order("created_at"),
     supabase.from("crm_people").select("*").order("name"),
     supabase.from("crm_notes").select("*").order("created_at", { ascending: false }),
-    supabase.from("crm_interactions").select("*").order("happened_on", { ascending: false }),
+    supabase.from("crm_interactions").select("*").order("happened_on", { ascending: false }).order("created_at", { ascending: false }),
+    supabase.from("crm_reminders").select("*").order("due", { ascending: true, nullsFirst: false }).order("created_at"),
   ]);
-  const failed = [groups, companies, deals, people, notes, ix].find((r) => r.error);
+  const failed = [groups, companies, deals, people, notes, ix, rems].find((r) => r.error);
   if (failed?.error) throw new Error(failed.error.message);
 
   const coName = new Map((companies.data ?? []).map((c) => [c.id as string, c.name as string]));
@@ -49,16 +56,14 @@ export async function loadCrm(supabase: SupabaseClient) {
     (notesBy[pid] ||= []).push(noteOut(n));
   }
   const ixBy: Record<string, string[][]> = {};
-  for (const i of ix.data ?? []) (ixBy[i.person_id as string] ||= []).push([s(i.kind), s(i.title), s(i.who), shortDay(s(i.happened_on))]);
+  for (const i of ix.data ?? []) (ixBy[i.person_id as string] ||= []).push(ixOut(i));
+  const reminders = (rems.data ?? []).map(reminderOut);
+  const openRem = new Map<string, number>();
+  for (const r of reminders) if (!r.done) openRem.set(r.person, (openRem.get(r.person) ?? 0) + 1);
 
   const dealList = (deals.data ?? []).map((d) => dealOut(d, coName.get(d.company_id as string) ?? ""));
-  const peopleList = (people.data ?? []).map((p) => personOut(p, coName.get(p.company_id as string) ?? "", noteCount.get(p.id as string) ?? 0));
-  const companyList = (companies.data ?? []).map((c) => {
-    const open = (deals.data ?? []).filter((d) => d.company_id === c.id);
-    return {
-      id: s(c.id), name: s(c.name), industry: s(c.industry) || "—", market: s(c.market) || "—", status: s(c.status) || null,
-      people: (people.data ?? []).filter((p) => p.company_id === c.id).length, deal: s(open[0]?.id) || null,
-    };
-  });
-  return { groups: (groups.data ?? []).map(groupOut), companies: companyList, deals: dealList, people: peopleList, notes: notesBy, interactions: ixBy };
+  const peopleList = (people.data ?? []).map((p) => personOut(p, coName.get(p.company_id as string) ?? "", noteCount.get(p.id as string) ?? 0, openRem.get(p.id as string) ?? 0));
+  const companyList = (companies.data ?? []).map((c) => companyOut(c,
+    (people.data ?? []).filter((p) => p.company_id === c.id).length, s((deals.data ?? []).find((d) => d.company_id === c.id)?.id) || null));
+  return { groups: (groups.data ?? []).map(groupOut), companies: companyList, deals: dealList, people: peopleList, notes: notesBy, interactions: ixBy, reminders };
 }

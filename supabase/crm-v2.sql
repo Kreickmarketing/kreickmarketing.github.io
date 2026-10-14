@@ -111,3 +111,20 @@ create policy "CRM members manage crm_notes" on public.crm_notes for all to auth
 create policy "CRM members manage crm_interactions" on public.crm_interactions for all to authenticated
   using (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())))
   with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));
+
+-- Reminders (Oct 14, migration "crm_v2_reminders"): follow-ups with a due date, ticked off when done.
+-- crm_people.reminders (the old count) is no longer used; the CRM counts open reminders here.
+create table if not exists public.crm_reminders (
+  id uuid primary key default gen_random_uuid(),
+  person_id uuid not null references public.crm_people (id) on delete cascade,
+  title text not null check (char_length(title) between 1 and 300),
+  due date,
+  done boolean not null default false,
+  created_by text check (char_length(created_by) <= 100),
+  created_at timestamptz not null default now()
+);
+create index if not exists crm_reminders_person_idx on public.crm_reminders (person_id);
+alter table public.crm_reminders enable row level security;
+create policy "CRM members manage crm_reminders" on public.crm_reminders for all to authenticated
+  using (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())))
+  with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));

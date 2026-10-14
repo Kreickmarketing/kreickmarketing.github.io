@@ -501,12 +501,17 @@ const NOTES={p1:[['Andrew Kreick','2 days ago','Kevin flies a Phenom 300. Keep t
    through /clrcrm/crm/api. In the Claude prototype it keeps the sample data above.
    Messages, Assistants and the Author Portal still run on sample data. */
 const LIVE=!!window.__CRM__;
+// Follow-ups: { id, person, title, due (YYYY-MM-DD or null), done }. Sample ones in the prototype.
+const REMINDERS=LIVE?[]:PEOPLE.filter(p=>p.rem).map((p,i)=>({id:'r'+i,person:p.id,title:`Follow up with ${p.name.split(' ')[0]}`,due:'2026-10-'+String(14+i).padStart(2,'0'),done:false}));
+const openRems=pid=>REMINDERS.filter(r=>!r.done&&(!pid||r.person===pid));
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const ME=LIVE?window.__CRM__.me:'Andrew Kreick';
 if(LIVE){const D=window.__CRM__;
   for(const[arr,src]of[[PEOPLE,D.people],[COMPANIES,D.companies],[DEALS,D.deals],[GROUPS,D.groups]]){arr.length=0;arr.push(...src)}
   GROUPS.forEach(g=>g.filter=groupFilter(g));
   for(const k of Object.keys(INTERACTIONS))delete INTERACTIONS[k];Object.assign(INTERACTIONS,D.interactions);
   for(const k of Object.keys(NOTES))delete NOTES[k];Object.assign(NOTES,D.notes);
+  REMINDERS.push(...(D.reminders||[]));
   }
 // Saves one change. Returns the server's answer, or null (with a message) if it didn't save.
 async function save(action,data){if(!LIVE)return{ok:true};
@@ -559,7 +564,7 @@ function panelSections(){
    {id:'tools',label:'Author tools',body:()=>{const open=isOpen('t-portal',true);const placed=BLOCKS.filter(b=>APP(b.id)!=null).length;
      return`<div class="node"><button class="tw" data-tw="t-portal" aria-expanded="${open}" aria-label="Show books">${CHV}</button><button class="prow" data-portal="1" aria-current="${S.sec==='portal'}">${pico('book')}<span class="grow">Author Portal builder</span><span class="ct">1</span></button></div>`+
      (open?`<div class="sub"><button class="prow s" data-portal="1"><img class="thumb" src="${COVER}" alt=""><span class="two"><span>Darkness in Disguise</span><small>/jennifer-nizza · ${placed}/${BLOCKS.length}</small></span>${sdot(placed===BLOCKS.length?DOT.on:placed?DOT.part:DOT.off)}</button></div>`:'')}},
-   {id:'private',label:'Private',body:()=>`<div class="node"><button class="tw none" tabindex="-1" aria-hidden="true">${CHV}</button><button class="prow" data-act="private"><span class="gico" style="background:#7D8088">★</span><span class="grow">My follow-ups</span><span class="ct">4</span></button></div>`},
+   {id:'private',label:'Private',body:()=>`<div class="node"><button class="tw none" tabindex="-1" aria-hidden="true">${CHV}</button><button class="prow" data-act="private"><span class="gico" style="background:#7D8088">★</span><span class="grow">My follow-ups</span><span class="ct">${openRems().length}</span></button></div>`},
   ];
   if(S.sec==='crm')return crmSecs;
   if(S.sec==='portal'){const placed=BLOCKS.filter(b=>APP(b.id)!=null).length;const grps=[...new Set(BLOCKS.map(b=>b.grp))];
@@ -627,6 +632,7 @@ function renderPanel(){
 }
 function panelAction(a){
   if(a==='search'){S.sec='crm';render();setTimeout(()=>{const q=$('q');if(q)q.focus()},0)}
+  else if(a==='private')followUps();
   else if(a==='notif')overlay(`<h2>Notifications</h2><div class="ix"><span class="ic">${svg('bell')}</span><div>Follow-up assistant: <b>Evan Tarakjian</b> hasn’t replied in 19 days.</div><small>today</small></div><div class="ix"><span class="ic">${svg('check')}</span><div>Rich & Kat pick a direction for the K & Co. mailer today.</div><small>today</small></div><div class="ix"><span class="ic">${svg('book')}</span><div>Jennifer Nizza: launch video due Oct 30.</div><small>Oct 12</small></div><div class="row"><button class="btn dark" id="okn">Done</button></div>`,()=>{$('okn').onclick=closeOv});
   else if(a==='addgroup')overlay(`<h2>New group</h2><label class="fld"><label>Name</label><input class="in" id="ng" placeholder="e.g. Whitaker House contacts"></label><p class="muted" style="margin:0">After it’s created, drag people from any table onto it in the side panel.</p><div class="row"><button class="btn" id="ngx">Cancel</button><button class="btn dark" id="ngo">Create group</button></div>`,()=>{$('ng').focus();$('ngx').onclick=closeOv;
     $('ngo').onclick=async()=>{const n=$('ng').value.trim();if(!n){$('ng').focus();return}const color=PAL[GROUPS.length%PAL.length];$('ngo').disabled=true;
@@ -647,7 +653,7 @@ function renderCRM(){
   m.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{S.view=b.dataset.view;S.rec=null;renderCRM()});
   $('share').onclick=()=>overlay(`<h2>Share ${esc(g.name)}</h2><input class="in" placeholder="Name or email"><div class="ix"><span class="ic">${svg('user')}</span><div><b>Everyone at ClearMark</b><br><span class="muted">Full access</span></div><small></small></div><div class="ix">${av('Andrew Kreick')}<div><b>Andrew Kreick</b> (you)</div><small>Owner</small></div><div class="ix">${av('Tim Ferman')}<div><b>Tim Ferman</b></div><small>Editor</small></div><div class="row"><button class="btn" id="cl">Copy link</button><button class="btn dark" id="okx">Done</button></div>`,()=>{$('okx').onclick=closeOv;$('cl').onclick=()=>{toast('Prototype: links come with the live version.')}});
   $('addview').onclick=()=>toast('New views (table, kanban, calendar) come in the live version.');
-  $('add').onclick=()=>S.view==='deals'?newDeal():newPerson();
+  $('add').onclick=()=>S.view==='deals'?newDeal():S.view==='companies'?editCompany(null):newPerson();
   if($('emailall'))$('emailall').onclick=()=>{S.sec='messages';S.msg='m2';render()};
   if($('enrich'))$('enrich').onclick=enrichAll;
   $('q').oninput=e=>{S.q=e.target.value;drawBody()};
@@ -660,8 +666,8 @@ function drawBody(){const g=GROUPS.find(x=>x.id===S.group);const b=$('body');con
     b.querySelectorAll('[data-p]').forEach(r=>{r.onclick=()=>{S.rec=r.dataset.p;S.rtab='details';S.editing=null;drawBody();renderRec()};
       r.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-person',r.dataset.p);e.dataTransfer.setData('text/plain',PEOPLE.find(x=>x.id===r.dataset.p).name);e.dataTransfer.effectAllowed='copy'})});
   }else if(S.view==='companies'){const rows=COMPANIES.filter(c=>!q||(c.name+c.industry).toLowerCase().includes(q));
-    b.innerHTML=`<table class="tbl"><thead><tr><th>${rows.length} companies</th><th>Industry</th><th>Market</th><th>People</th><th>Open deal</th><th>Value</th><th>Status</th></tr></thead><tbody>${rows.map(c=>{const d=DEALS.find(x=>x.id===c.deal);return`<tr data-c="${esc(c.name)}"><td><span class="cellname">${tile(c.name)}${esc(c.name)}</span></td><td>${esc(c.industry)}</td><td>${esc(c.market)}</td><td class="num">${c.people}</td><td>${d?`<span class="deal">${svg('deal')}${esc(d.name)}</span>`:''}</td><td class="num">${d&&d.value?money(d.value)+(d.est?' <span class="muted mono">est.</span>':''):'<span class="muted">rev. share</span>'}</td><td>${stPill(c.status)}</td></tr>`}).join('')}</tbody></table>`;
-    b.querySelectorAll('[data-c]').forEach(r=>r.onclick=()=>{const p=PEOPLE.find(x=>x.company===r.dataset.c);if(p){S.rec=p.id;S.rtab='details';renderRec()}});
+    b.innerHTML=`<table class="tbl"><thead><tr><th>${rows.length} companies</th><th>Industry</th><th>Market</th><th>People</th><th>Open deal</th><th>Value</th><th>Status</th></tr></thead><tbody>${rows.map(c=>{const d=DEALS.find(x=>x.id===c.deal);return`<tr data-c="${COMPANIES.indexOf(c)}"><td><span class="cellname">${tile(c.name)}${esc(c.name)}</span></td><td>${esc(c.industry)}</td><td>${esc(c.market)}</td><td class="num">${c.people}</td><td>${d?`<span class="deal">${svg('deal')}${esc(d.name)}</span>`:''}</td><td class="num">${d&&d.value?money(d.value)+(d.est?' <span class="muted mono">est.</span>':''):'<span class="muted">rev. share</span>'}</td><td>${stPill(c.status)}</td></tr>`}).join('')}</tbody></table>`;
+    b.querySelectorAll('[data-c]').forEach(r=>r.onclick=()=>editCompany(COMPANIES[+r.dataset.c]));
   }else renderKanban(b,q);
 }
 function renderKanban(b,q){
@@ -683,12 +689,12 @@ function newPerson(){overlay(`<h2>Add a person</h2><label class="fld"><label>Nam
     const rec={name:n,company:$('np-c').value.trim(),title:$('np-t').value.trim(),status:$('np-s').value,group:S.group};$('npo').disabled=true;
     const r=await save('addPerson',rec);if(!r){$('npo').disabled=false;return}
     PEOPLE.push(r.person||{id:'p'+Date.now(),name:n,company:rec.company||'—',title:rec.title||'—',status:rec.status,last:isoToday(),deal:null,market:'—',owner:ME,notes:0,rem:0,via:'—',groups:[S.group],recap:['New record. Add a note or run the research assistant.']});
-    closeOv();toast(`${n} added.`);render()}})}
+    ensureCompany(rec.company);closeOv();toast(`${n} added.`);render()}})}
 function newDeal(stage){overlay(`<h2>Create a deal</h2><label class="fld"><label>Deal name</label><input class="in" id="nd-n"></label><label class="fld"><label>Company</label><input class="in" id="nd-c"></label><label class="fld"><label>Value (USD)</label><input class="in" id="nd-v" inputmode="numeric"></label><label class="fld"><label>Stage</label><select class="in" id="nd-s">${STAGES.map(s=>`<option ${s===(stage||'Lead')?'selected':''}>${s}</option>`).join('')}</select></label><div class="row"><button class="btn" id="ndx">Cancel</button><button class="btn dark" id="ndo">Create deal</button></div>`,()=>{
   $('ndx').onclick=closeOv;$('nd-n').focus();$('ndo').onclick=async()=>{const n=$('nd-n').value.trim();if(!n){$('nd-n').focus();return}
     const rec={name:n,company:$('nd-c').value.trim(),stage:$('nd-s').value,value:+$('nd-v').value.replace(/\D/g,'')||0};$('ndo').disabled=true;
     const r=await save('addDeal',rec);if(!r){$('ndo').disabled=false;return}
-    DEALS.push(r.deal||{id:'d'+Date.now(),name:n,company:rec.company||'—',stage:rec.stage,value:rec.value,owner:[ME],tasks:0,created:isoToday().slice(0,7)});closeOv();S.view='deals';toast('Deal created.');renderCRM()}})}
+    DEALS.push(r.deal||{id:'d'+Date.now(),name:n,company:rec.company||'—',stage:rec.stage,value:rec.value,owner:[ME],tasks:0,created:isoToday().slice(0,7)});ensureCompany(rec.company);closeOv();S.view='deals';toast('Deal created.');renderCRM()}})}
 function enrichAll(){const b=$('enrich');b.innerHTML='<span class="spin"></span> Enriching…';setTimeout(()=>{b.innerHTML=svg('wand')+'Enrich all';toast('Prototype: enrichment would fill missing emails, LinkedIn and company size here.')},1200)}
 
 /* record side panel */
@@ -716,15 +722,62 @@ function renderRec(){
     $('pedit').onclick=()=>{S.editing=p.id;renderRec()};
     $('pdel').onclick=()=>deletePerson(p);
     if($('dedit'))$('dedit').onclick=()=>editDeal(d.id)}
-  else if(S.rtab==='ix'){const list=INTERACTIONS[p.id]||[['mail','Last email thread',p.owner,fmtDate(p.last)]];rb.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><b>Past interactions</b><button class="btn sm">${svg('plus')}New interaction</button></div>`+list.map(([ic,t,w,dt])=>`<div class="ix"><span class="ic">${svg(ic)}</span><div><b style="font-weight:500">${esc(t)}</b><br><span class="muted">${esc(w)}</span></div><small>${esc(dt)}</small></div>`).join('')}
+  else if(S.rtab==='ix'){const list=INTERACTIONS[p.id]||[];
+    rb.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><b>Past interactions</b><button class="btn sm" id="ixnew">${svg('plus')}New interaction</button></div><div id="ixform"></div>`
+      +(list.length?list.map(([ic,t,w,dt])=>`<div class="ix"><span class="ic">${svg(ic)}</span><div><b style="font-weight:500">${esc(t)}</b><br><span class="muted">${esc(w)}</span></div><small>${esc(dt)}</small></div>`).join(''):'<p class="muted" style="margin:0">Nothing logged yet.</p>');
+    $('ixnew').onclick=()=>{$('ixform').innerHTML=`<div class="note-in"><div style="display:flex;gap:8px;flex-wrap:wrap"><select class="in" id="ix-k" style="width:auto"><option value="mail">Email</option><option value="meet">Meeting</option><option value="call">Call</option></select><input class="in" id="ix-d" type="date" value="${isoToday()}" style="width:auto"></div><input class="in" id="ix-t" placeholder="What happened, e.g. Scoping call"><input class="in" id="ix-w" placeholder="Who was there" value="${esc(ME)}"><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn sm" id="ix-x">Cancel</button><button class="btn sm dark" id="ix-ok">Log it</button></div></div>`;
+      $('ix-t').focus();$('ix-x').onclick=()=>{$('ixform').innerHTML=''};
+      $('ix-ok').onclick=async()=>{const rec={personId:p.id,kind:$('ix-k').value,title:$('ix-t').value.trim(),who:$('ix-w').value.trim(),date:$('ix-d').value};if(!rec.title){$('ix-t').focus();return}if(!rec.date){$('ix-d').focus();return}
+        $('ix-ok').disabled=true;const r=await save('addInteraction',rec);if(!r){$('ix-ok').disabled=false;return}
+        const row=r.interaction||[rec.kind,rec.title,rec.who||ME,new Date(rec.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})];
+        const l=(INTERACTIONS[p.id]=INTERACTIONS[p.id]||[]);l.unshift(row);p.last=r.last||(rec.date>p.last?rec.date:p.last);toast('Logged.');renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()}}}
   else if(S.rtab==='notes'){const ns=(NOTES[p.id]||[]).slice();
-    rb.innerHTML=`<div class="note-in"><textarea id="nt" placeholder="Write a note, mention @team"></textarea><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn sm dark" id="ntadd">Add note</button></div></div>`+(p._research?`<div class="noteitem"><b>Research assistant · just now</b><div>${esc(p.company)}: ${esc(COMPANIES.find(c=>c.name===p.company)?.industry||'company')}. ${esc(p.recap[0])} <span class="muted">Prototype answer from ClearMark’s notes; the live version searches the web.</span></div></div>`:'')+ns.map(([w,t,x])=>`<div class="noteitem"><span>${av(w)} <b>${esc(w)}</b> <span class="muted mono">${esc(t)}</span></span><div>${esc(x)}</div></div>`).join('');
+    rb.innerHTML=`<div class="note-in"><textarea id="nt" placeholder="Write a note, mention @team"></textarea><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn sm dark" id="ntadd">Add note</button></div></div>`+(p._research?`<div class="noteitem"><b>Research assistant · just now</b><div>${esc(p.company)}: ${esc(COMPANIES.find(c=>c.name===p.company)?.industry||'company')}. ${esc(p.recap[0])} <span class="muted">Prototype answer from ClearMark’s notes; the live version searches the web.</span></div></div>`:'')+ns.map(([w,t,x,id],i)=>`<div class="noteitem"><span style="display:flex;align-items:center;gap:6px">${av(w)} <b>${esc(w)}</b> <span class="muted mono">${esc(t)}</span><span style="flex:1"></span><button class="btn sm" data-ndel="${i}" aria-label="Delete this note" title="Delete this note">${svg('x').replace('<svg','<svg width="12" height="12"')}</button></span><div>${esc(x)}</div></div>`).join('');
+    rb.querySelectorAll('[data-ndel]').forEach(x=>x.onclick=async()=>{if(!x.dataset.sure){x.dataset.sure='1';x.textContent='Delete?';return}
+      const list=NOTES[p.id]||[];const n=list[+x.dataset.ndel];if(!n)return;x.disabled=true;
+      if(LIVE&&!n[3]){toast('Reload the page, then delete this note.');return}
+      const r=await save('deleteNote',{id:n[3]});if(!r){x.disabled=false;return}list.splice(list.indexOf(n),1);p.notes=Math.max(0,p.notes-1);toast('Note deleted.');renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()});
     $('ntadd').onclick=async()=>{const v=$('nt').value.trim();if(!v)return;const btn=$('ntadd');btn.disabled=true;
       const r=await save('addNote',{personId:p.id,body:v});if(!r){btn.disabled=false;return}
       (NOTES[p.id]=NOTES[p.id]||[]).unshift(r.note||[ME,'just now',v]);p.notes++;renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()}}
-  else{rb.innerHTML=`<div class="ix"><span class="ic">${svg('bell')}</span><div><b style="font-weight:500">Follow up with ${esc(p.name.split(' ')[0])}</b><br><span class="muted">Suggested by the follow-up assistant</span></div><small>in 3 days</small></div><button class="btn sm" style="justify-self:start">${svg('plus')}Add reminder</button>`}
+  else{const mine=REMINDERS.filter(r=>r.person===p.id),open=mine.filter(r=>!r.done),done=mine.filter(r=>r.done);
+    rb.innerHTML=`<div class="note-in"><input class="in" id="rm-t" value="Follow up with ${esc(p.name.split(' ')[0])}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="muted">Due</span><input class="in" id="rm-d" type="date" value="${addDays(3)}" style="width:auto"><span style="flex:1"></span><button class="btn sm dark" id="rm-ok">${svg('plus')}Add reminder</button></div></div>`
+      +(open.length?open.map(remRow).join(''):'<p class="muted" style="margin:0">No open reminders.</p>')
+      +(done.length?`<details><summary class="muted" style="cursor:pointer">${done.length} done</summary>${done.map(remRow).join('')}</details>`:'');
+    bindRemRows(rb);
+    $('rm-ok').onclick=async()=>{const rec={personId:p.id,title:$('rm-t').value.trim(),due:$('rm-d').value};if(!rec.title){$('rm-t').focus();return}
+      $('rm-ok').disabled=true;const r=await save('addReminder',rec);if(!r){$('rm-ok').disabled=false;return}
+      REMINDERS.push(r.reminder||{id:'r'+Date.now(),person:p.id,title:rec.title,due:rec.due||null,done:false});p.rem=openRems(p.id).length;toast('Reminder added.');renderRec();renderPanel();if(S.sec==='crm'&&S.view==='people')drawBody()}}
 }
 
+// A company typed into a form shows in Companies straight away (the server makes the real row).
+function ensureCompany(name){if(name&&name!=='—'&&!COMPANIES.some(c=>c.name===name)){COMPANIES.push({id:'',name,industry:'—',market:'—',status:null,people:0,deal:null});COMPANIES.sort((a,b)=>a.name.localeCompare(b.name))}}
+/* reminders: one row each, tick to mark done (or not) */
+function remRow(r){const d=r.due?daysTo(r.due):null;const p=PEOPLE.find(x=>x.id===r.person);
+  return`<div class="ix"><input type="checkbox" data-rdone="${esc(r.id)}" ${r.done?'checked':''} aria-label="Done: ${esc(r.title)}" style="width:18px;height:18px;margin:5px"><div><b style="font-weight:500${r.done?';text-decoration:line-through;color:var(--ink-3)':''}">${esc(r.title)}</b>${p&&S.rec!==p.id?`<br><button class="btn sm" data-ropen="${esc(p.id)}" style="margin-top:4px">${esc(p.name)}</button>`:''}</div><small${d!=null&&d<0&&!r.done?' style="color:var(--cherry)"':''}>${r.due?whenTxt(d):'No date'}</small></div>`}
+function bindRemRows(root){
+  root.querySelectorAll('[data-rdone]').forEach(c=>c.onchange=async()=>{const r=REMINDERS.find(x=>x.id===c.dataset.rdone);if(!r)return;c.disabled=true;
+    const res=await save('setReminderDone',{id:r.id,done:c.checked});if(!res){c.checked=!c.checked;c.disabled=false;return}
+    r.done=c.checked;const p=PEOPLE.find(x=>x.id===r.person);if(p)p.rem=openRems(p.id).length;
+    if($('ov'))followUps();if(S.rec)renderRec();renderPanel();if(S.sec==='crm'&&S.view==='people')drawBody()});
+  root.querySelectorAll('[data-ropen]').forEach(b=>b.onclick=()=>{closeOv();S.sec='crm';S.rec=b.dataset.ropen;S.rtab='rem';S.editing=null;render()})}
+function followUps(){const list=openRems().slice().sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+  overlay(`<h2>My follow-ups</h2>${list.length?list.map(remRow).join(''):'<p class="muted" style="margin:0">Nothing to follow up on. Add reminders from a person’s Reminders tab.</p>'}<div class="row"><button class="btn dark" id="fuok">Done</button></div>`,h=>{$('fuok').onclick=closeOv;bindRemRows(h)})}
+/* companies: add, edit, delete */
+function editCompany(c){if(c&&LIVE&&!c.id){toast(`Reload the page to edit ${c.name}; it was just added.`);return}const isNew=!c;c=c||{name:'',industry:'—',market:'—',status:null};const people=isNew?[]:PEOPLE.filter(p=>p.company===c.name);
+  overlay(`<h2>${isNew?'Add a company':esc(c.name)}</h2><label class="fld"><label>Name</label><input class="in" id="co-n" value="${esc(c.name)}"></label><label class="fld"><label>Industry</label><input class="in" id="co-i" value="${esc(val(c.industry))}"></label><label class="fld"><label>Market</label><input class="in" id="co-m" value="${esc(val(c.market))}"></label>
+   <label class="fld"><label>Status</label><select class="in" id="co-s"><option value="">No status</option>${Object.keys(STATUS).map(s=>`<option ${s===c.status?'selected':''}>${s}</option>`).join('')}</select></label>
+   ${people.length?`<div class="fld"><label>People</label><div style="display:flex;gap:6px;flex-wrap:wrap">${people.map(p=>`<button class="btn sm" data-ropen="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div></div>`:''}
+   <div class="row">${isNew?'':`<button class="btn" id="co-del" style="margin-right:auto;color:var(--cherry)">Delete company</button>`}<button class="btn" id="co-x">Cancel</button><button class="btn dark" id="co-ok">${isNew?'Add company':'Save'}</button></div>`,h=>{
+  $('co-n').focus();$('co-x').onclick=closeOv;bindRemRows(h);
+  $('co-ok').onclick=async()=>{const name=$('co-n').value.trim();if(!name){$('co-n').focus();return}
+    const rec={id:c.id,name,industry:$('co-i').value.trim(),market:$('co-m').value.trim(),status:$('co-s').value};$('co-ok').disabled=true;
+    const r=await save(isNew?'addCompany':'updateCompany',rec);if(!r){$('co-ok').disabled=false;return}
+    const out=r.company||{id:c.id||'',name,industry:rec.industry||'—',market:rec.market||'—',status:rec.status||null,people:people.length,deal:c.deal||null};
+    if(isNew)COMPANIES.push(out);else{const old=c.name;Object.assign(c,out);if(old!==name){PEOPLE.forEach(p=>{if(p.company===old)p.company=name});DEALS.forEach(d=>{if(d.company===old)d.company=name})}}
+    COMPANIES.sort((a,b)=>a.name.localeCompare(b.name));closeOv();toast(isNew?`${name} added.`:'Saved.');render()};
+  if($('co-del'))$('co-del').onclick=()=>{const b=$('co-del');if(!b.dataset.sure){b.dataset.sure='1';b.textContent=`Click again: people and deals stay, without a company`;return}
+    b.disabled=true;save('deleteCompany',{id:c.id}).then(r=>{if(!r){b.disabled=false;return}COMPANIES.splice(COMPANIES.indexOf(c),1);PEOPLE.forEach(p=>{if(p.company===c.name)p.company='—'});DEALS.forEach(d=>{if(d.company===c.name)d.company='—'});closeOv();toast(`${c.name} deleted.`);render()})}})}
 /* edit and delete: people and deals (saved through /clrcrm/crm/api on the site) */
 const val=v=>v&&v!=='—'?v:'';
 function personForm(p){const inp=(id,l,v,type)=>`<label class="fld"><label>${l}</label><input class="in" id="${id}" value="${esc(val(v))}"${type?` type="${type}"`:''}></label>`;
@@ -744,7 +797,7 @@ function bindPersonForm(p){$('pe-n').focus();$('pe-x').onclick=()=>{S.editing=nu
     if(rec.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rec.email)){$('pe-e').focus();toast('That email doesn’t look right.');return}
     $('pe-ok').disabled=true;const r=await save('updatePerson',rec);if(!r){$('pe-ok').disabled=false;return}
     Object.assign(p,r.person||{name,title:rec.title||'—',company:rec.company||'—',email:rec.email,phone:rec.phone,status:rec.status||null,market:rec.market||'—',owner:rec.owner||'—',via:rec.via||'—',deal:rec.dealId||null,recap:rec.recap});
-    if(p.company!=='—'&&!COMPANIES.some(c=>c.name===p.company))COMPANIES.push({id:'',name:p.company,industry:'—',market:'—',status:null,people:1,deal:null});
+    ensureCompany(p.company);
     S.editing=null;toast('Saved.');renderRec();if(S.sec==='crm')drawBody()}}
 function deletePerson(p){overlay(`<h2>Delete ${esc(p.name)}?</h2><p style="margin:0">This removes ${esc(p.name.split(' ')[0])}’s record with their notes and interactions. Their deal stays. This can’t be undone.</p><div class="row"><button class="btn" id="dpx">Cancel</button><button class="btn dark" id="dpo" style="background:var(--cherry);border-color:var(--cherry)">Delete</button></div>`,()=>{
   $('dpx').onclick=closeOv;$('dpo').onclick=async()=>{$('dpo').disabled=true;const r=await save('deletePerson',{id:p.id});if(!r){$('dpo').disabled=false;return}
