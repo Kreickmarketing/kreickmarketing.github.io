@@ -375,6 +375,13 @@
       "w": 768,
       "x": 1360,
       "y": 6920
+    },
+    "spacers_desktop.dc.html": {
+      "h": 560,
+      "title": "spacers · 16 / 32 / 64 / 96px",
+      "w": 1280,
+      "x": 0,
+      "y": 11320
     }
   },
   "createdOnFiles": {
@@ -563,6 +570,21 @@
       "w": 240,
       "x": 0,
       "y": 6660
+    },
+    "t-spacers": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Spacers",
+      "w": 240,
+      "x": 0,
+      "y": 11060
+    },
+    "spacers-note": {
+      "fill": "orange",
+      "text": "Spacers: empty space between two sections\n\n16, 32, 64 and 96px tall, the same at every screen size. Nothing to fill; they take the page background.\n\nIn Studio: Modules → Spacers. Studio shows a faint blue stripe so you can find and move them; the live site shows nothing but space.",
+      "w": 380,
+      "x": 1360,
+      "y": 11320
     }
   },
   "order": [
@@ -586,6 +608,7 @@
     "system_tablet.dc.html",
     "system_phone.dc.html",
     "engine_desktop.dc.html",
+    "spacers_desktop.dc.html",
     "offer-full_desktop.dc.html",
     "offer-full_tablet.dc.html",
     "offer-full_phone.dc.html",

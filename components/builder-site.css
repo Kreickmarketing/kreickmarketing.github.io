@@ -228,6 +228,9 @@
 .site .mail .form-note { margin: 0; font-size: 15px; }
 
 /* Calendly booking. */
+/* Spacers: empty sections of a fixed height (Studio → Modules → Spacers). */
+.site .sec.spacer { padding: 0; min-height: 0; }
+.site .sec.t-spacer-16 { height: 16px; } .site .sec.t-spacer-32 { height: 32px; } .site .sec.t-spacer-64 { height: 64px; } .site .sec.t-spacer-96 { height: 96px; }
 .site .calendly { border: 1px solid var(--clay); border-radius: 18px; background: var(--white); padding: 48px; display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; color: var(--iron-pine); font-size: 18px; }
 
 /* Video module (Studio): YouTube / Vimeo / uploaded video, 16:9 with rounded corners. */

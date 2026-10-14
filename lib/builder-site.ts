@@ -37,6 +37,9 @@ const TEMPLATES: Template[] = [
   { id: "page-hero", type: "pagehero", slots: [s("image", "image"), s("headline", "text")] },
   { id: "video", type: "video", slots: [s("headline", "text"), s("video", "embed")] },
   { id: "calendly", type: "calendly", slots: [] },
+  // Vertical spacers: empty space between sections (16 / 32 / 64 / 96px).
+  { id: "spacer-16", type: "spacer", slots: [] }, { id: "spacer-32", type: "spacer", slots: [] },
+  { id: "spacer-64", type: "spacer", slots: [] }, { id: "spacer-96", type: "spacer", slots: [] },
 ];
 
 // Offer cards come from the Studio CMS (Products): title CT100, subtitle CT200, price CP,
@@ -56,7 +59,7 @@ function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
   };
 }
 
-const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std" };
+const SECTION_CLASS: Record<string, string> = { spacer: "spacer", hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std" };
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 
 export type BuilderState = {
@@ -353,6 +356,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     if (tpl.type === "mail") sections.push({ kind: "mail", id, uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
       nameLabel: str(P("name")) || "Name", emailLabel: str(P("email")) || "Email", button: str(P("button")) || "Sign up", thanks: str(P("thanks")) });
     else if (tpl.type === "calendly") sections.push({ kind: "calendly", id, uid, className });
+    else if (tpl.type === "spacer") sections.push({ kind: "html", id, uid, className, html: "" });
     else {
       // A section with nothing placed in it is left off the live page.
       let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true);

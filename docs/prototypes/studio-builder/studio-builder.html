@@ -452,6 +452,9 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .chrome-ed .group-label { margin: 6px 0 0; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
 
 .page-hero { min-height: 520px; }
+/* Spacers: empty sections of a fixed height. Studio marks them with a faint stripe so they can be found and moved. */
+.sec.spacer { padding: 0; min-height: 0; background: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--cm-azure) 12%, transparent) 6px 8px); }
+.sec.t-spacer-16 { height: 16px; } .sec.t-spacer-32 { height: 32px; } .sec.t-spacer-64 { height: 64px; } .sec.t-spacer-96 { height: 96px; }
 .calendly { border: 1px solid var(--cm-clay); border-radius: 18px; background: #fff; padding: 48px; text-align: center; color: var(--cm-iron); font-size: 18px; }
 
 /* Tablet-width page: points go back to title beside text (photo sits above). */
@@ -1951,6 +1954,11 @@ const TEMPLATES = [
     { key: "video", label: "Video", kind: "embed", about: "Paste a YouTube or Vimeo link, or drag an uploaded video here.", source: "YouTube · Vimeo · Sources → Images & video" },
   ]},
   { id: "calendly", name: "Calendly booking", type: "calendly", about: "Your 15-minute call calendar. Nothing to fill.", slots: [] },
+  // Vertical spacers (Oct 14): empty space between sections. Nothing to fill.
+  { id: "spacer-16", name: "Spacer 16px", type: "spacer", about: "Empty space between two sections, 16px tall at every screen size.", slots: [] },
+  { id: "spacer-32", name: "Spacer 32px", type: "spacer", about: "Empty space between two sections, 32px tall at every screen size.", slots: [] },
+  { id: "spacer-64", name: "Spacer 64px", type: "spacer", about: "Empty space between two sections, 64px tall at every screen size.", slots: [] },
+  { id: "spacer-96", name: "Spacer 96px", type: "spacer", about: "Empty space between two sections, 96px tall at every screen size.", slots: [] },
 ];
 // How templates look is decided in code (and in Claude Design), not here.
 const TPL = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
@@ -2333,9 +2341,10 @@ const SECTION_HTML = {
       : e.type === "youtube" ? `<img src="https://i.ytimg.com/vi/${e.id}/hqdefault.jpg" alt=""><span class="video-play">▶</span><span class="video-tag">YouTube</span>` : `<span class="video-play">▶</span><span class="video-tag">Vimeo</span>`}</div>`;
     return `${text(k("headline"), "h2", "video-title", "slot-optional")}${inner}`;
   },
+  spacer: () => "",
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
-const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
+const SECTION_CLASS = { spacer: "spacer", hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
 
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 const CHROME_MAX = { links: 7, label: 30, text: 140 };
@@ -2540,6 +2549,10 @@ function tplThumb(type, id = "") {
     pagehero: F(1, 1, 78, 30) + L("M8 22h40", 3),
     calendly: R(16, 8, 48, 32) + L("M16 16h48M28 8v-2M52 8v-2"),
     video: F(14, 6, 52, 32) + L("M36 15l10 7-10 7z", 2),
+    "spacer-16": R(8, 8, 64, 6) + R(8, 20, 64, 6) + L("M40 16v2", 1),
+    "spacer-32": R(8, 8, 64, 6) + R(8, 26, 64, 6) + L("M40 16v8", 1),
+    "spacer-64": R(8, 8, 64, 6) + R(8, 34, 64, 6) + L("M40 16v16", 1),
+    "spacer-96": R(8, 8, 64, 6) + R(8, 40, 64, 6) + L("M40 16v22", 1),
   };
   g = g[id] || g[type] || "";
   return `<svg viewBox="0 0 80 48" class="tpl-thumb" aria-hidden="true">${R(1, 1, 78, 46, 4)}${g}</svg>`;
@@ -3325,6 +3338,7 @@ const MOD_ICON = {
   cms: '<ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/>',
   video: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/>',
   forms: '<rect x="3" y="5" width="18" height="5" rx="1.5"/><rect x="3" y="13" width="11" height="5" rx="2.5"/>',
+  spacers: '<path d="M4 4h16M4 20h16M12 7v10M9 10l3-3 3 3M9 14l3 3 3-3"/>',
 };
 const svg = (paths, cls = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${paths}</svg>`;
 // Module groups, like Figma's Insert panel.
@@ -3338,6 +3352,7 @@ function modCats() {
     { id: "cms", name: "CMS cards", color: "var(--cobalt-wave)", tpls: ["offer-full", "offer-two", "offer-three"] },
     { id: "video", name: "Video", color: "", tpls: ["video"] },
     { id: "forms", name: "Forms & embeds", color: "var(--merlot)", tpls: ["mailing", "calendly"] },
+    { id: "spacers", name: "Spacers", color: "", tpls: ["spacer-16", "spacer-32", "spacer-64", "spacer-96"] },
   ];
   return cats;
 }
