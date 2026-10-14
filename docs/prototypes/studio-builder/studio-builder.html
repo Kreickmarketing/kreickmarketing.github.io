@@ -390,9 +390,10 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .quote-sec { background: var(--cm-clay); }
 .quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
 .quote-sec cite { font-style: normal; font-size: 17px; color: var(--cm-iron); }
-/* Background choice: Cream (Clay, default), White, Black (Midnight, white words). */
-.quote-sec.bg-white { background: #fff; }
-.quote-sec.bg-black { background: var(--cm-midnight); color: #fff; }
+/* Background choice (Quote, Spacers): White, Cream (Clay), Black (Midnight, white words). */
+.sec.bg-white { background-color: #fff; }
+.sec.bg-cream { background-color: var(--cm-clay); }
+.sec.bg-black { background-color: var(--cm-midnight); color: #fff; }
 .quote-sec.bg-black cite { color: var(--cm-clay); }
 /* Quote: space above and below (canvas, Oct 14): 192px desktop, 128px tablet, 64px phone. */
 .sec.quote-sec { padding-block: 192px; }
@@ -461,7 +462,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 
 .page-hero { min-height: 520px; }
 /* Spacers: empty sections of a fixed height. Studio marks them with a faint stripe so they can be found and moved. */
-.sec.spacer { padding: 0; min-height: 0; background: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--cm-azure) 12%, transparent) 6px 8px); }
+.sec.spacer { padding: 0; min-height: 0; background-image: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--cm-azure) 12%, transparent) 6px 8px); }
 .sec.t-spacer-16 { height: 16px; } .sec.t-spacer-32 { height: 32px; } .sec.t-spacer-64 { height: 64px; } .sec.t-spacer-96 { height: 96px; }
 .calendly { border: 1px solid var(--cm-clay); border-radius: 18px; background: #fff; padding: 48px; text-align: center; color: var(--cm-iron); font-size: 18px; }
 
@@ -1939,7 +1940,7 @@ const TEMPLATES = [
   { id: "points", name: "Points", type: "points", about: "Up to three titled points in a list, no photo.", slots: [
     { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · How the team works" },
   ]},
-  { id: "quote", name: "Quote", type: "quote", bgChoice: true, about: "One large quote with a name and title. Background: White, Cream or Black.", slots: [
+  { id: "quote", name: "Quote", type: "quote", bgChoice: ["cream", "white", "black"], about: "One large quote with a name and title. Background: White, Cream or Black.", slots: [
     { key: "text", label: "Quote", kind: "text", limit: 200, long: true, source: "Playbook · Supporting quote (needs approval)" },
     { key: "by", label: "Name and title", kind: "text", limit: 60, source: "Playbook · Quote by" },
   ]},
@@ -1963,10 +1964,10 @@ const TEMPLATES = [
   ]},
   { id: "calendly", name: "Calendly booking", type: "calendly", about: "Your 15-minute call calendar. Nothing to fill.", slots: [] },
   // Vertical spacers (Oct 14): empty space between sections. Nothing to fill.
-  { id: "spacer-16", name: "Spacer 16px", type: "spacer", about: "Empty space between two sections, 16px tall at every screen size.", slots: [] },
-  { id: "spacer-32", name: "Spacer 32px", type: "spacer", about: "Empty space between two sections, 32px tall at every screen size.", slots: [] },
-  { id: "spacer-64", name: "Spacer 64px", type: "spacer", about: "Empty space between two sections, 64px tall at every screen size.", slots: [] },
-  { id: "spacer-96", name: "Spacer 96px", type: "spacer", about: "Empty space between two sections, 96px tall at every screen size.", slots: [] },
+  { id: "spacer-16", name: "Spacer 16px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 16px tall at every screen size.", slots: [] },
+  { id: "spacer-32", name: "Spacer 32px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 32px tall at every screen size.", slots: [] },
+  { id: "spacer-64", name: "Spacer 64px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 64px tall at every screen size.", slots: [] },
+  { id: "spacer-96", name: "Spacer 96px", type: "spacer", bgChoice: ["page", "white", "cream", "black"], about: "Empty space between two sections, 96px tall at every screen size.", slots: [] },
 ];
 // How templates look is decided in code (and in Claude Design), not here.
 const TPL = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
@@ -2352,8 +2353,10 @@ const SECTION_HTML = {
   spacer: () => "",
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
-// Section background choice (Quote, Oct 14). Cream is the original Clay background.
-const BG_NAME = { white: "White", cream: "Cream", black: "Black" };
+// Section background choice (Quote and Spacers, Oct 14). A template's bgChoice lists its options, the first being its
+// default (nothing saved). Cream = Clay (the Quote's original); Page = the page background (Spacers' original).
+const BG_NAME = { page: "Page", white: "White", cream: "Cream", black: "Black" };
+const bgOf = (sec) => S.bg[sec.id] || sec.bgChoice[0];
 const SECTION_CLASS = { spacer: "spacer", hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
 
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
@@ -2381,10 +2384,10 @@ function pageHtml(page, live = true) {
   const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections yet. Add one from Modules in the left panel.</div></div>` : "";
   return nav + empty + secs.map((sec) => {
     const k = (key) => `${sec.id}.${key}`;
-    const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}${sec.bgChoice ? `<button type="button" class="sec-flip" data-secbg="${sec.id}:next" title="Background: click to change (White, Cream, Black)">◐ ${BG_NAME[S.bg[sec.id] || "cream"]}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
+    const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}${sec.bgChoice ? `<button type="button" class="sec-flip" data-secbg="${sec.id}:next" title="Background: click to change (${sec.bgChoice.map((v) => BG_NAME[v]).join(", ")})">◐ ${BG_NAME[bgOf(sec)]}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
     // While an image is being dragged, sections with a photo behind them show a "Background image" box to drop on.
     const bgDrop = live && PHOTO_TOP.includes(sec.type) && SLOTS[k("image")] ? `<div class="bg-drop" data-slot="${k("image")}">Background image<small>drop to replace</small></div>` : "";
-    const bg = sec.bgChoice && S.bg[sec.id] ? ` bg-${S.bg[sec.id]}` : "";
+    const bg = sec.bgChoice && S.bg[sec.id] && S.bg[sec.id] !== sec.bgChoice[0] ? ` bg-${S.bg[sec.id]}` : "";
     return `<section class="sec t-${sec.template} ${SECTION_CLASS[sec.type]}${bg}" data-secid="${sec.id}">${tools}${bgDrop}${SECTION_HTML[sec.type](sec, k)}</section>`;
   }).join("") + footerHtml(page.id);
 }
@@ -2618,7 +2621,7 @@ function renderCards() {
       + eBlock("anchor", "Link name", anchorField(sl.id, true), `<span class="chip">optional</span>`);
   } else if (sec) {
     $("#cards").innerHTML = eBlock("section", esc(sec.name), sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`, `<span class="chip">${esc(TPL[sec.template].name)}</span>`)
-      + (sec.bgChoice ? eBlock("bg", "Background", `<div class="seg" role="group" aria-label="Background">${Object.entries(BG_NAME).map(([v, n]) => `<button type="button" data-secbg="${sec.id}:${v}" aria-pressed="${(S.bg[sec.id] || "cream") === v}">${n}</button>`).join("")}</div><p class="hint" style="margin:0">Black turns the words white.</p>`) : "")
+      + (sec.bgChoice ? eBlock("bg", "Background", `<div class="seg" role="group" aria-label="Background">${sec.bgChoice.map((v) => `<button type="button" data-secbg="${sec.id}:${v}" aria-pressed="${bgOf(sec) === v}">${BG_NAME[v]}${v === sec.bgChoice[0] ? " (default)" : ""}</button>`).join("")}</div><p class="hint" style="margin:0">${sec.type === "spacer" ? "Match the sections above and below. Page is the page’s own background." : "Black turns the words white."}</p>`) : "")
       + eBlock("anchor", "Link name", anchorField(sec.id, false));
   } else {
     $("#cards").innerHTML = "";
@@ -2918,8 +2921,9 @@ document.addEventListener("click", (e) => {
   }
   if (d.toggle) { openCard = openCard === d.toggle ? null : d.toggle; selected = d.toggle; curSec = SLOTS[d.toggle].section; render(); scrollToSlot(d.toggle); return; }
   if (d.page) { S.page = d.page; selected = openCard = curSec = null; render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
-  if (d.secbg) { const [sid, v] = d.secbg.split(":"), order = Object.keys(BG_NAME), now = S.bg[sid] || "cream";
-    const pick = v === "next" ? order[(order.indexOf(now) + 1) % order.length] : v; if (pick === "cream") delete S.bg[sid]; else S.bg[sid] = pick;
+  if (d.secbg) { const [sid, v] = d.secbg.split(":"), sec = pageView(S.page).sections.find((x) => x.id === sid); if (!sec?.bgChoice) return;
+    const order = sec.bgChoice, now = bgOf(sec), pick = v === "next" ? order[(order.indexOf(now) + 1) % order.length] : v;
+    if (!order.includes(pick)) return; if (pick === order[0]) delete S.bg[sid]; else S.bg[sid] = pick;
     render(); toast(`Background: ${BG_NAME[pick]}.`); return; }
   if (d.flip) { S.flip[d.flip] = !S.flip[d.flip]; render(); scrollToSection(d.flip); toast(S.flip[d.flip] ? "Photo on the right." : "Photo on the left."); return; }
   if (d.secmove) { const [id, dir] = d.secmove.split(":"); moveSectionBy(id, +dir); return; }
