@@ -17,7 +17,7 @@ Andrew designs Studio's section templates on the Claude Design canvas. This skil
 - `/push-check` with nothing after it → every template whose canvas boards differ from the repo copy.
 - A canvas comment → the template named in it, or the row the comment sits on.
 
-Template ids (board files are `<id>_desktop|tablet|phone.dc.html`): hero, logos, heading, photo-points, photo-tags, system, engine, offer-full, offer-two, offer-three, mailing (and any new row on the canvas).
+Template ids (board files are `<id>_desktop|tablet|phone.dc.html`): hero, logos, heading, photo-points, photo-tags, system, engine, spacers (spacer-16 … spacer-96, one board), quote, offer-full, offer-two, offer-three, mailing (and any new row on the canvas).
 
 Site-wide parts (same on every page; not in `TEMPLATES`):
 - **nav** (`nav_*.dc.html`): builder `navChrome()` + `.site-nav` CSS; live `components/BuilderPage.tsx` (`header.bnav`) + `.bnav` in `components/builder-site.css`. Keep the live links' logic (About/Pricing follow page addresses; Solutions/Platforms only when that section exists).

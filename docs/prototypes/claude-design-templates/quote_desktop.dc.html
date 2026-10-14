@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quote · desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700&amp;family=Courier+Prime:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2D6AA5}a:hover{color:#294079}
+</style>
+</helmet>
+<section data-template="quote" style="width: 1280px; height: 400px; box-sizing: border-box; padding: 96px 64px; background: #E1DDD5; color: #1C2026; font-family: 'Saira', sans-serif; display: flex; flex-direction: column; gap: 48px">
+<blockquote data-spot="text" style="margin: 0; max-width: 980px; font-size: 40px; line-height: 46px; letter-spacing: -1px; font-weight: 300">“Most people selling AI to agencies have never run production. They build the system first, and that’s why the AI actually works.”</blockquote>
+<cite data-spot="by" style="font-style: normal; font-size: 17px; line-height: 24px; color: #444D4D">[Name], [Title], [Company]</cite>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":400}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

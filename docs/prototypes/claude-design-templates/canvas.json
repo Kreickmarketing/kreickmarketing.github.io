@@ -382,6 +382,27 @@
       "w": 1280,
       "x": 0,
       "y": 11320
+    },
+    "quote_desktop.dc.html": {
+      "h": 400,
+      "title": "quote · desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 12360
+    },
+    "quote_tablet.dc.html": {
+      "h": 480,
+      "title": "quote · tablet 768",
+      "w": 768,
+      "x": 1360,
+      "y": 12360
+    },
+    "quote_phone.dc.html": {
+      "h": 456,
+      "title": "quote · phone 390",
+      "w": 390,
+      "x": 2208,
+      "y": 12360
     }
   },
   "createdOnFiles": {
@@ -585,6 +606,14 @@
       "w": 380,
       "x": 1360,
       "y": 11320
+    },
+    "t-quote": {
+      "kind": "title1",
+      "maxW": 2598,
+      "text": "Quote",
+      "w": 240,
+      "x": 0,
+      "y": 12100
     }
   },
   "order": [
@@ -609,6 +638,9 @@
     "system_phone.dc.html",
     "engine_desktop.dc.html",
     "spacers_desktop.dc.html",
+    "quote_desktop.dc.html",
+    "quote_tablet.dc.html",
+    "quote_phone.dc.html",
     "offer-full_desktop.dc.html",
     "offer-full_tablet.dc.html",
     "offer-full_phone.dc.html",
