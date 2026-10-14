@@ -607,10 +607,10 @@ html[data-view="style"] #top, html[data-view="style"] #proto-note, html[data-vie
 .sty-sw b { font-weight: 600; font-size: 13px; }
 .sty-sw span, .sty-meta { color: var(--ink-3); font-family: var(--f-mono); font-size: 12px; }
 .sty-type { display: flex; flex-direction: column; }
-.sty-trow { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+.sty-trow { display: grid; grid-template-columns: 160px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
 .sty-trow:first-child { border-top: 0; padding-top: 0; }
 .sty-trow > div:first-child b { display: block; font-weight: 600; font-size: 13px; }
-.sty-sample { font-family: var(--f-display); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sty-sample { font-family: var(--f-display); color: var(--ink); overflow: hidden; padding-bottom: 0.15em; text-overflow: ellipsis; white-space: nowrap; }
 .sty-radii { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
 .sty-radius i { display: block; height: 72px; background: var(--panel); border: 2px solid var(--accent); margin-bottom: 8px; }
 .sty-radius b { display: block; font-weight: 600; font-size: 13px; }
@@ -3577,6 +3577,12 @@ function siteStyle() {
   for (const m of css.matchAll(/(^|\n)(h[1-6]|\.tagline)\s*\{[^}]*?font-weight:\s*(\d+)/g)) weightOf[m[2].replace(".", "")] = m[3];
   const type = [...css.matchAll(/--text-([a-z0-9]+)-size:\s*([^;]+);\s*--text-\1-lh:\s*([^;]+);\s*--text-\1-ls:\s*([^;]+);/g)]
     .map(([, id, size, lh, ls]) => ({ id, size, lh, ls, weight: weightOf[id] || "" }));
+  // Phone sizes: the @media (max-width: …) block in typography.css (headings and tagline).
+  const phone = css.match(/@media\s*\(max-width:\s*\d+px\)\s*\{([\s\S]*?)\n\}/)?.[1] || "";
+  for (const m of phone.matchAll(/(h[1-6]|\.tagline)[^{]*\{([^}]*)\}/g)) {
+    const t = type.find((x) => x.id === m[1].replace(".", "")), v = (k) => m[2].match(new RegExp(k + ":\\s*([^;]+);"))?.[1];
+    if (t) t.phone = [v("font-size") || t.size, v("line-height") || t.lh, v("letter-spacing") || t.ls].join(" / ");
+  }
   const weights = [...css.matchAll(/--font-weight-([a-z-]+):\s*(\d+);/g)].map(([, n, w]) => ({ name: n.replace(/-/g, " "), w }));
   const radius = [...css.matchAll(/--radius-([a-z0-9-]+):\s*([^;]+);\s*(?:\/\*\s*(.*?)\s*\*\/)?/g)].map(([, name, value, note]) => ({ name, value, note: note || "" }));
   return { colors: colors.filter((g) => g.items.length), type, weights, radius };
@@ -3591,8 +3597,8 @@ function renderStyle() {
     <p class="set-help">What the live site uses, read from its style files (styles/colors.css, typography.css, radius.css). To change a style, edit it on the ClearMark Studio Templates canvas and run /push-check: this screen follows.</p>
     <div class="set-card" id="sty-colors"><h3>Colors</h3>
       ${st.colors.map((g) => `<div class="set-field"><span>${esc(g.name)}${g.approx ? ' <span class="badge">approx</span>' : ""}</span><div class="sty-swatches">${g.items.map(sw).join("")}</div></div>`).join("")}</div>
-    <div class="set-card" id="sty-type"><h3>Text styles</h3><p class="set-help">Saira for headings, body and buttons. Size / line height / letter spacing.</p>
-      <div class="sty-type">${type.map((t) => `<div class="sty-trow"><div><b>${TYPE_NAME(t.id)}</b><span class="sty-meta">${esc(t.size)} / ${esc(t.lh)} / ${esc(t.ls)}${t.weight ? " · " + esc(t.weight) : ""}</span></div>
+    <div class="set-card" id="sty-type"><h3>Text styles</h3><p class="set-help">Saira for headings, body and buttons. Size / line height / letter spacing · weight. Body sizes are the same on phones.</p>
+      <div class="sty-type">${type.map((t) => `<div class="sty-trow"><div><b>${TYPE_NAME(t.id)}</b><span class="sty-meta">${esc(t.size)} / ${esc(t.lh)} / ${esc(t.ls)}${t.weight ? " · " + esc(t.weight) : ""}${t.phone ? "<br>Phone " + esc(t.phone) : ""}</span></div>
         <div class="sty-sample" style="font-size:${esc(t.size)};line-height:${esc(t.lh)};letter-spacing:${esc(t.ls)};${t.weight ? "font-weight:" + esc(t.weight) + ";" : ""}${t.id === "tagline" ? "text-transform:uppercase;" : ""}">Clear marketing, measured</div></div>`).join("")}</div>
       <div class="set-field"><span>Weights</span><div class="sty-swatches">${st.weights.map((w) => `<div class="sty-sw"><b style="font-family:var(--f-display);font-size:22px;font-weight:${esc(w.w)}">Aa</b><span>${esc(w.name)} · ${esc(w.w)}</span></div>`).join("")}</div></div></div>
     <div class="set-card" id="sty-radius"><h3>Rounded corners</h3><div class="sty-radii">
