@@ -2023,7 +2023,9 @@ function seed() {
 const LIVE = window.__STUDIO_LIVE__ === true;
 const API = "/clrcrm/studio/builder/api";
 // Where each page lives on the site. Live Studio uses its own address; the prototype shows the Vercel one.
-const SITE_URL = LIVE ? location.origin : "https://clearmark-tan.vercel.app";
+// The live site's own address (Oct 14: clearmark.bz moved to Vercel). Page links always use it,
+// whichever address Studio was opened from.
+const SITE_URL = "https://www.clearmark.bz";
 let LIVE_PAGES = LIVE && Array.isArray(window.__STUDIO_LIVE_PAGES__) ? window.__STUDIO_LIVE_PAGES__ : null;
 const pageUrl = (p) => SITE_URL + p.path;
 // Live = visitors see it (green). Work in progress = not published, or unpublished (yellow).
@@ -3548,9 +3550,9 @@ function renderSettings() {
         <a class="set-link" href="${BASE_DOMAIN}" target="_blank" rel="noopener noreferrer">${BASE_DOMAIN.replace("https://", "")} ↗</a>
         <div class="set-row"><span>Site status</span>${siteStatus()}</div></div>
       <div class="set-card"><h3>Connected domains</h3><p class="set-help">Domain names are registered at Cirrus Hosting and point to Vercel.</p>
-        <a class="set-link" href="https://clearmark.bz" target="_blank" rel="noopener noreferrer">clearmark.bz ↗</a>
-        <div class="set-row"><span>Domain status</span><span class="badge">Not checked yet</span></div>
-        <div class="set-row"><span>Redirect</span><span class="mono">www.clearmark.bz → clearmark.bz</span></div>
+        <a class="set-link" href="${SITE_URL}" target="_blank" rel="noopener noreferrer">www.clearmark.bz ↗</a>
+        <div class="set-row"><span>Domain status</span><span class="badge">Connected (Oct 14)</span></div>
+        <div class="set-row"><span>Redirect</span><span class="mono">clearmark.bz → www.clearmark.bz</span></div>
         <p class="set-help">Checking the status from here (Connected / Needs DNS) needs a Vercel access key, which comes with the Domains step.</p></div></div>`;
     return;
   }
@@ -3644,7 +3646,7 @@ function slugProblem(slug, exceptId) {
   if (PAGE_LIST.some((p) => p.id !== exceptId && p.path === "/" + slug)) return "Another page already has that address.";
   return "";
 }
-const HOST = BASE_DOMAIN.replace("https://", "") + "/";
+const HOST = SITE_URL.replace("https://", "") + "/";
 const START_WITH = { hero: ["page-hero", "heading"], heading: ["heading", "photo-text"], empty: [] };
 function addPageForm() {
   return `<div class="set-card" style="padding:12px;gap:10px;margin:4px 0 8px">
@@ -3703,7 +3705,7 @@ $("#logo-menu").innerHTML = `<div class="side-label">Sites</div>
   <hr>
   <a class="side-row" href="${DASH}">${svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>')}<span class="grow">Main dashboard</span></a>
   <a class="side-row" href="${(LIVE ? "" : BASE_DOMAIN)}/clrcrm">${svg('<path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/><circle cx="12" cy="8" r="4"/>')}<span class="grow">Team area (CRM, Playbook)</span></a>
-  <a class="side-row" href="${BASE_DOMAIN}" target="_blank" rel="noopener noreferrer">${svg('<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>')}<span class="grow">View live site</span></a>`;
+  <a class="side-row" href="${SITE_URL}" target="_blank" rel="noopener noreferrer">${svg('<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>')}<span class="grow">View live site</span></a>`;
 
 // ── Events ──
 function railGo(r, fromHover) {
