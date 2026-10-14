@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
+import Anthropic from "@anthropic-ai/sdk";
+import { AiError, research, writeRecap } from "@/lib/crm-ai";
 import { STAGES, STATUSES, cleanSettings, companyOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
 
 // Saves changes made in the new CRM (clrcrm/crm). One POST per change, { action, ... }.
 // Only CRM members get past the check, every value is checked here, and Row Level
 // Security on the crm_* tables checks again in Supabase.
 export const dynamic = "force-dynamic";
+// The Recap and Research assistants ask Claude, which can take up to a minute with a web search.
+export const maxDuration = 60;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const GROUP_ID = /^[a-z0-9-]{1,40}$/;
@@ -160,6 +164,16 @@ export async function POST(request: Request) {
         if (error) throw new Error(error.message);
         return NextResponse.json({ settings });
       }
+      case "recap": {
+        const personId = String(b.personId);
+        if (!UUID.test(personId)) return fail("Bad request");
+        return NextResponse.json({ recap: await writeRecap(supabase, personId) });
+      }
+      case "research": {
+        const personId = String(b.personId);
+        if (!UUID.test(personId)) return fail("Bad request");
+        return NextResponse.json({ note: noteOut(await research(supabase, personId)) });
+      }
       case "moveDeal": {
         const id = String(b.id), stage = String(b.stage);
         if (!UUID.test(id) || !(STAGES as readonly string[]).includes(stage)) return fail("Bad request");
@@ -211,6 +225,13 @@ export async function POST(request: Request) {
         return fail("Unknown action");
     }
   } catch (e) {
+    if (e instanceof AiError) return fail(e.message, 422);
+    // Claude errors, in plain words (most specific first).
+    if (e instanceof Anthropic.AuthenticationError) return fail("Claude's key isn't valid: check ANTHROPIC_API_KEY in Vercel", 502);
+    if (e instanceof Anthropic.PermissionDeniedError) return fail("Claude's key can't use this model or tool", 502);
+    if (e instanceof Anthropic.RateLimitError) return fail("Claude is busy right now; try again in a minute", 503);
+    if (e instanceof Anthropic.APIConnectionError) return fail("Couldn't reach Claude; try again", 503);
+    if (e instanceof Anthropic.APIError) { console.error("Claude error:", e.status, e.message); return fail(`Claude couldn't answer (error ${e.status ?? "?"})`, 502); }
     console.error("CRM save failed:", e);
     return fail("Not saved", 500);
   }

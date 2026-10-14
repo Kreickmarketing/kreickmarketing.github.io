@@ -706,14 +706,15 @@ function renderRec(){
   el.innerHTML=`<div class="rec-top"><button class="ibtn" id="rx" aria-label="Close">${svg('x')}</button><span>View in</span><span class="chip" style="padding-left:9px">${esc(GROUPS.find(g=>g.id===S.group).name)}</span><span class="sp"></span><button class="btn sm" id="rcopy">${svg('link')}Copy link</button></div>
   <div class="rec-hd"><div class="who">${av(p.name,'lg')}<div><h2>${esc(p.name)}</h2><div class="muted">${esc(p.title)} · ${esc(p.company)}</div></div></div>
    <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" id="ren">${svg('wand')}Enrich</button><button class="btn sm" id="rem">${svg('mail')}Email</button><button class="btn sm" id="rres">${svg('spark')}Research</button>${stPill(p.status)}</div></div>
-  <div class="recap"><b>Recap assistant</b><ul>${p.recap.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>
+  <div class="recap"><div style="display:flex;align-items:center;gap:8px"><b>Recap assistant</b><span style="flex:1"></span>${AI?`<button class="btn sm" id="rrecap" title="Rewrite this recap from the record">${p._recapping?'<span class="spin"></span> Writing…':'Refresh'}</button>`:''}</div><ul>${(p.recap||[]).map(r=>`<li>${esc(r)}</li>`).join('')||'<li class="muted">No recap yet.</li>'}</ul></div>
   <div class="rtabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" data-rt="${k}" aria-selected="${S.rtab===k}">${l}${k==='notes'&&p.notes?` <span class="mono muted">${p.notes}</span>`:''}${k==='rem'&&p.rem?` <span class="mono muted">${p.rem}</span>`:''}</button>`).join('')}</div><div class="rbody" id="rbody"></div>`;
   $('main').append(el);
   $('rx').onclick=()=>{S.rec=null;S.editing=null;el.remove();if(S.sec==='crm'&&S.view==='people')drawBody()};
   $('rcopy').onclick=()=>toast('Prototype: record links come with the live version.');
   $('ren').onclick=()=>toast(`Prototype: would find ${p.name.split(' ')[0]}’s email, LinkedIn and company details.`);
   $('rem').onclick=()=>{S.sec='messages';S.msg='m1';render()};
-  $('rres').onclick=()=>{S.rtab='notes';p._research=true;renderRec()};
+  $('rres').onclick=()=>AI?runResearch(p):(S.rtab='notes',p._research=true,renderRec());
+  if($('rrecap'))$('rrecap').onclick=()=>refreshRecap(p);
   el.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>{S.rtab=b.dataset.rt;renderRec()});
   const rb=$('rbody');
   if(S.rtab==='details'&&S.editing===p.id){rb.innerHTML=personForm(p);bindPersonForm(p)}
@@ -731,7 +732,7 @@ function renderRec(){
       $('ix-ok').onclick=async()=>{const rec={personId:p.id,kind:$('ix-k').value,title:$('ix-t').value.trim(),who:$('ix-w').value.trim(),date:$('ix-d').value};if(!rec.title){$('ix-t').focus();return}if(!rec.date){$('ix-d').focus();return}
         $('ix-ok').disabled=true;const r=await save('addInteraction',rec);if(!r){$('ix-ok').disabled=false;return}
         const row=r.interaction||[rec.kind,rec.title,rec.who||ME,new Date(rec.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})];
-        const l=(INTERACTIONS[p.id]=INTERACTIONS[p.id]||[]);l.unshift(row);p.last=r.last||(rec.date>p.last?rec.date:p.last);toast('Logged.');renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()}}}
+        const l=(INTERACTIONS[p.id]=INTERACTIONS[p.id]||[]);l.unshift(row);p.last=r.last||(rec.date>p.last?rec.date:p.last);toast('Logged.');renderRec();if(S.sec==='crm'&&S.view==='people')drawBody();autoRecap(p)}}}
   else if(S.rtab==='notes'){const ns=(NOTES[p.id]||[]).slice();
     rb.innerHTML=`<div class="note-in"><textarea id="nt" placeholder="Write a note, mention @team"></textarea><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn sm dark" id="ntadd">Add note</button></div></div>`+(p._research?`<div class="noteitem"><b>Research assistant · just now</b><div>${esc(p.company)}: ${esc(COMPANIES.find(c=>c.name===p.company)?.industry||'company')}. ${esc(p.recap[0])} <span class="muted">Prototype answer from ClearMark’s notes; the live version searches the web.</span></div></div>`:'')+ns.map(([w,t,x,id],i)=>`<div class="noteitem"><span style="display:flex;align-items:center;gap:6px">${av(w)} <b>${esc(w)}</b> <span class="muted mono">${esc(t)}</span><span style="flex:1"></span><button class="btn sm" data-ndel="${i}" aria-label="Delete this note" title="Delete this note">${svg('x').replace('<svg','<svg width="12" height="12"')}</button></span><div>${esc(x)}</div></div>`).join('');
     rb.querySelectorAll('[data-ndel]').forEach(x=>x.onclick=async()=>{if(!x.dataset.sure){x.dataset.sure='1';x.textContent='Delete?';return}
@@ -740,7 +741,7 @@ function renderRec(){
       const r=await save('deleteNote',{id:n[3]});if(!r){x.disabled=false;return}list.splice(list.indexOf(n),1);p.notes=Math.max(0,p.notes-1);toast('Note deleted.');renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()});
     $('ntadd').onclick=async()=>{const v=$('nt').value.trim();if(!v)return;const btn=$('ntadd');btn.disabled=true;
       const r=await save('addNote',{personId:p.id,body:v});if(!r){btn.disabled=false;return}
-      (NOTES[p.id]=NOTES[p.id]||[]).unshift(r.note||[ME,'just now',v]);p.notes++;renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()}}
+      (NOTES[p.id]=NOTES[p.id]||[]).unshift(r.note||[ME,'just now',v]);p.notes++;renderRec();if(S.sec==='crm'&&S.view==='people')drawBody();autoRecap(p)}}
   else{const mine=REMINDERS.filter(r=>r.person===p.id),open=mine.filter(r=>!r.done),done=mine.filter(r=>r.done);
     rb.innerHTML=`<div class="note-in"><input class="in" id="rm-t" value="Follow up with ${esc(p.name.split(' ')[0])}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="muted">Due</span><input class="in" id="rm-d" type="date" value="${addDays(3)}" style="width:auto"><span style="flex:1"></span><button class="btn sm dark" id="rm-ok">${svg('plus')}Add reminder</button></div></div>`
       +(open.length?open.map(remRow).join(''):'<p class="muted" style="margin:0">No open reminders.</p>')
@@ -753,6 +754,17 @@ function renderRec(){
 
 // A company typed into a form shows in Companies straight away (the server makes the real row).
 function ensureCompany(name){if(name&&name!=='—'&&!COMPANIES.some(c=>c.name===name)){COMPANIES.push({id:'',name,industry:'—',market:'—',status:null,people:0,deal:null});COMPANIES.sort((a,b)=>a.name.localeCompare(b.name))}}
+/* Recap and Research assistants (Claude, through /clrcrm/crm/api; only on the site with a key) */
+const AI=LIVE&&!!window.__CRM__.ai;
+async function refreshRecap(p,quiet){if(!AI||p._recapping)return;p._recapping=true;if(S.rec===p.id)renderRec();
+  const r=await save('recap',{personId:p.id});p._recapping=false;
+  if(r&&r.recap){p.recap=r.recap;if(!quiet)toast('Recap updated.')}if(S.rec===p.id)renderRec()}
+const autoRecap=p=>{if(AI&&S.assist.recap)refreshRecap(p,true)};
+async function runResearch(p){const b=$('rres');if(p._researching)return;p._researching=true;if(b){b.disabled=true;b.innerHTML='<span class="spin"></span> Researching…'}
+  toast(`Researching ${p.company}. This can take up to a minute.`);
+  const r=await save('research',{personId:p.id});p._researching=false;
+  if(r&&r.note){(NOTES[p.id]=NOTES[p.id]||[]).unshift(r.note);p.notes++;toast('Research saved as a note.');if(S.rec===p.id){S.rtab='notes'}autoRecap(p)}
+  if(S.rec===p.id)renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()}
 /* reminders: one row each, tick to mark done (or not) */
 function remRow(r){const d=r.due?daysTo(r.due):null;const p=PEOPLE.find(x=>x.id===r.person);
   const by=r.by===FU?'<span class="tag" style="margin-left:6px">assistant</span>':'';
@@ -870,7 +882,7 @@ const ASSIST=[
  {k:'portal',n:'Author Portal assistant',color:'#DB1F3D',ic:'book',d:'Drafts each author-page block from monday and Drive, and rates how well the source fits.'},
 ];
 const FU='Follow-up assistant';
-function renderAssist(){$('main').innerHTML=`<div class="mhead"><h1>Assistants</h1>${LIVE?'':'<span class="proto">Prototype</span>'}</div><div class="scroll"><div class="agrid">${ASSIST.map(a=>`<div class="acard"><div class="h"><span class="aico" style="background:${a.color}">${svg(a.ic)}</span><b>${a.n}</b><button class="tog" role="switch" aria-checked="${S.assist[a.k]}" aria-label="${a.n}" data-k="${a.k}"></button></div><p class="muted" style="margin:0">${a.d}</p>${LIVE?`<p style="margin:0;font-size:12.5px">${a.k==='follow'?`<b>Working.</b> Checks each time the CRM opens and adds reminders under My follow-ups.${S.assist.follow?` ${openRems().filter(r=>r.by===FU).length} open now.`:''}`:'<span class="muted">Not connected yet: needs a Claude API key'+(a.k==='portal'?' and Google Drive + monday':'')+'.</span>'}</p>`:''}${a.k==='follow'?`<div class="fld"><label>Suggest a follow-up after</label><div class="seg">${['3 days','1 week','2 weeks','1 month'].map(x=>`<button aria-pressed="${S.follow===x}" data-f="${x}">${x}</button>`).join('')}</div></div>`:''}<button class="btn sm" style="justify-self:start" data-cfg="${a.k}">Settings</button></div>`).join('')}</div></div>`;
+function renderAssist(){$('main').innerHTML=`<div class="mhead"><h1>Assistants</h1>${LIVE?'':'<span class="proto">Prototype</span>'}</div><div class="scroll"><div class="agrid">${ASSIST.map(a=>`<div class="acard"><div class="h"><span class="aico" style="background:${a.color}">${svg(a.ic)}</span><b>${a.n}</b><button class="tog" role="switch" aria-checked="${S.assist[a.k]}" aria-label="${a.n}" data-k="${a.k}"></button></div><p class="muted" style="margin:0">${a.d}</p>${LIVE?`<p style="margin:0;font-size:12.5px">${a.k==='follow'?`<b>Working.</b> Checks each time the CRM opens and adds reminders under My follow-ups.${S.assist.follow?` ${openRems().filter(r=>r.by===FU).length} open now.`:''}`:a.k==='recap'?(AI?'<b>Working.</b> Refresh a recap from a person’s panel; when on, it also refreshes after you add a note or log an interaction.':'<span class="muted">Not connected yet: needs a Claude API key.</span>'):a.k==='research'?(AI?'<b>Working.</b> Press Research in a person’s panel; the brief is saved as a note. The switch has no effect yet.':'<span class="muted">Not connected yet: needs a Claude API key.</span>'):'<span class="muted">Not connected yet: needs Google Drive + monday.</span>'}</p>`:''}${a.k==='follow'?`<div class="fld"><label>Suggest a follow-up after</label><div class="seg">${['3 days','1 week','2 weeks','1 month'].map(x=>`<button aria-pressed="${S.follow===x}" data-f="${x}">${x}</button>`).join('')}</div></div>`:''}<button class="btn sm" style="justify-self:start" data-cfg="${a.k}">Settings</button></div>`).join('')}</div></div>`;
   const saveSettings=()=>save('saveSettings',{settings:{assist:S.assist,followAfter:S.follow}});
   document.querySelectorAll('.tog').forEach(t=>t.onclick=async()=>{const k=t.dataset.k;S.assist[k]=!S.assist[k];renderAssist();renderPanel();
     if(!await saveSettings()){S.assist[k]=!S.assist[k];renderAssist();renderPanel();return}toast(`${ASSIST.find(a=>a.k===k).n} ${S.assist[k]?'on':'off'}.`)});
