@@ -42,14 +42,17 @@ const TEMPLATES: Template[] = [
 // Offer cards come from the Studio CMS (Products): title CT100, subtitle CT200, price CP,
 // price note = first CPDT line, photo CI-01, small "+" label = first tag. Cards are found by
 // item id, by slug, or by the ids used before the CMS (LEGACY_OFFER_IDS).
-type OfferCard = { title: string; sub: string; price: string; note: string; image: string | null; tag: string; link: string | null };
+type OfferCard = { title: string; sub: string; price: string; note: string; image: string | null; tag: string; link: string | null; arrow: boolean };
 function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
   const products = cms.filter((i) => i.collection === "products");
   return (ref) => {
     const r = str(ref), slug = LEGACY_OFFER_IDS[r] || r;
     const i = products.find((x) => x.id === r || x.slug === slug);
     if (!i) return null;
-    return { title: i.ct100, sub: i.ct200, price: i.cp, note: i.cpdt[0] || i.cpd, image: safeImage(i.media.find((m) => m.code === "CI-01")?.url), tag: i.tags[0] || "", link: safeHref(i.cbl) };
+    // Parts switched off in the CMS (Visible: No) are left off the card.
+    const on = (part: CmsItem["hidden"][number]) => !i.hidden.includes(part);
+    return { title: on("ct100") ? i.ct100 : "", sub: on("ct200") ? i.ct200 : "", price: on("price") ? i.cp : "", note: on("price") ? i.cpdt[0] || i.cpd : "",
+      image: on("media") ? safeImage(i.media.find((m) => m.code === "CI-01")?.url) : null, tag: on("tags") ? i.tags[0] || "" : "", link: on("button") ? safeHref(i.cbl) : null, arrow: on("button") };
   };
 }
 
@@ -258,7 +261,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const plus = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
       // Arrow beside the price on every card; a real link once the offer has a Button link (CBL).
       const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
-      return cards.length ? `<div class="oc-grid" data-slot=".cards">${cards.map((o) => `<article class="oc">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${plus}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.link ? `<a class="oc-go" href="${esc(o.link)}" aria-label="See ${esc(o.title)}">${arrow}</a>` : `<span class="oc-go" aria-hidden="true">${arrow}</span>`}</div></div></article>`).join("")}</div>` : "";
+      return cards.length ? `<div class="oc-grid" data-slot=".cards">${cards.map((o) => `<article class="oc">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div class="oc-top">${o.title ? `<h3 class="oc-t">${esc(o.title)}</h3>` : ""}${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${plus}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${!o.arrow ? "" : o.link ? `<a class="oc-go" href="${esc(o.link)}" aria-label="See ${esc(o.title || "this offer")}">${arrow}</a>` : `<span class="oc-go" aria-hidden="true">${arrow}</span>`}</div></div></article>`).join("")}</div>` : "";
     }
     default: return "";
   }

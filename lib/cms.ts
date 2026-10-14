@@ -12,7 +12,13 @@ export type CmsItem = {
   ct100: string; ct200: string; ct300: string; cs: string; cl: string; cb: string; cbl: string;
   cp: string; cpt: string; cps: string; cpd: string; cpdt: string[];
   media: CmsMedia[]; tags: string[];
+  // Parts the cards leave out (Visible: No in Studio). The text stays saved.
+  hidden: CmsPart[];
 };
+// What can be switched off: single fields, plus the Price (CP, CPT, CPS, CPD, CPDT) and Button (CB, CBL) groups.
+export const CMS_PARTS = ["ct100", "ct200", "ct300", "cs", "cl", "tags", "media", "price", "button"] as const;
+export type CmsPart = (typeof CMS_PARTS)[number];
+const parts = (v: unknown): CmsPart[] => [...new Set((Array.isArray(v) ? v : []).filter((x): x is CmsPart => (CMS_PARTS as readonly unknown[]).includes(x)))];
 
 const s = (v: unknown) => (typeof v === "string" ? v : "");
 
@@ -26,7 +32,7 @@ type Row = Record<string, unknown> & {
 export async function loadCms(supabase: SupabaseClient, siteId: string): Promise<CmsItem[]> {
   const { data, error } = await supabase
     .from("items")
-    .select("id, slug, status, sort_order, ct100, ct200, ct300, cs, cl, cb, cbl, cp, cpt, cps, cpd, cpdt, collections!inner(slug, site_id), media(code, url, storage_path, alt, sort_order), item_tags(sort_order, tags(name))")
+    .select("id, slug, status, sort_order, ct100, ct200, ct300, cs, cl, cb, cbl, cp, cpt, cps, cpd, cpdt, hidden, collections!inner(slug, site_id), media(code, url, storage_path, alt, sort_order), item_tags(sort_order, tags(name))")
     .eq("collections.site_id", siteId)
     .order("sort_order");
   if (error || !data) return [];
@@ -37,6 +43,7 @@ export async function loadCms(supabase: SupabaseClient, siteId: string): Promise
     cp: s(r.cp), cpt: s(r.cpt), cps: s(r.cps), cpd: s(r.cpd), cpdt: Array.isArray(r.cpdt) ? (r.cpdt as unknown[]).map(s).filter(Boolean) : [],
     media: (r.media || []).filter((m) => m.url).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0) || s(a.code).localeCompare(s(b.code)))
       .map((m) => ({ code: s(m.code), url: s(m.url), alt: s(m.alt) })),
+    hidden: parts(r.hidden),
     tags: (r.item_tags || []).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)).map((t) => s(t.tags?.name)).filter(Boolean),
   }));
 }
@@ -67,6 +74,7 @@ export function checkItem(x: ItemInput, imageOk: (url: string) => boolean, video
     cp: t(x.cp, LIMITS.title), cpt: t(x.cpt, LIMITS.title), cps: t(x.cps, LIMITS.title), cpd: t(x.cpd, LIMITS.text),
     cpdt: (Array.isArray(x.cpdt) ? x.cpdt : []).map((l) => s(l).trim()).filter(Boolean),
     tags: [...new Set((Array.isArray(x.tags) ? x.tags : []).map((l) => s(l).trim()).filter(Boolean))],
+    hidden: parts(x.hidden),
     image: x.image && s(x.image.url) ? { url: s(x.image.url), alt: s(x.image.alt).trim() } : null,
     media: Array.isArray(x.media) ? x.media.map((m) => ({ code: s(m?.code), url: s(m?.url), alt: s(m?.alt).trim() })).filter((m) => m.url) : null,
   };

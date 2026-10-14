@@ -790,6 +790,17 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .cms-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cms-img.is-on { border-color: var(--accent); }
 .cms-img { position: relative; }
+/* Visible Yes/No (Oct 14): what the cards show from this item. Hidden text stays saved. */
+.cms-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.cms-row { display: flex; align-items: flex-start; gap: 12px; }
+.cms-row > :first-child { flex: 1; min-width: 0; }
+.cms-vis { flex: none; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); color: var(--ink-2); padding: 6px 12px 6px 6px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.cms-vis i { width: 28px; height: 16px; border-radius: 999px; background: var(--line); position: relative; transition: background 0.15s; }
+.cms-vis i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--ink); transition: transform 0.15s; }
+.cms-vis[aria-checked="true"] { color: var(--ink); }
+.cms-vis[aria-checked="true"] i { background: var(--accent); }
+.cms-vis[aria-checked="true"] i::after { transform: translateX(12px); }
+.cms-off > :not(.cms-head):not(.cms-row), .cms-off .cms-head h3, .cms-off .cms-row > :first-child { opacity: 0.45; }
 .cms-img video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cms-img .vid-badge { position: absolute; left: 6px; bottom: 6px; }
 .cms-img .media-no { position: absolute; top: 4px; right: 4px; background: var(--accent); color: var(--ground); font-family: var(--f-mono); font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 999px; }
@@ -1837,9 +1848,10 @@ const LEGACY_OFFER_IDS = { agency: "agency-systems", content: "content-system", 
 // Products as offer cards: CT100 title, CT200 subtitle, CP price, first CPDT line, CI-01 photo, first tag.
 let OFFERS = [];
 function rebuildOffers() {
-  OFFERS = CMS.filter((i) => i.collection === "products").sort((a, b) => a.sort - b.sort).map((i) => ({
-    id: i.id, slug: i.slug, title: i.ct100, sub: i.ct200, price: i.cp, note: i.cpdt[0] || i.cpd || "",
-    image: i.media.find((m) => m.code === "CI-01")?.url || "", tag: i.tags[0] || "", link: i.cbl || "", status: i.status === "published" ? "Ready" : "Draft" }));
+  // Parts switched off in the CMS (Visible: No) are left off the cards; name stays for lists.
+  OFFERS = CMS.filter((i) => i.collection === "products").sort((a, b) => a.sort - b.sort).map((i) => { const on = (p) => !(i.hidden || []).includes(p); return {
+    id: i.id, slug: i.slug, name: i.ct100, title: on("ct100") ? i.ct100 : "", sub: on("ct200") ? i.ct200 : "", price: on("price") ? i.cp : "", note: on("price") ? i.cpdt[0] || i.cpd || "" : "",
+    image: on("media") ? i.media.find((m) => m.code === "CI-01")?.url || "" : "", tag: on("tags") ? i.tags[0] || "" : "", link: on("button") ? i.cbl || "" : "", arrow: on("button"), status: i.status === "published" ? "Ready" : "Draft" }; });
 }
 rebuildOffers();
 
@@ -2106,7 +2118,7 @@ const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY
 // Design-system offer card (Offer Card Full / Two / Three): its size per screen comes from CSS.
 const OC_PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 const OC_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
-const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}<span class="oc-go" title="${o.link ? `Links to ${esc(o.link)}` : "No link yet: add a Button link (CBL) to this offer in CMS"}">${OC_ARROW}</span></div></div></article>`;
+const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top">${o.title ? `<h3 class="oc-t">${esc(o.title)}</h3>` : ""}${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.arrow === false ? "" : `<span class="oc-go" title="${o.link ? `Links to ${esc(o.link)}` : "No link yet: add a Button link (CBL) to this offer in CMS"}">${OC_ARROW}</span>`}</div></div></article>`;
 // Arrow (every card): on the live site it links to the offer's Button link (CBL) once that's filled in.
 function ocBlock(id, max) {
   const v = P(id), items = v ? v.map(offerById).filter(Boolean) : [];
@@ -2413,11 +2425,11 @@ function cardBody(id) {
     ed += `<div class="field"><label>${sl.iconToggle ? "Icons" : "Logos"} · ${v.length}/${sl.max}</label><div class="pick-grid">${v.map((s, i) => `<figure><img src="${esc(s)}" alt=""><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove logo ${i + 1}">×</button></figure>`).join("")}</div></div><div class="dropzone">Drop ${sl.iconToggle ? "icons" : "logos"} here, or tap them in Sources.</div>`;
   } else if (sl.kind === "offers") {
     const left = OFFERS.filter((o) => !v.includes(o.id));
-    ed = `<div class="field"><label>Cards · ${v.length}/${sl.max}</label><ul class="item-list">${v.map((oid, i) => `<li><span>${esc(offerById(oid)?.title)}</span>
+    ed = `<div class="field"><label>Cards · ${v.length}/${sl.max}</label><ul class="item-list">${v.map((oid, i) => `<li><span>${esc(offerById(oid)?.name)}</span>
       <button type="button" class="x" data-move="${id}:${i}:-1" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
       <button type="button" class="x" data-move="${id}:${i}:1" aria-label="Move down" ${i === v.length - 1 ? "disabled" : ""}>↓</button>
       <button type="button" class="x" data-del="${id}:${i}" aria-label="Remove">×</button></li>`).join("")}</ul></div>
-      ${left.length && v.length < sl.max ? `<select class="input" data-addoffer="${id}" aria-label="Add an offer card"><option value="">+ Add an offer card…</option>${left.map((o) => `<option value="${o.id}">${esc(o.title)} · ${esc(o.price)}</option>`).join("")}</select>` : ""}`;
+      ${left.length && v.length < sl.max ? `<select class="input" data-addoffer="${id}" aria-label="Add an offer card"><option value="">+ Add an offer card…</option>${left.map((o) => `<option value="${o.id}">${esc(o.name)} · ${esc(o.price)}</option>`).join("")}</select>` : ""}`;
   } else if (sl.kind === "list") {
     const rows = v.length ? v : [];
     ed = `<div class="field"><label>Content · up to ${sl.max} ${sl.max === 1 ? "row" : "rows"}</label><div class="rows">${rows.map((r, i) => `<div class="row" style="--cols:${sl.cols.length}"><span class="row-n">${i + 1}</span>
@@ -2738,7 +2750,7 @@ function syncFilter() { document.querySelectorAll("[data-filter]").forEach((b) =
 
 // ── Sources (left nav, under Layers): images, Playbook lines and CMS cards to drag onto spots ──
 const accepts = (sl, p) => (p.type === "image" && (sl.kind === "image" || (sl.kind === "logos" && !isVideo(p.value)) || (sl.kind === "embed" && isVideo(p.value)))) || (p.type === "text" && (sl.kind === "text" || sl.kind === "list")) || (p.type === "offer" && sl.kind === "offers");
-const pickedName = () => picked.type === "image" ? IMAGES.find((i) => i.src === picked.value)?.name || "Uploaded image" : picked.type === "offer" ? offerById(picked.value).title : `“${picked.value.slice(0, 40)}${picked.value.length > 40 ? "…" : ""}”`;
+const pickedName = () => picked.type === "image" ? IMAGES.find((i) => i.src === picked.value)?.name || "Uploaded image" : picked.type === "offer" ? offerById(picked.value).name : `“${picked.value.slice(0, 40)}${picked.value.length > 40 ? "…" : ""}”`;
 // Each group folds open like a section in Layers. Drag an item onto a dotted box or the
 // Edit pane; on a phone, tap it, then tap a dotted box.
 const SRC_GROUPS = [
@@ -2750,7 +2762,7 @@ function sourceItems(id) {
   if (id === "images") return `<div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im">${isVideo(im.src) ? `<video src="${esc(im.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(im.src)}" alt="">`}</div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
       ${UP ? upBox() : `<label class="upload" for="upload">+ Upload an image or video${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`}`;
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
-  return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0">${o.image ? `<img src="${esc(o.image)}" alt="">` : `<span class="src-noimg"></span>`}<span class="grow"><b>${esc(o.title)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
+  return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0">${o.image ? `<img src="${esc(o.image)}" alt="">` : `<span class="src-noimg"></span>`}<span class="grow"><b>${esc(o.name)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
 const modulesInner = () => {
   const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
@@ -3063,7 +3075,7 @@ let sd = null, suppressClick = false;
 const ghost = document.createElement("div"); ghost.className = "drag-ghost"; ghost.hidden = true; document.body.append(ghost);
 const ITEM_NAME = (slot, i) => {
   const v = S.slots[slot].placed[i];
-  if (SLOTS[slot].kind === "offers") return offerById(v)?.title;
+  if (SLOTS[slot].kind === "offers") return offerById(v)?.name;
   if (typeof v === "string") return SLOTS[slot].label.replace(/s$/, "");
   return v?.title || v?.tag || "Item";
 };
@@ -3446,9 +3458,18 @@ function renderCms() {
 function renderCmsItem() {
   const it = cmsEdit, col = it.collection, img = it.media.find((m) => m.code === "CI-01");
   const used = it.id && col === "products" ? usedOn(it.id) : [];
-  const f = (k, code, label, help = "", long = false, ph = "") => `<label class="set-field"><span>${label} ${CF(code)}</span>${long
-    ? `<textarea data-cf="${k}" placeholder="${esc(ph)}" rows="${k === "cl" ? 10 : 4}">${esc(k === "cpdt" ? it.cpdt.join("\n") : it[k])}</textarea>`
-    : `<input type="text" data-cf="${k}" value="${esc(it[k])}" placeholder="${esc(ph)}">`}${help ? `<small>${help}</small>` : ""}</label>`;
+  it.hidden ||= [];
+  // Visible: Yes/No switch. part = a field (ct100 …) or a group (price, button, media, tags).
+  const on = (part) => !it.hidden.includes(part);
+  const vis = (part) => `<button type="button" class="cms-vis" role="switch" aria-checked="${on(part)}" data-cmsvis="${part}" title="Shown on cards: ${on(part) ? "yes" : "no"}"><i aria-hidden="true"></i>Visible: ${on(part) ? "Yes" : "No"}</button>`;
+  const head = (title, part) => `<div class="cms-head"><h3>${title}</h3>${vis(part)}</div>`;
+  const off = (part) => (on(part) ? "" : " cms-off");
+  // A field; with toggle = its own part, the switch sits at the right end of the field.
+  const f = (k, code, label, help = "", long = false, ph = "", toggle = false) => {
+    const input = long ? `<textarea data-cf="${k}" placeholder="${esc(ph)}" rows="${k === "cl" ? 10 : 4}">${esc(k === "cpdt" ? it.cpdt.join("\n") : it[k])}</textarea>`
+      : `<input type="text" data-cf="${k}" value="${esc(it[k])}" placeholder="${esc(ph)}">`;
+    return `<div class="set-field${toggle ? off(k) : ""}"><label for="cf-${k}">${label} ${CF(code)}</label>${toggle ? `<div class="cms-row">${input.replace("data-cf=", `id="cf-${k}" data-cf=`)}${vis(k)}</div>` : input.replace("data-cf=", `id="cf-${k}" data-cf=`)}${help ? `<small>${help}</small>` : ""}</div>`;
+  };
   const usable = (m) => m.kind !== "logo" && !m.src.startsWith("data:") && !m.src.startsWith("blob:");
   const photos = IMAGES.filter((m) => usable(m) && !isVideo(m.src)), videos = IMAGES.filter((m) => usable(m) && isVideo(m.src));
   // Extra images (CI-02 …) and videos (CV-01 …): click to add or remove; the number shows the order.
@@ -3461,18 +3482,18 @@ function renderCmsItem() {
       ${used.length ? `<p class="note" style="margin:0"><b>Also on:</b> ${esc(used.join(", "))}. ${it.status === "published" ? "Saving changes it there on the live site straight away." : "It's a Draft, so the live site doesn't show it."}</p>` : ""}
       <div class="set-card"><h3>Status</h3><div class="seg" role="group" aria-label="Status"><button type="button" data-cmsstatus="draft" aria-pressed="${it.status !== "published"}">Draft</button><button type="button" data-cmsstatus="published" aria-pressed="${it.status === "published"}">Ready</button></div>
         <p class="set-help">Ready: shows on the live site wherever a page uses it. Draft: only in Studio (the preview marks it).</p></div>
-      <div class="set-card"><h3>Titles</h3>${f("ct100", "CT100", "Main title", "Required.")}${f("ct200", "CT200", "Second title")}${f("ct300", "CT300", "Third title")}
+      <div class="set-card"><h3>Titles</h3>${f("ct100", "CT100", "Main title", "Required.", false, "", true)}${f("ct200", "CT200", "Second title", "", false, "", true)}${f("ct300", "CT300", "Third title", "", false, "", true)}
         <label class="set-field"><span>Slug</span><span class="slug-row"><span class="mono">/</span><input type="text" data-cf="slug" value="${esc(it.slug)}" autocapitalize="off" spellcheck="false"></span><small>Its own address later (lower-case letters, numbers, dashes).</small></label></div>
-      <div class="set-card"><h3>Text</h3>${f("cs", "CS", "Content short", `<span id="cs-count">${wordCount(it.cs)}</span> / 144 words`, true)}${f("cl", "CL", "Content long", `<span id="cl-count">${wordCount(it.cl)}</span> / 1,500 words`, true)}</div>
-      <div class="set-card"><h3>Button</h3>${f("cb", "CB", "Button text", "", false, "e.g. Book a call")}${f("cbl", "CBL", "Button link", "https://…, mailto:… or /a-page-on-this-site", false, "https://")}</div>
-      <div class="set-card"><h3>Price</h3>${f("cp", "CP", "Price", "", false, "e.g. $2,500+")}${f("cpt", "CPT", "Price title")}${f("cps", "CPS", "Price subtitle")}${f("cpd", "CPD", "Price description", "", true)}${f("cpdt", "CPDT", "Price dates / note", "One line each. The first line shows under the price on cards.", true, "e.g. Starting on Wednesday January 28, 2026")}</div>
-      <div class="set-card"><h3>Media</h3><div class="set-field"><span>Main image ${CF("CI-01")}</span>
+      <div class="set-card"><h3>Text</h3>${f("cs", "CS", "Content short", `<span id="cs-count">${wordCount(it.cs)}</span> / 144 words`, true, "", true)}${f("cl", "CL", "Content long", `<span id="cl-count">${wordCount(it.cl)}</span> / 1,500 words`, true, "", true)}</div>
+      <div class="set-card${off("button")}">${head("Button", "button")}${f("cb", "CB", "Button text", "", false, "e.g. Book a call")}${f("cbl", "CBL", "Button link", "https://…, mailto:… or /a-page-on-this-site", false, "https://")}</div>
+      <div class="set-card${off("price")}">${head("Price", "price")}${f("cp", "CP", "Price", "", false, "e.g. $2,500+")}${f("cpt", "CPT", "Price title")}${f("cps", "CPS", "Price subtitle")}${f("cpd", "CPD", "Price description", "", true)}${f("cpdt", "CPDT", "Price dates / note", "One line each. The first line shows under the price on cards.", true, "e.g. Starting on Wednesday January 28, 2026")}</div>
+      <div class="set-card">${head("Media", "media")}<div class="set-field${off("media")}"><span>Main image ${CF("CI-01")}</span>
           <div class="cms-imgs">${photos.map((m) => `<button type="button" class="cms-img${img?.url === m.src ? " is-on" : ""}" data-cmsimg="${esc(m.src)}" title="${esc(m.name)}"><img src="${esc(m.src)}" alt=""></button>`).join("")}<button type="button" class="cms-img cms-noimg${img ? "" : " is-on"}" data-cmsimg="" title="No image">None</button></div>
           <small>Upload more in Pages → Sources → Images &amp; video.</small></div>
         <label class="set-field"><span>Image description (for screen readers)</span><input type="text" data-cf="alt" value="${esc(img?.alt || "")}" placeholder="What the photo shows"></label>
         <div class="set-field"><span>More images ${CF("CI-02 …")}</span><div class="cms-imgs">${pickRow(photos, extra, "data-cmsmore", false)}</div><small>Click to add or remove. Numbered in the order you pick them.</small></div>
         <div class="set-field"><span>Videos ${CF("CV-01 …")}</span>${videos.length ? `<div class="cms-imgs">${pickRow(videos, vids, "data-cmsvid", true)}</div><small>Click to add or remove. MP4 or WebM; best under 5 MB.</small>` : `<p class="cms-empty">No videos yet. Upload one in Pages → Sources → Images &amp; video (MP4 or WebM).</p>`}</div></div>
-      <div class="set-card"><h3>Tags</h3><label class="set-field"><span>Tags</span><input type="text" data-cf="tags" value="${esc(it.tags.join(", "))}" placeholder="Hybrid course, Leadership upskilling"><small>Comma-separated. The first tag is the small “+” label on cards.</small></label></div>
+      <div class="set-card"><h3>Tags</h3><div class="set-field${off("tags")}"><label for="cf-tags">Tags</label><div class="cms-row"><input type="text" id="cf-tags" data-cf="tags" value="${esc(it.tags.join(", "))}" placeholder="Hybrid course, Leadership upskilling">${vis("tags")}</div><small>Comma-separated. The first tag is the small “+” label on cards.</small></div></div>
       <p class="slug-err" id="cms-err"></p>
     </div>`;
 }
@@ -3485,7 +3506,7 @@ async function saveCmsItem() {
   if (CMS.some((x) => x.collection === it.collection && x.slug === it.slug && x.id !== it.id)) return err("Another item already uses that slug.");
   const img = it.media.find((m) => m.code === "CI-01");
   const payload = { id: it.id || undefined, collection: it.collection, slug: it.slug, status: it.status, ct100: it.ct100, ct200: it.ct200, ct300: it.ct300, cs: it.cs, cl: it.cl, cb: it.cb, cbl: it.cbl,
-    cp: it.cp, cpt: it.cpt, cps: it.cps, cpd: it.cpd, cpdt: it.cpdt, tags: it.tags, image: img ? { url: img.url, alt: img.alt } : null,
+    cp: it.cp, cpt: it.cpt, cps: it.cps, cpd: it.cpd, cpdt: it.cpdt, tags: it.tags, hidden: it.hidden || [], image: img ? { url: img.url, alt: img.alt } : null,
     media: it.media.map((m) => ({ code: m.code, url: m.url, alt: m.alt || "" })) };
   if (LIVE) {
     try {
@@ -3734,6 +3755,7 @@ document.addEventListener("click", (e) => {
   if (d.cmsback != null) { if (cmsDirty && !cmsLeaveArmed) { cmsLeaveArmed = true; renderCms(); setTimeout(() => { cmsLeaveArmed = false; if (cmsEdit) renderCms(); }, 4000); return; } cmsEdit = null; renderCms(); return; }
   if (d.cmsdiscard != null) { openCmsItem(cmsEdit?.id || "new"); toast("Changes discarded."); return; }
   if (d.cmssave != null) return saveCmsItem();
+  if (d.cmsvis && cmsEdit) { const h = new Set(cmsEdit.hidden || []); h.has(d.cmsvis) ? h.delete(d.cmsvis) : h.add(d.cmsvis); cmsEdit.hidden = [...h]; cmsDirty = true; renderCms(); document.querySelector(`[data-cmsvis="${d.cmsvis}"]`)?.focus(); return; }
   if (d.cmsstatus && cmsEdit) { cmsEdit.status = d.cmsstatus; cmsDirty = true; renderCms(); return; }
   if ((d.cmsmore != null || d.cmsvid != null) && cmsEdit) {
     const video = d.cmsvid != null, url = video ? d.cmsvid : d.cmsmore, pre = video ? "CV-" : "CI-";

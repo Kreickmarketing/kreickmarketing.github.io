@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     slug: item.slug, status: item.status, ct100: item.ct100, ct200: item.ct200 || null, ct300: item.ct300 || null,
     cs: item.cs || null, cl: item.cl || null, cb: item.cb || null, cbl: item.cbl || null,
     cp: item.cp || null, cpt: item.cpt || null, cps: item.cps || null, cpd: item.cpd || null,
-    cpdt: item.cpdt.length ? item.cpdt : null, updated_at: new Date().toISOString(),
+    cpdt: item.cpdt.length ? item.cpdt : null, hidden: item.hidden, updated_at: new Date().toISOString(),
   };
   let id = item.id;
   if (id) {
