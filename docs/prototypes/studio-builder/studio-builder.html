@@ -356,14 +356,14 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .gfx-dial b { font-size: 19px; }
 }
 
-.cred { background: var(--cm-charcoal); color: #fff; padding: 96px 64px 224px; display: grid; grid-template-columns: 240px 1fr; gap: 32px; align-items: center; }
+.cred { background: var(--cm-charcoal); color: #fff; padding: 96px 96px 224px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-items: start; }
 /* Tagline: one size on every template (styles/typography.css): 16px desktop, 14px tablet, 12px phone; spacing 3px. */
 .tagline, .mail .tagline { font-size: 16px; line-height: 16px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; margin: 0; }
-.logo-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-end; }
+.logo-row { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: flex-start; }
 .logo-row img { height: 24px; width: auto; max-width: 200px; object-fit: contain; }
 
 .std { padding: 96px 64px; display: flex; flex-direction: column; gap: 48px; }
-.sh { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start; }
+.sh { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-items: start; }
 .sh h2 { font-size: 56px; line-height: 1; letter-spacing: -2.5px; font-weight: 300; margin: 0; }
 .sh h2 span { display: block; }
 .sh p.body { font-size: 20px; line-height: 1.45; color: var(--cm-iron); margin: 16px 0 0; max-width: 640px; }
@@ -479,8 +479,11 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .foot-top-link { display: none; }
   .site-nav ul { display: none; }
   .site-nav .burger, .site-nav .nav-menu { display: block; }
-  .cred { grid-template-columns: 1fr; padding: 48px 32px 96px; }
-  .logo-row { justify-content: space-between; }
+  .cred { grid-template-columns: 224px minmax(0, 1fr); padding: 48px 32px 96px; }
+  .logo-row { justify-content: flex-start; }
+  /* Heading: 224px label column on tablet; Photo background + tags keeps one third / two thirds. */
+  .t-heading .sh { grid-template-columns: 224px minmax(0, 1fr); }
+  .plat .sh { grid-template-columns: 1fr 2fr; }
   .logo-row img { height: 24px; }
   .split.flip > :first-child { order: 0; }
   .split :is(img, video).photo, .split .slot.photo { aspect-ratio: 4 / 3; }
@@ -505,7 +508,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .logo-row { justify-content: flex-start; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .logo-row img { height: 20px; object-position: left center; }
   .std, .mail { padding: 64px 20px; }
-  .sh, .split, .mail, .point { grid-template-columns: 1fr; }
+  .sh, .split, .mail, .point, .t-heading .sh, .plat .sh { grid-template-columns: 1fr; }
   .split.flip > :first-child { order: 0; }
   .split :is(img, video).photo, .split .slot.photo { aspect-ratio: 4 / 5; }
   .sh h2 { font-size: 36px; letter-spacing: -1.5px; }
@@ -830,6 +833,10 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 /* Offer Card Full / Two / Three (Oct 8): the design-system cards (docs/design-system/cards.md).
    Full: Card-1280 → 640 → 320 · Two: 640 ×2 → 320 ×2 → 160 ×2 · Three: 320 ×3 → 160 ×3 → 320 stacked.
    Margins: 16px top and bottom (8px on phone); 32px a side on desktop and tablet, 16px on phone. */
+/* Price and arrow link sit together at the bottom right (Oct 14). The arrow shows when the offer has a button link (CBL). */
+.oc-end { margin-left: auto; flex: none; display: flex; align-items: flex-end; gap: 16px; }
+.oc-go { display: inline-flex; flex: none; color: inherit; text-decoration: none; }
+.oc-go svg { width: 36px; height: 36px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .ocards { padding: 16px 32px; }
 .oc-grid { display: grid; gap: 32px; }
 .oc { position: relative; overflow: hidden; display: flex; flex-direction: column; color: #fff; background: var(--cm-midnight); min-width: 0; }
@@ -844,89 +851,107 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
 .t-offer-full .oc { aspect-ratio: 1280 / 800; border-radius: 32px; padding: 64px; justify-content: flex-end; }
 .t-offer-full .oc-top { position: absolute; left: 64px; top: 50%; transform: translateY(-50%); width: 448px; max-width: calc(100% - 128px); box-sizing: border-box; padding: 64px; border-radius: 32px; background: color-mix(in srgb, var(--cm-midnight) 55%, transparent); backdrop-filter: blur(16px); gap: 8px; }
-.t-offer-full .oc-t { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 700; }
-.t-offer-full .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.t-offer-full .oc-t { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 400; }
+.t-offer-full .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 400; }
 .t-offer-full .oc-foot { justify-content: space-between; border-top: 0; padding-top: 0px; }
 .t-offer-full .oc-tag { display: inline-flex; }
 .t-offer-full .oc-price b { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 800; }
 .t-offer-full .oc-price small { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 600; }
+.t-offer-full .oc-end { gap: 24px; }
+.t-offer-full .oc-go svg { width: 56px; height: 56px; }
 .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
-.t-offer-two .oc { aspect-ratio: 1 / 1; border-radius: 32px; padding: 32px; justify-content: space-between; }
+.t-offer-two .oc { height: 512px; border-radius: 32px; padding: 32px; justify-content: space-between; }
 .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
-.t-offer-two .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 700; }
-.t-offer-two .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+.t-offer-two .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 400; }
+.t-offer-two .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 400; }
 .t-offer-two .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
 .t-offer-two .oc-tag { display: inline-flex; }
 .t-offer-two .oc-price b { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 800; }
 .t-offer-two .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+.t-offer-two .oc-end { gap: 24px; }
+.t-offer-two .oc-go svg { width: 48px; height: 48px; }
 .t-offer-three .oc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
-.t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+.t-offer-three .oc { height: 512px; border-radius: 32px; padding: 32px; justify-content: space-between; }
 .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
-.t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
-.t-offer-three .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+.t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 400; }
+.t-offer-three .oc-s { font-size: 24px; line-height: 28px; letter-spacing: -1px; font-weight: 400; }
 .t-offer-three .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
 .t-offer-three .oc-tag { display: none; }
 .t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
 .t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+.t-offer-three .oc-end { gap: 16px; }
+.t-offer-three .oc-go svg { width: 36px; height: 36px; }
 @container (max-width: 1000px) {
   .ocards { padding: 16px 32px; }
   .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
   .t-offer-full .oc { aspect-ratio: 1 / 1; border-radius: 32px; padding: 32px; justify-content: space-between; }
   .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
-  .t-offer-full .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 700; }
-  .t-offer-full .oc-s { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
+  .t-offer-full .oc-t { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 400; }
+  .t-offer-full .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 400; }
   .t-offer-full .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
   .t-offer-full .oc-tag { display: inline-flex; }
   .t-offer-full .oc-price b { font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 800; }
   .t-offer-full .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-full .oc-end { gap: 24px; }
+  .t-offer-full .oc-go svg { width: 48px; height: 48px; }
   .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
-  .t-offer-two .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .t-offer-two .oc { height: 384px; border-radius: 32px; padding: 32px; justify-content: space-between; }
   .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
-  .t-offer-two .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
-  .t-offer-two .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-two .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 400; }
+  .t-offer-two .oc-s { font-size: 24px; line-height: 28px; letter-spacing: -1px; font-weight: 400; }
   .t-offer-two .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
   .t-offer-two .oc-tag { display: none; }
   .t-offer-two .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
   .t-offer-two .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-two .oc-end { gap: 16px; }
+  .t-offer-two .oc-go svg { width: 36px; height: 36px; }
   .t-offer-three .oc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
-  .t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 16px; padding: 16px; justify-content: space-between; }
+  .t-offer-three .oc { height: 384px; border-radius: 16px; padding: 16px; justify-content: space-between; }
   .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 0px; }
-  .t-offer-three .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 700; }
-  .t-offer-three .oc-s { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-three .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 400; }
+  .t-offer-three .oc-s { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 400; }
   .t-offer-three .oc-foot { justify-content: flex-end; border-top: 0; padding-top: 0px; }
   .t-offer-three .oc-tag { display: none; }
   .t-offer-three .oc-price b { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 800; }
   .t-offer-three .oc-price small { font-size: 8px; line-height: 10px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-three .oc-end { gap: 16px; }
+  .t-offer-three .oc-go svg { width: 24px; height: 24px; }
 }
 @container (max-width: 700px) {
   .ocards { padding: 8px 16px; }
   .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
   .t-offer-full .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
   .t-offer-full .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
-  .t-offer-full .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
-  .t-offer-full .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-full .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 400; }
+  .t-offer-full .oc-s { font-size: 24px; line-height: 28px; letter-spacing: -1px; font-weight: 400; }
   .t-offer-full .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
   .t-offer-full .oc-tag { display: none; }
   .t-offer-full .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
   .t-offer-full .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-full .oc-end { gap: 16px; }
+  .t-offer-full .oc-go svg { width: 36px; height: 36px; }
   .t-offer-two .oc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-  .t-offer-two .oc { aspect-ratio: 2 / 3; border-radius: 16px; padding: 16px; justify-content: space-between; }
+  .t-offer-two .oc { height: 256px; border-radius: 16px; padding: 16px; justify-content: space-between; }
   .t-offer-two .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 0px; }
-  .t-offer-two .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 700; }
-  .t-offer-two .oc-s { font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-two .oc-t { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 400; }
+  .t-offer-two .oc-s { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 400; }
   .t-offer-two .oc-foot { justify-content: flex-end; border-top: 0; padding-top: 0px; }
   .t-offer-two .oc-tag { display: none; }
   .t-offer-two .oc-price b { font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 800; }
   .t-offer-two .oc-price small { font-size: 8px; line-height: 10px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-two .oc-end { gap: 16px; }
+  .t-offer-two .oc-go svg { width: 24px; height: 24px; }
   .t-offer-three .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
-  .t-offer-three .oc { aspect-ratio: 2 / 3; border-radius: 32px; padding: 32px; justify-content: space-between; }
+  .t-offer-three .oc { height: 480px; border-radius: 32px; padding: 32px; justify-content: space-between; }
   .t-offer-three .oc-top { position: relative; left: auto; top: auto; transform: none; width: auto; max-width: none; padding: 0; border-radius: 0; background: none; backdrop-filter: none; gap: 8px; }
-  .t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 700; }
-  .t-offer-three .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 700; }
+  .t-offer-three .oc-t { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 400; }
+  .t-offer-three .oc-s { font-size: 24px; line-height: 28px; letter-spacing: -1px; font-weight: 400; }
   .t-offer-three .oc-foot { justify-content: space-between; border-top: 1px solid currentColor; padding-top: 32px; }
   .t-offer-three .oc-tag { display: none; }
   .t-offer-three .oc-price b { font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 800; }
   .t-offer-three .oc-price small { font-size: 12px; line-height: 14px; letter-spacing: -1px; font-weight: 600; }
+  .t-offer-three .oc-end { gap: 16px; }
+  .t-offer-three .oc-go svg { width: 36px; height: 36px; }
 }
 .oc .offer-draft { z-index: 3; }
 .oc-grid .slot.oc-slot { aspect-ratio: 2 / 3; min-height: 0; }
@@ -1030,7 +1055,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 }
 /* Heading (Oct 9, canvas): more room under it. Desktop 96px top, 64px sides, 160px bottom
    (board 164, snapped to the 32px grid); tablet 64px top, 32px sides, 128px bottom; phone as before. */
-.sec.t-heading { padding: 96px 64px 160px; }
+.sec.t-heading { padding: 96px 96px 160px; }
 @container (max-width: 1000px) {
   .sec.t-heading { padding: 64px 32px 128px; }
 }
@@ -1827,7 +1852,7 @@ let OFFERS = [];
 function rebuildOffers() {
   OFFERS = CMS.filter((i) => i.collection === "products").sort((a, b) => a.sort - b.sort).map((i) => ({
     id: i.id, slug: i.slug, title: i.ct100, sub: i.ct200, price: i.cp, note: i.cpdt[0] || i.cpd || "",
-    image: i.media.find((m) => m.code === "CI-01")?.url || "", tag: i.tags[0] || "", status: i.status === "published" ? "Ready" : "Draft" }));
+    image: i.media.find((m) => m.code === "CI-01")?.url || "", tag: i.tags[0] || "", link: i.cbl || "", status: i.status === "published" ? "Ready" : "Draft" }));
 }
 rebuildOffers();
 
@@ -2097,7 +2122,9 @@ const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY
 const offerCard = (o, i, id) => `<article class="offer" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span class="mono" style="font-size:13px">${o.tag ? `+ ${esc(o.tag)}` : ""}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`;
 // Design-system offer card (Offer Card Full / Two / Three): its size per screen comes from CSS.
 const OC_PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}</div></article>`;
+const OC_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
+const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}${o.price || o.link ? `<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.link ? `<span class="oc-go" title="Links to ${esc(o.link)}">${OC_ARROW}</span>` : ""}</div>` : ""}</div></article>`;
+// Arrow link (the offer's button link, CBL). In Studio it's a picture; on the live site a real link.
 function ocBlock(id, max) {
   const v = P(id), items = v ? v.map(offerById).filter(Boolean) : [];
   const cells = items.map((o, i) => ocCard(o, i, id));

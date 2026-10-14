@@ -1,4 +1,5 @@
 {
+  "v": 3,
   "attachments": {},
   "boards": {
     "Main.dc.html": {
@@ -143,7 +144,7 @@
       "y": 20620
     },
     "heading_desktop.dc.html": {
-      "h": 360,
+      "h": 446,
       "title": "heading · desktop 1280",
       "w": 1280,
       "x": 0,
@@ -157,7 +158,7 @@
       "y": 3080
     },
     "heading_tablet.dc.html": {
-      "h": 360,
+      "h": 391,
       "title": "heading · tablet 768",
       "w": 768,
       "x": 1360,
@@ -271,42 +272,42 @@
       "y": 13400
     },
     "offer-three_desktop.dc.html": {
-      "h": 608,
+      "h": 544,
       "title": "offer-three · desktop 1280",
       "w": 1280,
       "x": 0,
       "y": 16080
     },
     "offer-three_phone.dc.html": {
-      "h": 1691,
+      "h": 1520,
       "title": "offer-three · phone 390",
       "w": 390,
       "x": 2208,
       "y": 16080
     },
     "offer-three_tablet.dc.html": {
-      "h": 352,
+      "h": 416,
       "title": "offer-three · tablet 768",
       "w": 768,
       "x": 1360,
       "y": 16080
     },
     "offer-two_desktop.dc.html": {
-      "h": 624,
+      "h": 544,
       "title": "offer-two · desktop 1280",
       "w": 1280,
       "x": 0,
       "y": 14820
     },
     "offer-two_phone.dc.html": {
-      "h": 273,
+      "h": 272,
       "title": "offer-two · phone 390",
       "w": 390,
       "x": 2208,
       "y": 14820
     },
     "offer-two_tablet.dc.html": {
-      "h": 536,
+      "h": 416,
       "title": "offer-two · tablet 768",
       "w": 768,
       "x": 1360,
@@ -565,8 +566,8 @@
       "maxW": 2598,
       "text": "Offer cards (live today)",
       "w": 240,
-      "x": 0,
-      "y": 11060
+      "x": -9,
+      "y": 11070
     },
     "t-photo-points": {
       "kind": "title1",
@@ -652,6 +653,5 @@
     "card_1920.dc.html"
   ],
   "pages": [],
-  "title": "ClearMark Studio Templates",
-  "v": 3
+  "title": "ClearMark Studio Templates"
 }
