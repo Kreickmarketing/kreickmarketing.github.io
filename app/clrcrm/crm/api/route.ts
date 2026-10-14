@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import Anthropic from "@anthropic-ai/sdk";
 import { AiError, research, writeRecap } from "@/lib/crm-ai";
-import { STAGES, STATUSES, cleanSettings, companyOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
+import { STAGES, STATUSES, cleanSettings, companyOut, sequenceOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
 
 // Saves changes made in the new CRM (clrcrm/crm). One POST per change, { action, ... }.
 // Only CRM members get past the check, every value is checked here, and Row Level
@@ -173,6 +173,50 @@ export async function POST(request: Request) {
         const personId = String(b.personId);
         if (!UUID.test(personId)) return fail("Bad request");
         return NextResponse.json({ note: noteOut(await research(supabase, personId)) });
+      }
+      case "addSequence":
+      case "updateSequence": {
+        const id = String(b.id ?? "");
+        if (b.action === "updateSequence" && !UUID.test(id)) return fail("Bad request");
+        const to = Array.isArray(b.to) ? [...new Set(b.to.map(String).filter((x) => UUID.test(x)))].slice(0, 200) : [];
+        const row = { subject: text(b.subject, 200), body: text(b.body, 10000), follow_up: text(b.follow, 5000), wait_days: Math.min(Math.max(Math.round(Number(b.wait) || 0), 0), 60), recipients: to };
+        const q = b.action === "addSequence" ? supabase.from("crm_sequences").insert({ ...row, created_by: me }) : supabase.from("crm_sequences").update(row).eq("id", id);
+        const { data, error } = await q.select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ sequence: sequenceOut(data) });
+      }
+      case "deleteSequence": {
+        const id = String(b.id);
+        if (!UUID.test(id)) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_sequences").delete().eq("id", id).select("id");
+        if (error) throw new Error(error.message);
+        if (!data?.length) return fail("That sequence wasn't found", 404);
+        return NextResponse.json({ ok: true });
+      }
+      // Until an email service is connected: logs an email interaction for each recipient,
+      // moves their Last interaction to today, and adds a reminder to send the follow-up.
+      case "markSequenceSent": {
+        const id = String(b.id);
+        if (!UUID.test(id)) return fail("Bad request");
+        const { data: seq, error } = await supabase.from("crm_sequences").select("*").eq("id", id).single();
+        if (error) throw new Error(error.message);
+        const to = (seq.recipients as string[]) ?? [];
+        if (!to.length) return fail("Add recipients first");
+        const day0 = today(), due = new Date(Date.now() + (Number(seq.wait_days) || 0) * 864e5).toISOString().slice(0, 10);
+        const subject = String(seq.subject || "Email");
+        const ix = await supabase.from("crm_interactions").insert(to.map((p) => ({ person_id: p, kind: "mail", title: subject, who: me, happened_on: day0 }))).select("*");
+        if (ix.error) throw new Error(ix.error.message);
+        const up = await supabase.from("crm_people").update({ last_interaction: day0 }).in("id", to).or(`last_interaction.is.null,last_interaction.lt.${day0}`);
+        if (up.error) throw new Error(up.error.message);
+        let rems: Record<string, unknown>[] = [];
+        if (String(seq.follow_up || "").trim()) {
+          const r = await supabase.from("crm_reminders").insert(to.map((p) => ({ person_id: p, title: `Send the follow-up: ${subject}`.slice(0, 300), due, created_by: me }))).select("*");
+          if (r.error) throw new Error(r.error.message);
+          rems = r.data ?? [];
+        }
+        const { data: done, error: e3 } = await supabase.from("crm_sequences").update({ status: "Sent", sent_at: new Date().toISOString() }).eq("id", id).select("*").single();
+        if (e3) throw new Error(e3.message);
+        return NextResponse.json({ sequence: sequenceOut(done), interactions: (ix.data ?? []).map((i) => ({ person: i.person_id, row: ixOut(i) })), reminders: rems.map(reminderOut), day: day0 });
       }
       case "moveDeal": {
         const id = String(b.id), stage = String(b.stage);

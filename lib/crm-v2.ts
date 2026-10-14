@@ -30,12 +30,16 @@ export const personOut = (p: Row, company: string, notes: number, rem = 0) => ({
 export const noteOut = (n: Row) => [s(n.author), shortDay(s(n.created_at)), s(n.body), s(n.id)];
 export const ixOut = (i: Row) => [s(i.kind), s(i.title), s(i.who), shortDay(s(i.happened_on))];
 export const reminderOut = (r: Row) => ({ id: s(r.id), person: s(r.person_id), title: s(r.title), due: day(r.due) || null, done: r.done === true, by: s(r.created_by) });
+export const sequenceOut = (q: Row) => ({
+  id: s(q.id), subject: s(q.subject), body: s(q.body), follow: s(q.follow_up), wait: Number(q.wait_days) || 0,
+  status: s(q.status) || "Draft", to: Array.isArray(q.recipients) ? (q.recipients as string[]) : [], sentAt: day(q.sent_at) || null,
+});
 export const companyOut = (c: Row, people: number, deal: string | null) => ({
   id: s(c.id), name: s(c.name), industry: s(c.industry) || "—", market: s(c.market) || "—", status: s(c.status) || null, people, deal,
 });
 
 export async function loadCrm(supabase: SupabaseClient) {
-  const [groups, companies, deals, people, notes, ix, rems] = await Promise.all([
+  const [groups, companies, deals, people, notes, ix, rems, seqs] = await Promise.all([
     supabase.from("crm_groups").select("*").order("sort").order("created_at"),
     supabase.from("crm_companies").select("*").order("name"),
     supabase.from("crm_deals").select("*").order("created_at"),
@@ -43,8 +47,9 @@ export async function loadCrm(supabase: SupabaseClient) {
     supabase.from("crm_notes").select("*").order("created_at", { ascending: false }),
     supabase.from("crm_interactions").select("*").order("happened_on", { ascending: false }).order("created_at", { ascending: false }),
     supabase.from("crm_reminders").select("*").order("due", { ascending: true, nullsFirst: false }).order("created_at"),
+    supabase.from("crm_sequences").select("*").order("created_at"),
   ]);
-  const failed = [groups, companies, deals, people, notes, ix, rems].find((r) => r.error);
+  const failed = [groups, companies, deals, people, notes, ix, rems, seqs].find((r) => r.error);
   if (failed?.error) throw new Error(failed.error.message);
 
   const coName = new Map((companies.data ?? []).map((c) => [c.id as string, c.name as string]));
@@ -65,7 +70,7 @@ export async function loadCrm(supabase: SupabaseClient) {
   const peopleList = (people.data ?? []).map((p) => personOut(p, coName.get(p.company_id as string) ?? "", noteCount.get(p.id as string) ?? 0, openRem.get(p.id as string) ?? 0));
   const companyList = (companies.data ?? []).map((c) => companyOut(c,
     (people.data ?? []).filter((p) => p.company_id === c.id).length, s((deals.data ?? []).find((d) => d.company_id === c.id)?.id) || null));
-  return { groups: (groups.data ?? []).map(groupOut), companies: companyList, deals: dealList, people: peopleList, notes: notesBy, interactions: ixBy, reminders };
+  return { groups: (groups.data ?? []).map(groupOut), companies: companyList, deals: dealList, people: peopleList, notes: notesBy, interactions: ixBy, reminders, sequences: (seqs.data ?? []).map(sequenceOut) };
 }
 
 // ── Assistants ──

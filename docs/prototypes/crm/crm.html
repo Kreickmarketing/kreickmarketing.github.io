@@ -526,7 +526,7 @@ const S=S0;if(LIVE&&window.__CRM__.settings){S.assist={...S.assist,...window.__C
 /* ---------- rail + panel ---------- */
 const SECS=[['crm','CRM','crm'],['messages','Messages','mail'],['dash','Dashboards','chart'],['assist','Assistants','spark'],['portal','Authors','book']];
 function renderRail(){
-  $('rail').innerHTML=`<div class="logo" title="ClearMark">CM</div>`+SECS.map(([k,l,ic])=>`<button class="rbtn" data-sec="${k}" aria-current="${S.sec===k}">${svg(ic)}${l}${k==='messages'?'<span class="dot">2</span>':''}</button>`).join('')+`<span class="rsp"></span><button class="rbtn" data-sec="settings">${svg('gear')}Settings</button>`;
+  $('rail').innerHTML=`<div class="logo" title="ClearMark">CM</div>`+SECS.map(([k,l,ic])=>`<button class="rbtn" data-sec="${k}" aria-current="${S.sec===k}">${svg(ic)}${l}${k==='messages'&&MSGS.filter(m=>m.status==='Draft').length?`<span class="dot">${MSGS.filter(m=>m.status==='Draft').length}</span>`:''}</button>`).join('')+`<span class="rsp"></span><button class="rbtn" data-sec="settings">${svg('gear')}Settings</button>`;
   $('rail').querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{if(b.dataset.sec==='settings'){toast('Settings are part of the next version.');return}S.sec=b.dataset.sec;S.rec=null;render()});
 }
 /* ---------- side panel: accordion sections with drag and drop ----------
@@ -580,15 +580,15 @@ function panelSections(){
      ...crmSecs.filter(x=>x.id==='groups').map(x=>({...x,def:false})),
     ]}
   if(S.sec==='messages')return[
-   {id:'sequences',label:'Sequences',action:['+ New','newseq'],body:()=>MSGS.map(m=>`<button class="prow" data-msg="${m.id}" aria-current="${S.msg===m.id}">${pico('mail')}<span class="two"><span>${esc(m.subject)}</span><small>${esc(m.status)} · ${m.to.length} recipient${m.to.length>1?'s':''}</small></span>${sdot(m.status==='Scheduled'?DOT.on:m.status==='Draft'?DOT.off:DOT.part)}</button>`).join('')},
-   {id:'templates',label:'Templates',body:()=>['First touch','Follow-up','Case study send','Pilot proposal'].map(t=>`<button class="prow s" data-act="tpl">${pico('text')}<span class="grow">${t}</span></button>`).join('')}];
+   {id:'sequences',label:'Sequences',action:['+ New','newseq'],body:()=>MSGS.map(m=>`<button class="prow" data-msg="${m.id}" aria-current="${S.msg===m.id}">${pico('mail')}<span class="two"><span>${esc(m.subject||'No subject yet')}</span><small>${esc(m.status)} · ${m.to.length} recipient${m.to.length===1?'':'s'}</small></span>${sdot(m.status==='Sent'?DOT.on:DOT.off)}</button>`).join('')||'<p class="muted" style="margin:4px 8px">None yet.</p>'},
+   {id:'templates',label:'Start from a template',body:()=>TEMPLATES.map((t,i)=>`<button class="prow s" data-tpl="${i}">${pico('text')}<span class="grow">${t[0]}</span></button>`).join('')}];
   if(S.sec==='dash')return[{id:'dashboards',label:'Dashboards',action:['+ New','newdash'],body:()=>`<button class="prow" aria-current="true">${pico('chart')}<span class="grow">Pipeline overview</span><span class="ct">4</span></button>`}];
   return[{id:'assistants',label:'Assistants',body:()=>ASSIST.map(a=>`<button class="prow" data-act="asst"><span class="gico" style="background:${a.color}">${a.n[0]}</span><span class="grow">${esc(a.n)}</span>${sdot(S.assist[a.k]?DOT.on:DOT.off,S.assist[a.k]?'On':'Off')}</button>`).join('')}];
 }
 function orderedSections(){const ctx=S.sec;const secs=panelSections();const ord=UI.ord[ctx]||[];return[...ord.map(id=>secs.find(x=>x.id===id)).filter(Boolean),...secs.filter(x=>!ord.includes(x.id))]}
 function renderPanel(){
   const p=$('panel');const scroll=p.scrollTop;
-  let h=`<div class="ws">ClearMark <small>▾</small></div><div class="ptop"><button class="prow" data-act="search">${pico('text').replace(PI.text,I.search)}<span class="grow">Search</span><span class="ty">/</span></button><button class="prow" data-act="notif"><svg class="pi" viewBox="0 0 24 24" aria-hidden="true">${I.bell}</svg><span class="grow">Notifications</span><span class="ct">3</span></button></div>`;
+  let h=`<div class="ws">ClearMark <small>▾</small></div><div class="ptop"><button class="prow" data-act="search">${pico('text').replace(PI.text,I.search)}<span class="grow">Search</span><span class="ty">/</span></button><button class="prow" data-act="notif"><svg class="pi" viewBox="0 0 24 24" aria-hidden="true">${I.bell}</svg><span class="grow">Notifications</span><span class="ct">${dueSoon().length||''}</span></button></div>`;
   for(const sec of orderedSections()){const key=S.sec+':'+sec.id;const open=isOpen(key,sec.def);
     h+=`<section class="acc${open?'':' closed'}" data-secid="${sec.id}"><div class="acch"><span class="grip" draggable="true" data-grip="${sec.id}" title="Drag to reorder" aria-hidden="true">⋮⋮</span><button class="acct" data-acc="${key}" aria-expanded="${open}">${CHV}<span>${esc(sec.label)}</span></button>${sec.action?`<button class="pbtn" data-act="${sec.action[1]}">${sec.action[0]}</button>`:''}</div><div class="accb">${open?sec.body():''}</div></section>`}
   h+=`<div class="pfoot"><button class="prow" data-act="invite"><svg class="pi" viewBox="0 0 24 24" aria-hidden="true">${I.user}</svg><span class="grow">Invite members</span></button></div>`;
@@ -600,7 +600,8 @@ function renderPanel(){
   p.querySelectorAll('[data-group]').forEach(b=>b.onclick=()=>{S.sec='crm';S.group=b.dataset.group;S.rec=null;UI.acc['g-'+S.group]=true;render()});
   p.querySelectorAll('[data-gview]').forEach(b=>b.onclick=()=>{const[g,v]=b.dataset.gview.split(':');S.sec='crm';S.group=g;S.view=v;S.rec=null;render()});
   p.querySelectorAll('[data-portal]').forEach(b=>b.onclick=()=>{S.sec='portal';render()});
-  p.querySelectorAll('[data-msg]').forEach(b=>b.onclick=()=>{S.msg=b.dataset.msg;render()});
+  p.querySelectorAll('[data-msg]').forEach(b=>b.onclick=()=>{S.msg=b.dataset.msg;S.msgEdit=false;S.msgPv=null;render()});
+  p.querySelectorAll('[data-tpl]').forEach(b=>b.onclick=()=>newSequence(TEMPLATES[+b.dataset.tpl]));
   p.querySelectorAll('[data-block]').forEach(b=>{b.onclick=()=>{AP.open=b.dataset.block;renderPortal();setTimeout(()=>{const n=document.querySelector(`#apsite [data-slot="${b.dataset.block}"]`);if(n){n.scrollIntoView({block:'center',behavior:'smooth'});apHl(b.dataset.block,true);setTimeout(()=>apHl(b.dataset.block,false),1200)}},30)};
     b.onmouseenter=()=>apHl(b.dataset.block,true);b.onmouseleave=()=>apHl(b.dataset.block,false)});
   p.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>panelAction(b.dataset.act));
@@ -634,7 +635,8 @@ function renderPanel(){
 function panelAction(a){
   if(a==='search'){S.sec='crm';render();setTimeout(()=>{const q=$('q');if(q)q.focus()},0)}
   else if(a==='private')followUps();
-  else if(a==='notif')overlay(`<h2>Notifications</h2><div class="ix"><span class="ic">${svg('bell')}</span><div>Follow-up assistant: <b>Evan Tarakjian</b> hasn’t replied in 19 days.</div><small>today</small></div><div class="ix"><span class="ic">${svg('check')}</span><div>Rich & Kat pick a direction for the K & Co. mailer today.</div><small>today</small></div><div class="ix"><span class="ic">${svg('book')}</span><div>Jennifer Nizza: launch video due Oct 30.</div><small>Oct 12</small></div><div class="row"><button class="btn dark" id="okn">Done</button></div>`,()=>{$('okn').onclick=closeOv});
+  else if(a==='newseq')newSequence();
+  else if(a==='notif')notifications();
   else if(a==='addgroup')overlay(`<h2>New group</h2><label class="fld"><label>Name</label><input class="in" id="ng" placeholder="e.g. Whitaker House contacts"></label><p class="muted" style="margin:0">After it’s created, drag people from any table onto it in the side panel.</p><div class="row"><button class="btn" id="ngx">Cancel</button><button class="btn dark" id="ngo">Create group</button></div>`,()=>{$('ng').focus();$('ngx').onclick=closeOv;
     $('ngo').onclick=async()=>{const n=$('ng').value.trim();if(!n){$('ng').focus();return}const color=PAL[GROUPS.length%PAL.length];$('ngo').disabled=true;
     const r=await save('addGroup',{name:n,color});if(!r){$('ngo').disabled=false;return}
@@ -649,21 +651,22 @@ function renderCRM(){
   const views=[['people','People','table'],['companies','Companies','table'],['deals','Deals pipeline','kanban']];
   m.innerHTML=groupHead(g)+`<div class="tabs" role="tablist">${views.map(([k,l,ic])=>`<button class="tab" role="tab" data-view="${k}" aria-selected="${S.view===k}">${svg(ic)}${l}</button>`).join('')}<button class="tab" id="addview">${svg('plus')}</button></div>
   <div class="bar">${S.view==='deals'?`<button class="btn" id="add">${svg('plus')}Create deal</button>`:`<button class="btn" id="add">${svg('plus')}Add ${S.view==='companies'?'company':'person'}</button><button class="btn" id="emailall">${svg('mail')}Email all</button><button class="btn" id="enrich">${svg('wand')}Enrich all</button>`}
-   <span class="sp"></span><input class="in" id="q" placeholder="Search" value="${esc(S.q)}" style="width:180px;border-radius:999px;padding:5px 12px"><span class="hidden-ct" title="Hidden fields">${svg('eyeoff').replace('<svg','<svg width="14" height="14"')}6</span><button class="ibtn" title="Filter">${svg('filter')}</button><button class="ibtn" title="Sort">${svg('sort')}</button></div>
+   <span class="sp"></span><input class="in" id="q" placeholder="Search" value="${esc(S.q)}" style="width:180px;border-radius:999px;padding:5px 12px">${S.view==='people'?`<button class="${fCount()?'btn sm dark':'ibtn'}" id="tfilter" title="Filter" aria-label="Filter">${svg('filter')}${fCount()?` ${fCount()}`:''}</button><button class="ibtn" id="tsort" title="Sort: ${esc(SORTS[S.sort||'last'][0])}" aria-label="Sort">${svg('sort')}</button>`:''}</div>
   <div class="scroll" id="body"></div>`;
   m.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{S.view=b.dataset.view;S.rec=null;renderCRM()});
   $('share').onclick=()=>overlay(`<h2>Share ${esc(g.name)}</h2><input class="in" placeholder="Name or email"><div class="ix"><span class="ic">${svg('user')}</span><div><b>Everyone at ClearMark</b><br><span class="muted">Full access</span></div><small></small></div><div class="ix">${av('Andrew Kreick')}<div><b>Andrew Kreick</b> (you)</div><small>Owner</small></div><div class="ix">${av('Tim Ferman')}<div><b>Tim Ferman</b></div><small>Editor</small></div><div class="row"><button class="btn" id="cl">Copy link</button><button class="btn dark" id="okx">Done</button></div>`,()=>{$('okx').onclick=closeOv;$('cl').onclick=()=>{toast('Prototype: links come with the live version.')}});
   $('addview').onclick=()=>toast('New views (table, kanban, calendar) come in the live version.');
   $('add').onclick=()=>S.view==='deals'?newDeal():S.view==='companies'?editCompany(null):newPerson();
-  if($('emailall'))$('emailall').onclick=()=>{S.sec='messages';S.msg='m2';render()};
+  if($('emailall'))$('emailall').onclick=()=>emailPeople(PEOPLE.filter(g.filter).map(p=>p.id));
   if($('enrich'))$('enrich').onclick=enrichAll;
   $('q').oninput=e=>{S.q=e.target.value;drawBody()};
+  if($('tfilter'))$('tfilter').onclick=filterDialog;if($('tsort'))$('tsort').onclick=sortDialog;
   drawBody();
 }
 function drawBody(){const g=GROUPS.find(x=>x.id===S.group);const b=$('body');const q=S.q.toLowerCase();
-  if(S.view==='people'){const rows=PEOPLE.filter(g.filter).filter(p=>!q||(p.name+p.company+p.title).toLowerCase().includes(q));
-    b.innerHTML=`<table class="tbl"><thead><tr><th><input type="checkbox" aria-label="Select all" style="margin-right:10px">${rows.length} people</th><th>Company</th><th>Job title</th><th>Last interaction ↓</th><th>Deal</th><th>Status</th><th>Market</th><th>Owner</th></tr></thead><tbody>${rows.sort((a,c)=>c.last.localeCompare(a.last)).map(p=>{const d=DEALS.find(x=>x.id===p.deal);
-      return`<tr data-p="${p.id}" draggable="true" title="Drag onto a group in the side panel to add ${esc(p.name)}" class="${S.rec===p.id?'on':''}"><td><span class="cellname">${av(p.name)}${esc(p.name)}${p.notes?`<span class="meta">${p.notes} ✎</span>`:''}${p.rem?`<span class="meta">${p.rem} ⏰</span>`:''}</span></td><td><span class="co">${tile(p.company)}${esc(p.company)}</span></td><td>${esc(p.title)}</td><td class="num">${fmtDate(p.last)}</td><td>${d?`<span class="deal">${svg('deal')}${esc(d.name)}</span>`:'<span class="muted">—</span>'}</td><td>${stPill(p.status)}</td><td>${esc(p.market)}</td><td><span class="chip">${av(p.owner).replace('class="av"','class="av" style="width:18px;height:18px;font-size:8px;background:'+hue(p.owner)+'"')}${esc(p.owner.split(' ')[0])}</span></td></tr>`}).join('')||`<tr><td colspan="8" class="empty">No people match.</td></tr>`}</tbody></table>`;
+  if(S.view==='people'){const rows=PEOPLE.filter(g.filter).filter(passFilter).filter(p=>!q||(p.name+p.company+p.title).toLowerCase().includes(q));
+    b.innerHTML=`<table class="tbl"><thead><tr><th><input type="checkbox" aria-label="Select all" style="margin-right:10px">${rows.length} people</th><th>Company</th><th>Job title</th><th>Last interaction${(S.sort||'last')==='last'?' ↓':''}</th><th>Deal</th><th>Status</th><th>Market</th><th>Owner</th></tr></thead><tbody>${sortPeople(rows).map(p=>{const d=DEALS.find(x=>x.id===p.deal);
+      return`<tr data-p="${p.id}" draggable="true" title="Drag onto a group in the side panel to add ${esc(p.name)}" class="${S.rec===p.id?'on':''}"><td><span class="cellname">${av(p.name)}${esc(p.name)}${p.notes?`<span class="meta">${p.notes} ✎</span>`:''}${p.rem?`<span class="meta">${p.rem} ⏰</span>`:''}</span></td><td><span class="co">${tile(p.company)}${esc(p.company)}</span></td><td>${esc(p.title)}</td><td class="num">${fmtDate(p.last)}</td><td>${d?`<span class="deal">${svg('deal')}${esc(d.name)}</span>`:'<span class="muted">—</span>'}</td><td>${stPill(p.status)}</td><td>${esc(p.market)}</td><td><span class="chip">${av(p.owner).replace('class="av"','class="av" style="width:18px;height:18px;font-size:8px;background:'+hue(p.owner)+'"')}${esc(p.owner.split(' ')[0])}</span></td></tr>`}).join('')||`<tr><td colspan="8" class="empty">No people match${fCount()?' these filters':''}.</td></tr>`}</tbody></table>`;
     b.querySelectorAll('[data-p]').forEach(r=>{r.onclick=()=>{S.rec=r.dataset.p;S.rtab='details';S.editing=null;drawBody();renderRec()};
       r.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-person',r.dataset.p);e.dataTransfer.setData('text/plain',PEOPLE.find(x=>x.id===r.dataset.p).name);e.dataTransfer.effectAllowed='copy'})});
   }else if(S.view==='companies'){const rows=COMPANIES.filter(c=>!q||(c.name+c.industry).toLowerCase().includes(q));
@@ -710,9 +713,9 @@ function renderRec(){
   <div class="rtabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" data-rt="${k}" aria-selected="${S.rtab===k}">${l}${k==='notes'&&p.notes?` <span class="mono muted">${p.notes}</span>`:''}${k==='rem'&&p.rem?` <span class="mono muted">${p.rem}</span>`:''}</button>`).join('')}</div><div class="rbody" id="rbody"></div>`;
   $('main').append(el);
   $('rx').onclick=()=>{S.rec=null;S.editing=null;el.remove();if(S.sec==='crm'&&S.view==='people')drawBody()};
-  $('rcopy').onclick=()=>toast('Prototype: record links come with the live version.');
+  $('rcopy').onclick=async()=>{const url=`${location.origin}${location.pathname}#p=${p.id}`;try{await navigator.clipboard.writeText(url);toast('Link copied. It opens this person (team login needed).')}catch(_){prompt('Copy this link:',url)}};
   $('ren').onclick=()=>toast(`Prototype: would find ${p.name.split(' ')[0]}’s email, LinkedIn and company details.`);
-  $('rem').onclick=()=>{S.sec='messages';S.msg='m1';render()};
+  $('rem').onclick=()=>emailPeople([p.id]);
   $('rres').onclick=()=>AI?runResearch(p):(S.rtab='notes',p._research=true,renderRec());
   if($('rrecap'))$('rrecap').onclick=()=>refreshRecap(p);
   el.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>{S.rtab=b.dataset.rt;renderRec()});
@@ -765,6 +768,25 @@ async function runResearch(p){const b=$('rres');if(p._researching)return;p._rese
   const r=await save('research',{personId:p.id});p._researching=false;
   if(r&&r.note){(NOTES[p.id]=NOTES[p.id]||[]).unshift(r.note);p.notes++;toast('Research saved as a note.');if(S.rec===p.id){S.rtab='notes'}autoRecap(p)}
   if(S.rec===p.id)renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()}
+/* People table: filter (status, owner, market) and sort */
+const SORTS={last:['Last interaction, newest first',(a,c)=>(c.last||'').localeCompare(a.last||'')],name:['Name, A to Z',(a,c)=>a.name.localeCompare(c.name)],company:['Company, A to Z',(a,c)=>a.company.localeCompare(c.company)],status:['Status',(a,c)=>(a.status||'~').localeCompare(c.status||'~')]};
+const fCount=()=>(S.fStatus||[]).length+(S.fOwner?1:0)+(S.fMarket?1:0);
+const passFilter=p=>(!(S.fStatus||[]).length||S.fStatus.includes(p.status||''))&&(!S.fOwner||p.owner===S.fOwner)&&(!S.fMarket||p.market===S.fMarket);
+const sortPeople=rows=>rows.sort(SORTS[S.sort||'last'][1]);
+function filterDialog(){const uniq=k=>[...new Set(PEOPLE.map(p=>p[k]).filter(v=>v&&v!=='—'))].sort();const st=new Set(S.fStatus||[]);
+  overlay(`<h2>Filter people</h2><div class="fld"><label>Status</label><div style="display:flex;gap:6px 14px;flex-wrap:wrap">${[...Object.keys(STATUS),''].map(s=>`<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" data-fs="${esc(s)}" ${st.has(s)?'checked':''}>${s||'No status'}</label>`).join('')}</div></div>
+   <label class="fld"><label>Owner</label><select class="in" id="f-o"><option value="">Anyone</option>${uniq('owner').map(o=>`<option ${o===S.fOwner?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+   <label class="fld"><label>Market</label><select class="in" id="f-m"><option value="">Any market</option>${uniq('market').map(o=>`<option ${o===S.fMarket?'selected':''}>${esc(o)}</option>`).join('')}</select></label>
+   <div class="row"><button class="btn" id="f-c" style="margin-right:auto">Clear</button><button class="btn dark" id="f-ok">Show people</button></div>`,()=>{
+  $('f-c').onclick=()=>{S.fStatus=[];S.fOwner='';S.fMarket='';closeOv();renderCRM()};
+  $('f-ok').onclick=()=>{S.fStatus=[...document.querySelectorAll('[data-fs]')].filter(c=>c.checked).map(c=>c.dataset.fs);S.fOwner=$('f-o').value;S.fMarket=$('f-m').value;closeOv();renderCRM()}})}
+function sortDialog(){overlay(`<h2>Sort people by</h2>${Object.entries(SORTS).map(([k,[l]])=>`<label style="display:flex;gap:8px;align-items:center"><input type="radio" name="srt" value="${k}" ${(S.sort||'last')===k?'checked':''}>${l}</label>`).join('')}<div class="row"><button class="btn dark" id="s-ok">Done</button></div>`,()=>{
+  $('s-ok').onclick=()=>{S.sort=(document.querySelector('[name="srt"]:checked')||{}).value||'last';closeOv();renderCRM()}})}
+/* notifications: open reminders that are overdue or due in the next 2 days, plus drafts waiting */
+const dueSoon=()=>openRems().filter(r=>r.due&&daysTo(r.due)<=2).sort((a,b)=>a.due.localeCompare(b.due));
+function notifications(){const list=dueSoon(),drafts=MSGS.filter(m=>m.status==='Draft'&&m.to.length);
+  overlay(`<h2>Notifications</h2>${list.length?list.map(remRow).join(''):'<p class="muted" style="margin:0">Nothing due in the next two days.</p>'}${drafts.length?`<div class="ix"><span class="ic">${svg('mail')}</span><div>${drafts.length} draft sequence${drafts.length===1?'':'s'} with recipients, not sent yet.<br><button class="btn sm" id="nt-msg" style="margin-top:4px">Open Messages</button></div><small></small></div>`:''}<div class="row"><button class="btn dark" id="okn">Done</button></div>`,h=>{
+    $('okn').onclick=closeOv;bindRemRows(h);if($('nt-msg'))$('nt-msg').onclick=()=>{closeOv();S.sec='messages';S.msg=drafts[0].id;render()}})}
 /* reminders: one row each, tick to mark done (or not) */
 function remRow(r){const d=r.due?daysTo(r.due):null;const p=PEOPLE.find(x=>x.id===r.person);
   const by=r.by===FU?'<span class="tag" style="margin-left:6px">assistant</span>':'';
@@ -834,22 +856,71 @@ const MSGS=[
  {id:'m2',subject:'Seeing the whole production line',status:'Draft',to:['Ned Clements'],body:'Hi {first_name},\n\nBrad Herman suggested we talk. At Nori Media Group we took book timelines from 360 days to 16 weeks with 100% on-time delivery, by making every title visible in one place.\n\nSales usually feels production variance first. Would a 20-minute look at how that works be useful for {company}?',follow:'Hi {first_name}, one more note: the Nori case study is two pages. Want me to send it?'},
  {id:'m3',subject:'Following up: content workflow pilot',status:'Scheduled',to:['Evan Tarakjian'],body:'Hi {first_name},\n\nI shared a few pieces from our recent work: 480 assets in two weeks with a two-person team. Creativity isn’t your bottleneck. Visibility is.\n\nWorth a quick call?',follow:'Hi {first_name}, closing the loop. If timing isn’t right, no problem at all.'},
 ];
+// Sequences: { id, subject, body, follow, wait (days), status 'Draft'|'Sent', to: [person ids], sentAt }.
+// On the site they come from Supabase (crm_sequences); the prototype turns the samples above into the same shape.
+if(LIVE){MSGS.length=0;MSGS.push(...(window.__CRM__.sequences||[]))}
+else MSGS.forEach(m=>{m.to=m.to.map(n=>(PEOPLE.find(p=>p.name===n)||{}).id).filter(Boolean);m.wait=3;m.status=m.status==='Scheduled'?'Sent':'Draft'});
+if(!MSGS.some(m=>m.id===S.msg))S.msg=MSGS[0]?MSGS[0].id:null;
+const TEMPLATES=[
+ ['First touch','A quick idea for {company}','Hi {first_name},\n\nI help creative and publishing teams see all of their work in one place, so nothing depends on one person’s memory.\n\nWould 15 minutes next week be useful to see if it fits {company}?','Hi {first_name}, bringing this back to the top of your inbox in case it got buried.'],
+ ['Follow-up','Following up','Hi {first_name},\n\nFollowing up on my last note. Happy to share a short example of how this works for a team like {company}.\n\nWorth a quick call?',''],
+ ['Case study send','The case study I mentioned','Hi {first_name},\n\nHere is the two-page case study I mentioned: how we took book timelines from 360 days to 16 weeks by making every title visible in one place.\n\nHappy to walk {company} through it.','Hi {first_name}, did the case study land? Glad to answer questions.'],
+ ['Pilot proposal','A three-week pilot for {company}','Hi {first_name},\n\nAs promised, here is the outline for a three-week pilot: capture, distill and route the decisions that today live in conversation.\n\nShall we pick a start date?','Hi {first_name}, checking in on the pilot outline. Any questions I can answer?'],
+];
+const firstName=p=>(p&&p.name||'').split(' ')[0];
+const fill=(t,p)=>String(t||'').replace(/\{first_name\}/g,firstName(p)||'there').replace(/\{company\}/g,p&&p.company&&p.company!=='—'?p.company:'your team');
 function mergeHtml(t){return esc(t).replace(/\{(first_name|company)\}/g,'<span class="merge">{$1}</span>')}
-function renderMessages(){const m=MSGS.find(x=>x.id===S.msg)||MSGS[0];const main=$('main');
-  main.innerHTML=`<div class="mhead"><h1>${esc(m.subject)}</h1><span class="st" style="background:#DDF0F7;color:#01607A">${m.status}</span><span class="sp"></span><span class="muted">Saved</span><button class="btn" id="edit">Edit draft</button><button class="btn dark" id="send">Send (${m.to.length})</button></div>
-  <div class="msg" style="flex:1;min-height:0"><div class="mlist">${m.to.map((n,i)=>{const p=PEOPLE.find(x=>x.name===n);return`<div class="mitem${i===0?' on':''}">${av(n)}<div class="t"><b>${esc(n)}</b><span>${esc(p?p.company:'')}</span></div></div>`}).join('')}<div style="padding:12px 16px"><button class="btn sm" id="addr">${svg('plus')}Add recipients</button></div></div>
-  <div class="compose"><div class="mail"><div class="mr"><span>From</span>${av('Andrew Kreick')}<b>Andrew Kreick</b></div><div class="mr"><span>To</span>${esc(m.to.join(', '))}<span style="flex:1"></span><span class="muted">Cc · Bcc</span></div><div class="mr"><span>Subject</span><b>${esc(m.subject)}</b></div>
-  <div class="body" id="mbody">${mergeHtml(m.body)}</div><div class="tools"><button class="btn sm" id="mf">Insert {first_name}</button><button class="btn sm" id="mc">Insert {company}</button><span style="flex:1"></span><button class="btn sm" id="pv">Preview for ${esc(m.to[0].split(' ')[0])}</button></div></div>
-  <div class="wait"><span>│</span><span class="pill">Wait 3 days</span><span>↓ if no reply</span></div>
-  <div class="mail"><div class="mr"><span>Step 2</span><b>Follow-up</b></div><div class="body" style="min-height:90px">${mergeHtml(m.follow)}</div></div>
-  <div style="text-align:center;margin-top:14px"><button class="btn sm" id="addstep">${svg('plus')}Add step</button></div></div></div>`;
-  const ins=t=>{m.body+=` ${t}`;renderMessages()};
-  $('mf').onclick=()=>ins('{first_name}');$('mc').onclick=()=>ins('{company}');
-  $('pv').onclick=()=>{const p=PEOPLE.find(x=>x.name===m.to[0]);$('mbody').innerHTML=esc(m.body.replace(/\{first_name\}/g,p.name.split(' ')[0]).replace(/\{company\}/g,p.company))};
-  $('edit').onclick=()=>{const b=$('mbody');b.contentEditable='true';b.textContent=m.body;b.focus();b.oninput=()=>{m.body=b.innerText}};
-  $('send').onclick=()=>{m.status='Scheduled';toast(`Prototype: ${m.to.length} personal emails would send now, with the follow-up in 3 days.`);renderMessages()};
-  $('addstep').onclick=()=>toast('Add more steps in the live version.');$('addr').onclick=()=>toast('Pick recipients from any group in the live version.');
-}
+// "Email" on a person / "Email all" on a group: a new draft addressed to them.
+async function emailPeople(ids){const rec={subject:'',body:'Hi {first_name},\n\n',follow:'',wait:3,to:ids};const r=await save('addSequence',rec);if(!r)return;
+  const m=r.sequence||{id:'m'+Date.now(),...rec,status:'Draft',sentAt:null};MSGS.push(m);S.sec='messages';S.msg=m.id;S.msgEdit=true;S.msgPv=null;S.rec=null;render()}
+async function newSequence(t){const rec={subject:t?t[1]:'',body:t?t[2]:'Hi {first_name},\n\n',follow:t?t[3]:'',wait:3,to:[]};
+  const r=await save('addSequence',rec);if(!r)return;
+  const m=r.sequence||{id:'m'+Date.now(),...rec,status:'Draft',sentAt:null};MSGS.push(m);S.sec='messages';S.msg=m.id;S.msgEdit=true;S.msgPv=null;render()}
+async function saveSequence(m,patch){const was={...m,to:[...m.to]};Object.assign(m,patch);
+  const r=await save('updateSequence',{id:m.id,subject:m.subject,body:m.body,follow:m.follow,wait:m.wait,to:m.to});
+  if(!r){Object.assign(m,was);renderMessages();return false}if(r.sequence)Object.assign(m,r.sequence);renderPanel();return true}
+function renderMessages(){const main=$('main');const m=MSGS.find(x=>x.id===S.msg);
+  if(!m){main.innerHTML=`<div class="mhead"><h1>Messages</h1></div><div class="empty">No sequences yet.<br><br><button class="btn dark" id="ns1">${svg('plus')}New sequence</button></div>`;$('ns1').onclick=()=>newSequence();return}
+  const ed=!!S.msgEdit,sent=m.status==='Sent';const to=m.to.map(id=>PEOPLE.find(p=>p.id===id)).filter(Boolean);
+  const pv=to.find(p=>p.id===S.msgPv)||null;const show=(t)=>pv?esc(fill(t,pv)):mergeHtml(t);
+  main.innerHTML=`<div class="mhead"><h1>${esc(pv?fill(m.subject,pv):m.subject)||'<span class="muted">No subject yet</span>'}</h1><span class="st" style="${sent?'background:#E2F0DD;color:#336A4E':'background:#FBF3C8;color:#6B5300'}">${sent?`Sent${m.sentAt?' '+fmtDate(m.sentAt):''}`:'Draft'}</span><span class="sp"></span>
+   ${ed?`<button class="btn" id="mx">Cancel</button><button class="btn dark" id="msave">Save</button>`:`<button class="btn" id="medit">Edit</button><button class="btn" id="mdel">Delete</button><button class="btn dark" id="msent" ${to.length?'':'disabled'}>Mark as sent (${to.length})</button>`}</div>
+  <div class="msg" style="flex:1;min-height:0"><div class="mlist">${to.map(p=>`<div class="mitem${pv&&pv.id===p.id?' on':''}" data-pv="${esc(p.id)}" title="Preview ${esc(p.name)}’s email">${av(p.name)}<div class="t" style="flex:1"><b>${esc(p.name)}</b><span>${p.email?esc(p.email):'<i class="muted">No email yet</i>'}</span></div><button class="btn sm" data-rmto="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">${svg('x').replace('<svg','<svg width="12" height="12"')}</button></div>`).join('')||'<p class="muted" style="padding:12px 16px;margin:0">No recipients yet.</p>'}<div style="padding:12px 16px"><button class="btn sm" id="addr">${svg('plus')}Add recipients</button></div></div>
+  <div class="compose">${pv?`<p class="muted" style="text-align:center;margin:0 0 12px">Preview for <b>${esc(pv.name)}</b> · <button class="btn sm" id="pvx">Back to the template</button></p>`:''}
+  <div class="mail"><div class="mr"><span>From</span>${av(ME)}<b>${esc(ME)}</b></div><div class="mr"><span>To</span>${pv?esc(pv.name+(pv.email?` <${pv.email}>`:'')):esc(to.map(p=>p.name).join(', '))||'<span class="muted">Add recipients on the left</span>'}</div>
+  <div class="mr"><span>Subject</span>${ed?`<input class="in" id="msub" value="${esc(m.subject)}" placeholder="Subject">`:`<b>${show(m.subject)}</b>`}</div>
+  ${ed?`<textarea class="in body" id="mbody" style="border:0;min-height:220px;width:100%;resize:vertical">${esc(m.body)}</textarea>`:`<div class="body">${show(m.body)}</div>`}
+  <div class="tools">${ed?`<button class="btn sm" data-ins="{first_name}">Insert {first_name}</button><button class="btn sm" data-ins="{company}">Insert {company}</button>`:pv?(pv.email?`<a class="btn sm dark" href="mailto:${encodeURIComponent(pv.email)}?subject=${encodeURIComponent(fill(m.subject,pv))}&body=${encodeURIComponent(fill(m.body,pv))}">${svg('mail')}Open in my email app</a>`:'<span class="muted">Add an email to this person to open it in your email app.</span>'):`<span class="muted">Click a recipient to preview their email${to.length?' and open it in your email app':''}.</span>`}</div></div>
+  <div class="wait"><span>│</span><span class="pill">${ed?`Wait <input class="in" id="mwait" type="number" min="0" max="60" value="${m.wait}" style="width:60px;display:inline-block;padding:2px 6px"> days`:`Wait ${m.wait} day${m.wait===1?'':'s'}`}</span><span>↓ if no reply</span></div>
+  <div class="mail"><div class="mr"><span>Step 2</span><b>Follow-up</b></div>${ed?`<textarea class="in body" id="mfollow" style="border:0;min-height:90px;width:100%;resize:vertical" placeholder="Leave empty for no follow-up">${esc(m.follow)}</textarea>`:`<div class="body" style="min-height:60px">${m.follow?show(m.follow):'<span class="muted">No follow-up.</span>'}</div>`}</div>
+  <p class="muted" style="text-align:center;font-size:12.5px;margin-top:14px">${LIVE?'Email sending isn’t connected yet. Open each email in your email app, send it, then press Mark as sent: it logs the email on each person and adds a reminder for the follow-up.':'Prototype.'}</p></div></div>`;
+  main.querySelectorAll('[data-pv]').forEach(x=>x.onclick=e=>{if(e.target.closest('[data-rmto]'))return;S.msgPv=S.msgPv===x.dataset.pv?null:x.dataset.pv;renderMessages()});
+  if($('pvx'))$('pvx').onclick=()=>{S.msgPv=null;renderMessages()};
+  main.querySelectorAll('[data-rmto]').forEach(x=>x.onclick=async e=>{e.stopPropagation();if(S.msgPv===x.dataset.rmto)S.msgPv=null;if(await saveSequence(m,{to:m.to.filter(id=>id!==x.dataset.rmto)}))renderMessages()});
+  $('addr').onclick=()=>pickRecipients(m);
+  if(ed){const area=$('mbody');let at=null;['keyup','click','select'].forEach(ev=>area.addEventListener(ev,()=>{at=[area.selectionStart,area.selectionEnd]}));
+    // Insert where the cursor last was in the email, or at the end if you haven't clicked into it.
+    main.querySelectorAll('[data-ins]').forEach(b=>b.onclick=()=>{const t=b.dataset.ins,[a,z]=at||[area.value.length,area.value.length];area.value=area.value.slice(0,a)+t+area.value.slice(z);area.focus();area.selectionStart=area.selectionEnd=a+t.length;at=[a+t.length,a+t.length]});
+    $('mx').onclick=()=>{S.msgEdit=false;renderMessages()};
+    $('msave').onclick=async()=>{$('msave').disabled=true;if(await saveSequence(m,{subject:$('msub').value.trim(),body:$('mbody').value,follow:$('mfollow').value.trim(),wait:Math.min(60,Math.max(0,+$('mwait').value||0))})){S.msgEdit=false;toast('Saved.');renderMessages()}else $('msave').disabled=false}}
+  else{$('medit').onclick=()=>{S.msgEdit=true;S.msgPv=null;renderMessages()};
+    $('mdel').onclick=()=>{const b=$('mdel');if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Click again to delete';return}b.disabled=true;
+      save('deleteSequence',{id:m.id}).then(r=>{if(!r){b.disabled=false;return}MSGS.splice(MSGS.indexOf(m),1);S.msg=MSGS[0]?MSGS[0].id:null;toast('Sequence deleted.');render()})};
+    $('msent').onclick=()=>markSent(m,to)}}
+function pickRecipients(m){const chosen=new Set(m.to);let grp='';
+  const list=()=>PEOPLE.filter(p=>!grp||(p.groups||[]).includes(grp)).map(p=>`<label style="display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><input type="checkbox" data-pk="${esc(p.id)}" ${chosen.has(p.id)?'checked':''}>${av(p.name)}<span style="flex:1"><b style="font-weight:500">${esc(p.name)}</b><br><span class="muted" style="font-size:12.5px">${esc(p.company)} · ${p.email?esc(p.email):'no email yet'}</span></span></label>`).join('');
+  overlay(`<h2>Recipients</h2><select class="in" id="pk-g"><option value="">Everyone</option>${GROUPS.map(g=>`<option value="${esc(g.id)}">${esc(g.name)}</option>`).join('')}</select><div id="pk-l" style="max-height:50vh;overflow:auto">${list()}</div><div class="row"><button class="btn" id="pk-x">Cancel</button><button class="btn dark" id="pk-ok">Save</button></div>`,()=>{
+    const bind=()=>$('pk-l').querySelectorAll('[data-pk]').forEach(c=>c.onchange=()=>{c.checked?chosen.add(c.dataset.pk):chosen.delete(c.dataset.pk)});bind();
+    $('pk-g').onchange=e=>{grp=e.target.value;$('pk-l').innerHTML=list();bind()};$('pk-x').onclick=closeOv;
+    $('pk-ok').onclick=async()=>{$('pk-ok').disabled=true;if(await saveSequence(m,{to:[...chosen]})){closeOv();renderMessages()}else $('pk-ok').disabled=false}})}
+function markSent(m,to){const noEmail=to.filter(p=>!p.email).length;
+  overlay(`<h2>Mark as sent?</h2><p style="margin:0">Have you sent this email to ${to.length} ${to.length===1?'person':'people'}? This logs it on each person${m.follow?` and adds a reminder to send the follow-up in ${m.wait} day${m.wait===1?'':'s'}`:''}.</p>${noEmail?`<p class="muted" style="margin:0">${noEmail} of them ${noEmail===1?'has':'have'} no email address in the CRM.</p>`:''}<div class="row"><button class="btn" id="ms-x">Cancel</button><button class="btn dark" id="ms-ok">Yes, mark as sent</button></div>`,()=>{
+    $('ms-x').onclick=closeOv;$('ms-ok').onclick=async()=>{$('ms-ok').disabled=true;const r=await save('markSequenceSent',{id:m.id});if(!r){$('ms-ok').disabled=false;return}
+      const day=r.day||isoToday();
+      if(r.sequence)Object.assign(m,r.sequence);else{m.status='Sent';m.sentAt=day}
+      for(const p of to){const row=(r.interactions||[]).find(x=>x.person===p.id);(INTERACTIONS[p.id]=INTERACTIONS[p.id]||[]).unshift(row?row.row:['mail',m.subject,ME,'Today']);if(!p.last||p.last<day)p.last=day}
+      if(r.reminders)REMINDERS.push(...r.reminders);else if(m.follow)to.forEach((p,i)=>REMINDERS.push({id:'r'+Date.now()+i,person:p.id,title:`Send the follow-up: ${m.subject}`,due:addDays(m.wait),done:false}));
+      to.forEach(p=>p.rem=openRems(p.id).length);closeOv();toast(`Logged on ${to.length} ${to.length===1?'person':'people'}.`);render()}})}
 
 /* ---------- dashboards ---------- */
 const CAT=['#0099CE','#DB1F3D','#469C6F','#F5DE73','#294079','#E48F46'];
@@ -1021,6 +1092,9 @@ const isCollapsed=()=>APPEL.classList.contains('collapsed');
 document.addEventListener('keydown',e=>{if(e.key==='['&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!document.activeElement.isContentEditable)setCollapsed(!isCollapsed(),true)});
 setWidth(PW);
 {let st=null;try{st=localStorage.getItem('cm:side')}catch(_){}setCollapsed(st==='0'||(st==null&&innerWidth<=900),false)}
+// A copied record link (…/clrcrm/crm#p=<id>) opens that person.
+{const m=/^#p=([\w-]+)$/.exec(location.hash);const pr=m&&PEOPLE.find(x=>x.id===m[1]);
+  if(pr){S.sec='crm';S.view='people';S.rec=pr.id;S.rtab='details';const g=GROUPS.find(x=>(pr.groups||[]).includes(x.id));if(g)S.group=g.id}}
 render();
 if(LIVE&&window.__CRM__.followUpsAdded)setTimeout(()=>toast(`Follow-up assistant added ${window.__CRM__.followUpsAdded} reminder${window.__CRM__.followUpsAdded===1?'':'s'}. See My follow-ups.`),400);
 </script>

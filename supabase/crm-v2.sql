@@ -143,3 +143,26 @@ create policy "CRM members manage crm_settings" on public.crm_settings for all t
   with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));
 insert into public.crm_settings (id, data) values ('crm', '{"assist":{"follow":true,"recap":true,"research":false,"portal":true},"followAfter":"1 week"}'::jsonb)
 on conflict (id) do nothing;
+
+-- Message sequences (Oct 14, migration "crm_v2_sequences"): subject, email text, follow-up and
+-- recipients (crm_people ids). Seeded with the 3 drafts from the CRM prototype.
+-- Until an email service is connected, "Mark as sent" logs an email interaction per recipient
+-- and a follow-up reminder (app/clrcrm/crm/api).
+create table if not exists public.crm_sequences (
+  id uuid primary key default gen_random_uuid(),
+  subject text not null default '' check (char_length(subject) <= 200),
+  body text not null default '' check (char_length(body) <= 10000),
+  follow_up text not null default '' check (char_length(follow_up) <= 5000),
+  wait_days smallint not null default 3 check (wait_days between 0 and 60),
+  status text not null default 'Draft' check (status in ('Draft', 'Sent')),
+  recipients uuid[] not null default '{}',
+  created_by text check (char_length(created_by) <= 100),
+  sent_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger crm_sequences_updated_at before update on public.crm_sequences for each row execute function public.set_updated_at();
+alter table public.crm_sequences enable row level security;
+create policy "CRM members manage crm_sequences" on public.crm_sequences for all to authenticated
+  using (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())))
+  with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));
