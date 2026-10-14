@@ -27,7 +27,7 @@ const TEMPLATES: Template[] = [
   { id: "photo-tags", type: "plat", slots: [s("image", "image"), s("label", "text"), s("headline", "list"), s("tags", "list"), s("logos", "logos")] },
   { id: "offers", type: "offersonly", slots: [s("cards", "offers")] },
   // Design-system offer cards (canvas: Offer Card Full / Two / Three). Sizes per screen: builder-site.css.
-  { id: "system", type: "system", slots: [s("image", "image"), s("label", "text"), s("headline", "text"), s("answer", "text"), s("cards", "list")] },
+  { id: "system", type: "system", slots: [s("image", "image"), s("label", "text"), s("headline", "text"), s("answer", "text"), s("cards", "list"), s("icons", "logos")] },
   { id: "engine", type: "engine", slots: [s("image", "image"), s("nodes", "list"), s("headline", "text"), s("body", "text")] },
   { id: "offer-full", type: "ocards", slots: [s("cards", "offers")] },
   { id: "offer-two", type: "ocards", slots: [s("cards", "offers")] },
@@ -61,6 +61,8 @@ export type BuilderState = {
   pages?: Record<string, { uid: string; t: string; name?: string }[]>;
   slots?: Record<string, { placed?: unknown }>;
   flip?: Record<string, boolean>;
+  // System sections whose cards show no icons (Studio: Card icons → Show icons off).
+  noIcons?: Record<string, boolean>;
   // Image focus points (% from top-left) and zoom (1–3×): Desktop, plus optional tablet/phone crops.
   crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown; tablet?: unknown; phone?: unknown }>;
   pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
@@ -186,7 +188,7 @@ function pickGraph(P: (key: string) => unknown, lineKey: string, delay: number):
 }
 
 // ── Drawing each template (live mode: empty spots are simply left out) ──
-function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null): string {
+function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
   const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
   const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
@@ -240,7 +242,10 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     case "system": {
       const icons = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><path d=\"M5 12h22M5 20h12M15 4v16\"/><path d=\"M20 26l3 3 6-7\"/>", "<rect x=\"3\" y=\"5\" width=\"26\" height=\"18\" rx=\"2\"/><path d=\"M7 15h4l2-4 3 7 2-3h3\"/><path d=\"M24 30s-5-3-5-6a2.5 2.5 0 0 1 5-1 2.5 2.5 0 0 1 5 1c0 3-5 6-5 6z\"/>", "<path d=\"M3 16h10l8-9h7M24 3l4 4-4 4\"/><path d=\"M13 16l8 9h7M24 21l4 4-4 4\"/>", "<path d=\"M5 28v-3M11 28v-6M17 28v-9M23 28v-12M29 28v-15\"/><path d=\"M4 18l8-7 6 4 11-10M24 5h5v5\"/>"];
       const cards = rows(P("cards")).filter(hasText).slice(0, 4);
-      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p><svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg></article>`).join("")}</div>` : ""}`;
+      // Each card's icon: its own image from Card icons, else the built-in one; none when icons are off.
+      const own = Array.isArray(P("icons")) ? (P("icons") as unknown[]).slice(0, 4).map(safeImage) : [];
+      const icon = (i: number) => noIcons ? "" : own[i] ? `<img class="sys-icon" src="${esc(own[i] as string)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg>`;
+      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i)}</article>`).join("")}</div>` : ""}`;
     }
     case "engine": {
       // Engine (T.O.E.): the icon for each place, the fan + laptop drawing, then the words. Hover moves: builder-site.css.
@@ -351,7 +356,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     else if (tpl.type === "calendly") sections.push({ kind: "calendly", id, uid, className });
     else {
       // A section with nothing placed in it is left off the live page.
-      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer);
+      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true);
       // Named elements get their link name as an id (the first element drawn for that spot).
       for (const sl of tpl.slots) { const a = here[`${uid}.${sl.key}`]; if (a) html = html.replace(`data-slot=".${sl.key}"`, `id="${a}" data-slot=".${sl.key}"`); }
       if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id, uid, className, html });

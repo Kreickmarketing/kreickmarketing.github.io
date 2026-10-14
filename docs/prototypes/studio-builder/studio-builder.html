@@ -948,6 +948,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .sys-card h3 { margin: 0; font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 300; }
 .sys-card p.sys-text { margin: 0; font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 300; }
 .sys-card svg { width: 48px; height: 48px; margin-top: auto; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.sys-card .sys-icon { width: 48px; height: 48px; margin-top: auto; flex: none; object-fit: contain; object-position: left bottom; }
 @container (max-width: 1000px) {
   .sys { padding: 64px 32px; gap: 64px; }
   .sys-top { grid-template-columns: 1fr; gap: 16px; }
@@ -1886,6 +1887,7 @@ const TEMPLATES = [
     { key: "headline", label: "Statement", kind: "text", limit: 200, long: true, source: "One or two sentences" },
     { key: "answer", label: "Bold line", kind: "text", limit: 40, optional: true, source: "e.g. “Our answer is:”" },
     { key: "cards", label: "Cards", kind: "list", max: 4, axis: "x", cols: [{ key: "title", label: "Title", limit: 40 }, { key: "text", label: "Text", limit: 140, long: true }], about: "Numbered 01–04 with an icon, in this order.", source: "Playbook" },
+    { key: "icons", label: "Card icons", kind: "logos", max: 4, optional: true, iconToggle: true, about: "One image per card, in card order (upload one or pick from Sources · Images). Empty: the built-in icons. Turn off “Show icons” to have none.", source: "Sources · Images" },
   ]},
   { id: "engine", name: "Engine (T.O.E.)", type: "engine", about: "Photo background with a fan of five icons around a laptop; each icon slides outward on hover. Then a headline and a paragraph.", slots: [
     { key: "image", label: "Background image", kind: "image", source: "Images · Engine background" },
@@ -1993,7 +1995,7 @@ function seed() {
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, device: "desktop", guides: true };
+  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, device: "desktop", guides: true };
 }
 // Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
@@ -2010,7 +2012,7 @@ const liveChip = (p) => `<span class="live-chip${pageIsLive(p) ? " is-live" : ""
 let S;
 if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
-if (S) { S.flip ||= {}; if (!S.pages) S = null; }
+if (S) { S.flip ||= {}; S.noIcons ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
 // Sections made from copies in the old Design view go back to their original template;
 // design now lives in Claude Design, so the builder keeps no design of its own.
@@ -2113,7 +2115,9 @@ function offersBlock(id, max) {
 
 // System template cards: number and icon come from the card's place (01–04).
 const SYS_ICONS = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><path d=\"M5 12h22M5 20h12M15 4v16\"/><path d=\"M20 26l3 3 6-7\"/>", "<rect x=\"3\" y=\"5\" width=\"26\" height=\"18\" rx=\"2\"/><path d=\"M7 15h4l2-4 3 7 2-3h3\"/><path d=\"M24 30s-5-3-5-6a2.5 2.5 0 0 1 5-1 2.5 2.5 0 0 1 5 1c0 3-5 6-5 6z\"/>", "<path d=\"M3 16h10l8-9h7M24 3l4 4-4 4\"/><path d=\"M13 16l8 9h7M24 21l4 4-4 4\"/>", "<path d=\"M5 28v-3M11 28v-6M17 28v-9M23 28v-12M29 28v-15\"/><path d=\"M4 18l8-7 6 4 11-10M24 5h5v5\"/>"];
-const sysCard = (r, i, attr = "") => `<article class="sys-card" ${attr}><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(r.title)}</h3><p class="sys-text">${esc(r.text)}</p><svg viewBox="0 0 32 32" aria-hidden="true">${SYS_ICONS[i % 4]}</svg></article>`;
+// Card icon: the section's own image for that place (Card icons), else the built-in one; none when Show icons is off.
+const sysIcon = (sec, k, i) => { if (S.noIcons[sec.id]) return ""; const own = (P(k("icons")) || [])[i]; return own ? `<img class="sys-icon" src="${esc(own)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${SYS_ICONS[i % 4]}</svg>`; };
+const sysCard = (r, i, attr = "", icon = "") => `<article class="sys-card" ${attr}><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(r.title)}</h3><p class="sys-text">${esc(r.text)}</p>${icon}</article>`;
 // Engine template: the five icons (by place) and the fan + laptop drawing.
 const ENG_ICONS = ["<path d=\"M20 8a9 9 0 1 0 2.6 6.4\"/><path d=\"M22 6v5h-5\"/><path d=\"M14 10v5l3 2\"/>", "<rect x=\"5\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M9 12h4M9 16h3\"/><circle cx=\"20\" cy=\"14\" r=\"2\"/><path d=\"M20 16v4l-3 3\"/>", "<path d=\"M5 9V6h3M20 6h3v3M23 19v3h-3M8 22H5v-3\"/><circle cx=\"12\" cy=\"11\" r=\"2\"/><path d=\"M9 19l2-4 3 2\"/><path d=\"M19 14l4 7h-8z\"/><path d=\"M19 17v2\"/>", "<path d=\"M6 22v-2M10 22v-5M14 22v-8M18 22v-6M22 22v-11\"/><path d=\"M5 15l6-6 4 3 8-7M19 5h4v4\"/>", "<circle cx=\"11\" cy=\"10\" r=\"4\"/><path d=\"M4 23c0-4 3-6 7-6s7 2 7 6\"/><path d=\"M21 9v6M18 12h6\"/>"];
 const ENG_FAN = "<svg class=\"eng-fan\" viewBox=\"0 0 1280 560\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M550 480H405A235 235 0 0 1 460 328.9L552.7 406.7\"/><path d=\"M552.7 406.7L448.5 319.3A250 250 0 0 1 575.3 238.5L620.2 406.1\"/><path d=\"M620.2 406.1L572.2 226.9A262 262 0 0 1 707.8 226.9L659.8 406.1\"/><path d=\"M659.8 406.1L705.2 236.6A252 252 0 0 1 833 318L727.3 406.7\"/><path d=\"M727.3 406.7L820 328.9A235 235 0 0 1 875 480H730\"/><path d=\"M405 480H552M728 480H875\"/><rect x=\"552\" y=\"408\" width=\"176\" height=\"108\" rx=\"8\"/><path d=\"M544 516H736L754 544H526Z\"/><path d=\"M624 533h32\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g fill=\"currentColor\"><path d=\"M596 454a22 22 0 1 0 22 22h-22z\"/><path d=\"M600 450v-18a18 18 0 0 1 18 18z\"/><rect x=\"650\" y=\"484\" width=\"9\" height=\"13\" rx=\"2\"/><rect x=\"664\" y=\"475\" width=\"9\" height=\"22\" rx=\"2\"/><rect x=\"678\" y=\"479\" width=\"9\" height=\"18\" rx=\"2\"/><rect x=\"692\" y=\"461\" width=\"9\" height=\"36\" rx=\"2\"/></g><path d=\"M650 468l13-15 11 9 20-22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
@@ -2273,7 +2277,7 @@ const SECTION_HTML = {
     const img = P(k("image")), cards = P(k("cards"));
     return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
       <div class="sys-top">${text(k("label"), "p", "tagline", "on-dark")}<div class="sys-statement">${text(k("headline"), "h2", "sys-head", "on-dark")}${text(k("answer"), "p", "sys-answer", "on-dark slot-optional")}</div></div>
-      ${cards ? `<div ${filledAttr(k("cards")).replace('class="', 'class="sys-cards ')}>${cards.map((r, i) => sysCard(r, i, `data-item="${k("cards")}:${i}"`)).join("")}</div>` : `<div class="sys-cards">${slotBox(k("cards"), "on-dark", "grid-column:1/-1;min-height:200px")}</div>`}`;
+      ${cards ? `<div ${filledAttr(k("cards")).replace('class="', 'class="sys-cards ')}>${cards.map((r, i) => sysCard(r, i, `data-item="${k("cards")}:${i}"`, sysIcon(sec, k, i))).join("")}</div>` : `<div class="sys-cards">${slotBox(k("cards"), "on-dark", "grid-column:1/-1;min-height:200px")}</div>`}`;
   },
   engine: (sec, k) => {
     const img = P(k("image")), nodes = P(k("nodes")) && P(k("nodes")).slice(0, 5);
@@ -2403,7 +2407,9 @@ function cardBody(id) {
         <div class="card-actions"><button type="button" class="btn btn-small" data-zoom="${id}:-1" aria-label="Zoom out" ${zoomOf(c) <= 1 ? "disabled" : ""}>−</button><button type="button" class="btn btn-small" data-zoom="${id}:1" aria-label="Zoom in" ${zoomOf(c) >= 3 ? "disabled" : ""}>+</button><button type="button" class="btn btn-small" data-cropauto="${id}" ${own ? "" : "disabled"}>${bp === "desktop" ? "Auto (centre, no zoom)" : `Use ${parent}'s crop`}</button></div></div>`
       : `<div class="dropzone">Drop an image or video here, or on the preview.</div>`;
   } else if (sl.kind === "logos") {
-    ed = `<div class="field"><label>Logos · ${v.length}/${sl.max}</label><div class="pick-grid">${v.map((s, i) => `<figure><img src="${esc(s)}" alt=""><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove logo ${i + 1}">×</button></figure>`).join("")}</div></div><div class="dropzone">Drop logos here, or tap them in Sources.</div>`;
+    const on = !S.noIcons[sl.section];
+    if (sl.iconToggle) ed = `<label class="set-check"><input type="checkbox" data-noicons="${sl.section}" ${on ? "checked" : ""}><span><b>Show icons</b><span>${on ? (v.length ? "Your images, in card order. A card without one gets the built-in icon." : "Built-in icons until you add your own.") : "No icons on these cards."}</span></span></label>`;
+    ed += `<div class="field"><label>${sl.iconToggle ? "Icons" : "Logos"} · ${v.length}/${sl.max}</label><div class="pick-grid">${v.map((s, i) => `<figure><img src="${esc(s)}" alt=""><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove logo ${i + 1}">×</button></figure>`).join("")}</div></div><div class="dropzone">Drop ${sl.iconToggle ? "icons" : "logos"} here, or tap them in Sources.</div>`;
   } else if (sl.kind === "offers") {
     const left = OFFERS.filter((o) => !v.includes(o.id));
     ed = `<div class="field"><label>Cards · ${v.length}/${sl.max}</label><ul class="item-list">${v.map((oid, i) => `<li><span>${esc(offerById(oid)?.title)}</span>
@@ -2723,7 +2729,7 @@ function closeRemove(yes) {
   const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
   l.splice(i, 1);
   for (const sid of Object.keys(S.slots)) if (sid.startsWith(id + ".")) delete S.slots[sid];
-  delete S.flip[id];
+  delete S.flip[id]; delete S.noIcons[id];
   if (curSec === id) curSec = null;
   if (selected?.startsWith(id + ".")) selected = openCard = null;
   rebuildSlots(); render(); toast(`Removed ${name}.`);
@@ -2928,6 +2934,7 @@ function refreshCard(id, input) {
 }
 document.addEventListener("change", (e) => {
   const t = e.target;
+  if (t.dataset.noicons) { const sid = t.dataset.noicons; if (t.checked) delete S.noIcons[sid]; else S.noIcons[sid] = true; render(); toast(t.checked ? "Icons on." : "Icons off for these cards."); return; }
   if (t.dataset.embed) {
     const id = t.dataset.embed, v = t.value.trim();
     if (v && !parseEmbed(v)) { const err = document.getElementById("embed-err"); if (err) err.textContent = "Paste a YouTube or Vimeo link (starting with https://)."; return; }
