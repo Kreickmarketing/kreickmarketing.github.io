@@ -34,6 +34,10 @@
   --font-weight-semi-bold: 600;
   --font-weight-bold: 700;
   --font-weight-extra-bold: 800;
+  /* Roles (Oct 14): heads 200 (h1–h6), all sub text 300, purposely bold text 700 (sub text + 400). */
+  --font-weight-head: 200;
+  --font-weight-text: 300;
+  --font-weight-strong: 700;
 }
 
 /* ═════════════════════════════════════════════════════════════════ */
