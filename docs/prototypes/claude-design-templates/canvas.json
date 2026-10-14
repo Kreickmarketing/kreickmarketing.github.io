@@ -313,27 +313,6 @@
       "x": 1360,
       "y": 14820
     },
-    "offers_desktop.dc.html": {
-      "h": 720,
-      "title": "offers · desktop 1280",
-      "w": 1280,
-      "x": 0,
-      "y": 11320
-    },
-    "offers_phone.dc.html": {
-      "h": 1700,
-      "title": "offers · phone 390",
-      "w": 390,
-      "x": 2208,
-      "y": 11320
-    },
-    "offers_tablet.dc.html": {
-      "h": 1180,
-      "title": "offers · tablet 768",
-      "w": 768,
-      "x": 1360,
-      "y": 11320
-    },
     "photo-points_desktop.dc.html": {
       "h": 780,
       "title": "photo-points · desktop 1280",
@@ -561,14 +540,6 @@
       "x": 0,
       "y": 14560
     },
-    "t-offers": {
-      "kind": "title1",
-      "maxW": 2598,
-      "text": "Offer cards (live today)",
-      "w": 240,
-      "x": -9,
-      "y": 11070
-    },
     "t-photo-points": {
       "kind": "title1",
       "maxW": 2598,
@@ -615,9 +586,6 @@
     "system_tablet.dc.html",
     "system_phone.dc.html",
     "engine_desktop.dc.html",
-    "offers_desktop.dc.html",
-    "offers_tablet.dc.html",
-    "offers_phone.dc.html",
     "offer-full_desktop.dc.html",
     "offer-full_tablet.dc.html",
     "offer-full_phone.dc.html",

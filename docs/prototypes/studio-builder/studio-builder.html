@@ -386,18 +386,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .plat-logos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 32px; align-items: center; }
 .plat-logos img { max-width: 100%; height: 36px; object-fit: contain; }
 
-.offer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
-.offer { position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 5; color: #fff; display: flex; flex-direction: column; justify-content: space-between; padding: 32px; background: var(--cm-midnight); }
-.offer img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.offer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.55), rgba(28,32,38,0.1) 45%, rgba(28,32,38,0.75)); }
-.offer > * { position: relative; z-index: 1; }
-.offer h3 { font-size: 36px; line-height: 1; letter-spacing: -1.5px; font-weight: 700; margin: 0; }
-.offer p { margin: 8px 0 0; font-size: 17px; }
-.offer .foot { border-top: 1px solid rgba(255,255,255,0.7); padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
-.offer .price { font-size: 30px; font-weight: 700; letter-spacing: -1px; text-align: right; }
-.offer .price small { display: block; font-size: 12px; font-weight: 400; letter-spacing: 0; }
-.offer .slot { aspect-ratio: auto; }
-.offer-slot { aspect-ratio: 4 / 5; }
 
 .quote-sec { background: var(--cm-clay); }
 .quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
@@ -514,7 +502,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .sh h2 { font-size: 36px; letter-spacing: -1.5px; }
   .plat-logos { grid-template-columns: repeat(2, 1fr); }
   .plat-foot { gap: 32px; }
-  .offer-grid { grid-template-columns: 1fr; }
   .quote-sec blockquote { font-size: 28px; }
   .mail h2 { font-size: 36px; }
   .site-footer { padding: 32px; }
@@ -833,7 +820,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 /* Offer Card Full / Two / Three (Oct 8): the design-system cards (docs/design-system/cards.md).
    Full: Card-1280 → 640 → 320 · Two: 640 ×2 → 320 ×2 → 160 ×2 · Three: 320 ×3 → 160 ×3 → 320 stacked.
    Margins: 16px top and bottom (8px on phone); 32px a side on desktop and tablet, 16px on phone. */
-/* Price and arrow link sit together at the bottom right (Oct 14). The arrow shows when the offer has a button link (CBL). */
+/* Price and arrow link sit together at the bottom right (Oct 14). The arrow is on every card; it links once the offer has a Button link (CBL). */
 .oc-end { margin-left: auto; flex: none; display: flex; align-items: flex-end; gap: 16px; }
 .oc-go { display: inline-flex; flex: none; color: inherit; text-decoration: none; }
 .oc-go svg { width: 36px; height: 36px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -1902,9 +1889,6 @@ const TEMPLATES = [
     { key: "tags", label: "+ Tags", kind: "list", max: 9, axis: "x", cols: [{ key: "tag", label: "Tag", limit: 30 }], source: "Business areas you serve" },
     { key: "logos", label: "Logos", kind: "logos", max: 20, axis: "x", about: "Up to 20. Two rows that slide sideways: the first half on top (moving left), the rest below (moving right).", source: "Images · Platform logos" },
   ]},
-  { id: "offers", name: "Offer cards", type: "offersonly", hidden: true, about: "Up to four offer cards from the CMS, side by side.", slots: [
-    { key: "cards", label: "Offer cards", kind: "offers", max: 4, axis: "x", about: "Cards come from the CMS. Edit an offer once and every page that shows it updates.", source: "Sources · CMS Cards" },
-  ]},
   // Offer cards built from the design-system cards (canvas rows Offer Card Full / Two / Three, Oct 8).
   { id: "system", name: "System template", type: "system", about: "Full photo with a label and a big statement, then up to four numbered cards in see-through Midnight.", slots: [
     { key: "image", label: "Background image", kind: "image", source: "Images" },
@@ -1970,9 +1954,9 @@ const START_PAGES = [
 let PAGE_LIST = START_PAGES;
 const START_SECTIONS = {
   home: [["hero", "hero", "Hero"], ["credibility", "logos", "Credibility"], ["why", "heading", "Why ClearMark · heading"], ["why-proof", "photo-points", "Founder + selling points"],
-    ["platforms", "photo-tags", "Platforms"], ["solutions", "heading", "Solutions · heading"], ["sol-offers", "offers", "Offer cards"], ["mailing", "mailing", "Mailing list"]],
+    ["platforms", "photo-tags", "Platforms"], ["solutions", "heading", "Solutions · heading"], ["sol-offers", "offer-three", "Offer cards"], ["mailing", "mailing", "Mailing list"]],
   about: [["about-hero", "page-hero", "Page hero"], ["ab-head", "heading", "About · heading"], ["story", "photo-text", "Photo + story"], ["team", "points", "How the team works"]],
-  pricing: [["pr-head", "heading", "Pricing · heading"], ["pr-cards", "offers", "Offers"]],
+  pricing: [["pr-head", "heading", "Pricing · heading"], ["pr-cards", "offer-three", "Offers"]],
   book: [["bk-head", "heading", "Book a call · heading"], ["bk-cal", "calendly", "Calendly"]],
 };
 
@@ -2119,25 +2103,16 @@ const filledAttr = (id) => `data-slot="${id}" class="filled${selected === id ? "
 const text = (id, tag, cls = "", extraSlotCls = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${esc(v)}</${tag}>` : slotBox(id, extraSlotCls); };
 const lines = (id, tag, cls = "", extra = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${v.map((r) => `<span>${esc(r.line)}</span>`).join("")}</${tag}>` : slotBox(id, extra); };
 const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY_OFFER_IDS[oid] || oid));
-const offerCard = (o, i, id) => `<article class="offer" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span class="mono" style="font-size:13px">${o.tag ? `+ ${esc(o.tag)}` : ""}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`;
 // Design-system offer card (Offer Card Full / Two / Three): its size per screen comes from CSS.
 const OC_PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 const OC_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
-const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}${o.price || o.link ? `<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.link ? `<span class="oc-go" title="Links to ${esc(o.link)}">${OC_ARROW}</span>` : ""}</div>` : ""}</div></article>`;
-// Arrow link (the offer's button link, CBL). In Studio it's a picture; on the live site a real link.
+const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}<span class="oc-go" title="${o.link ? `Links to ${esc(o.link)}` : "No link yet: add a Button link (CBL) to this offer in CMS"}">${OC_ARROW}</span></div></div></article>`;
+// Arrow (every card): on the live site it links to the offer's Button link (CBL) once that's filled in.
 function ocBlock(id, max) {
   const v = P(id), items = v ? v.map(offerById).filter(Boolean) : [];
   const cells = items.map((o, i) => ocCard(o, i, id));
   for (let i = items.length; i < max; i++) cells.push(slotBox(id, "oc-slot", "").replace(esc(SLOTS[id].label), max > 1 ? `Offer card ${i + 1}` : "Offer card"));
   return v ? `<div class="oc-grid ${filledAttr(id).match(/class="([^"]*)"/)[1]}" data-slot="${id}">${cells.join("")}</div>` : `<div class="oc-grid">${cells.join("")}</div>`;
-}
-function offersBlock(id, max) {
-  const v = P(id);
-  const items = v ? v.map(offerById).filter(Boolean) : [];
-  const cells = items.map((o, i) => offerCard(o, i, id));
-  // Empty card spots stay dotted, so you can see how many cards fit.
-  for (let i = items.length; i < (v ? items.length : Math.min(max, 3)); i++) cells.push(slotBox(id, "offer-slot", "").replace(esc(SLOTS[id].label), `Offer card ${i + 1}`));
-  return v ? `<div class="offer-grid ${filledAttr(id).match(/class="([^"]*)"/)[1]}" data-slot="${id}">${cells.join("")}</div>` : `<div class="offer-grid">${cells.join("")}</div>`;
 }
 
 // System template cards: number and icon come from the card's place (01–04).
@@ -2337,7 +2312,6 @@ const SECTION_HTML = {
     const bodyHtml = P(body) ? `<p ${filledAttr(body).replace('class="', 'class="body ')}>${esc(P(body))}</p>` : `<div style="margin-top:16px">${slotBox(body, "slot-optional", "min-height:56px")}</div>`;
     return `<div class="sh">${text(k("tagline"), "p", "tagline")}<div>${lines(k("headline"), "h2")}${bodyHtml}</div></div>`;
   },
-  offersonly: (sec, k) => offersBlock(k("cards"), SLOTS[k("cards")].max),
   ocards: (sec, k) => ocBlock(k("cards"), SLOTS[k("cards")].max),
   video: (sec, k) => {
     const e = parseEmbed(P(k("video")));
@@ -2347,7 +2321,7 @@ const SECTION_HTML = {
   },
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
-const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
+const SECTION_CLASS = { hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
 
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 const CHROME_MAX = { links: 7, label: 30, text: 140 };
@@ -2540,7 +2514,6 @@ function tplThumb(type, id = "") {
     photopoints: F(6, 6, 28, 36) + L("M42 12h12M58 12h16M42 24h12M58 24h16M42 36h12M58 36h16"),
     story: F(6, 6, 28, 36) + L("M42 12h32M42 18h30M42 24h32M42 30h26", 1.2),
     plat: F(1, 1, 78, 46) + L("M8 9h10M30 9h40") + [8, 22, 36].map((x) => R(x, 32, 12, 6, 3)).join(""),
-    offersonly: [6, 30, 54].map((x) => F(x, 8, 20, 32)).join(""),
     // The three design-system offer layouts: one wide card (words in a panel), two squares, three tall cards.
     "offer-full": F(4, 6, 72, 36) + R(9, 12, 22, 18, 2) + L("M13 17h12M13 22h9", 1.5) + R(9, 34, 11, 4, 2) + L("M60 36h11", 2.5),
     "offer-two": [6, 42].map((x) => F(x, 8, 32, 32) + L(`M${x + 4} 13h14M${x + 4} 17h10`, 1.5) + L(`M${x + 4} 32h24`, 1) + L(`M${x + 20} 36h8`, 2.5)).join(""),

@@ -159,16 +159,6 @@
 .site .plat-logos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 32px; align-items: center; }
 .site .plat-logos img { max-width: 100%; height: 36px; object-fit: contain; }
 
-.site .offer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; }
-.site .offer { position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 4 / 5; color: var(--white); display: flex; flex-direction: column; justify-content: space-between; padding: 32px; background: var(--midnight); }
-.site .offer img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.site .offer::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.55), rgba(28,32,38,0.1) 45%, rgba(28,32,38,0.75)); }
-.site .offer > * { position: relative; z-index: 1; }
-.site .offer h3 { font-size: 36px; line-height: 1; letter-spacing: -1.5px; font-weight: 700; margin: 0; }
-.site .offer p { margin: 8px 0 0; font-size: 17px; }
-.site .offer .foot { border-top: 1px solid rgba(255,255,255,0.7); padding-top: 16px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
-.site .offer .price { font-size: 30px; font-weight: 700; letter-spacing: -1px; text-align: right; }
-.site .offer .price small { display: block; font-size: 12px; font-weight: 400; letter-spacing: 0; }
 
 .site .quote-sec { background: var(--clay); }
 .site .quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
@@ -214,7 +204,6 @@
   .site .sh h2 { font-size: 36px; letter-spacing: -1.5px; }
   .site .plat-logos { grid-template-columns: repeat(2, 1fr); }
   .site .plat-foot { gap: 32px; }
-  .site .offer-grid { grid-template-columns: 1fr; }
   .site .quote-sec blockquote { font-size: 28px; }
   .site .mail h2 { font-size: 36px; }
 }
@@ -249,7 +238,7 @@
 /* Offer Card Full / Two / Three (Oct 8): the design-system cards (docs/design-system/cards.md).
    Full: Card-1280 → 640 → 320 · Two: 640 ×2 → 320 ×2 → 160 ×2 · Three: 320 ×3 → 160 ×3 → 320 stacked.
    Margins: 16px top and bottom (8px on phone); 32px a side on desktop and tablet, 16px on phone. */
-/* Price and arrow link sit together at the bottom right (Oct 14). The arrow shows when the offer has a button link (CBL). */
+/* Price and arrow link sit together at the bottom right (Oct 14). The arrow is on every card; it links once the offer has a Button link (CBL). */
 .site .oc-end { margin-left: auto; flex: none; display: flex; align-items: flex-end; gap: 16px; }
 .site .oc-go { display: inline-flex; flex: none; color: inherit; text-decoration: none; }
 .site .oc-go svg { width: 36px; height: 36px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }

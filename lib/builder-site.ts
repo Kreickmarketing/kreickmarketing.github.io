@@ -25,7 +25,6 @@ const TEMPLATES: Template[] = [
   { id: "photo-points", type: "photopoints", slots: [s("photo", "image"), s("points", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("rings", "list")] },
   { id: "photo-text", type: "story", slots: [s("photo", "image"), s("body", "text"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("rings", "list")] },
   { id: "photo-tags", type: "plat", slots: [s("image", "image"), s("label", "text"), s("headline", "list"), s("tags", "list"), s("logos", "logos")] },
-  { id: "offers", type: "offersonly", slots: [s("cards", "offers")] },
   // Design-system offer cards (canvas: Offer Card Full / Two / Three). Sizes per screen: builder-site.css.
   { id: "system", type: "system", slots: [s("image", "image"), s("label", "text"), s("headline", "text"), s("answer", "text"), s("cards", "list"), s("icons", "logos")] },
   { id: "engine", type: "engine", slots: [s("image", "image"), s("nodes", "list"), s("headline", "text"), s("body", "text")] },
@@ -54,7 +53,7 @@ function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
   };
 }
 
-const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", offersonly: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std" };
+const SECTION_CLASS: Record<string, string> = { hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std" };
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 
 export type BuilderState = {
@@ -234,11 +233,6 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     case "points": return points("points");
     case "video": { const v = embedHtml(P("video")); return v ? `${text("headline", "h2", "video-title")}<div class="video-frame" data-slot=".video">${v}</div>` : ""; }
     case "header": { const body = str(P("body")); return `<div class="sh">${text("tagline", "p", "tagline")}<div>${lines("headline", "h2")}${body ? `<p class="body" data-slot=".body">${esc(body)}</p>` : ""}</div></div>`; }
-    case "offersonly": {
-      const ids = Array.isArray(P("cards")) ? (P("cards") as unknown[]) : [];
-      const cards = ids.map(offer).filter((o): o is OfferCard => !!o);
-      return cards.length ? `<div class="offer-grid" data-slot=".cards">${cards.map((o) => `<article class="offer">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div><div class="foot"><span style="font-family:var(--font-button);font-size:13px">${o.tag ? `+ ${esc(o.tag)}` : ""}</span><div class="price">${esc(o.price)}<small>${esc(o.note)}</small></div></div></article>`).join("")}</div>` : "";
-    }
     case "system": {
       const icons = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><path d=\"M5 12h22M5 20h12M15 4v16\"/><path d=\"M20 26l3 3 6-7\"/>", "<rect x=\"3\" y=\"5\" width=\"26\" height=\"18\" rx=\"2\"/><path d=\"M7 15h4l2-4 3 7 2-3h3\"/><path d=\"M24 30s-5-3-5-6a2.5 2.5 0 0 1 5-1 2.5 2.5 0 0 1 5 1c0 3-5 6-5 6z\"/>", "<path d=\"M3 16h10l8-9h7M24 3l4 4-4 4\"/><path d=\"M13 16l8 9h7M24 21l4 4-4 4\"/>", "<path d=\"M5 28v-3M11 28v-6M17 28v-9M23 28v-12M29 28v-15\"/><path d=\"M4 18l8-7 6 4 11-10M24 5h5v5\"/>"];
       const cards = rows(P("cards")).filter(hasText).slice(0, 4);
@@ -262,9 +256,9 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const ids = Array.isArray(P("cards")) ? (P("cards") as unknown[]) : [];
       const cards = ids.map(offer).filter((o): o is OfferCard => !!o);
       const plus = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
-      // Arrow link: the offer's button link (CBL), beside the price.
+      // Arrow beside the price on every card; a real link once the offer has a Button link (CBL).
       const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
-      return cards.length ? `<div class="oc-grid" data-slot=".cards">${cards.map((o) => `<article class="oc">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${plus}${esc(o.tag)}</span>` : ""}${o.price || o.link ? `<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.link ? `<a class="oc-go" href="${esc(o.link)}" aria-label="See ${esc(o.title)}">${arrow}</a>` : ""}</div>` : ""}</div></article>`).join("")}</div>` : "";
+      return cards.length ? `<div class="oc-grid" data-slot=".cards">${cards.map((o) => `<article class="oc">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div class="oc-top"><h3 class="oc-t">${esc(o.title)}</h3>${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${plus}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.link ? `<a class="oc-go" href="${esc(o.link)}" aria-label="See ${esc(o.title)}">${arrow}</a>` : `<span class="oc-go" aria-hidden="true">${arrow}</span>`}</div></div></article>`).join("")}</div>` : "";
     }
     default: return "";
   }
