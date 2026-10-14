@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
-import { STAGES, STATUSES, companyOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
+import { STAGES, STATUSES, cleanSettings, companyOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
 
 // Saves changes made in the new CRM (clrcrm/crm). One POST per change, { action, ... }.
 // Only CRM members get past the check, every value is checked here, and Row Level
@@ -153,6 +153,12 @@ export async function POST(request: Request) {
         const { data, error } = await supabase.from("crm_reminders").update({ done: b.done === true }).eq("id", id).select("*").single();
         if (error) throw new Error(error.message);
         return NextResponse.json({ reminder: reminderOut(data) });
+      }
+      case "saveSettings": {
+        const settings = cleanSettings(b.settings);
+        const { error } = await supabase.from("crm_settings").upsert({ id: "crm", data: settings });
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ settings });
       }
       case "moveDeal": {
         const id = String(b.id), stage = String(b.stage);

@@ -29,7 +29,7 @@ export const personOut = (p: Row, company: string, notes: number, rem = 0) => ({
 // Notes and interactions as rows the page reads: [author, date, text, id] and [kind, title, who, date].
 export const noteOut = (n: Row) => [s(n.author), shortDay(s(n.created_at)), s(n.body), s(n.id)];
 export const ixOut = (i: Row) => [s(i.kind), s(i.title), s(i.who), shortDay(s(i.happened_on))];
-export const reminderOut = (r: Row) => ({ id: s(r.id), person: s(r.person_id), title: s(r.title), due: day(r.due) || null, done: r.done === true });
+export const reminderOut = (r: Row) => ({ id: s(r.id), person: s(r.person_id), title: s(r.title), due: day(r.due) || null, done: r.done === true, by: s(r.created_by) });
 export const companyOut = (c: Row, people: number, deal: string | null) => ({
   id: s(c.id), name: s(c.name), industry: s(c.industry) || "—", market: s(c.market) || "—", status: s(c.status) || null, people, deal,
 });
@@ -66,4 +66,54 @@ export async function loadCrm(supabase: SupabaseClient) {
   const companyList = (companies.data ?? []).map((c) => companyOut(c,
     (people.data ?? []).filter((p) => p.company_id === c.id).length, s((deals.data ?? []).find((d) => d.company_id === c.id)?.id) || null));
   return { groups: (groups.data ?? []).map(groupOut), companies: companyList, deals: dealList, people: peopleList, notes: notesBy, interactions: ixBy, reminders };
+}
+
+// ── Assistants ──
+// Settings from the Assistants page (one crm_settings row).
+export const FOLLOW_AFTER: Record<string, number> = { "3 days": 3, "1 week": 7, "2 weeks": 14, "1 month": 30 };
+export type CrmSettings = { assist: { follow: boolean; recap: boolean; research: boolean; portal: boolean }; followAfter: string };
+export const DEFAULT_SETTINGS: CrmSettings = { assist: { follow: true, recap: true, research: false, portal: true }, followAfter: "1 week" };
+export function cleanSettings(v: unknown): CrmSettings {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  const a = (o.assist && typeof o.assist === "object" ? o.assist : {}) as Record<string, unknown>;
+  const flag = (k: keyof CrmSettings["assist"]) => (typeof a[k] === "boolean" ? (a[k] as boolean) : DEFAULT_SETTINGS.assist[k]);
+  return {
+    assist: { follow: flag("follow"), recap: flag("recap"), research: flag("research"), portal: flag("portal") },
+    followAfter: typeof o.followAfter === "string" && o.followAfter in FOLLOW_AFTER ? o.followAfter : DEFAULT_SETTINGS.followAfter,
+  };
+}
+export async function loadSettings(supabase: SupabaseClient) {
+  const { data } = await supabase.from("crm_settings").select("data").eq("id", "crm").maybeSingle();
+  return cleanSettings(data?.data);
+}
+
+export const FOLLOW_UP_BY = "Follow-up assistant";
+// Follow-up assistant: for everyone with no interaction in the chosen time, add a
+// "Follow up with …" reminder due today. Skips people who already have an open reminder,
+// and people it already reminded about since their last interaction (so ticking one off
+// doesn't bring it straight back). Runs when the CRM is opened. Returns how many it added.
+export async function runFollowUps(supabase: SupabaseClient, settings: CrmSettings, now = new Date()) {
+  if (!settings.assist.follow) return 0;
+  const days = FOLLOW_AFTER[settings.followAfter] ?? 7;
+  const [people, rems] = await Promise.all([
+    supabase.from("crm_people").select("id, name, last_interaction, created_at"),
+    supabase.from("crm_reminders").select("person_id, done, created_by, created_at"),
+  ]);
+  if (people.error || rems.error) throw new Error((people.error ?? rems.error)!.message);
+  const todayIso = now.toISOString().slice(0, 10);
+  const cutoff = new Date(now.getTime() - days * 864e5).toISOString().slice(0, 10);
+  const rows = [];
+  for (const p of people.data ?? []) {
+    const last = day(p.last_interaction) || day(p.created_at);
+    if (!last || last > cutoff) continue;
+    const mine = (rems.data ?? []).filter((r) => r.person_id === p.id);
+    if (mine.some((r) => !r.done)) continue;
+    if (mine.some((r) => r.created_by === FOLLOW_UP_BY && day(r.created_at) >= last)) continue;
+    const first = s(p.name).split(" ")[0] || s(p.name);
+    rows.push({ person_id: p.id, title: `Follow up with ${first}: no contact since ${shortDay(last)}`, due: todayIso, created_by: FOLLOW_UP_BY });
+  }
+  if (!rows.length) return 0;
+  const { error } = await supabase.from("crm_reminders").insert(rows);
+  if (error) throw new Error(error.message);
+  return rows.length;
 }

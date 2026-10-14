@@ -520,7 +520,8 @@ async function save(action,data){if(!LIVE)return{ok:true};
   catch(e){toast(`${e.message||'Not saved'}. Your change wasn’t saved; reload and try again.`);return null}}
 
 /* ---------- state ---------- */
-const S={sec:'crm',group:GROUPS.some(g=>g.id==='pipeline')||!GROUPS[0]?'pipeline':GROUPS[0].id,view:'people',rec:null,rtab:'details',msg:'m1',assist:{follow:true,recap:true,research:false,portal:true},follow:'1 week',q:''};
+const S0={sec:'crm',group:GROUPS.some(g=>g.id==='pipeline')||!GROUPS[0]?'pipeline':GROUPS[0].id,view:'people',rec:null,rtab:'details',msg:'m1',assist:{follow:true,recap:true,research:false,portal:true},follow:'1 week',q:''};
+const S=S0;if(LIVE&&window.__CRM__.settings){S.assist={...S.assist,...window.__CRM__.settings.assist};S.follow=window.__CRM__.settings.followAfter}
 
 /* ---------- rail + panel ---------- */
 const SECS=[['crm','CRM','crm'],['messages','Messages','mail'],['dash','Dashboards','chart'],['assist','Assistants','spark'],['portal','Authors','book']];
@@ -754,7 +755,8 @@ function renderRec(){
 function ensureCompany(name){if(name&&name!=='—'&&!COMPANIES.some(c=>c.name===name)){COMPANIES.push({id:'',name,industry:'—',market:'—',status:null,people:0,deal:null});COMPANIES.sort((a,b)=>a.name.localeCompare(b.name))}}
 /* reminders: one row each, tick to mark done (or not) */
 function remRow(r){const d=r.due?daysTo(r.due):null;const p=PEOPLE.find(x=>x.id===r.person);
-  return`<div class="ix"><input type="checkbox" data-rdone="${esc(r.id)}" ${r.done?'checked':''} aria-label="Done: ${esc(r.title)}" style="width:18px;height:18px;margin:5px"><div><b style="font-weight:500${r.done?';text-decoration:line-through;color:var(--ink-3)':''}">${esc(r.title)}</b>${p&&S.rec!==p.id?`<br><button class="btn sm" data-ropen="${esc(p.id)}" style="margin-top:4px">${esc(p.name)}</button>`:''}</div><small${d!=null&&d<0&&!r.done?' style="color:var(--cherry)"':''}>${r.due?whenTxt(d):'No date'}</small></div>`}
+  const by=r.by===FU?'<span class="tag" style="margin-left:6px">assistant</span>':'';
+  return`<div class="ix"><input type="checkbox" data-rdone="${esc(r.id)}" ${r.done?'checked':''} aria-label="Done: ${esc(r.title)}" style="width:18px;height:18px;margin:5px"><div><b style="font-weight:500${r.done?';text-decoration:line-through;color:var(--ink-3)':''}">${esc(r.title)}</b>${by}${p&&S.rec!==p.id?`<br><button class="btn sm" data-ropen="${esc(p.id)}" style="margin-top:4px">${esc(p.name)}</button>`:''}</div><small${d!=null&&d<0&&!r.done?' style="color:var(--cherry)"':''}>${r.due?whenTxt(d):'No date'}</small></div>`}
 function bindRemRows(root){
   root.querySelectorAll('[data-rdone]').forEach(c=>c.onchange=async()=>{const r=REMINDERS.find(x=>x.id===c.dataset.rdone);if(!r)return;c.disabled=true;
     const res=await save('setReminderDone',{id:r.id,done:c.checked});if(!res){c.checked=!c.checked;c.disabled=false;return}
@@ -867,10 +869,14 @@ const ASSIST=[
  {k:'research',n:'Research assistant',color:'#294079',ic:'search',d:'Researches a company before a first call and adds the findings as a note.'},
  {k:'portal',n:'Author Portal assistant',color:'#DB1F3D',ic:'book',d:'Drafts each author-page block from monday and Drive, and rates how well the source fits.'},
 ];
-function renderAssist(){$('main').innerHTML=`<div class="mhead"><h1>Assistants</h1><span class="proto">Prototype</span></div><div class="scroll"><div class="agrid">${ASSIST.map(a=>`<div class="acard"><div class="h"><span class="aico" style="background:${a.color}">${svg(a.ic)}</span><b>${a.n}</b><button class="tog" role="switch" aria-checked="${S.assist[a.k]}" aria-label="${a.n}" data-k="${a.k}"></button></div><p class="muted" style="margin:0">${a.d}</p>${a.k==='follow'?`<div class="fld"><label>Suggest a follow-up after</label><div class="seg">${['3 days','1 week','2 weeks','1 month'].map(x=>`<button aria-pressed="${S.follow===x}" data-f="${x}">${x}</button>`).join('')}</div></div>`:''}<button class="btn sm" style="justify-self:start" data-cfg="${a.k}">Settings</button></div>`).join('')}</div></div>`;
-  document.querySelectorAll('.tog').forEach(t=>t.onclick=()=>{S.assist[t.dataset.k]=!S.assist[t.dataset.k];renderAssist();renderPanel();toast(`${ASSIST.find(a=>a.k===t.dataset.k).n} ${S.assist[t.dataset.k]?'on':'off'}.`)});
-  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{S.follow=b.dataset.f;renderAssist()});
-  document.querySelectorAll('[data-cfg]').forEach(b=>b.onclick=()=>toast('Assistant settings come with the live version.'))}
+const FU='Follow-up assistant';
+function renderAssist(){$('main').innerHTML=`<div class="mhead"><h1>Assistants</h1>${LIVE?'':'<span class="proto">Prototype</span>'}</div><div class="scroll"><div class="agrid">${ASSIST.map(a=>`<div class="acard"><div class="h"><span class="aico" style="background:${a.color}">${svg(a.ic)}</span><b>${a.n}</b><button class="tog" role="switch" aria-checked="${S.assist[a.k]}" aria-label="${a.n}" data-k="${a.k}"></button></div><p class="muted" style="margin:0">${a.d}</p>${LIVE?`<p style="margin:0;font-size:12.5px">${a.k==='follow'?`<b>Working.</b> Checks each time the CRM opens and adds reminders under My follow-ups.${S.assist.follow?` ${openRems().filter(r=>r.by===FU).length} open now.`:''}`:'<span class="muted">Not connected yet: needs a Claude API key'+(a.k==='portal'?' and Google Drive + monday':'')+'.</span>'}</p>`:''}${a.k==='follow'?`<div class="fld"><label>Suggest a follow-up after</label><div class="seg">${['3 days','1 week','2 weeks','1 month'].map(x=>`<button aria-pressed="${S.follow===x}" data-f="${x}">${x}</button>`).join('')}</div></div>`:''}<button class="btn sm" style="justify-self:start" data-cfg="${a.k}">Settings</button></div>`).join('')}</div></div>`;
+  const saveSettings=()=>save('saveSettings',{settings:{assist:S.assist,followAfter:S.follow}});
+  document.querySelectorAll('.tog').forEach(t=>t.onclick=async()=>{const k=t.dataset.k;S.assist[k]=!S.assist[k];renderAssist();renderPanel();
+    if(!await saveSettings()){S.assist[k]=!S.assist[k];renderAssist();renderPanel();return}toast(`${ASSIST.find(a=>a.k===k).n} ${S.assist[k]?'on':'off'}.`)});
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=async()=>{const was=S.follow;S.follow=b.dataset.f;renderAssist();
+    if(!await saveSettings()){S.follow=was;renderAssist();return}toast(`Follow-ups suggested after ${S.follow} without contact. Applies next time the CRM opens.`)});
+  document.querySelectorAll('[data-cfg]').forEach(b=>b.onclick=()=>toast(b.dataset.cfg==='follow'?'Pick how long to wait above; turn it off with the switch.':'Assistant settings come with the live version.'))}
 
 /* ============================================================
    AUTHOR PORTAL (the drag-and-drop builder, restyled for the CRM)
@@ -1004,6 +1010,7 @@ document.addEventListener('keydown',e=>{if(e.key==='['&&!/INPUT|TEXTAREA|SELECT/
 setWidth(PW);
 {let st=null;try{st=localStorage.getItem('cm:side')}catch(_){}setCollapsed(st==='0'||(st==null&&innerWidth<=900),false)}
 render();
+if(LIVE&&window.__CRM__.followUpsAdded)setTimeout(()=>toast(`Follow-up assistant added ${window.__CRM__.followUpsAdded} reminder${window.__CRM__.followUpsAdded===1?'':'s'}. See My follow-ups.`),400);
 </script>
 
 </body></html>

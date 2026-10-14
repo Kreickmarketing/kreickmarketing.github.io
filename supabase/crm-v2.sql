@@ -128,3 +128,18 @@ alter table public.crm_reminders enable row level security;
 create policy "CRM members manage crm_reminders" on public.crm_reminders for all to authenticated
   using (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())))
   with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));
+
+-- Settings (Oct 14, migration "crm_v2_settings"): one row with the Assistants page choices,
+-- e.g. {"assist":{"follow":true,...},"followAfter":"1 week"}.
+create table if not exists public.crm_settings (
+  id text primary key default 'crm' check (id = 'crm'),
+  data jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+create trigger crm_settings_updated_at before update on public.crm_settings for each row execute function public.set_updated_at();
+alter table public.crm_settings enable row level security;
+create policy "CRM members manage crm_settings" on public.crm_settings for all to authenticated
+  using (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())))
+  with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));
+insert into public.crm_settings (id, data) values ('crm', '{"assist":{"follow":true,"recap":true,"research":false,"portal":true},"followAfter":"1 week"}'::jsonb)
+on conflict (id) do nothing;
