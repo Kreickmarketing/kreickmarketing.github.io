@@ -34,10 +34,11 @@ Site-wide parts (same on every page; not in `TEMPLATES`):
    - Make the **same** change in `components/builder-site.css` (every selector prefixed `.site `) and, if the markup changed, in `lib/builder-site.ts` (`renderLivePage`).
    - Colors: the variables in `styles/colors.css` only, never raw hex. Type: Saira / Courier Prime and the existing type rules. Snap off-system colors, sizes and spacing to the nearest ClearMark value and list each snap for Andrew.
    - Board text is sample text. Don't change page content; only a spot's starting words if Andrew asks.
+   - **Style changes (Studio → Style).** If Andrew's canvas change is a site-wide style (a new or changed color, a text style's size / weight / line height / letter spacing, or a corner radius) rather than a one-off snap, update the style file itself: colors → `styles/colors.css`, text → `styles/typography.css`, corners → `styles/radius.css` (named variables, a short comment saying what it's for). Then run `node scripts/sync-style.mjs` so the prototype's Style screen matches (the real Studio reads the files on every load). List each style change for Andrew. Unsure whether it's site-wide or a one-off → ask.
    - A new or removed spot changes saved pages: **stop and ask Andrew** before going on.
    - Never name Chevrolet or MediaMonks anywhere.
 3. **Checks** (all must pass): `npx tsc --noEmit`, then `npx next build`. Open the prototype in Playwright (Chromium is pre-installed) at 1280, 768 and 390 wide, screenshot the template and compare with the boards; show Andrew the screenshots. A failure → fix it and re-check, or stop and report.
-4. **Prototype.** Publish `studio-builder.html` to the prototype artifact URL above.
+4. **Prototype.** Always run `node scripts/sync-style.mjs` first, then publish `studio-builder.html` to the prototype artifact URL above.
 5. **Log and back up.** Add a dated line to `docs/studio-plan.md` ("checked, not live yet"). Commit (clear message, the session's attribution lines) and push to the session's backup branch only. Network errors: retry up to 4 times (2s, 4s, 8s, 16s).
 6. **Tell Andrew** in plain words: what changed, the snaps made, that the checks passed, the prototype link, and "say /push-live when you're happy". If it came from a canvas comment, reply under that comment (ArtifactComments) as well.
 

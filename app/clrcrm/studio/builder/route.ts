@@ -12,6 +12,8 @@ import { loadCms } from "@/lib/cms";
 export const dynamic = "force-dynamic";
 
 const SOURCE = path.join(process.cwd(), "docs/prototypes/studio-builder/studio-builder.html");
+// The site's style files, read fresh each time so Studio → Style always matches the live site.
+const STYLE_FILES = ["colors", "typography", "radius"].map((f) => path.join(process.cwd(), `styles/${f}.css`));
 
 export async function GET(request: Request) {
   const member = await getCrmMember();
@@ -29,9 +31,10 @@ export async function GET(request: Request) {
   const cms = site ? await loadCms(supabase, site.id) : [];
   const livePages = JSON.stringify(livePageIds(row?.published as BuilderState | null, cms.filter((i) => i.status === "published")));
   const cmsJson = JSON.stringify(cms).replace(/</g, "\\u003c");
+  const styleCss = JSON.stringify((await Promise.all(STYLE_FILES.map((f) => readFile(f, "utf8")))).join("\n")).replace(/</g, "\\u003c");
   const html = (await readFile(SOURCE, "utf8"))
     .replace(/(["`])media\//g, "$1/studio-media/")
-    .replace("<script>", `<script>window.__STUDIO_LIVE__ = true; window.__STUDIO_STATE__ = ${state}; window.__STUDIO_LIVE_PAGES__ = ${livePages}; window.__STUDIO_CMS__ = ${cmsJson};</script>\n<script>`);
+    .replace("<script>", () => `<script>window.__STUDIO_LIVE__ = true; window.__STUDIO_STATE__ = ${state}; window.__STUDIO_LIVE_PAGES__ = ${livePages}; window.__STUDIO_CMS__ = ${cmsJson}; window.__STUDIO_STYLE_CSS__ = ${styleCss};</script>\n<script>`);
 
   return new NextResponse(`<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">\n${html}`, {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },

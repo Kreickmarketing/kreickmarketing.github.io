@@ -1,0 +1,10 @@
+/*
+  ClearMark rounded corners. Studio → Style lists these.
+  Values match what the site uses today (buttons, cards, panels, form fields).
+*/
+:root {
+  --radius-pill: 999px;   /* Buttons, tags, nav pill */
+  --radius-card: 32px;    /* Offer cards (Full / Two / Three), System cards */
+  --radius-panel: 18px;   /* Photos, glass and graph cards, Calendly box, video */
+  --radius-field: 8px;    /* Form inputs */
+}

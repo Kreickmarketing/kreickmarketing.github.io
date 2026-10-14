@@ -590,7 +590,8 @@ html[data-docked="false"] .side { box-shadow: 12px 0 32px rgba(0, 0, 0, 0.45); }
 
 /* CMS and Settings screens (replace the editor in the main area) */
 html[data-view="cms"] #top, html[data-view="cms"] #proto-note, html[data-view="cms"] .tabs-phone, html[data-view="cms"] #panes,
-html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[data-view="settings"] .tabs-phone, html[data-view="settings"] #panes { display: none; }
+html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[data-view="settings"] .tabs-phone, html[data-view="settings"] #panes,
+html[data-view="style"] #top, html[data-view="style"] #proto-note, html[data-view="style"] .tabs-phone, html[data-view="style"] #panes { display: none; }
 .view { padding-block: 16px 64px; }
 .view[hidden] { display: none; }
 .view-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
@@ -599,6 +600,22 @@ html[data-view="settings"] #top, html[data-view="settings"] #proto-note, html[da
 .set-card { background: var(--panel-2); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 .set-card h3 { font-size: 16px; font-weight: 700; }
 .set-card p { margin: 0; }
+/* Style screen (Oct 14): read-only view of styles/colors.css, typography.css and radius.css */
+.sty-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.sty-sw { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; }
+.sty-sw i { display: block; height: 64px; border-radius: 10px; border: 1px solid var(--line); }
+.sty-sw b { font-weight: 600; font-size: 13px; }
+.sty-sw span, .sty-meta { color: var(--ink-3); font-family: var(--f-mono); font-size: 12px; }
+.sty-type { display: flex; flex-direction: column; }
+.sty-trow { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-top: 1px solid var(--line); }
+.sty-trow:first-child { border-top: 0; padding-top: 0; }
+.sty-trow > div:first-child b { display: block; font-weight: 600; font-size: 13px; }
+.sty-sample { font-family: var(--f-display); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sty-radii { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+.sty-radius i { display: block; height: 72px; background: var(--panel); border: 2px solid var(--accent); margin-bottom: 8px; }
+.sty-radius b { display: block; font-weight: 600; font-size: 13px; }
+.sty-radius p { color: var(--ink-3); font-size: 12px; }
+@media (max-width: 760px) { .sty-trow { grid-template-columns: 1fr; gap: 4px; } }
 .set-field { display: flex; flex-direction: column; gap: 6px; }
 .set-field > span:first-child { font-weight: 600; font-size: 13.5px; }
 .set-field input[type="text"], .set-field textarea, .set-field select { width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
@@ -1061,6 +1078,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   <button type="button" class="rail-btn" data-rail="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>Pages</button>
   <button type="button" class="rail-btn" data-rail="cms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>CMS</button>
   <button type="button" class="rail-btn" data-rail="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5l2 2.6 3.2-.6.9 3.1 3 1.3-1.2 3 1.2 3-3 1.3-.9 3.1-3.2-.6-2 2.6-2-2.6-3.2.6-.9-3.1-3-1.3 1.2-3-1.2-3 3-1.3.9-3.1 3.2.6z"/></svg>Settings</button>
+  <button type="button" class="rail-btn" data-rail="style"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.8 0-.5-.2-.9-.5-1.2s-.5-.7-.5-1.2c0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7" r="1.2"/><circle cx="15.5" cy="7.5" r="1.2"/></svg>Style</button>
   <span class="rail-spacer"></span>
   <button type="button" class="rail-btn" data-sidebar-menu aria-haspopup="menu" aria-expanded="false" title="Sidebar control" aria-label="Sidebar control"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
 </nav>
@@ -1075,6 +1093,637 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 </div>
 <section class="view" id="view-cms" hidden></section>
 <section class="view" id="view-settings" hidden></section>
+<section class="view" id="view-style" hidden></section>
+<!-- STYLE-CSS: a copy of styles/colors.css, typography.css and radius.css for the Claude prototype.
+     Refresh with `node scripts/sync-style.mjs`; the real Studio reads the files themselves. -->
+<script type="text/plain" id="style-css">
+/*
+  ClearMark color system.
+  Primaries use the exact hex values from the style guide.
+  Neutrals and secondaries marked "approx" were sampled from screenshots;
+  replace them with the exact values from Figma when you have them.
+*/
+:root {
+  /* Primaries: core brand colors */
+  --white: #FFFFFF;
+  --clay-light: #F6F5F2;
+  --clay: #E1DDD5;
+  --midnight: #1C2026;
+  --rogue-cherry: #DB1F3D;
+  --tidal-azure: #0099CE;
+
+  /* Neutrals: human earth colors, light to dark (approx) */
+  --sage-veil: #C9C6BE;
+  --sage-mist: #B2AFA7;
+  --dusty-sage: #9C998F;
+  --deep-taupe: #858278;
+  --bistre: #6E675A;
+  --mossy-pewter: #656862;
+  --iron-pine: #444D4D;
+  --charcoal: #2C3139;
+
+  /* Secondaries: warm and green (approx) */
+  --tangerine-burst: #E48F46;
+  --honey-brass: #C8A74B;
+  --solar-flare: #F5DE73;
+  --pine-shadow: #2D4332;
+  --iron-moss: #336A4E;
+  --emerald-tide: #469C6F;
+  --frosted-mint: #ABCFA1;
+  --deep-aubergine: #4C1F50;
+  --magenta-orchid: #874084;
+  --amethyst-veil: #9679B2;
+  --lavender-mist: #C6B7E1;
+
+  /* Secondaries: cool (approx) */
+  --cobalt-wave: #294079;
+  --aegean: #2D6AA5;
+  --glacial-cyan: #56B7C3;
+  --oxblood: #661823;
+  --merlot: #91272B;
+  --coral-rush: #DC4F58;
+  --orange-crush: #E8714B;
+  --burnt-sienna: #DB6931;
+
+  /* Added Oct 8 for the Engine (T.O.E.) circles; not in the style guide yet */
+  --deep-teal: #01717D;
+
+  /* What each color is used for on the site */
+  --color-page: var(--clay-light);
+  --color-surface: var(--white);
+  --color-surface-dark: var(--midnight);
+  --color-text: var(--midnight);
+  --color-text-muted: var(--iron-pine);
+  --color-text-inverse: var(--white);
+  --color-border: var(--clay);
+  --color-action: var(--rogue-cherry);
+  --color-action-hover: var(--merlot);
+  --color-link: var(--aegean);
+  --color-focus: var(--tidal-azure);
+}
+
+/* Real families from the Figma file (see figma-source/fig-tokens.css) */
+:root {
+  --font-display: var(--font-family-title), sans-serif;   /* Saira */
+  --font-heading: var(--font-family-title), sans-serif;    /* Saira */
+  --font-body: var(--font-family-body), sans-serif;        /* Saira */
+  --font-button: var(--font-family-button), sans-serif;    /* Saira (was Courier Prime until Oct 9, 2026) */
+
+  /* Type scale — Clean increments with 1.2x line-height (body) & 0.9x line-height (headlines) */
+  
+  /* BODY TEXT (XXS–XL): Clean increments, 1.2x line-height multiplier */
+  --text-xxs-size: 8px;   --text-xxs-lh: 10px;   --text-xxs-ls: -1px;
+  --text-xs-size: 12px;   --text-xs-lh: 14px;   --text-xs-ls: -1px;
+  --text-sm-size: 16px;   --text-sm-lh: 20px;   --text-sm-ls: -1px;
+  --text-md-size: 20px;   --text-md-lh: 24px;   --text-md-ls: -1px;
+  --text-lg-size: 24px;   --text-lg-lh: 28px;   --text-lg-ls: -1px;
+  --text-xl-size: 28px;   --text-xl-lh: 32px;   --text-xl-ls: -1px;
+  
+  /* HEADLINES (H6–H1): Equal increments, 0.9x line-height, progressive letter-spacing */
+  --text-h6-size: 40px;   --text-h6-lh: 36px;   --text-h6-ls: -2px;
+  --text-h5-size: 52px;   --text-h5-lh: 48px;   --text-h5-ls: -2px;
+  --text-h4-size: 64px;   --text-h4-lh: 56px;   --text-h4-ls: -3px;
+  --text-h3-size: 80px;   --text-h3-lh: 72px;   --text-h3-ls: -4px;
+  --text-h2-size: 96px;   --text-h2-lh: 88px;   --text-h2-ls: -4px;
+  --text-h1-size: 112px;  --text-h1-lh: 100px;  --text-h1-ls: -4px;
+  
+  /* SPECIAL STYLES */
+  --text-tagline-size: 16px; --text-tagline-lh: 16px; --text-tagline-ls: 3px;
+
+  /* Font weight scale */
+  --font-weight-thin: 100;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semi-bold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extra-bold: 800;
+}
+
+/* ═════════════════════════════════════════════════════════════════ */
+/* HEADING STYLES (H1–H6) */
+/* ═════════════════════════════════════════════════════════════════ */
+
+h1 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h1-size);     /* 112px */
+  line-height: var(--text-h1-lh);     /* 100px */
+  letter-spacing: var(--text-h1-ls);  /* -4px */
+  font-weight: 200; /* ExtraLight */
+  margin: 0;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h2-size);     /* 96px */
+  line-height: var(--text-h2-lh);     /* 88px */
+  letter-spacing: var(--text-h2-ls);  /* -4px */
+  font-weight: 200; /* ExtraLight */
+  margin: 0;
+}
+
+h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h3-size);     /* 80px */
+  line-height: var(--text-h3-lh);     /* 72px */
+  letter-spacing: var(--text-h3-ls);  /* -4px */
+  font-weight: 200; /* ExtraLight */
+  margin: 0;
+}
+
+h4 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h4-size);     /* 64px */
+  line-height: var(--text-h4-lh);     /* 56px */
+  letter-spacing: var(--text-h4-ls);  /* -3px */
+  font-weight: 300; /* Light */
+  margin: 0;
+}
+
+h5 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h5-size);     /* 52px */
+  line-height: var(--text-h5-lh);     /* 48px */
+  letter-spacing: var(--text-h5-ls);  /* -2px */
+  font-weight: 300; /* Light */
+  margin: 0;
+}
+
+h6 {
+  font-family: var(--font-heading);
+  font-size: var(--text-h6-size);     /* 40px */
+  line-height: var(--text-h6-lh);     /* 36px */
+  letter-spacing: var(--text-h6-ls);  /* -2px */
+  font-weight: 300; /* Light */
+  margin: 0;
+}
+
+/* ═════════════════════════════════════════════════════════════════ */
+/* TAGLINE STYLE */
+/* ═════════════════════════════════════════════════════════════════ */
+
+.tagline {
+  font-family: var(--font-heading);
+  font-size: var(--text-tagline-size);
+  line-height: var(--text-tagline-lh);
+  letter-spacing: var(--text-tagline-ls);
+  font-weight: 700; /* Bold */
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ═════════════════════════════════════════════════════════════════ */
+/* BODY TEXT COMPONENTS — SIZE + WEIGHT VARIANTS */
+/* ═════════════════════════════════════════════════════════════════ */
+/* Usage: <p class="text-lg-light"> or <p class="text-md-bold"> */
+
+/* ─────────────────────────────────────────────────────────────── */
+/* XL (24px / 26px line-height / -1px letter-spacing) */
+/* ─────────────────────────────────────────────────────────────── */
+
+.text-xl-thin {
+  font-family: var(--font-body);
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-thin);
+  margin: 0;
+}
+
+.text-xl-light {
+  font-family: var(--font-body);
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-light);
+  margin: 0;
+}
+
+.text-xl-normal {
+  font-family: var(--font-body);
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-normal);
+  margin: 0;
+}
+
+.text-xl-medium {
+  font-family: var(--font-body);
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.text-xl-semi-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-semi-bold);
+  margin: 0;
+}
+
+.text-xl-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.text-xl-extra-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xl-size);
+  line-height: var(--text-xl-lh);
+  letter-spacing: var(--text-xl-ls);
+  font-weight: var(--font-weight-extra-bold);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+/* LG (22px / 30px line-height / -1px letter-spacing) */
+/* ─────────────────────────────────────────────────────────────── */
+
+.text-lg-light {
+  font-family: var(--font-body);
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-light);
+  margin: 0;
+}
+
+.text-lg-normal {
+  font-family: var(--font-body);
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-normal);
+  margin: 0;
+}
+
+.text-lg-medium {
+  font-family: var(--font-body);
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.text-lg-semi-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-semi-bold);
+  margin: 0;
+}
+
+.text-lg-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.text-lg-extra-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-lg-size);
+  line-height: var(--text-lg-lh);
+  letter-spacing: var(--text-lg-ls);
+  font-weight: var(--font-weight-extra-bold);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+/* MD (20px / 28px line-height / -1px letter-spacing) */
+/* ─────────────────────────────────────────────────────────────── */
+
+.text-md-light {
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-light);
+  margin: 0;
+}
+
+.text-md-normal {
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-normal);
+  margin: 0;
+}
+
+.text-md-medium {
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.text-md-semi-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-semi-bold);
+  margin: 0;
+}
+
+.text-md-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.text-md-extra-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-md-size);
+  line-height: var(--text-md-lh);
+  letter-spacing: var(--text-md-ls);
+  font-weight: var(--font-weight-extra-bold);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+/* SM (16px / 20px line-height / -1px letter-spacing) */
+/* ─────────────────────────────────────────────────────────────── */
+
+.text-sm-light {
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-light);
+  margin: 0;
+}
+
+.text-sm-normal {
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-normal);
+  margin: 0;
+}
+
+.text-sm-medium {
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.text-sm-semi-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-semi-bold);
+  margin: 0;
+}
+
+.text-sm-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.text-sm-extra-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-sm-size);
+  line-height: var(--text-sm-lh);
+  letter-spacing: var(--text-sm-ls);
+  font-weight: var(--font-weight-extra-bold);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+/* XS (12px / 14px line-height / -1px letter-spacing) */
+/* ─────────────────────────────────────────────────────────────── */
+
+.text-xs-light {
+  font-family: var(--font-body);
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-light);
+  margin: 0;
+}
+
+.text-xs-normal {
+  font-family: var(--font-body);
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-normal);
+  margin: 0;
+}
+
+.text-xs-medium {
+  font-family: var(--font-body);
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.text-xs-semi-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-semi-bold);
+  margin: 0;
+}
+
+.text-xs-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.text-xs-extra-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xs-size);
+  line-height: var(--text-xs-lh);
+  letter-spacing: var(--text-xs-ls);
+  font-weight: var(--font-weight-extra-bold);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────── */
+/* XXS (8px / 10px line-height / -1px letter-spacing) */
+/* ─────────────────────────────────────────────────────────────── */
+
+.text-xxs-light {
+  font-family: var(--font-body);
+  font-size: var(--text-xxs-size);
+  line-height: var(--text-xxs-lh);
+  letter-spacing: var(--text-xxs-ls);
+  font-weight: var(--font-weight-light);
+  margin: 0;
+}
+
+.text-xxs-normal {
+  font-family: var(--font-body);
+  font-size: var(--text-xxs-size);
+  line-height: var(--text-xxs-lh);
+  letter-spacing: var(--text-xxs-ls);
+  font-weight: var(--font-weight-normal);
+  margin: 0;
+}
+
+.text-xxs-medium {
+  font-family: var(--font-body);
+  font-size: var(--text-xxs-size);
+  line-height: var(--text-xxs-lh);
+  letter-spacing: var(--text-xxs-ls);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.text-xxs-semi-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xxs-size);
+  line-height: var(--text-xxs-lh);
+  letter-spacing: var(--text-xxs-ls);
+  font-weight: var(--font-weight-semi-bold);
+  margin: 0;
+}
+
+.text-xxs-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xxs-size);
+  line-height: var(--text-xxs-lh);
+  letter-spacing: var(--text-xxs-ls);
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+}
+
+.text-xxs-extra-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-xxs-size);
+  line-height: var(--text-xxs-lh);
+  letter-spacing: var(--text-xxs-ls);
+  font-weight: var(--font-weight-extra-bold);
+  margin: 0;
+}
+
+/* ═════════════════════════════════════════════════════════════════ */
+/* HEADING SIZES AS CLASSES (.as-h1 – .as-h6) */
+/* ═════════════════════════════════════════════════════════════════ */
+/* Same values as h1–h6, for when the right tag and the right size differ
+   (e.g. a page's one <h1> that should look like an h6). */
+
+.as-h1 { font-family: var(--font-heading); font-size: var(--text-h1-size); line-height: var(--text-h1-lh); letter-spacing: var(--text-h1-ls); font-weight: 200; margin: 0; }
+.as-h2 { font-family: var(--font-heading); font-size: var(--text-h2-size); line-height: var(--text-h2-lh); letter-spacing: var(--text-h2-ls); font-weight: 200; margin: 0; }
+.as-h3 { font-family: var(--font-heading); font-size: var(--text-h3-size); line-height: var(--text-h3-lh); letter-spacing: var(--text-h3-ls); font-weight: 200; margin: 0; }
+.as-h4 { font-family: var(--font-heading); font-size: var(--text-h4-size); line-height: var(--text-h4-lh); letter-spacing: var(--text-h4-ls); font-weight: 300; margin: 0; }
+.as-h5 { font-family: var(--font-heading); font-size: var(--text-h5-size); line-height: var(--text-h5-lh); letter-spacing: var(--text-h5-ls); font-weight: 300; margin: 0; }
+.as-h6 { font-family: var(--font-heading); font-size: var(--text-h6-size); line-height: var(--text-h6-lh); letter-spacing: var(--text-h6-ls); font-weight: 300; margin: 0; }
+
+/* ═════════════════════════════════════════════════════════════════ */
+/* WEIGHT MODIFIERS */
+/* ═════════════════════════════════════════════════════════════════ */
+/* Change only the weight of any type style, e.g. class="as-h6 weight-bold".
+   Placed after the styles above so they win. */
+
+.weight-thin { font-weight: var(--font-weight-thin); }
+.weight-light { font-weight: var(--font-weight-light); }
+.weight-normal { font-weight: var(--font-weight-normal); }
+.weight-medium { font-weight: var(--font-weight-medium); }
+.weight-semi-bold { font-weight: var(--font-weight-semi-bold); }
+.weight-bold { font-weight: var(--font-weight-bold); }
+.weight-extra-bold { font-weight: var(--font-weight-extra-bold); }
+
+/* ═════════════════════════════════════════════════════════════════ */
+/* MOBILE STYLES (max-width: 767px) */
+/* ═════════════════════════════════════════════════════════════════ */
+/* Headlines only (H1–H6 + Tagline). Sizes start at h6 = 32px and step up ×1.22,
+   rounded to the nearest 4px; line height is 0.9 × size, rounded to the nearest px. */
+/* Body text sizes remain unchanged on mobile. Tagline drops to 12px. */
+
+@media (max-width: 767px) {
+  h1, .as-h1 {
+    font-size: 88px;
+    line-height: 79px;  /* 88 × 0.9 = 79.2 */
+    letter-spacing: -4px;
+  }
+
+  h2, .as-h2 {
+    font-size: 72px;
+    line-height: 65px;  /* 72 × 0.9 = 64.8 */
+    letter-spacing: -4px;
+  }
+
+  h3, .as-h3 {
+    font-size: 60px;
+    line-height: 54px;  /* 60 × 0.9 = 54 */
+    letter-spacing: -4px;
+  }
+
+  h4, .as-h4 {
+    font-size: 48px;
+    line-height: 43px;  /* 48 × 0.9 = 43.2 */
+    letter-spacing: -3px;
+  }
+
+  h5, .as-h5 {
+    font-size: 40px;
+    line-height: 36px;  /* 40 × 0.9 = 36 */
+    letter-spacing: -2px;
+  }
+
+  h6, .as-h6 {
+    font-size: 32px;
+    line-height: 29px;  /* 32 × 0.9 = 28.8 */
+    letter-spacing: -2px;
+  }
+
+  .tagline {
+    font-size: 12px;      /* Back on the 4px steps */
+    line-height: 12px;    /* Matches size, as on desktop */
+    letter-spacing: 3px;  /* No reduction */
+  }
+}
+
+/*
+  ClearMark rounded corners. Studio → Style lists these.
+  Values match what the site uses today (buttons, cards, panels, form fields).
+*/
+:root {
+  --radius-pill: 999px;   /* Buttons, tags, nav pill */
+  --radius-card: 32px;    /* Offer cards (Full / Two / Three), System cards */
+  --radius-panel: 18px;   /* Photos, glass and graph cards, Calendly box, video */
+  --radius-field: 8px;    /* Form inputs */
+}
+
+</script>
 
 <header class="top" id="top">
   <div class="brand">
@@ -2640,9 +3289,9 @@ document.documentElement.style.setProperty("--side-w", UI.w + "px");
 const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w, h: UI.h, closed: [...UI.closed] })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
 const docked = () => UI.sidebar === "expanded" && UI.open && !isPhone();
-const viewFor = (r) => (r === "cms" || r === "settings" ? r : "editor");
+const viewFor = (r) => (r === "cms" || r === "settings" || r === "style" ? r : "editor");
 let NAV_VIEW = viewFor(UI.rail);
-if (UI.sidebar !== "expanded" || isPhone()) { UI.open = false; NAV_VIEW = UI.rail === "settings" || UI.rail === "cms" ? NAV_VIEW : "editor"; }
+if (UI.sidebar !== "expanded" || isPhone()) { UI.open = false; NAV_VIEW = viewFor(UI.rail) !== "editor" ? NAV_VIEW : "editor"; }
 const BASE_DOMAIN = "https://clearmark-tan.vercel.app";
 const SETTINGS = () => { S.settings ||= {}; S.settings.site ||= {}; S.settings.pages ||= {}; return S.settings; };
 
@@ -2678,6 +3327,7 @@ function applyNav() {
   html.dataset.view = NAV_VIEW;
   $("#view-cms").hidden = NAV_VIEW !== "cms";
   $("#view-settings").hidden = NAV_VIEW !== "settings";
+  $("#view-style").hidden = NAV_VIEW !== "style";
   document.querySelectorAll("[data-rail]").forEach((b) => b.setAttribute("aria-current", b.dataset.rail === UI.rail));
   $("#side").hidden = !UI.open;
   $("#side-resize").hidden = !UI.open || isPhone();
@@ -2685,6 +3335,7 @@ function applyNav() {
   renderSide();
   if (NAV_VIEW === "cms") renderCms();
   if (NAV_VIEW === "settings") renderSettings();
+  if (NAV_VIEW === "style") renderStyle();
   requestAnimationFrame(fit);
 }
 const closeX = `<button type="button" class="x side-close" data-nav-close aria-label="Close panel">×</button>`;
@@ -2719,6 +3370,13 @@ function renderSide() {
       <div class="side-sec"><div class="side-label">Databases</div>
         ${[["products", "Products", CMS.filter((i) => i.collection === "products").length], ["portfolio", "Portfolio", CMS.filter((i) => i.collection === "portfolio").length]].map(([id, name, n]) => `<button type="button" class="side-row" data-cmsdb="${id}" aria-current="${NAV_VIEW === "cms" && UI.cms === id}">${svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>')}<span class="grow">${name}</span><span class="sub">${n}</span></button>`).join("")}
         <button type="button" class="side-row" disabled title="Comes with the CMS step">${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">New database</span><span class="sub">soon</span></button></div>`;
+  } else if (UI.rail === "style") {
+    const st = siteStyle(), row = (id, icon, name, n) => `<button type="button" class="side-row" data-stylego="${id}">${svg(icon)}<span class="grow">${name}</span><span class="sub">${n}</span></button>`;
+    el.innerHTML = `<div class="side-head"><h2>Style ${closeX}</h2><p>The site's colors, text styles and rounded corners. Updated from ClearMark Studio Templates with /push-check.</p></div>
+      <div class="side-sec"><div class="side-label">Style</div>
+        ${row("colors", '<circle cx="8" cy="9" r="4"/><circle cx="16" cy="9" r="4"/><circle cx="12" cy="16" r="4"/>', "Colors", st.colors.reduce((n, g) => n + g.items.length, 0))}
+        ${row("type", '<path d="M4 7V5h16v2M12 5v14M9 19h6"/>', "Text styles", st.type.length)}
+        ${row("radius", '<path d="M4 20v-8a8 8 0 0 1 8-8h8"/>', "Rounded corners", st.radius.length)}</div>`;
   } else {
     const row = (id, icon, name, sub = "") => `<button type="button" class="side-row" data-setnav="${id}" aria-current="${NAV_VIEW === "settings" && UI.set === id}">${svg(icon)}<span class="grow">${esc(name)}</span>${sub ? `<span class="sub">${esc(sub)}</span>` : ""}</button>`;
     el.innerHTML = `<div class="side-head"><h2>Settings ${closeX}</h2><p>For the whole site, or one page at a time.</p></div>
@@ -2895,6 +3553,52 @@ function renderSettings() {
     <div class="set-card"><h3>Custom code</h3><p class="set-help">Left out on purpose for now: code pasted here would run on every page. When you need ad tracking or analytics, we'll add it with a safety check.</p></div></div>`;
 }
 
+// ── Style screen (Oct 14) ──
+// Reads the site's own style files, so it always matches the live site: the real
+// Studio gets them fresh on every load (window.__STUDIO_STYLE_CSS__, from route.ts);
+// the Claude prototype uses the copy in #style-css (node scripts/sync-style.mjs).
+// /push-check updates those files when a canvas change adds or changes a style.
+function siteStyle() {
+  const css = window.__STUDIO_STYLE_CSS__ || $("#style-css")?.textContent || "";
+  const colors = [], byName = {};
+  let group = null;
+  for (const line of css.split("\n")) {
+    const c = line.match(/^\s*\/\*\s*([^:*]+?)(?::\s*([^*]*?))?\s*\*\/\s*$/);
+    if (c && !/^-+$|^═/.test(c[1])) { group = { name: (c[2] ? `${c[1].trim()}: ${c[2]}` : c[1]).replace(/\s*\(approx\)/i, "").trim(), approx: /approx/i.test(line), items: [] }; continue; }
+    const m = line.match(/^\s*--([a-z0-9-]+):\s*(#[0-9a-f]{3,8}|var\(--[a-z0-9-]+\))\s*;/i);
+    if (!m || !group || /^(radius|text|font)-/.test(m[1])) continue;
+    if (!colors.includes(group)) colors.push(group);
+    const ref = m[2].match(/^var\(--(.+)\)$/)?.[1];
+    const item = { name: m[1], value: ref ? null : m[2].toUpperCase(), ref };
+    group.items.push(item); byName[item.name] = item;
+  }
+  for (const g of colors) for (const it of g.items) if (it.ref) it.value = byName[it.ref]?.value || "";
+  const weightOf = {};
+  for (const m of css.matchAll(/(^|\n)(h[1-6]|\.tagline)\s*\{[^}]*?font-weight:\s*(\d+)/g)) weightOf[m[2].replace(".", "")] = m[3];
+  const type = [...css.matchAll(/--text-([a-z0-9]+)-size:\s*([^;]+);\s*--text-\1-lh:\s*([^;]+);\s*--text-\1-ls:\s*([^;]+);/g)]
+    .map(([, id, size, lh, ls]) => ({ id, size, lh, ls, weight: weightOf[id] || "" }));
+  const weights = [...css.matchAll(/--font-weight-([a-z-]+):\s*(\d+);/g)].map(([, n, w]) => ({ name: n.replace(/-/g, " "), w }));
+  const radius = [...css.matchAll(/--radius-([a-z0-9-]+):\s*([^;]+);\s*(?:\/\*\s*(.*?)\s*\*\/)?/g)].map(([, name, value, note]) => ({ name, value, note: note || "" }));
+  return { colors: colors.filter((g) => g.items.length), type, weights, radius };
+}
+const TYPE_NAME = (id) => (/^h\d$/.test(id) ? "Heading " + id[1] : id === "tagline" ? "Tagline" : "Body " + id.toUpperCase());
+function renderStyle() {
+  const st = siteStyle(), back = `<button type="button" class="btn btn-small" data-nav-back>← Editor</button>`;
+  const sw = (it) => `<div class="sty-sw"><i style="background:${esc(it.value)}"></i><b>${esc(it.name.replace(/^color-/, ""))}</b><span>${it.ref ? "= " + esc(it.ref) + " · " : ""}${esc(it.value)}</span></div>`;
+  const order = ["h1", "h2", "h3", "h4", "h5", "h6", "tagline", "xl", "lg", "md", "sm", "xs", "xxs"];
+  const type = [...st.type].sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  $("#view-style").innerHTML = `<div class="view-head">${back}<h2>Style</h2></div><div class="set-col">
+    <p class="set-help">What the live site uses, read from its style files (styles/colors.css, typography.css, radius.css). To change a style, edit it on the ClearMark Studio Templates canvas and run /push-check: this screen follows.</p>
+    <div class="set-card" id="sty-colors"><h3>Colors</h3>
+      ${st.colors.map((g) => `<div class="set-field"><span>${esc(g.name)}${g.approx ? ' <span class="badge">approx</span>' : ""}</span><div class="sty-swatches">${g.items.map(sw).join("")}</div></div>`).join("")}</div>
+    <div class="set-card" id="sty-type"><h3>Text styles</h3><p class="set-help">Saira for headings, body and buttons. Size / line height / letter spacing.</p>
+      <div class="sty-type">${type.map((t) => `<div class="sty-trow"><div><b>${TYPE_NAME(t.id)}</b><span class="sty-meta">${esc(t.size)} / ${esc(t.lh)} / ${esc(t.ls)}${t.weight ? " · " + esc(t.weight) : ""}</span></div>
+        <div class="sty-sample" style="font-size:${esc(t.size)};line-height:${esc(t.lh)};letter-spacing:${esc(t.ls)};${t.weight ? "font-weight:" + esc(t.weight) + ";" : ""}${t.id === "tagline" ? "text-transform:uppercase;" : ""}">Clear marketing, measured</div></div>`).join("")}</div>
+      <div class="set-field"><span>Weights</span><div class="sty-swatches">${st.weights.map((w) => `<div class="sty-sw"><b style="font-family:var(--f-display);font-size:22px;font-weight:${esc(w.w)}">Aa</b><span>${esc(w.name)} · ${esc(w.w)}</span></div>`).join("")}</div></div></div>
+    <div class="set-card" id="sty-radius"><h3>Rounded corners</h3><div class="sty-radii">
+      ${st.radius.map((r) => `<div class="sty-radius"><i style="border-radius:${esc(r.value)}"></i><b>${esc(r.name)} · <span class="sty-meta">${esc(r.value)}</span></b><p>${esc(r.note)}</p></div>`).join("")}</div></div></div>`;
+}
+
 // ── Pages: add, rename, change address, delete ──
 // Addresses are one lower-case word or words joined by dashes. Home is always "/".
 const RESERVED_SLUGS = ["clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"];
@@ -3000,13 +3704,14 @@ document.addEventListener("click", (e) => {
   if (d.addpage != null) return addPage();
   if (d.delpage) return deletePage(d.delpage);
   if (d.rail) return railGo(d.rail, false);
+  if (d.stylego) { if (NAV_VIEW !== "style") { NAV_VIEW = "style"; applyNav(); } document.getElementById("sty-" + d.stylego)?.scrollIntoView({ behavior: "smooth", block: "start" }); closeIfFloating(); return; }
   // "Add a section": open the Modules block in the Pages panel and bring it into view.
   if (d.modsFocus != null) {
     UI.rail = "pages"; UI.open = true; NAV_VIEW = "editor"; UI.closed.delete("modules"); if (!UI.mods.size) UI.mods.add("heroes");
     saveUI(); applyNav(); document.querySelector('#side [data-block="modules"]')?.scrollIntoView({ behavior: "smooth", block: "start" }); return;
   }
   if (d.navClose != null) { UI.open = false; UI.cat = null; applyNav(); return; }
-  if (d.navBack != null) { NAV_VIEW = "editor"; if (UI.rail === "cms" || UI.rail === "settings") UI.rail = "pages"; saveUI(); applyNav(); return; }
+  if (d.navBack != null) { NAV_VIEW = "editor"; if (viewFor(UI.rail) !== "editor") UI.rail = "pages"; saveUI(); applyNav(); return; }
   if (d.pub != null) return publishPage();
   if (d.savework != null) return saveWork();
   if (d.unpub != null) return unpublishPage();

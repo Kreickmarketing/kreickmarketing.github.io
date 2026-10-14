@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     return ["pipeline", "database", "funnel", "clients", "clients/:path*"].map((p) => ({ source: `/clrcrm/crm/${p}`, destination: "/clrcrm/crm", permanent: false }));
   },
   outputFileTracingIncludes: {
-    "/clrcrm/studio/builder": ["./docs/prototypes/studio-builder/studio-builder.html"],
+    "/clrcrm/studio/builder": ["./docs/prototypes/studio-builder/studio-builder.html", "./styles/*.css"],
     "/clrcrm/crm": ["./docs/prototypes/crm/crm.html"],
   },
 };
