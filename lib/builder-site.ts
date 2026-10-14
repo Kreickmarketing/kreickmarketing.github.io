@@ -247,8 +247,13 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const cards = rows(P("cards")).filter(hasText).slice(0, 4);
       // Each card's icon: its own image from Card icons, else the built-in one; none when icons are off.
       const own = Array.isArray(P("icons")) ? (P("icons") as unknown[]).slice(0, 4).map(safeImage) : [];
-      const icon = (i: number) => noIcons ? "" : own[i] ? `<img class="sys-icon" src="${esc(own[i] as string)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg>`;
-      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i)}</article>`).join("")}</div>` : ""}`;
+      // Card's own icon (row.icon), "none" = no icon; else the older Card icons spot; else the built-in one.
+      const icon = (i: number, r: Record<string, unknown>) => {
+        if (noIcons || r.icon === "none") return "";
+        const mine = safeImage(r.icon) || own[i];
+        return mine ? `<img class="sys-icon" src="${esc(mine)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg>`;
+      };
+      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i, r)}</article>`).join("")}</div>` : ""}`;
     }
     case "engine": {
       // Engine (T.O.E.): the icon for each place, the fan + laptop drawing, then the words. Hover moves: builder-site.css.
