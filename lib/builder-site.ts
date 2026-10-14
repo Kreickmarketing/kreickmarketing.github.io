@@ -68,6 +68,8 @@ export type BuilderState = {
   flip?: Record<string, boolean>;
   // System sections whose cards show no icons (Studio: Card icons → Show icons off).
   noIcons?: Record<string, boolean>;
+  // Section background choice (Quote): "white" or "black"; missing = Cream (Clay).
+  bg?: Record<string, unknown>;
   // Image focus points (% from top-left) and zoom (1–3×): Desktop, plus optional tablet/phone crops.
   crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown; tablet?: unknown; phone?: unknown }>;
   pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
@@ -351,7 +353,8 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     const tpl = tpls[str(inst?.t)], uid = str(inst?.uid);
     if (!tpl || !ID.test(uid)) continue;
     const P = (key: string) => slots[`${uid}.${key}`]?.placed;
-    const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}`, id = here[uid] || uid;
+    const bg = tpl.type === "quote" && (state.bg?.[uid] === "white" || state.bg?.[uid] === "black") ? ` bg-${state.bg[uid]}` : "";
+    const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}${bg}`, id = here[uid] || uid;
     // Mailing list: wording left empty in Studio falls back to the starting words.
     if (tpl.type === "mail") sections.push({ kind: "mail", id, uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
       nameLabel: str(P("name")) || "Name", emailLabel: str(P("email")) || "Email", button: str(P("button")) || "Sign up", thanks: str(P("thanks")) });

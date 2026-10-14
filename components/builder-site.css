@@ -163,6 +163,10 @@
 .site .quote-sec { background: var(--clay); }
 .site .quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
 .site .quote-sec cite { font-style: normal; font-size: 17px; color: var(--iron-pine); }
+/* Background choice (Studio): Cream (Clay, default), White, Black (Midnight, white words). */
+.site .quote-sec.bg-white { background: var(--white); }
+.site .quote-sec.bg-black { background: var(--midnight); color: var(--white); }
+.site .quote-sec.bg-black cite { color: var(--clay); }
 /* Quote: space above and below (canvas, Oct 14): 192px desktop, 128px tablet, 64px phone. */
 .site .sec.quote-sec { padding-block: 192px; }
 @container (max-width: 1000px) { .site .sec.quote-sec { padding-block: 128px; } }

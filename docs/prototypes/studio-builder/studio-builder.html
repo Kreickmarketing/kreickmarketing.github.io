@@ -390,6 +390,10 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .quote-sec { background: var(--cm-clay); }
 .quote-sec blockquote { margin: 0; font-size: 40px; line-height: 1.15; letter-spacing: -1px; font-weight: 300; max-width: 980px; }
 .quote-sec cite { font-style: normal; font-size: 17px; color: var(--cm-iron); }
+/* Background choice: Cream (Clay, default), White, Black (Midnight, white words). */
+.quote-sec.bg-white { background: #fff; }
+.quote-sec.bg-black { background: var(--cm-midnight); color: #fff; }
+.quote-sec.bg-black cite { color: var(--cm-clay); }
 /* Quote: space above and below (canvas, Oct 14): 192px desktop, 128px tablet, 64px phone. */
 .sec.quote-sec { padding-block: 192px; }
 @container (max-width: 1000px) { .sec.quote-sec { padding-block: 128px; } }
@@ -1935,7 +1939,7 @@ const TEMPLATES = [
   { id: "points", name: "Points", type: "points", about: "Up to three titled points in a list, no photo.", slots: [
     { key: "points", label: "Points", kind: "list", max: 3, cols: [{ key: "title", label: "Title", limit: 40 }, { key: "proof", label: "Text", limit: 160, long: true }], source: "Playbook · How the team works" },
   ]},
-  { id: "quote", name: "Quote", type: "quote", about: "One large quote with a name and title.", slots: [
+  { id: "quote", name: "Quote", type: "quote", bgChoice: true, about: "One large quote with a name and title. Background: White, Cream or Black.", slots: [
     { key: "text", label: "Quote", kind: "text", limit: 200, long: true, source: "Playbook · Supporting quote (needs approval)" },
     { key: "by", label: "Name and title", kind: "text", limit: 60, source: "Playbook · Quote by" },
   ]},
@@ -2028,7 +2032,7 @@ function seed() {
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, device: "desktop", guides: true };
+  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, bg: {}, device: "desktop", guides: true };
 }
 // Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
@@ -2047,7 +2051,7 @@ const liveChip = (p) => `<span class="live-chip${pageIsLive(p) ? " is-live" : ""
 let S;
 if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
-if (S) { S.flip ||= {}; S.noIcons ||= {}; if (!S.pages) S = null; }
+if (S) { S.flip ||= {}; S.noIcons ||= {}; S.bg ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
 // Sections made from copies in the old Design view go back to their original template;
 // design now lives in Claude Design, so the builder keeps no design of its own.
@@ -2348,6 +2352,8 @@ const SECTION_HTML = {
   spacer: () => "",
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
+// Section background choice (Quote, Oct 14). Cream is the original Clay background.
+const BG_NAME = { white: "White", cream: "Cream", black: "Black" };
 const SECTION_CLASS = { spacer: "spacer", hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
 
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
@@ -2375,10 +2381,11 @@ function pageHtml(page, live = true) {
   const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections yet. Add one from Modules in the left panel.</div></div>` : "";
   return nav + empty + secs.map((sec) => {
     const k = (key) => `${sec.id}.${key}`;
-    const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
+    const tools = live ? `<span class="sec-tools"><span class="sec-tag" data-secdrag="${sec.id}" title="Drag to move this section">⠿ ${esc(sec.name)}</span>${sec.flip ? `<button type="button" class="sec-flip" data-flip="${sec.id}" title="Swap photo and text">⇄ Photo ${S.flip[sec.id] ? "right" : "left"}</button>` : ""}${sec.bgChoice ? `<button type="button" class="sec-flip" data-secbg="${sec.id}:next" title="Background: click to change (White, Cream, Black)">◐ ${BG_NAME[S.bg[sec.id] || "cream"]}</button>` : ""}<button type="button" class="sec-flip sec-remove" data-secremove="${sec.id}" title="Remove this section" aria-label="Remove ${esc(sec.name)}">× Remove</button></span>` : "";
     // While an image is being dragged, sections with a photo behind them show a "Background image" box to drop on.
     const bgDrop = live && PHOTO_TOP.includes(sec.type) && SLOTS[k("image")] ? `<div class="bg-drop" data-slot="${k("image")}">Background image<small>drop to replace</small></div>` : "";
-    return `<section class="sec t-${sec.template} ${SECTION_CLASS[sec.type]}" data-secid="${sec.id}">${tools}${bgDrop}${SECTION_HTML[sec.type](sec, k)}</section>`;
+    const bg = sec.bgChoice && S.bg[sec.id] ? ` bg-${S.bg[sec.id]}` : "";
+    return `<section class="sec t-${sec.template} ${SECTION_CLASS[sec.type]}${bg}" data-secid="${sec.id}">${tools}${bgDrop}${SECTION_HTML[sec.type](sec, k)}</section>`;
   }).join("") + footerHtml(page.id);
 }
 
@@ -2611,6 +2618,7 @@ function renderCards() {
       + eBlock("anchor", "Link name", anchorField(sl.id, true), `<span class="chip">optional</span>`);
   } else if (sec) {
     $("#cards").innerHTML = eBlock("section", esc(sec.name), sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`, `<span class="chip">${esc(TPL[sec.template].name)}</span>`)
+      + (sec.bgChoice ? eBlock("bg", "Background", `<div class="seg" role="group" aria-label="Background">${Object.entries(BG_NAME).map(([v, n]) => `<button type="button" data-secbg="${sec.id}:${v}" aria-pressed="${(S.bg[sec.id] || "cream") === v}">${n}</button>`).join("")}</div><p class="hint" style="margin:0">Black turns the words white.</p>`) : "")
       + eBlock("anchor", "Link name", anchorField(sec.id, false));
   } else {
     $("#cards").innerHTML = "";
@@ -2760,7 +2768,7 @@ function closeRemove(yes) {
   const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
   l.splice(i, 1);
   for (const sid of Object.keys(S.slots)) if (sid.startsWith(id + ".")) delete S.slots[sid];
-  delete S.flip[id]; delete S.noIcons[id];
+  delete S.flip[id]; delete S.noIcons[id]; delete S.bg[id];
   if (curSec === id) curSec = null;
   if (selected?.startsWith(id + ".")) selected = openCard = null;
   rebuildSlots(); render(); toast(`Removed ${name}.`);
@@ -2910,6 +2918,9 @@ document.addEventListener("click", (e) => {
   }
   if (d.toggle) { openCard = openCard === d.toggle ? null : d.toggle; selected = d.toggle; curSec = SLOTS[d.toggle].section; render(); scrollToSlot(d.toggle); return; }
   if (d.page) { S.page = d.page; selected = openCard = curSec = null; render(); window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  if (d.secbg) { const [sid, v] = d.secbg.split(":"), order = Object.keys(BG_NAME), now = S.bg[sid] || "cream";
+    const pick = v === "next" ? order[(order.indexOf(now) + 1) % order.length] : v; if (pick === "cream") delete S.bg[sid]; else S.bg[sid] = pick;
+    render(); toast(`Background: ${BG_NAME[pick]}.`); return; }
   if (d.flip) { S.flip[d.flip] = !S.flip[d.flip]; render(); scrollToSection(d.flip); toast(S.flip[d.flip] ? "Photo on the right." : "Photo on the left."); return; }
   if (d.secmove) { const [id, dir] = d.secmove.split(":"); moveSectionBy(id, +dir); return; }
   if (d.revert) return revert(d.revert);

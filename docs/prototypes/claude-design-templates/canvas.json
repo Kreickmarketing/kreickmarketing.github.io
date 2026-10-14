@@ -614,6 +614,13 @@
       "w": 240,
       "x": 0,
       "y": 12100
+    },
+    "quote-note": {
+      "fill": "orange",
+      "text": "Quote: background option (Studio)\n\nEach Quote section can be White, Cream or Black. Cream is the Clay shown on these boards (the default).\n\nBlack: Midnight background, the quote turns white and the name line light Clay.\n\nIn Studio: click the section, then Background in the right panel (or the ◐ button on its tag).",
+      "w": 380,
+      "x": 2680,
+      "y": 12360
     }
   },
   "order": [
