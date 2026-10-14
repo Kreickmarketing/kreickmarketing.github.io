@@ -32,7 +32,7 @@ export const ixOut = (i: Row) => [s(i.kind), s(i.title), s(i.who), shortDay(s(i.
 export const reminderOut = (r: Row) => ({ id: s(r.id), person: s(r.person_id), title: s(r.title), due: day(r.due) || null, done: r.done === true, by: s(r.created_by) });
 export const sequenceOut = (q: Row) => ({
   id: s(q.id), subject: s(q.subject), body: s(q.body), follow: s(q.follow_up), wait: Number(q.wait_days) || 0,
-  status: s(q.status) || "Draft", to: Array.isArray(q.recipients) ? (q.recipients as string[]) : [], sentAt: day(q.sent_at) || null,
+  status: s(q.status) || "Draft", to: Array.isArray(q.recipients) ? (q.recipients as string[]) : [], sentAt: day(q.sent_at) || null, followSentAt: day(q.followup_sent_at) || null,
 });
 export const companyOut = (c: Row, people: number, deal: string | null) => ({
   id: s(c.id), name: s(c.name), industry: s(c.industry) || "—", market: s(c.market) || "—", status: s(c.status) || null, people, deal,
@@ -76,8 +76,11 @@ export async function loadCrm(supabase: SupabaseClient) {
 // ── Assistants ──
 // Settings from the Assistants page (one crm_settings row).
 export const FOLLOW_AFTER: Record<string, number> = { "3 days": 3, "1 week": 7, "2 weeks": 14, "1 month": 30 };
-export type CrmSettings = { assist: { follow: boolean; recap: boolean; research: boolean; portal: boolean }; followAfter: string };
-export const DEFAULT_SETTINGS: CrmSettings = { assist: { follow: true, recap: true, research: false, portal: true }, followAfter: "1 week" };
+export type CrmSettings = { assist: { follow: boolean; recap: boolean; research: boolean; portal: boolean }; followAfter: string; signature: string };
+// Added to the end of every email the CRM sends. Canada's anti-spam law (CASL) asks sales emails to
+// say who they're from, give a mailing address, and offer a way to opt out.
+export const DEFAULT_SIGNATURE = "--\nAndrew Kreick\nClearMark · clearmark.bz\n[Add your mailing address here]\n\nIf you'd rather not get emails from me, just reply and say so.";
+export const DEFAULT_SETTINGS: CrmSettings = { assist: { follow: true, recap: true, research: false, portal: true }, followAfter: "1 week", signature: DEFAULT_SIGNATURE };
 export function cleanSettings(v: unknown): CrmSettings {
   const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
   const a = (o.assist && typeof o.assist === "object" ? o.assist : {}) as Record<string, unknown>;
@@ -85,6 +88,7 @@ export function cleanSettings(v: unknown): CrmSettings {
   return {
     assist: { follow: flag("follow"), recap: flag("recap"), research: flag("research"), portal: flag("portal") },
     followAfter: typeof o.followAfter === "string" && o.followAfter in FOLLOW_AFTER ? o.followAfter : DEFAULT_SETTINGS.followAfter,
+    signature: typeof o.signature === "string" ? o.signature.slice(0, 1000) : DEFAULT_SETTINGS.signature,
   };
 }
 export async function loadSettings(supabase: SupabaseClient) {
@@ -121,4 +125,10 @@ export async function runFollowUps(supabase: SupabaseClient, settings: CrmSettin
   const { error } = await supabase.from("crm_reminders").insert(rows);
   if (error) throw new Error(error.message);
   return rows.length;
+}
+
+// {first_name} and {company} filled in for one person (same rule as the page's preview).
+export function fillMerge(text: string, person: { name?: unknown }, company: string) {
+  const first = s(person.name).split(" ")[0] || "there";
+  return text.replace(/\{first_name\}/g, first).replace(/\{company\}/g, company && company !== "—" ? company : "your team");
 }

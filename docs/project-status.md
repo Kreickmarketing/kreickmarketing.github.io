@@ -21,7 +21,7 @@
 - `components/core`, `components/navigation`: Andrew's uploaded design-system export (reference only, not used; follow his newer images where they differ).
 
 ## Next moves
-0. New CRM: old CRM retired Oct 14 (Products kept). Next: real email sending (Resend: account + DNS at Cirrus; then Mark as sent becomes Send). Later (Andrew, Oct 14): one product data set with two views, client-facing (Studio CMS offers on the site) and internal sales (Products price list + deals), so both reflect each other for Messages, the Recap and Follow-up assistants (Claude), and the Author Portal's Drive and monday connections.
+0. New CRM: old CRM retired Oct 14 (Products kept). Email sending code is live but off (Oct 14): lib/email.ts sends through Resend once RESEND_API_KEY and EMAIL_FROM are set in Vercel; Messages then shows Send… (one personal email each, logged, follow-up reminder) and Send follow-up… (untick who replied). Signature (CASL: who, mailing address, opt-out) saved in crm_settings, edited from Messages → Signature. Andrew to do: Resend account, add clearmark.bz, DNS records at Cirrus, key + EMAIL_FROM in Vercel. Later (Andrew, Oct 14): one product data set with two views, client-facing (Studio CMS offers on the site) and internal sales (Products price list + deals), so both reflect each other for Messages, the Recap and Follow-up assistants (Claude), and the Author Portal's Drive and monday connections.
 1. Swap the real images from uploads/ and assets/ into Hero, Credibility and Platforms.
 2. Andrew: add NEXT_PUBLIC_CALENDLY_URL = https://calendly.com/andrew-clearmark/15min in Vercel.
 3. Andrew: open Studio → ClearMark → Home → Edit, check the preview, then Publish. The first Publish replaces the old hand-built homepage.

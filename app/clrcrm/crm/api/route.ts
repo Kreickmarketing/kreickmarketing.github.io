@@ -3,7 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import Anthropic from "@anthropic-ai/sdk";
 import { AiError, research, writeRecap } from "@/lib/crm-ai";
-import { STAGES, STATUSES, cleanSettings, companyOut, sequenceOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
+import { EmailError, emailReady, sendEmail } from "@/lib/email";
+import { STAGES, STATUSES, cleanSettings, companyOut, fillMerge, loadSettings, sequenceOut, dealOut, displayName, groupOut, ixOut, noteOut, personOut, reminderOut } from "@/lib/crm-v2";
 
 // Saves changes made in the new CRM (clrcrm/crm). One POST per change, { action, ... }.
 // Only CRM members get past the check, every value is checked here, and Row Level
@@ -159,7 +160,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ reminder: reminderOut(data) });
       }
       case "saveSettings": {
-        const settings = cleanSettings(b.settings);
+        // Merge with what's saved, so a page that sends only some settings doesn't reset the rest.
+        const settings = cleanSettings({ ...(await loadSettings(supabase)), ...(b.settings && typeof b.settings === "object" ? b.settings : {}) });
         const { error } = await supabase.from("crm_settings").upsert({ id: "crm", data: settings });
         if (error) throw new Error(error.message);
         return NextResponse.json({ settings });
@@ -217,6 +219,63 @@ export async function POST(request: Request) {
         const { data: done, error: e3 } = await supabase.from("crm_sequences").update({ status: "Sent", sent_at: new Date().toISOString() }).eq("id", id).select("*").single();
         if (e3) throw new Error(e3.message);
         return NextResponse.json({ sequence: sequenceOut(done), interactions: (ix.data ?? []).map((i) => ({ person: i.person_id, row: ixOut(i) })), reminders: rems.map(reminderOut), day: day0 });
+      }
+      // Sends the email (step 1) or the follow-up (step 2) to each chosen recipient with an email address,
+      // one personal email each, then logs it on them. Step 1 also adds the follow-up reminders.
+      case "sendSequence":
+      case "sendFollowUp": {
+        const id = String(b.id), step2 = b.action === "sendFollowUp";
+        if (!UUID.test(id)) return fail("Bad request");
+        if (!emailReady()) return fail("Email sending isn't connected yet", 422);
+        const { data: seq, error } = await supabase.from("crm_sequences").select("*").eq("id", id).single();
+        if (error) throw new Error(error.message);
+        const subject0 = String(seq.subject || "").trim(), text0 = String(step2 ? seq.follow_up : seq.body || "").trim();
+        if (!subject0 || !text0) return fail(step2 ? "This sequence has no follow-up" : "Add a subject and an email first");
+        if (step2 && seq.status !== "Sent") return fail("Send the first email before the follow-up");
+        const only = Array.isArray(b.to) ? new Set(b.to.map(String)) : null;
+        const ids = ((seq.recipients as string[]) ?? []).filter((p) => !only || only.has(p)).slice(0, 50);
+        if (!ids.length) return fail("No recipients chosen");
+        const { data: people, error: pe } = await supabase.from("crm_people").select("id, name, email, company_id").in("id", ids);
+        if (pe) throw new Error(pe.message);
+        const coIds = [...new Set((people ?? []).map((p) => p.company_id).filter(Boolean))];
+        const { data: cos } = coIds.length ? await supabase.from("crm_companies").select("id, name").in("id", coIds) : { data: [] };
+        const coName = new Map((cos ?? []).map((c) => [c.id as string, c.name as string]));
+        const { signature } = await loadSettings(supabase);
+        const sent: string[] = [], failed: { name: string; why: string }[] = [], noEmail: string[] = [];
+        for (const p of people ?? []) {
+          if (!p.email) { noEmail.push(String(p.name)); continue; }
+          const co = coName.get(p.company_id as string) ?? "";
+          const subject = (step2 ? `Re: ${fillMerge(subject0, p, co)}` : fillMerge(subject0, p, co)).slice(0, 250);
+          try {
+            await sendEmail(String(p.email), subject, `${fillMerge(text0, p, co)}${signature.trim() ? `\n\n${signature.trim()}` : ""}`);
+            sent.push(p.id as string);
+          } catch (e) {
+            if (!(e instanceof EmailError)) throw e;
+            failed.push({ name: String(p.name), why: e.message });
+          }
+          await new Promise((r) => setTimeout(r, 300)); // stay under Resend's per-second limit
+        }
+        const day0 = today();
+        let interactions: { person: string; row: string[] }[] = [], reminders: Record<string, unknown>[] = [];
+        if (sent.length) {
+          const title = `${step2 ? "Follow-up sent" : "Email sent"}: ${subject0}`.slice(0, 300);
+          const ix = await supabase.from("crm_interactions").insert(sent.map((p) => ({ person_id: p, kind: "mail", title, who: me, happened_on: day0 }))).select("*");
+          if (ix.error) throw new Error(ix.error.message);
+          interactions = (ix.data ?? []).map((i) => ({ person: i.person_id as string, row: ixOut(i) }));
+          await supabase.from("crm_people").update({ last_interaction: day0 }).in("id", sent).or(`last_interaction.is.null,last_interaction.lt.${day0}`);
+          if (step2) {
+            await supabase.from("crm_reminders").update({ done: true }).in("person_id", sent).eq("done", false).like("title", `Send the follow-up: ${subject0.slice(0, 200).replace(/[%_]/g, "")}%`);
+          } else if (String(seq.follow_up || "").trim()) {
+            const due = new Date(Date.now() + (Number(seq.wait_days) || 0) * 864e5).toISOString().slice(0, 10);
+            const r = await supabase.from("crm_reminders").insert(sent.map((p) => ({ person_id: p, title: `Send the follow-up: ${subject0}`.slice(0, 300), due, created_by: me }))).select("*");
+            if (r.error) throw new Error(r.error.message);
+            reminders = r.data ?? [];
+          }
+          const stamp = step2 ? { followup_sent_at: new Date().toISOString() } : { status: "Sent", sent_at: new Date().toISOString() };
+          await supabase.from("crm_sequences").update(stamp).eq("id", id);
+        }
+        const { data: now } = await supabase.from("crm_sequences").select("*").eq("id", id).single();
+        return NextResponse.json({ sequence: now ? sequenceOut(now) : null, sent, failed, noEmail, interactions, reminders: reminders.map(reminderOut), day: day0 });
       }
       case "moveDeal": {
         const id = String(b.id), stage = String(b.stage);

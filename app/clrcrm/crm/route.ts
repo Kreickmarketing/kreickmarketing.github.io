@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import { displayName, loadCrm, loadSettings, runFollowUps } from "@/lib/crm-v2";
 import { aiReady } from "@/lib/crm-ai";
+import { emailReady } from "@/lib/email";
 
 // New CRM: people, companies, deals board, messages, dashboards, assistants and the
 // Author Portal builder. Its source is one HTML file, docs/prototypes/crm/crm.html (the
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
   try { added = await runFollowUps(supabase, settings); } catch (e) { console.error("Follow-up assistant failed:", e); }
   const data = await loadCrm(supabase);
   // JSON inside a <script>: escape "<" so no saved text can close the tag.
-  const json = JSON.stringify({ ...data, settings, followUpsAdded: added, ai: aiReady(), me: displayName(member.username) }).replace(/</g, "\\u003c");
+  const json = JSON.stringify({ ...data, settings, followUpsAdded: added, ai: aiReady(), email: emailReady(), me: displayName(member.username) }).replace(/</g, "\\u003c");
   const html = (await readFile(SOURCE, "utf8"))
     .replace("<head>", '<head><meta name="robots" content="noindex, nofollow">')
     .replace("<script>", `<script>window.__CRM__ = ${json};</script>\n<script>`);

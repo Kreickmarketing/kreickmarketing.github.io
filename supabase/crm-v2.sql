@@ -166,3 +166,6 @@ alter table public.crm_sequences enable row level security;
 create policy "CRM members manage crm_sequences" on public.crm_sequences for all to authenticated
   using (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())))
   with check (exists (select 1 from public.crm_members m where m.user_id = (select auth.uid())));
+
+-- Email sending (Oct 14, migration "crm_v2_sequence_followup"): when the follow-up step went out.
+alter table public.crm_sequences add column if not exists followup_sent_at timestamptz;
