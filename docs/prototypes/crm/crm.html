@@ -657,7 +657,7 @@ function drawBody(){const g=GROUPS.find(x=>x.id===S.group);const b=$('body');con
   if(S.view==='people'){const rows=PEOPLE.filter(g.filter).filter(p=>!q||(p.name+p.company+p.title).toLowerCase().includes(q));
     b.innerHTML=`<table class="tbl"><thead><tr><th><input type="checkbox" aria-label="Select all" style="margin-right:10px">${rows.length} people</th><th>Company</th><th>Job title</th><th>Last interaction ↓</th><th>Deal</th><th>Status</th><th>Market</th><th>Owner</th></tr></thead><tbody>${rows.sort((a,c)=>c.last.localeCompare(a.last)).map(p=>{const d=DEALS.find(x=>x.id===p.deal);
       return`<tr data-p="${p.id}" draggable="true" title="Drag onto a group in the side panel to add ${esc(p.name)}" class="${S.rec===p.id?'on':''}"><td><span class="cellname">${av(p.name)}${esc(p.name)}${p.notes?`<span class="meta">${p.notes} ✎</span>`:''}${p.rem?`<span class="meta">${p.rem} ⏰</span>`:''}</span></td><td><span class="co">${tile(p.company)}${esc(p.company)}</span></td><td>${esc(p.title)}</td><td class="num">${fmtDate(p.last)}</td><td>${d?`<span class="deal">${svg('deal')}${esc(d.name)}</span>`:'<span class="muted">—</span>'}</td><td>${stPill(p.status)}</td><td>${esc(p.market)}</td><td><span class="chip">${av(p.owner).replace('class="av"','class="av" style="width:18px;height:18px;font-size:8px;background:'+hue(p.owner)+'"')}${esc(p.owner.split(' ')[0])}</span></td></tr>`}).join('')||`<tr><td colspan="8" class="empty">No people match.</td></tr>`}</tbody></table>`;
-    b.querySelectorAll('[data-p]').forEach(r=>{r.onclick=()=>{S.rec=r.dataset.p;S.rtab='details';drawBody();renderRec()};
+    b.querySelectorAll('[data-p]').forEach(r=>{r.onclick=()=>{S.rec=r.dataset.p;S.rtab='details';S.editing=null;drawBody();renderRec()};
       r.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-person',r.dataset.p);e.dataTransfer.setData('text/plain',PEOPLE.find(x=>x.id===r.dataset.p).name);e.dataTransfer.effectAllowed='copy'})});
   }else if(S.view==='companies'){const rows=COMPANIES.filter(c=>!q||(c.name+c.industry).toLowerCase().includes(q));
     b.innerHTML=`<table class="tbl"><thead><tr><th>${rows.length} companies</th><th>Industry</th><th>Market</th><th>People</th><th>Open deal</th><th>Value</th><th>Status</th></tr></thead><tbody>${rows.map(c=>{const d=DEALS.find(x=>x.id===c.deal);return`<tr data-c="${esc(c.name)}"><td><span class="cellname">${tile(c.name)}${esc(c.name)}</span></td><td>${esc(c.industry)}</td><td>${esc(c.market)}</td><td class="num">${c.people}</td><td>${d?`<span class="deal">${svg('deal')}${esc(d.name)}</span>`:''}</td><td class="num">${d&&d.value?money(d.value)+(d.est?' <span class="muted mono">est.</span>':''):'<span class="muted">rev. share</span>'}</td><td>${stPill(c.status)}</td></tr>`}).join('')}</tbody></table>`;
@@ -667,11 +667,12 @@ function drawBody(){const g=GROUPS.find(x=>x.id===S.group);const b=$('body');con
 function renderKanban(b,q){
   b.innerHTML=`<div class="kan">${STAGES.map(st=>{const ds=DEALS.filter(d=>d.stage===st&&(!q||(d.name+d.company).toLowerCase().includes(q)));const sum=ds.reduce((a,d)=>a+d.value,0);
     return`<section class="col" data-stage="${st}"><div class="colh"><span class="st" style="background:${STAGE_COL[st]}55;color:var(--ink)">${st}</span><span class="sum num">${money(sum)}</span><span class="sp"></span><span class="mono muted">${ds.length}</span></div>
-    ${ds.map(d=>`<article class="card" draggable="true" data-d="${d.id}"><div class="ct">${tile(d.company)}<span>${esc(d.name)}</span></div><div class="cb"><div class="row">${svg('swap')}<span>${esc(d.company)}</span></div><div class="row">${svg('user')}${d.owner.map(o=>`<span class="chip">${av(o).replace('class="av"','class="av" style="width:18px;height:18px;font-size:8px;background:'+hue(o)+'"')}${esc(o)}</span>`).join('')}</div><div class="row">${svg('check')}<span class="num">${d.tasks}</span><span style="flex:1"></span><span class="amt">${d.value?money(d.value):'rev. share'}${d.est?' <span class="muted">est.</span>':''}</span></div></div></article>`).join('')}
+    ${ds.map(d=>`<article class="card" draggable="true" data-d="${d.id}"><div class="ct">${tile(d.company)}<span>${esc(d.name)}</span></div><div class="cb"><div class="row">${svg('swap')}<span>${esc(d.company)}</span></div><div class="row">${svg('user')}${d.owner.map(o=>`<span class="chip">${av(o).replace('class="av"','class="av" style="width:18px;height:18px;font-size:8px;background:'+hue(o)+'"')}${esc(o)}</span>`).join('')}</div><div class="row">${svg('check')}<span class="num">${d.tasks}</span><span style="flex:1"></span><span class="amt">${d.value?money(d.value):'rev. share'}${d.est?' <span class="muted">est.</span>':''}</span><button class="btn sm" data-edeal="${d.id}" aria-label="Edit ${esc(d.name)}">Edit</button></div></div></article>`).join('')}
     <button class="btn sm" data-addin="${st}" style="justify-self:start;border-style:dashed">${svg('plus')}New deal</button></section>`}).join('')}</div>`;
   let drag=null;
   b.querySelectorAll('.card').forEach(c=>{c.addEventListener('dragstart',e=>{drag=c.dataset.d;c.classList.add('drag');e.dataTransfer.setData('text/plain',drag)});c.addEventListener('dragend',()=>c.classList.remove('drag'));
-    c.onclick=()=>{const p=PEOPLE.find(x=>x.deal===c.dataset.d);if(p){S.rec=p.id;renderRec()}}});
+    c.onclick=()=>{const p=PEOPLE.find(x=>x.deal===c.dataset.d);if(p){S.rec=p.id;renderRec()}else editDeal(c.dataset.d)};});
+  b.querySelectorAll('[data-edeal]').forEach(x=>x.onclick=e=>{e.stopPropagation();editDeal(x.dataset.edeal)});
   b.querySelectorAll('.col').forEach(col=>{col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('over')});col.addEventListener('dragleave',e=>{if(!col.contains(e.relatedTarget))col.classList.remove('over')});
     col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('over');const id=e.dataTransfer.getData('text/plain')||drag;const d=DEALS.find(x=>x.id===id);if(d&&d.stage!==col.dataset.stage){const was=d.stage;d.stage=col.dataset.stage;drawBody();
       save('moveDeal',{id:d.id,stage:d.stage}).then(r=>{if(r)toast(`${d.name} moved to ${d.stage}.`);else{d.stage=was;if(S.sec==='crm'&&S.view==='deals')drawBody()}})}})});
@@ -701,15 +702,20 @@ function renderRec(){
   <div class="recap"><b>Recap assistant</b><ul>${p.recap.map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>
   <div class="rtabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" data-rt="${k}" aria-selected="${S.rtab===k}">${l}${k==='notes'&&p.notes?` <span class="mono muted">${p.notes}</span>`:''}${k==='rem'&&p.rem?` <span class="mono muted">${p.rem}</span>`:''}</button>`).join('')}</div><div class="rbody" id="rbody"></div>`;
   $('main').append(el);
-  $('rx').onclick=()=>{S.rec=null;el.remove();if(S.sec==='crm'&&S.view==='people')drawBody()};
+  $('rx').onclick=()=>{S.rec=null;S.editing=null;el.remove();if(S.sec==='crm'&&S.view==='people')drawBody()};
   $('rcopy').onclick=()=>toast('Prototype: record links come with the live version.');
   $('ren').onclick=()=>toast(`Prototype: would find ${p.name.split(' ')[0]}’s email, LinkedIn and company details.`);
   $('rem').onclick=()=>{S.sec='messages';S.msg='m1';render()};
   $('rres').onclick=()=>{S.rtab='notes';p._research=true;renderRec()};
   el.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>{S.rtab=b.dataset.rt;renderRec()});
   const rb=$('rbody');
-  if(S.rtab==='details'){const f=(l,v)=>`<div class="fld"><label>${l}</label><div class="v">${v}</div></div>`;
-    rb.innerHTML=f('Company',`<span class="co">${tile(p.company)}${esc(p.company)}</span>`)+f('Job title',esc(p.title))+f('Status',stPill(p.status))+f('Market',esc(p.market))+f('Deal',d?`<span class="deal">${svg('deal')}${esc(d.name)}</span> · <span class="mono">${d.stage}</span> · ${d.value?money(d.value)+(d.est?' est.':''):'rev. share'}`:'—')+f('Introduced by',esc(p.via||'—'))+f('Owner',`<span class="chip">${av(p.owner)}${esc(p.owner)}</span>`)+f('Last interaction',fmtDate(p.last))+f('Email',p.email?`<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>`:'<span class="muted">Not added yet · Enrich to find it</span>')+`<div style="display:flex;gap:8px"><button class="btn sm">${svg('plus')}New field</button><button class="btn sm">${svg('eyeoff')}Visible fields</button></div>`}
+  if(S.rtab==='details'&&S.editing===p.id){rb.innerHTML=personForm(p);bindPersonForm(p)}
+  else if(S.rtab==='details'){const f=(l,v)=>`<div class="fld"><label>${l}</label><div class="v">${v}</div></div>`;
+    rb.innerHTML=`<div style="display:flex;gap:8px"><button class="btn sm dark" id="pedit">Edit details</button><span style="flex:1"></span><button class="btn sm" id="pdel">Delete person</button></div>`
+      +f('Company',`<span class="co">${tile(p.company)}${esc(p.company)}</span>`)+f('Job title',esc(p.title))+f('Status',stPill(p.status))+f('Market',esc(p.market))+f('Deal',d?`<span class="deal">${svg('deal')}${esc(d.name)}</span> · <span class="mono">${d.stage}</span> · ${d.value?money(d.value)+(d.est?' est.':''):'rev. share'} <button class="btn sm" id="dedit" style="margin-left:4px">Edit deal</button>`:'—')+f('Introduced by',esc(p.via||'—'))+f('Owner',`<span class="chip">${av(p.owner)}${esc(p.owner)}</span>`)+f('Last interaction',fmtDate(p.last))+f('Email',p.email?`<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>`:'<span class="muted">Not added yet · Edit details to add it</span>')+f('Phone',p.phone?`<a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>`:'<span class="muted">—</span>');
+    $('pedit').onclick=()=>{S.editing=p.id;renderRec()};
+    $('pdel').onclick=()=>deletePerson(p);
+    if($('dedit'))$('dedit').onclick=()=>editDeal(d.id)}
   else if(S.rtab==='ix'){const list=INTERACTIONS[p.id]||[['mail','Last email thread',p.owner,fmtDate(p.last)]];rb.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><b>Past interactions</b><button class="btn sm">${svg('plus')}New interaction</button></div>`+list.map(([ic,t,w,dt])=>`<div class="ix"><span class="ic">${svg(ic)}</span><div><b style="font-weight:500">${esc(t)}</b><br><span class="muted">${esc(w)}</span></div><small>${esc(dt)}</small></div>`).join('')}
   else if(S.rtab==='notes'){const ns=(NOTES[p.id]||[]).slice();
     rb.innerHTML=`<div class="note-in"><textarea id="nt" placeholder="Write a note, mention @team"></textarea><div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn sm dark" id="ntadd">Add note</button></div></div>`+(p._research?`<div class="noteitem"><b>Research assistant · just now</b><div>${esc(p.company)}: ${esc(COMPANIES.find(c=>c.name===p.company)?.industry||'company')}. ${esc(p.recap[0])} <span class="muted">Prototype answer from ClearMark’s notes; the live version searches the web.</span></div></div>`:'')+ns.map(([w,t,x])=>`<div class="noteitem"><span>${av(w)} <b>${esc(w)}</b> <span class="muted mono">${esc(t)}</span></span><div>${esc(x)}</div></div>`).join('');
@@ -718,6 +724,42 @@ function renderRec(){
       (NOTES[p.id]=NOTES[p.id]||[]).unshift(r.note||[ME,'just now',v]);p.notes++;renderRec();if(S.sec==='crm'&&S.view==='people')drawBody()}}
   else{rb.innerHTML=`<div class="ix"><span class="ic">${svg('bell')}</span><div><b style="font-weight:500">Follow up with ${esc(p.name.split(' ')[0])}</b><br><span class="muted">Suggested by the follow-up assistant</span></div><small>in 3 days</small></div><button class="btn sm" style="justify-self:start">${svg('plus')}Add reminder</button>`}
 }
+
+/* edit and delete: people and deals (saved through /clrcrm/crm/api on the site) */
+const val=v=>v&&v!=='—'?v:'';
+function personForm(p){const inp=(id,l,v,type)=>`<label class="fld"><label>${l}</label><input class="in" id="${id}" value="${esc(val(v))}"${type?` type="${type}"`:''}></label>`;
+  return`<div class="fld"><label>Editing</label><div class="v muted">Changes save when you press Save.</div></div>`
+   +inp('pe-n','Name',p.name)+inp('pe-t','Job title',p.title)
+   +`<label class="fld"><label>Company</label><input class="in" id="pe-c" value="${esc(val(p.company))}" list="pe-cos"><datalist id="pe-cos">${COMPANIES.map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist></label>`
+   +inp('pe-e','Email',p.email,'email')+inp('pe-ph','Phone',p.phone,'tel')
+   +`<label class="fld"><label>Status</label><select class="in" id="pe-s"><option value="">No status</option>${Object.keys(STATUS).map(s=>`<option ${s===p.status?'selected':''}>${s}</option>`).join('')}</select></label>`
+   +inp('pe-m','Market',p.market)+inp('pe-o','Owner',p.owner)+inp('pe-v','Introduced by',p.via)
+   +`<label class="fld"><label>Deal</label><select class="in" id="pe-d"><option value="">No deal</option>${DEALS.map(x=>`<option value="${esc(x.id)}" ${x.id===p.deal?'selected':''}>${esc(x.name)} · ${esc(x.company)}</option>`).join('')}</select></label>`
+   +`<label class="fld"><label>Recap · one line each</label><textarea class="in" id="pe-r" rows="4">${esc((p.recap||[]).join('\n'))}</textarea></label>`
+   +`<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn sm" id="pe-x">Cancel</button><button class="btn sm dark" id="pe-ok">Save</button></div>`}
+function bindPersonForm(p){$('pe-n').focus();$('pe-x').onclick=()=>{S.editing=null;renderRec()};
+  $('pe-ok').onclick=async()=>{const name=$('pe-n').value.trim();if(!name){$('pe-n').focus();toast('A name is needed.');return}
+    const rec={id:p.id,name,title:$('pe-t').value.trim(),company:$('pe-c').value.trim(),email:$('pe-e').value.trim(),phone:$('pe-ph').value.trim(),status:$('pe-s').value,
+      market:$('pe-m').value.trim(),owner:$('pe-o').value.trim(),via:$('pe-v').value.trim(),dealId:$('pe-d').value,recap:$('pe-r').value.split('\n').map(x=>x.trim()).filter(Boolean)};
+    if(rec.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rec.email)){$('pe-e').focus();toast('That email doesn’t look right.');return}
+    $('pe-ok').disabled=true;const r=await save('updatePerson',rec);if(!r){$('pe-ok').disabled=false;return}
+    Object.assign(p,r.person||{name,title:rec.title||'—',company:rec.company||'—',email:rec.email,phone:rec.phone,status:rec.status||null,market:rec.market||'—',owner:rec.owner||'—',via:rec.via||'—',deal:rec.dealId||null,recap:rec.recap});
+    if(p.company!=='—'&&!COMPANIES.some(c=>c.name===p.company))COMPANIES.push({id:'',name:p.company,industry:'—',market:'—',status:null,people:1,deal:null});
+    S.editing=null;toast('Saved.');renderRec();if(S.sec==='crm')drawBody()}}
+function deletePerson(p){overlay(`<h2>Delete ${esc(p.name)}?</h2><p style="margin:0">This removes ${esc(p.name.split(' ')[0])}’s record with their notes and interactions. Their deal stays. This can’t be undone.</p><div class="row"><button class="btn" id="dpx">Cancel</button><button class="btn dark" id="dpo" style="background:var(--cherry);border-color:var(--cherry)">Delete</button></div>`,()=>{
+  $('dpx').onclick=closeOv;$('dpo').onclick=async()=>{$('dpo').disabled=true;const r=await save('deletePerson',{id:p.id});if(!r){$('dpo').disabled=false;return}
+    PEOPLE.splice(PEOPLE.indexOf(p),1);delete NOTES[p.id];delete INTERACTIONS[p.id];S.rec=null;S.editing=null;closeOv();toast(`${p.name} deleted.`);render()}})}
+function editDeal(id){const d=DEALS.find(x=>x.id===id);if(!d)return;
+  overlay(`<h2>Edit deal</h2><label class="fld"><label>Deal name</label><input class="in" id="de-n" value="${esc(d.name)}"></label><label class="fld"><label>Company</label><input class="in" id="de-c" value="${esc(val(d.company))}"></label><label class="fld"><label>Value (USD)</label><input class="in" id="de-v" inputmode="numeric" value="${d.value||''}"></label>
+   <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="de-e" ${d.est?'checked':''}> The value is an estimate</label><label class="fld"><label>Stage</label><select class="in" id="de-s">${STAGES.map(s=>`<option ${s===d.stage?'selected':''}>${s}</option>`).join('')}</select></label>
+   <div class="row"><button class="btn" id="de-del" style="margin-right:auto;color:var(--cherry)">Delete deal</button><button class="btn" id="de-x">Cancel</button><button class="btn dark" id="de-ok">Save</button></div>`,()=>{
+  $('de-n').focus();$('de-x').onclick=closeOv;
+  $('de-ok').onclick=async()=>{const name=$('de-n').value.trim();if(!name){$('de-n').focus();return}
+    const rec={id:d.id,name,company:$('de-c').value.trim(),value:+$('de-v').value.replace(/\D/g,'')||0,estimate:$('de-e').checked,stage:$('de-s').value};
+    $('de-ok').disabled=true;const r=await save('updateDeal',rec);if(!r){$('de-ok').disabled=false;return}
+    Object.assign(d,r.deal||{name,company:rec.company||'—',value:rec.value,est:rec.estimate,stage:rec.stage});closeOv();toast('Deal saved.');render()};
+  $('de-del').onclick=()=>{const b=$('de-del');if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Click again to delete';return}
+    b.disabled=true;save('deleteDeal',{id:d.id}).then(r=>{if(!r){b.disabled=false;return}DEALS.splice(DEALS.indexOf(d),1);PEOPLE.forEach(x=>{if(x.deal===d.id)x.deal=null});COMPANIES.forEach(c=>{if(c.deal===d.id)c.deal=null});closeOv();toast(`${d.name} deleted.`);render()})}})}
 
 /* ---------- messages ---------- */
 const MSGS=[

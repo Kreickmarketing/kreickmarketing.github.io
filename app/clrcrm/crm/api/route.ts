@@ -14,6 +14,9 @@ const COLOR = /^#[0-9A-Fa-f]{6}$/;
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const fail = (error: string, status = 400) => NextResponse.json({ error }, { status });
 const today = () => new Date().toISOString().slice(0, 10);
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// "" → null, so cleared fields are stored as empty.
+const opt = (v: unknown, max: number) => text(v, max) || null;
 
 // The company row for a name typed in the CRM: found, or made. "" or "—" means none.
 async function companyId(supabase: SupabaseClient, name: string) {
@@ -54,6 +57,45 @@ export async function POST(request: Request) {
         const { data, error } = await supabase.from("crm_deals").insert({ name, company_id: await companyId(supabase, company), stage, value, owners: [me] }).select("*").single();
         if (error) throw new Error(error.message);
         return NextResponse.json({ deal: dealOut(data, company) });
+      }
+      case "updatePerson": {
+        const id = String(b.id), name = text(b.name, 200), company = text(b.company, 200), email = text(b.email, 320), dealId = String(b.dealId ?? "");
+        if (!UUID.test(id) || !name) return fail(name ? "Bad request" : "A name is needed");
+        if (email && !EMAIL.test(email)) return fail("That email doesn't look right");
+        const status = (STATUSES as readonly string[]).includes(String(b.status)) ? String(b.status) : null;
+        const recap = Array.isArray(b.recap) ? b.recap.map((r) => text(r, 300)).filter(Boolean).slice(0, 10) : [];
+        const { data, error } = await supabase.from("crm_people").update({
+          name, company_id: await companyId(supabase, company), title: opt(b.title, 200), email: email || null, phone: opt(b.phone, 40),
+          status, market: opt(b.market, 100), owner: opt(b.owner, 100), introduced_by: opt(b.via, 200), deal_id: UUID.test(dealId) ? dealId : null, recap,
+        }).eq("id", id).select("*").single();
+        if (error) throw new Error(error.message);
+        const { count } = await supabase.from("crm_notes").select("id", { count: "exact", head: true }).eq("person_id", id);
+        return NextResponse.json({ person: personOut(data, company, count ?? 0) });
+      }
+      case "deletePerson": {
+        const id = String(b.id);
+        if (!UUID.test(id)) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_people").delete().eq("id", id).select("id");
+        if (error) throw new Error(error.message);
+        if (!data?.length) return fail("That person wasn't found", 404);
+        return NextResponse.json({ ok: true });
+      }
+      case "updateDeal": {
+        const id = String(b.id), name = text(b.name, 200), company = text(b.company, 200);
+        if (!UUID.test(id) || !name) return fail(name ? "Bad request" : "A deal name is needed");
+        const stage = (STAGES as readonly string[]).includes(String(b.stage)) ? String(b.stage) : "Lead";
+        const value = Math.min(Math.max(Math.round(Number(b.value) || 0), 0), 1_000_000_000);
+        const { data, error } = await supabase.from("crm_deals").update({ name, company_id: await companyId(supabase, company), stage, value, estimate: b.estimate === true }).eq("id", id).select("*").single();
+        if (error) throw new Error(error.message);
+        return NextResponse.json({ deal: dealOut(data, company) });
+      }
+      case "deleteDeal": {
+        const id = String(b.id);
+        if (!UUID.test(id)) return fail("Bad request");
+        const { data, error } = await supabase.from("crm_deals").delete().eq("id", id).select("id");
+        if (error) throw new Error(error.message);
+        if (!data?.length) return fail("That deal wasn't found", 404);
+        return NextResponse.json({ ok: true });
       }
       case "moveDeal": {
         const id = String(b.id), stage = String(b.stage);
