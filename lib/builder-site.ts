@@ -253,7 +253,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
         const mine = safeImage(r.icon) || own[i];
         return mine ? `<img class="sys-icon" src="${esc(mine)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg>`;
       };
-      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i, r)}</article>`).join("")}</div>` : ""}`;
+      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card${icon(i, r) ? "" : " no-icon"}"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i, r)}</article>`).join("")}</div>` : ""}`;
     }
     case "engine": {
       // Engine (T.O.E.): the icon for each place, the fan + laptop drawing, then the words. Hover moves: builder-site.css.
