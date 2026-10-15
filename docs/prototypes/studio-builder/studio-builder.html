@@ -286,6 +286,20 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .cta { display: inline-flex; align-items: center; gap: 12px; background: #fff; color: var(--cm-midnight); border-radius: 999px; padding: 14px 28px; font-family: var(--f-button); font-size: 18px; font-weight: 700; align-self: flex-start; }
 .cta-red { background: var(--cm-cherry); color: #fff; }
 .hero-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; }
+/* Phone tab bar (Oct 15): icon links under the hero button, phones only. */
+.tabbar { display: none; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); gap: 8px; border-top: 1px solid rgba(255,255,255,0.35); padding-top: 16px; font-size: 12px; line-height: 16px; font-weight: 300; text-align: center; color: #fff; cursor: pointer; }
+.tabbar.is-current { outline: 3px solid var(--cm-azure); outline-offset: 4px; }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.tab > span { overflow-wrap: anywhere; }
+.tab svg, .tab img { width: 24px; height: 24px; object-fit: contain; }
+.tab-off { opacity: 0.45; }
+@container (max-width: 700px) { .tabbar { display: grid; } }
+.tab-icons { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab-pick { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--cm-taupe); border-radius: 8px; background: #fff; color: var(--cm-midnight); cursor: pointer; padding: 0; }
+.tab-pick[aria-pressed="true"] { border-color: var(--cm-azure); box-shadow: 0 0 0 2px var(--cm-azure); }
+.tab-pick svg, .tab-pick img { width: 22px; height: 22px; object-fit: contain; }
+.tab-ico { display: inline-grid; place-items: center; width: 20px; height: 20px; color: inherit; }
+.tab-ico svg, .tab-ico img { width: 18px; height: 18px; object-fit: contain; }
 .glass { background: rgba(255,255,255,0.14); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 24px; width: 760px; max-width: 100%; display: flex; flex-direction: column; gap: 12px; font-size: 17px; }
 .glass b { font-size: 15px; }
 .stat-card { background: #fff; color: var(--cm-midnight); border-radius: 18px; padding: 24px; width: 260px; display: flex; flex-direction: column; gap: 6px; }
@@ -2047,7 +2061,7 @@ function seed() {
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, bg: {}, device: "desktop", guides: true };
+  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, noTabs: {}, bg: {}, device: "desktop", guides: true };
 }
 // Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
@@ -2066,7 +2080,7 @@ const liveChip = (p) => `<span class="live-chip${pageIsLive(p) ? " is-live" : ""
 let S;
 if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
-if (S) { S.flip ||= {}; S.noIcons ||= {}; S.bg ||= {}; if (!S.pages) S = null; }
+if (S) { S.flip ||= {}; S.noIcons ||= {}; S.noTabs ||= {}; S.bg ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
 // Sections made from copies in the old Design view go back to their original template;
 // design now lives in Claude Design, so the builder keeps no design of its own.
@@ -2093,6 +2107,28 @@ const CHROME_DEFAULT = {
 // page's own version ("Only this page"). Links use the button format ("page:<id>#<ref>",
 // a web address, or a site path like /privacy).
 S.chrome ||= {}; S.chrome.nav ||= structuredClone(CHROME_DEFAULT.nav); S.chrome.footer ||= structuredClone(CHROME_DEFAULT.footer);
+// Phone tab bar (Oct 15): up to 4 icon links at the bottom of the hero, on phones only. Part of the
+// Global nav: S.chrome.nav.tabs = [{ label, link, icon }]; icon = a built-in name or an image from Sources.
+// A page's own nav without tabs uses the default's. Same icons in lib/builder-site.ts (TAB_ICONS).
+const TAB_ICONS = {
+  solutions: '<path d="M4 4h6v6H4zM14 4l3 3-3 3-3-3zM4 14h6v6H4zM14 14h6v6h-6z"/>',
+  platforms: '<path d="M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3"/>',
+  engine: '<circle cx="12" cy="5" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 7v4M12 11l-6 6M12 11l6 6"/>',
+  pricing: '<path d="M12 3v18M16 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H8"/>',
+  about: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  home: '<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
+};
+const TAB_ICON_NAME = { solutions: "Solutions", platforms: "Platforms", engine: "Engine", pricing: "Pricing", about: "Person", calendar: "Calendar", mail: "Mail", home: "Home" };
+const TAB_MAX = 4, TAB_LABEL = 16;
+const tabIcon = (v) => TAB_ICONS[v] ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TAB_ICONS[v]}</svg>` : v ? `<img src="${esc(v)}" alt="">` : "";
+if (!Array.isArray(S.chrome.nav.tabs)) {
+  const eng = (S.pages.home || []).find((x) => TPL[x.t]?.type === "engine");
+  S.chrome.nav.tabs = [{ label: "Solutions", link: "page:home#solutions", icon: "solutions" }, { label: "Platforms", link: "page:home#platforms", icon: "platforms" },
+    { label: "The Engine", link: eng ? "page:home#" + eng.uid : "", icon: "engine" }, { label: "Pricing", link: "page:pricing", icon: "pricing" }];
+}
+const tabsFor = (pid = S.page) => { const own = chromeOwn("nav", pid); return (own && Array.isArray(own.tabs) ? own.tabs : S.chrome.nav.tabs) || []; };
 S.chromePage ||= {};
 rebuildSlots();
 const save = () => { if (LIVE) return queueSync(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
@@ -2309,7 +2345,7 @@ const SECTION_HTML = {
     return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
       <div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}
         ${btn ? `<span ${filledAttr(k("button")).replace('class="', 'class="cta ')}>${esc(btn)} →</span>` : slotBox(k("button"), "on-dark", "align-self:flex-start;min-width:220px")}
-        ${P(k("link")) ? "" : `<div style="max-width:320px">${slotBox(k("link"), "on-dark")}</div>`}</div>
+        ${P(k("link")) ? "" : `<div style="max-width:320px">${slotBox(k("link"), "on-dark")}</div>`}${tabbarHtml(sec)}</div>
       <div class="hero-bottom">
         ${q ? `<figure ${filledAttr(k("quote")).replace('class="', 'class="glass ')} style="margin:0"><b>${esc(q[0].name)}</b><span>${esc(q[0].quote)}</span></figure>` : `<div style="width:520px">${slotBox(k("quote"), "on-dark", "min-height:140px")}</div>`}
         ${heroGraph(k)}
@@ -2387,6 +2423,19 @@ function navHtml(pid, overPhoto) {
   const cta = n.cta?.label ? `<li class="pill-cta">${esc(n.cta.label)}</li>` : "";
   return `<nav class="site-nav${overPhoto ? "" : " nav-bar"}${curSec === "@nav" && pid === S.page ? " is-current" : ""}" data-chrome="nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul>${links.map((l) => `<li>${esc(l.label)}</li>`).join("")}${cta}</ul><span class="burger" role="button" tabindex="0" aria-label="Open menu" aria-expanded="false" data-navmenu><span></span><span></span><span></span></span><div class="nav-menu"><div class="nav-menu-inner"><ol>${links.map((l) => `<li>${esc(l.label)}</li>`).join("")}</ol>${n.cta?.label ? `<span class="nav-menu-cta">${esc(n.cta.label)}</span>` : ""}</div></div></nav>`;
 }
+// Phone tab bar in the hero (shown at phone width only). Clicking it opens the Global nav editor.
+// An item without a link (or whose section is gone) is faint here and left off the live site.
+let drawPid = null;
+function tabbarHtml(sec) {
+  const tabs = tabsFor(drawPid || S.page).filter((t) => t.label);
+  if (S.noTabs[sec.id] || !tabs.length) return "";
+  return `<nav class="tabbar${curSec === "@nav" ? " is-current" : ""}" data-chrome="nav" aria-label="Sections" style="--n:${tabs.length}">${tabs.map((t) => `<span class="tab${tabHref(t.link) ? "" : " tab-off"}">${tabIcon(t.icon)}<span>${esc(t.label)}</span></span>`).join("")}</nav>`;
+}
+function tabHref(v) {
+  v = String(v || "");
+  if (v.startsWith("page:")) { const [pid, ref] = v.slice(5).split("#"); if (ref && !anchorMap(pid)[ref]) return ""; }
+  return resolveLink(v);
+}
 function footerHtml(pid) {
   const f = chromeFor("footer", pid), year = new Date().getFullYear();
   return `<footer class="site-footer${curSec === "@footer" && pid === S.page ? " is-current" : ""}" data-chrome="footer"><div class="foot-top"><div class="foot-col"><img src="media/logo-white.png" alt="ClearMark Training"><p>${esc(f.tagline)}</p></div>
@@ -2394,7 +2443,7 @@ function footerHtml(pid) {
     <div class="foot-legal"><p class="foot-copy">${esc(String(f.copyright || "").replace("{year}", year))}</p><span>${esc(f.privacyLabel)}</span><span>${esc(f.termsLabel)}</span><span class="foot-top-link"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5"/><path d="M8 13.5l4-4 4 4"/></svg></span></div></footer>`;
 }
 function pageHtml(page, live = true) {
-  const secs = page.sections;
+  const secs = page.sections; drawPid = page.id;
   // The nav is part of the design: over the photo when the page starts with one, otherwise a dark bar.
   const nav = navHtml(page.id, !!(secs[0] && PHOTO_TOP.includes(secs[0].type)));
   const empty = live && !secs.length ? `<div class="std"><div class="slot" style="min-height:200px">This page has no sections yet. Add one from Modules in the left panel.</div></div>` : "";
@@ -2652,6 +2701,7 @@ function renderCards() {
   } else if (sec) {
     $("#cards").innerHTML = eBlock("section", esc(sec.name), sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`, `<span class="chip">${esc(TPL[sec.template].name)}</span>`)
       + (sec.iconToggle ? eBlock("icons", "Icons", `<label class="set-check"><input type="checkbox" data-noicons="${sec.id}" ${S.noIcons[sec.id] ? "" : "checked"}><span><b>Show icons</b><span>${S.noIcons[sec.id] ? "No icons on these cards." : "Each card shows its own icon, the built-in one, or none (set in each card's row)."}</span></span></label>`) : "")
+      + (sec.type === "hero" ? eBlock("tabs", "Phone tab bar", `<label class="set-check"><input type="checkbox" data-notabs="${sec.id}" ${S.noTabs[sec.id] ? "" : "checked"}><span><b>Show tab bar</b><span>${S.noTabs[sec.id] ? "Hidden on this hero." : "Phones only: icon links under the button."}</span></span></label><button type="button" class="btn btn-small btn-outline" data-chromeopen="nav">Edit tab bar items</button>`) : "")
       + (sec.bgChoice ? eBlock("bg", "Background", `<div class="seg" role="group" aria-label="Background">${sec.bgChoice.map((v) => `<button type="button" data-secbg="${sec.id}:${v}" aria-pressed="${bgOf(sec) === v}">${BG_NAME[v]}${v === sec.bgChoice[0] ? " (default)" : ""}</button>`).join("")}</div><p class="hint" style="margin:0">${sec.type === "spacer" ? "Match the sections above and below. Clay Light is the page’s own background." : "Black turns the words white."}</p>`) : "")
       + eBlock("anchor", "Link name", anchorField(sec.id, false));
   } else {
@@ -2707,7 +2757,8 @@ function chromeEditor(kind) {
       ${links.length < CHROME_MAX.links ? `<button type="button" class="btn btn-small btn-outline" data-cadd="nav">+ Add link</button>` : ""}
       <p class="note">Tablet and phone: the menu button opens these same links and the button.</p>`)
       + blk("button", "Button", `${cText("nav", "cta.label", "Button text", CHROME_MAX.label, "Leave empty to hide the button.")}
-      ${linkPick("nav|cta.link", n.cta?.link, "Button goes to")}`);
+      ${linkPick("nav|cta.link", n.cta?.link, "Button goes to")}`)
+      + tabsEditor(n, blk);
   } else {
     const blk = (id, title, html) => eBlock("footer-" + id, title, `<div class="chrome-ed">${html}</div>`);
     body = blk("words", "Words", `${cText("footer", "tagline", "Tagline", CHROME_MAX.text)}
@@ -2719,19 +2770,38 @@ function chromeEditor(kind) {
   }
   return eBlock(kind + "-scope", name, `<div class="chrome-ed">${scope}</div>`, `<span class="chip">${own ? "this page" : "default"}</span>`) + body;
 }
+// Phone tab bar items: text, icon (built-in or an image from Sources) and link, like the links above.
+function tabsEditor(n, blk) {
+  if (!Array.isArray(n.tabs)) n.tabs = structuredClone(S.chrome.nav.tabs || []);
+  const tabs = n.tabs, pickOk = picked?.type === "image" && !isVideo(picked.value);
+  return blk("tabs", `Phone tab bar · ${tabs.length}/${TAB_MAX}`, `<div class="ed-rows">${tabs.map((t, i) => { const k = `nav|tabs.${i}.link`, on = EUI.open.has(k), now = tabHref(t.link);
+      return `<div class="lay-sec${on ? " is-open" : ""}"><div class="lay-row lay-head" data-clinktog="${k}" role="button" tabindex="0" aria-expanded="${on}">${ED_CHEV.replace("lay-chev blk-chev", "lay-chev")}<span class="tab-ico">${tabIcon(t.icon)}</span><span class="grow">${esc(t.label || "New item")}</span>
+        <span class="lay-tools"><button type="button" class="lay-btn" data-cmove="nav~${i}~-1~tabs" aria-label="Move up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="lay-btn" data-cmove="nav~${i}~1~tabs" aria-label="Move down" ${i === tabs.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="lay-btn lay-x" data-cdel="nav~${i}~tabs" aria-label="Remove ${esc(t.label || "item")}">×</button></span>
+        <span class="sub">${now ? esc(now) : "no link: hidden on the live site"}</span></div>
+        ${on ? `<div class="ed-in chrome-ed"><div class="field"><label for="nt-${i}">Text</label><input class="input" id="nt-${i}" data-cf="nav|tabs.${i}.label" value="${esc(t.label)}" maxlength="${TAB_LABEL}"></div>
+          <div class="field"><span>Icon</span><div class="tab-icons" role="group" aria-label="Icon">${Object.keys(TAB_ICONS).map((key) => `<button type="button" class="tab-pick" data-tabicon="${i}~${key}" aria-pressed="${t.icon === key}" title="${TAB_ICON_NAME[key]}">${tabIcon(key)}</button>`).join("")}${t.icon && !TAB_ICONS[t.icon] ? `<button type="button" class="tab-pick" aria-pressed="true" title="Your icon">${tabIcon(t.icon)}</button>` : ""}</div>
+          <p class="source">${pickOk ? `<button type="button" class="btn btn-small" data-tabicon="${i}~@picked">Use selected image</button>` : "Or tap an icon in Sources (upload one there first), then “Use selected image”."}</p></div>
+          ${linkPick(k, t.link)}</div>` : ""}</div>`; }).join("")}</div>
+    ${tabs.length < TAB_MAX ? `<button type="button" class="btn btn-small btn-outline" data-cadd="tabs">+ Add item</button>` : ""}
+    <p class="note">Phones only, at the bottom of the hero. Turn it off for one hero in that hero's panel.</p>`);
+}
 const openChrome = (kind) => { curSec = "@" + kind; selected = openCard = null; NAV_VIEW = "editor"; render(); applyNav(); document.querySelector(`#site [data-chrome="${kind}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }); };
 // Redraw just the preview (while typing, so the field keeps focus).
 const redrawPreview = () => { $("#site").innerHTML = pageHtml(pageView(S.page)); save(); };
 document.addEventListener("click", (e) => {
   const c = e.target.closest?.("#site [data-chrome]");
   if (c && !e.target.closest("[data-navmenu]")) return openChrome(c.dataset.chrome);
-  const b = e.target.closest?.("[data-chromeopen], [data-cmode], [data-cadd], [data-cmove], [data-cdel], [data-cscope], [data-cdefault], [data-creset]"); if (!b) return;
+  const b = e.target.closest?.("[data-chromeopen], [data-cmode], [data-cadd], [data-cmove], [data-cdel], [data-cscope], [data-cdefault], [data-creset], [data-tabicon]"); if (!b) return;
   const d = b.dataset;
+  if (d.tabicon) { const [i, v] = d.tabicon.split("~"), t = chromeTarget("nav").tabs?.[+i]; if (!t) return;
+    if (v === "@picked") { if (picked?.type !== "image" || isVideo(picked.value)) return; t.icon = picked.value; picked = null; } else t.icon = v;
+    render(); return toast("Icon set."); }
+  if (d.cadd === "tabs") { const n = chromeTarget("nav"); n.tabs ||= []; if (n.tabs.length >= TAB_MAX) return; n.tabs.push({ label: "", link: "", icon: "home" }); EUI.open.add(`nav|tabs.${n.tabs.length - 1}.link`); EUI.closed.delete("nav-tabs"); render(); document.querySelector(`[data-cf="nav|tabs.${n.tabs.length - 1}.label"]`)?.focus(); return; }
   if (d.chromeopen) return openChrome(d.chromeopen);
   if (d.cmode) { const [key, m] = d.cmode.split("~"); linkMode[key] = m; return renderCards(); }
   if (d.cadd) { const n = chromeTarget("nav"); if (n.links.length >= CHROME_MAX.links) return; n.links.push({ label: "", link: "" }); EUI.open.add(`nav|links.${n.links.length - 1}.link`); EUI.closed.delete("nav-links"); render(); document.querySelector(`[data-cf="nav|links.${n.links.length - 1}.label"]`)?.focus(); return; }
-  if (d.cmove) { const [, i, dir] = d.cmove.split("~"), l = chromeTarget("nav").links, a = +i, z = a + +dir; if (z < 0 || z >= l.length) return; [l[a], l[z]] = [l[z], l[a]]; return render(); }
-  if (d.cdel) { const [, i] = d.cdel.split("~"), l = chromeTarget("nav").links, gone = l.splice(+i, 1)[0]; render(); return toast(`Removed ${gone?.label || "the link"}.`); }
+  if (d.cmove) { const [, i, dir, which = "links"] = d.cmove.split("~"), l = chromeTarget("nav")[which], a = +i, z = a + +dir; if (z < 0 || z >= l.length) return; [l[a], l[z]] = [l[z], l[a]]; return render(); }
+  if (d.cdel) { const [, i, which = "links"] = d.cdel.split("~"), l = chromeTarget("nav")[which], gone = l.splice(+i, 1)[0]; render(); return toast(`Removed ${gone?.label || (which === "tabs" ? "the item" : "the link")}.`); }
   if (d.cscope) {
     const [kind, to] = d.cscope.split("~"), own = chromeOwn(kind), pg = pageView(S.page).name;
     if (to === "page" && !own) { (S.chromePage[S.page] ||= {})[kind] = structuredClone(S.chrome[kind]); render(); return toast(`${pg} now has its own ${CHROME_NAME[kind].toLowerCase()}. Other pages keep the default.`); }
@@ -2802,7 +2872,7 @@ function closeRemove(yes) {
   const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
   l.splice(i, 1);
   for (const sid of Object.keys(S.slots)) if (sid.startsWith(id + ".")) delete S.slots[sid];
-  delete S.flip[id]; delete S.noIcons[id]; delete S.bg[id];
+  delete S.flip[id]; delete S.noIcons[id]; delete S.noTabs[id]; delete S.bg[id];
   if (curSec === id) curSec = null;
   if (selected?.startsWith(id + ".")) selected = openCard = null;
   rebuildSlots(); render(); toast(`Removed ${name}.`);
@@ -3014,6 +3084,7 @@ function refreshCard(id, input) {
 }
 document.addEventListener("change", (e) => {
   const t = e.target;
+  if (t.dataset.notabs) { const sid = t.dataset.notabs; if (t.checked) delete S.noTabs[sid]; else S.noTabs[sid] = true; render(); toast(t.checked ? "Tab bar on (phones)." : "Tab bar hidden on this hero."); return; }
   if (t.dataset.noicons) { const sid = t.dataset.noicons; if (t.checked) delete S.noIcons[sid]; else S.noIcons[sid] = true; render(); toast(t.checked ? "Icons on." : "Icons off for these cards."); return; }
   if (t.dataset.embed) {
     const id = t.dataset.embed, v = t.value.trim();

@@ -68,6 +68,8 @@ export type BuilderState = {
   flip?: Record<string, boolean>;
   // System sections whose cards show no icons (Studio: Card icons → Show icons off).
   noIcons?: Record<string, boolean>;
+  // Heroes whose phone tab bar is switched off (Studio: hero panel → Show tab bar off).
+  noTabs?: Record<string, boolean>;
   // Section background choice (Quote, Spacers): "white" (shown as Clay Light), "cream" (Clay) or "black" (Charcoal);
   // missing = the template's default (Quote: Cream; Spacer: Clay Light, the page background).
   bg?: Record<string, unknown>;
@@ -131,6 +133,17 @@ function embedHtml(v: unknown): string {
   const file = safeVideo(u);
   return file ? `<video src="${esc(file)}" controls playsinline preload="metadata"></video>` : "";
 }
+// Phone tab bar icons (same drawings as Studio's TAB_ICONS); an item can use an uploaded image instead.
+const TAB_ICONS: Record<string, string> = {
+  solutions: '<path d="M4 4h6v6H4zM14 4l3 3-3 3-3-3zM4 14h6v6H4zM14 14h6v6h-6z"/>',
+  platforms: '<path d="M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3"/>',
+  engine: '<circle cx="12" cy="5" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 7v4M12 11l-6 6M12 11l6 6"/>',
+  pricing: '<path d="M12 3v18M16 7H10a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6H8"/>',
+  about: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>',
+  home: '<path d="M3 11l9-8 9 8M5 10v10h14V10"/>',
+};
 export function safeHref(v: unknown): string | null {
   const href = str(v);
   if (/^https:\/\/[^\s"'<>]+$/i.test(href) || /^mailto:[^\s"'<>]+$/i.test(href)) return href;
@@ -196,7 +209,7 @@ function pickGraph(P: (key: string) => unknown, lineKey: string, delay: number):
 }
 
 // ── Drawing each template (live mode: empty spots are simply left out) ──
-function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false): string {
+function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false, tabs = ""): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
   const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
   const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
@@ -225,7 +238,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       // An old one-number stat (before Oct 9) keeps its white card.
       const st = old && !str(old.from) && !str(old.to) && str(old.value) ? `<aside class="stat-card" data-slot=".stat"><small>${esc(str(old.kicker))}</small><b>${esc(str(old.value))}</b></aside>`
         : g ? `<aside class="hstat" data-slot=".${g.key}">${g.html}</aside>` : "";
-      return `${bg("image")}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}</div>`
+      return `${bg("image")}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}${tabs}</div>`
         + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${esc(str(q.name))}</b><span>${esc(str(q.quote))}</span></figure>` : "<div></div>"}${st}</div>` : "");
     }
     case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row", 10)}`;
@@ -354,6 +367,25 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     return p.path + (a ? "#" + a : "");
   };
   const here = anchorsFor(pageId);
+  // Nav and footer: this page's own version if it has one, otherwise the site default.
+  const obj = (v: unknown) => (v && typeof v === "object" ? (v as Record<string, unknown>) : null);
+  const own = obj(state.chromePage?.[pageId]);
+  const navSrc = obj(own?.nav) || obj(state.chrome?.nav), footSrc = obj(own?.footer) || obj(state.chrome?.footer);
+  const cut = (v: unknown, n: number) => str(v).trim().slice(0, n);
+  // Phone tab bar (shown at phone width by CSS): a page's own nav without tabs uses the default's.
+  // An item whose page or section is gone, or that has no link, is left off.
+  const tabHref = (v: unknown) => {
+    const s = str(v);
+    if (s.startsWith("page:")) { const [pid, ref] = s.slice(5).split("#"); if (ref && !anchorsFor(pid)[ref]) return null; }
+    return safeHref(link(v));
+  };
+  const tabItems = rows(Array.isArray(navSrc?.tabs) ? navSrc!.tabs : obj(state.chrome?.nav)?.tabs).slice(0, 4).flatMap((r) => {
+    const label = cut(r.label, 16), href = tabHref(r.link), key = str(r.icon), img = TAB_ICONS[key] ? null : safeImage(r.icon);
+    if (!label || !href) return [];
+    const icon = TAB_ICONS[key] ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TAB_ICONS[key]}</svg>` : img ? `<img src="${esc(img)}" alt="">` : "";
+    return [`<a href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${icon}<span>${esc(label)}</span></a>`];
+  });
+  const tabs = tabItems.length ? `<nav class="tabbar" aria-label="Sections" style="--n:${tabItems.length}">${tabItems.join("")}</nav>` : "";
   const sections: LiveSection[] = [];
   for (const inst of list) {
     const tpl = tpls[str(inst?.t)], uid = str(inst?.uid);
@@ -369,7 +401,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     else if (tpl.type === "spacer") sections.push({ kind: "html", id, uid, className, html: "" });
     else {
       // A section with nothing placed in it is left off the live page.
-      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true);
+      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true, tpl.type === "hero" && state.noTabs?.[uid] !== true ? tabs : "");
       // Named elements get their link name as an id (the first element drawn for that spot).
       for (const sl of tpl.slots) { const a = here[`${uid}.${sl.key}`]; if (a) html = html.replace(`data-slot=".${sl.key}"`, `id="${a}" data-slot=".${sl.key}"`); }
       if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id, uid, className, html });
@@ -377,11 +409,6 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
   }
   const first = tpls[str(list[0]?.t)];
   const css = sections.map((x) => cropRules(x.uid, x.id, state.crop)).filter(Boolean).join("\n");
-  // Nav and footer: this page's own version if it has one, otherwise the site default.
-  const obj = (v: unknown) => (v && typeof v === "object" ? (v as Record<string, unknown>) : null);
-  const own = obj(state.chromePage?.[pageId]);
-  const navSrc = obj(own?.nav) || obj(state.chrome?.nav), footSrc = obj(own?.footer) || obj(state.chrome?.footer);
-  const cut = (v: unknown, n: number) => str(v).trim().slice(0, n);
   const pair = (label: unknown, to: unknown): LiveLink | null => { const l = cut(label, 30), h = safeHref(link(to)); return l && h ? { label: l, href: h } : null; };
   const nav: LiveNav | null = navSrc ? {
     links: rows(navSrc.links).slice(0, 7).map((r) => pair(r.label, r.link)).filter((x): x is LiveLink => !!x),

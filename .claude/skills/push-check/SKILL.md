@@ -21,6 +21,7 @@ Template ids (board files are `<id>_desktop|tablet|phone.dc.html`): hero, logos,
 
 Site-wide parts (same on every page; not in `TEMPLATES`):
 - **nav** (`nav_*.dc.html`): builder `navChrome()` + `.site-nav` CSS; live `components/BuilderPage.tsx` (`header.bnav`) + `.bnav` in `components/builder-site.css`. Keep the live links' logic (About/Pricing follow page addresses; Solutions/Platforms only when that section exists).
+- **tab bar** (`data-chrome="tabbar"` in `hero_phone.dc.html`): builder `tabbarHtml()` + `.tabbar` CSS; live `drawSection` hero `tabs` + `.site .tabbar` in `components/builder-site.css`. Items (text, icon, link) are content, edited in Global nav → Phone tab bar; only the look comes from the board. Icons: `TAB_ICONS` in both files.
 - **footer** (`footer_*.dc.html`): builder `.site-footer` markup/CSS; live `components/Footer.tsx` + `components/footer.css`.
 - **buttons** (`buttons_desktop|phone.dc.html`): `.cta`, `.cta-red`, `.mail .signup .button`, `.cta:hover` in the builder and `components/builder-site.css`; the nav pill is `.pill-cta`.
 - `data-fullscreen="true"` on a section root means it fills the browser window's height on desktop and tablet: `min-height: 100svh` on the live site (the board's height is just one screen size); in the builder preview, the preview frame's height.
