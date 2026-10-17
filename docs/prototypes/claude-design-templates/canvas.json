@@ -403,6 +403,27 @@
       "w": 390,
       "x": 2208,
       "y": 12360
+    },
+    "photo-points_graph-line.dc.html": {
+      "h": 780,
+      "title": "photo-points · graph: line · desktop 1280",
+      "w": 1280,
+      "x": 2680,
+      "y": 3820
+    },
+    "photo-points_graph-bars.dc.html": {
+      "h": 780,
+      "title": "photo-points · graph: bars · desktop 1280",
+      "w": 1280,
+      "x": 4040,
+      "y": 3820
+    },
+    "photo-points_graph-rings.dc.html": {
+      "h": 780,
+      "title": "photo-points · graph: rings · desktop 1280",
+      "w": 1280,
+      "x": 5400,
+      "y": 3820
     }
   },
   "createdOnFiles": {
@@ -460,14 +481,14 @@
     },
     "offer-cards-note": {
       "fill": "orange",
-      "text": "Offer card templates, built from the design-system cards\n\nFull: Card-1280 on desktop (grows to Card-1920 on wider screens), Card-640 on tablet, Card-320 on phone.\nTwo: Card-640 ×2 · Card-320 ×2 · Card-160 ×2.\nThree: Card-320 ×3 · Card-160 ×3 · Card-320 ×3 stacked on phone.\n\nFilled with the real offers. Fields: ct100 title, ct200 subtitle, cp price, cpdt price note, tags, image (CI-01).",
+      "text": "Offer card templates, built from the design-system cards\n\nFull: Card-1280 on desktop (grows to Card-1920 on wider screens), Card-640 on tablet, Card-320 on phone.\nTwo: Card-640 ×2 · Card-320 ×2 · Card-160 ×2.\nThree: Card-320 ×3 · Card-160 ×3 · Card-320 ×3 stacked on phone.\n\nFilled with the real offers. Fields: ct100 title, ct200 subtitle, cp price, cpdt price note, tags, image (CI-01).\n\nOct 17: Offer Card Full is never taller than 800px (wide screens crop the photo). Two and Three have a soft dark-to-light shade, 250px from the top (128px on phone cards), multiplied over the photo and under the words.",
       "w": 380,
       "x": 2680,
       "y": 13400
     },
     "system-note": {
       "fill": "orange",
-      "text": "System template\n\nLike Photo background + tags: a full photo behind a label and a big statement, then four numbered cards.\n\nCards: Midnight at 85% (see-through), 32px corners. Each has a number, title, short text and an icon.\n\nDesktop: 4 cards in a row · Tablet: 2 × 2 · Phone: stacked.",
+      "text": "System template\n\nLike Photo background + tags: a full photo behind a label and a big statement, then four numbered cards.\n\nCards: Midnight at 85% (see-through), 32px corners. Each has a number, title, short text and an icon.\n\nDesktop: 4 cards in a row · Tablet: 2 × 2 · Phone: stacked.\n\nOct 17: Studio has a Show numbers switch (Card numbers) to hide the \"01 —\" on every card.",
       "w": 380,
       "x": 2680,
       "y": 6920
@@ -621,6 +642,13 @@
       "w": 380,
       "x": 2680,
       "y": 12360
+    },
+    "graphs-note": {
+      "fill": "orange",
+      "text": "Photo + points: the three graphs (Oct 17)\n\nA graph sits in a dark see-through card on the photo, bottom left. One graph per section: line, bars or rings (Studio shows the first one filled).\n\nEach has a small heading on top (spot: graphTitle, Studio \"Small title\").\n\nBars: always a 20px gap; with fewer bars each bar gets wider (up to 96px).\n\nRings: \"Rings: full ring\" sets what a full ring means. \"360\" = a full ring at 360. \"360 = 50%\" = half a ring at 360, still showing 360. Empty: % numbers fill out of 100, other numbers out of the larger one.",
+      "w": 420,
+      "x": 6760,
+      "y": 3820
     }
   },
   "order": [
@@ -637,6 +665,9 @@
     "photo-points_desktop.dc.html",
     "photo-points_tablet.dc.html",
     "photo-points_phone.dc.html",
+    "photo-points_graph-line.dc.html",
+    "photo-points_graph-bars.dc.html",
+    "photo-points_graph-rings.dc.html",
     "photo-tags_desktop.dc.html",
     "photo-tags_tablet.dc.html",
     "photo-tags_phone.dc.html",

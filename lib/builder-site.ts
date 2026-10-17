@@ -19,11 +19,11 @@ type Template = { id: string; type: string; slots: Slot[] };
 
 const s = (key: string, kind: Slot["kind"]): Slot => ({ key, kind });
 const TEMPLATES: Template[] = [
-  { id: "hero", type: "hero", slots: [s("image", "image"), s("headline", "text"), s("button", "text"), s("link", "link"), s("quote", "list"), s("stat", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("bars", "list"), s("rings", "list")] },
+  { id: "hero", type: "hero", slots: [s("image", "image"), s("headline", "text"), s("button", "text"), s("link", "link"), s("quote", "list"), s("stat", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("bars", "list"), s("ringScale", "text"), s("rings", "list")] },
   { id: "heading", type: "header", slots: [s("tagline", "text"), s("headline", "list"), s("body", "text")] },
   { id: "logos", type: "cred", slots: [s("label", "text"), s("logos", "logos")] },
-  { id: "photo-points", type: "photopoints", slots: [s("photo", "image"), s("points", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("rings", "list")] },
-  { id: "photo-text", type: "story", slots: [s("photo", "image"), s("body", "text"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("rings", "list")] },
+  { id: "photo-points", type: "photopoints", slots: [s("photo", "image"), s("points", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("ringScale", "text"), s("rings", "list")] },
+  { id: "photo-text", type: "story", slots: [s("photo", "image"), s("body", "text"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("ringScale", "text"), s("rings", "list")] },
   { id: "photo-tags", type: "plat", slots: [s("image", "image"), s("label", "text"), s("headline", "list"), s("tags", "list"), s("logos", "logos")] },
   // Design-system offer cards (canvas: Offer Card Full / Two / Three). Sizes per screen: builder-site.css.
   { id: "system", type: "system", slots: [s("image", "image"), s("label", "text"), s("headline", "text"), s("answer", "text"), s("cards", "list"), s("icons", "logos")] },
@@ -70,6 +70,8 @@ export type BuilderState = {
   noIcons?: Record<string, boolean>;
   // Heroes whose phone tab bar is switched off (Studio: hero panel → Show tab bar off).
   noTabs?: Record<string, boolean>;
+  // System sections whose cards hide their "01 —" numbers (Studio: Card numbers → Show numbers off).
+  noNums?: Record<string, boolean>;
   // Section background choice (Quote, Spacers): "white" (shown as Clay Light), "cream" (Clay) or "black" (Charcoal);
   // missing = the template's default (Quote: Cream; Spacer: Clay Light, the page background).
   bg?: Record<string, unknown>;
@@ -161,7 +163,7 @@ function withUnit(num: string, unit: string): string {
   const u = unit.trim();
   if (!u) return num;
   if (u.length === 1 && !/[\p{L}%]/u.test(u)) return esc(u) + num;
-  return num + (/^\p{L}{2}/u.test(u) ? " " : "") + esc(u);
+  return num + (/^\p{L}{2}/u.test(u) ? "\u00a0" : "") + esc(u);  // no-break space: flex boxes drop a plain one
 }
 const statValue = (n: string, unit: string, delay: number) => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit);
 // Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare, green = Emerald Tide, white).
@@ -187,14 +189,23 @@ function lineGraph(d: Record<string, unknown>, unit: string, delay: number): str
 // Bars on a tidy scale (0 to five even steps), labels under the bars, the scale on the right.
 function barsGraph(rows: Record<string, unknown>[], unit: string, delay: number): string {
   const vals = rows.map((r) => Math.max(0, statNum(r.value))), want = Math.max(...vals, 1) / 5, p = Math.pow(10, Math.floor(Math.log10(want)));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9) ?? 10 * p, top = step * 5, slot = 236 / rows.length, bw = Math.min(28, slot * 0.55);
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9) ?? 10 * p, top = step * 5;
+  // Same 20px gap whatever the count: fewer bars are wider (up to 96px), the group centred.
+  const gap = 20, bw = Math.min(96, (236 - gap * (rows.length - 1)) / rows.length), x0 = (236 - (bw * rows.length + gap * (rows.length - 1))) / 2;
   const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit)}</text>`; }).join("");
-  const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = slot * n + (slot - bw) / 2; return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${delay + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(str(r.label))}</text>`; }).join("");
+  const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = x0 + n * (bw + gap); return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${delay + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(str(r.label))}</text>`; }).join("");
   return `<svg class="gfx-plot" viewBox="0 0 280 150" role="img" aria-label="${esc(rows.map((r) => `${str(r.label)} ${str(r.value)}${unit}`).join(", "))}">${grid}${bars}</svg>`;
 }
 // Rings fill from zero to the number: out of 100 for % (or no measure), otherwise out of the larger number.
-function ringsGraph(rows: Record<string, unknown>[], unit: string, delay: number): string {
-  const u = unit.trim() || "%", vals = rows.map((r) => Math.max(0, statNum(r.value))), max = u === "%" ? 100 : Math.max(...vals, 1);
+// "Rings: full ring" (ringScale) sets the scale: "360" = a full ring at 360; "360 = 50%" = half a ring at 360.
+function ringFull(v: unknown): number {
+  const m = str(v).replace(/,/g, "").match(/^(\d+(?:\.\d+)?)\s*(?:=\s*(\d+(?:\.\d+)?)\s*%?)?$/);
+  if (!m) return 0;
+  const n = +m[1], pct = m[2] == null ? 100 : +m[2];
+  return n > 0 && pct > 0 ? (n * 100) / pct : 0;
+}
+function ringsGraph(rows: Record<string, unknown>[], unit: string, delay: number, scale: unknown = ""): string {
+  const u = unit.trim() || "%", vals = rows.map((r) => Math.max(0, statNum(r.value))), max = ringFull(scale) || (u === "%" ? 100 : Math.max(...vals, 1));
   return `<div class="gfx-rings">${rows.map((r, n) => { const pct = Math.min(100, (vals[n] / max) * 100);
     return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(str(r.value), u, delay + n * 150)}</b></div><span>${esc(str(r.label))}</span></div>`; }).join("")}</div>`;
 }
@@ -204,12 +215,12 @@ function ringsGraph(rows: Record<string, unknown>[], unit: string, delay: number
 function pickGraph(P: (key: string) => unknown, lineKey: string, delay: number): { key: string; html: string } | null {
   const ln = rows(P(lineKey)).filter(hasText)[0], br = rows(P("bars")).filter(hasText).slice(0, 6), rg = rows(P("rings")).filter(hasText).slice(0, 2);
   const unit = str(P("graphUnit")) || str(ln?.unit), title = str(P("graphTitle")) || str(ln?.kicker);
-  const pick = ln && (str(ln.from) || str(ln.to)) ? [lineKey, lineGraph(ln, unit, delay)] : br.length ? ["bars", barsGraph(br, unit, delay)] : rg.length ? ["rings", ringsGraph(rg, unit, delay)] : null;
+  const pick = ln && (str(ln.from) || str(ln.to)) ? [lineKey, lineGraph(ln, unit, delay)] : br.length ? ["bars", barsGraph(br, unit, delay)] : rg.length ? ["rings", ringsGraph(rg, unit, delay, P("ringScale"))] : null;
   return pick && { key: pick[0], html: `${title ? `<small>${esc(title)}</small>` : ""}${pick[1]}` };
 }
 
 // ── Drawing each template (live mode: empty spots are simply left out) ──
-function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false, tabs = ""): string {
+function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false, tabs = "", noNums = false): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
   const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
   const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
@@ -266,7 +277,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
         const mine = safeImage(r.icon) || own[i];
         return mine ? `<img class="sys-icon" src="${esc(mine)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg>`;
       };
-      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card${icon(i, r) ? "" : " no-icon"}"><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i, r)}</article>`).join("")}</div>` : ""}`;
+      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card${icon(i, r) ? "" : " no-icon"}">${noNums ? "" : `<p class="sys-num">${String(i + 1).padStart(2, "0")} —</p>`}<h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i, r)}</article>`).join("")}</div>` : ""}`;
     }
     case "engine": {
       // Engine (T.O.E.): the icon for each place, the fan + laptop drawing, then the words. Hover moves: builder-site.css.
@@ -401,7 +412,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     else if (tpl.type === "spacer") sections.push({ kind: "html", id, uid, className, html: "" });
     else {
       // A section with nothing placed in it is left off the live page.
-      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true, tpl.type === "hero" && state.noTabs?.[uid] !== true ? tabs : "");
+      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true, tpl.type === "hero" && state.noTabs?.[uid] !== true ? tabs : "", state.noNums?.[uid] === true);
       // Named elements get their link name as an id (the first element drawn for that spot).
       for (const sl of tpl.slots) { const a = here[`${uid}.${sl.key}`]; if (a) html = html.replace(`data-slot=".${sl.key}"`, `id="${a}" data-slot=".${sl.key}"`); }
       if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id, uid, className, html });

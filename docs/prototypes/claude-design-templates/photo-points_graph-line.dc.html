@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Photo + points · graph: line · desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700&amp;family=Courier+Prime:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2D6AA5}a:hover{color:#294079}
+
+/* Graph card drawing (same as Studio). Colours: blue = Tidal Azure (default), red = Rogue Cherry. */
+.hstat-chart{display:block;width:100%;height:auto;overflow:visible}
+.hstat-grid{fill:none;stroke:rgba(255,255,255,0.18);stroke-width:1}
+.hstat-a,.hstat-b{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.hstat-a{stroke:rgba(255,255,255,0.6)}.hstat-b{stroke:#DB1F3D}.hstat-area{fill:#DB1F3D;opacity:0.28}
+.hstat-keys{display:flex;gap:32px}.hstat-key{margin:0;display:flex;flex-direction:column;gap:4px}
+.hstat-key b{font-size:26px;line-height:28px;letter-spacing:-1px;font-weight:700;white-space:nowrap}
+.hstat-key.a b{color:rgba(255,255,255,0.7)}
+.hstat-key>span{display:flex;align-items:center;gap:8px;font-size:13px;line-height:16px}
+.hstat-key>span::before{content:"";width:14px;height:3px;border-radius:2px;background:rgba(255,255,255,0.6)}
+.hstat-key.b>span::before{background:#DB1F3D}
+.gfx-plot{display:block;width:100%;height:auto;overflow:visible}
+.gfx-plot text{fill:rgba(255,255,255,0.75);font-size:10px;font-family:'Saira',sans-serif}
+.gfx-bar{fill:#0099CE}.gfx-bar.gc-red{fill:#DB1F3D}
+.gfx-rings{display:flex;justify-content:space-around;gap:16px}
+.gfx-ring{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;max-width:128px}
+.gfx-ring>span{font-size:15px;line-height:20px}
+.gfx-dial{position:relative;width:104px;aspect-ratio:1}
+.gfx-dial svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
+.gfx-track,.gfx-arc{fill:none;stroke-width:10}.gfx-track{stroke:rgba(255,255,255,0.2)}
+.gfx-arc{stroke:#0099CE;stroke-linecap:round}.gfx-ring.gc-red .gfx-arc{stroke:#DB1F3D}
+.gfx-dial b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;white-space:nowrap}
+</style>
+</helmet>
+<section data-template="photo-points" style="width: 1280px; height: 688px; box-sizing: border-box; padding: 96px; background: #F6F5F2; color: #1C2026; font-family: 'Saira', sans-serif; font-weight: 300">
+<div data-spot="columns" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 96px; align-items: center">
+<div style="position: relative"><img data-spot="photo" src="/_blob/34350bbb573b9ceb659787badf270115" alt="Andrew Kreick on a dock by a lake" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 18px">
+<aside data-spot="graph" style="position: absolute; left: 8%; bottom: 8%; width: 340px; box-sizing: border-box; padding: 20px; border-radius: 18px; background: rgba(28,32,38,0.55); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); color: #FFFFFF; display: flex; flex-direction: column; gap: 14px">
+<span data-spot="graphTitle" style="font-size: 12px; line-height: 16px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700">Email click-through</span>
+<div data-spot="line"><svg class="hstat-chart" viewBox="0 0 312 120" aria-hidden="true"><path class="hstat-grid" d="M0 0.5H312M0 40.5H312M0 80.5H312M0 119.5H312"/><path class="hstat-area gc-red" d="M0.0 114.1 C5.2 113.6 20.8 112.6 31.2 111.1 C41.6 109.7 52.0 107.1 62.4 105.5 C72.8 103.9 83.2 103.7 93.6 101.7 C104.0 99.8 114.4 96.7 124.8 93.6 C135.2 90.5 145.6 86.0 156.0 83.0 C166.4 80.0 176.8 79.1 187.2 75.8 C197.6 72.5 208.0 67.6 218.4 63.2 C228.8 58.7 239.2 53.5 249.6 49.0 C260.0 44.4 270.4 41.0 280.8 36.1 C291.2 31.2 306.8 22.5 312.0 19.8 L312 120 L0 120Z"/><path class="hstat-a" pathLength="1" d="M0.0 116.8 C5.2 116.6 20.8 116.1 31.2 115.8 C41.6 115.4 52.0 115.3 62.4 114.7 C72.8 114.1 83.2 112.9 93.6 112.1 C104.0 111.4 114.4 110.9 124.8 110.2 C135.2 109.5 145.6 109.0 156.0 108.0 C166.4 106.9 176.8 105.1 187.2 103.9 C197.6 102.6 208.0 101.8 218.4 100.7 C228.8 99.5 239.2 98.3 249.6 96.9 C260.0 95.4 270.4 93.5 280.8 91.9 C291.2 90.3 306.8 87.9 312.0 87.1"/><path class="hstat-b gc-red" pathLength="1" d="M0.0 114.1 C5.2 113.6 20.8 112.6 31.2 111.1 C41.6 109.7 52.0 107.1 62.4 105.5 C72.8 103.9 83.2 103.7 93.6 101.7 C104.0 99.8 114.4 96.7 124.8 93.6 C135.2 90.5 145.6 86.0 156.0 83.0 C166.4 80.0 176.8 79.1 187.2 75.8 C197.6 72.5 208.0 67.6 218.4 63.2 C228.8 58.7 239.2 53.5 249.6 49.0 C260.0 44.4 270.4 41.0 280.8 36.1 C291.2 31.2 306.8 22.5 312.0 19.8"/></svg>
+    <div class="hstat-keys"><p class="hstat-key a"><b><span data-count="17" data-delay="0">17</span>%</b><span>Before</span></p><p class="hstat-key b gc-red"><b><span data-count="54" data-delay="150">54</span>%</b><span>After</span></p></div></div>
+</aside>
+</div>
+<div data-spot="points" style="display: flex; flex-direction: column; gap: 24px; min-width: 0">
+<div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #E1DDD5; padding-top: 16px">
+<h3 style="margin: 0; font-size: 22px; line-height: 24px; letter-spacing: -0.5px; font-weight: 700">Our Philosophy</h3>
+<p style="margin: 0; font-size: 17px; line-height: 24px; color: #444D4D">AI lent a magic wand, it's a toolset. And tools only work if people know how to use them. That's where we come in making AI real, usable, and sustainable.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #E1DDD5; padding-top: 16px">
+<h3 style="margin: 0; font-size: 22px; line-height: 24px; letter-spacing: -0.5px; font-weight: 700">Creative Direction &amp; AI Strategy</h3>
+<p style="margin: 0; font-size: 17px; line-height: 24px; color: #444D4D">We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #E1DDD5; padding-top: 16px">
+<h3 style="margin: 0; font-size: 22px; line-height: 24px; letter-spacing: -0.5px; font-weight: 700">Built by Doers, Not Talkers</h3>
+<p style="margin: 0; font-size: 17px; line-height: 24px; color: #444D4D">Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams.</p>
+</div>
+</div>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":688}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

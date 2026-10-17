@@ -349,6 +349,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .gfx small { font-size: 12px; line-height: 16px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
 .gfx.gfx-empty { gap: 8px; padding: 12px; }
 .gfx-empty .slot { min-height: 40px; padding: 8px; font-size: 14px; }
+.gfx-title-slot, .hstat .gfx-title-slot { min-height: 0; padding: 4px 8px; font-size: 12px; }
 .gfx .hstat-chart { height: auto; }
 .gfx .hstat-key b { font-size: 26px; line-height: 28px; }
 .gfx-plot { display: block; width: 100%; height: auto; overflow: visible; }
@@ -883,6 +884,12 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .oc-price { margin-left: auto; text-align: right; flex: none; display: flex; flex-direction: column; }
 .t-offer-full .oc-grid { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 32px; }
 .t-offer-full .oc { aspect-ratio: 1280 / 800; border-radius: 32px; padding: 64px; justify-content: flex-end; }
+/* Offer Card Full never taller than 800px (Oct 17): wide screens keep the width, the photo crops. */
+.t-offer-full .oc { max-height: 800px; min-width: 100%; }
+/* Offer Card Two / Three (Oct 17): a soft dark-to-light shade, 250px from the top, multiplied over the
+   photo and under the words, so the title reads without dulling the image. */
+:is(.t-offer-two, .t-offer-three) .oc { isolation: isolate; }
+:is(.t-offer-two, .t-offer-three) .oc::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: min(250px, 50%); background: linear-gradient(180deg, color-mix(in srgb, var(--cm-midnight) 45%, var(--cm-white)), var(--cm-white)); mix-blend-mode: multiply; pointer-events: none; }
 .t-offer-full .oc-top { position: absolute; left: 64px; top: 50%; transform: translateY(-50%); width: 448px; max-width: calc(100% - 128px); box-sizing: border-box; padding: 64px; border-radius: 32px; background: color-mix(in srgb, var(--cm-midnight) 55%, transparent); backdrop-filter: blur(16px); gap: 8px; }
 .t-offer-full .oc-t { font-size: 64px; line-height: 56px; letter-spacing: -3px; font-weight: 200; }
 .t-offer-full .oc-s { font-size: 28px; line-height: 32px; letter-spacing: -1px; font-weight: 300; }
@@ -1905,6 +1912,7 @@ const graphSlots = (lineKey, colours, lineSource) => [
   { key: "graphUnit", label: "Graph measure", kind: "text", limit: 8, optional: true, about: "%, $, MPH, days… Rings use % when left empty.", source: "e.g. %" },
   { key: lineKey, label: "Graph: line", kind: "list", max: 1, cols: [{ key: "from", label: "First number", limit: 10 }, { key: "fromLabel", label: "First label", limit: 16 }, { key: "fromColor", label: `First colour: ${colours}`, limit: 6 }, { key: "to", label: "Second number", limit: 10 }, { key: "toLabel", label: "Second label", limit: 16 }, { key: "toColor", label: `Second colour: ${colours}`, limit: 6 }], optional: true, about: "Two numbers drawn as two rising lines. Fill one graph; line shows first, then bars, then rings.", source: lineSource },
   { key: "bars", label: "Graph: bars", kind: "list", max: 6, cols: [{ key: "label", label: "Label", limit: 6 }, { key: "value", label: "Number", limit: 10 }, { key: "color", label: `Colour: ${colours}`, limit: 6 }], optional: true, about: "Up to six bars that grow from the bottom.", source: "e.g. Q1–Q5" },
+  { key: "ringScale", label: "Rings: full ring", kind: "text", limit: 16, optional: true, about: "What a full ring stands for. “360” fills the ring at 360; “360 = 50%” fills half a ring at 360 (it still shows 360). Empty: % numbers fill out of 100, others out of the larger number.", source: "e.g. 360 or 360 = 50%" },
   { key: "rings", label: "Graph: rings", kind: "list", max: 2, cols: [{ key: "value", label: "Number", limit: 10 }, { key: "label", label: "Label", limit: 24 }, { key: "color", label: `Colour: ${colours}`, limit: 6 }], optional: true, about: "One or two rings that fill from zero to the number.", source: "e.g. 70 · Customer feedback" },
 ];
 const TEMPLATES = [
@@ -2061,7 +2069,7 @@ function seed() {
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, noTabs: {}, bg: {}, device: "desktop", guides: true };
+  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, noTabs: {}, noNums: {}, bg: {}, device: "desktop", guides: true };
 }
 // Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
@@ -2080,7 +2088,7 @@ const liveChip = (p) => `<span class="live-chip${pageIsLive(p) ? " is-live" : ""
 let S;
 if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
-if (S) { S.flip ||= {}; S.noIcons ||= {}; S.noTabs ||= {}; S.bg ||= {}; if (!S.pages) S = null; }
+if (S) { S.flip ||= {}; S.noIcons ||= {}; S.noTabs ||= {}; S.noNums ||= {}; S.bg ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
 // Sections made from copies in the old Design view go back to their original template;
 // design now lives in Claude Design, so the builder keeps no design of its own.
@@ -2202,7 +2210,7 @@ const SYS_ICONS = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><
 // Card icon: the card's own (row.icon), "none" for no icon, else the older Card icons spot, else the built-in one.
 // Show icons off (section panel) hides them all.
 const sysIcon = (sec, k, i, r = {}) => { if (S.noIcons[sec.id] || r.icon === "none") return ""; const own = r.icon || (P(k("icons")) || [])[i]; return own ? `<img class="sys-icon" src="${esc(own)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${SYS_ICONS[i % 4]}</svg>`; };
-const sysCard = (r, i, attr = "", icon = "") => `<article class="sys-card${icon ? "" : " no-icon"}" ${attr}><p class="sys-num">${String(i + 1).padStart(2, "0")} —</p><h3>${esc(r.title)}</h3><p class="sys-text">${esc(r.text)}</p>${icon}</article>`;
+const sysCard = (r, i, attr = "", icon = "", num = true) => `<article class="sys-card${icon ? "" : " no-icon"}" ${attr}>${num ? `<p class="sys-num">${String(i + 1).padStart(2, "0")} —</p>` : ""}<h3>${esc(r.title)}</h3><p class="sys-text">${esc(r.text)}</p>${icon}</article>`;
 // Engine template: the five icons (by place) and the fan + laptop drawing.
 const ENG_ICONS = ["<path d=\"M20 8a9 9 0 1 0 2.6 6.4\"/><path d=\"M22 6v5h-5\"/><path d=\"M14 10v5l3 2\"/>", "<rect x=\"5\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M9 12h4M9 16h3\"/><circle cx=\"20\" cy=\"14\" r=\"2\"/><path d=\"M20 16v4l-3 3\"/>", "<path d=\"M5 9V6h3M20 6h3v3M23 19v3h-3M8 22H5v-3\"/><circle cx=\"12\" cy=\"11\" r=\"2\"/><path d=\"M9 19l2-4 3 2\"/><path d=\"M19 14l4 7h-8z\"/><path d=\"M19 17v2\"/>", "<path d=\"M6 22v-2M10 22v-5M14 22v-8M18 22v-6M22 22v-11\"/><path d=\"M5 15l6-6 4 3 8-7M19 5h4v4\"/>", "<circle cx=\"11\" cy=\"10\" r=\"4\"/><path d=\"M4 23c0-4 3-6 7-6s7 2 7 6\"/><path d=\"M21 9v6M18 12h6\"/>"];
 const ENG_FAN = "<svg class=\"eng-fan\" viewBox=\"0 0 1280 560\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M550 480H405A235 235 0 0 1 460 328.9L552.7 406.7\"/><path d=\"M552.7 406.7L448.5 319.3A250 250 0 0 1 575.3 238.5L620.2 406.1\"/><path d=\"M620.2 406.1L572.2 226.9A262 262 0 0 1 707.8 226.9L659.8 406.1\"/><path d=\"M659.8 406.1L705.2 236.6A252 252 0 0 1 833 318L727.3 406.7\"/><path d=\"M727.3 406.7L820 328.9A235 235 0 0 1 875 480H730\"/><path d=\"M405 480H552M728 480H875\"/><rect x=\"552\" y=\"408\" width=\"176\" height=\"108\" rx=\"8\"/><path d=\"M544 516H736L754 544H526Z\"/><path d=\"M624 533h32\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g fill=\"currentColor\"><path d=\"M596 454a22 22 0 1 0 22 22h-22z\"/><path d=\"M600 450v-18a18 18 0 0 1 18 18z\"/><rect x=\"650\" y=\"484\" width=\"9\" height=\"13\" rx=\"2\"/><rect x=\"664\" y=\"475\" width=\"9\" height=\"22\" rx=\"2\"/><rect x=\"678\" y=\"479\" width=\"9\" height=\"18\" rx=\"2\"/><rect x=\"692\" y=\"461\" width=\"9\" height=\"36\" rx=\"2\"/></g><path d=\"M650 468l13-15 11 9 20-22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
@@ -2258,7 +2266,7 @@ function withUnit(num, unit) {
   const u = String(unit || "").trim();
   if (!u) return num;
   if (u.length === 1 && !/[\p{L}%]/u.test(u)) return esc(u) + num;
-  return num + (/^\p{L}{2}/u.test(u) ? " " : "") + esc(u);
+  return num + (/^\p{L}{2}/u.test(u) ? "\u00a0" : "") + esc(u);  // no-break space: flex boxes drop a plain one
 }
 const statValue = (n, unit, delay) => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit);
 // Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare, green = Emerald Tide, white).
@@ -2285,14 +2293,23 @@ function lineGraph(d, delay) {
 // Bars on a tidy scale (0 to five even steps), labels under the bars, the scale on the right.
 function barsGraph(rows, unit, delay) {
   const vals = rows.map((r) => Math.max(0, statNum(r.value))), want = Math.max(...vals, 1) / 5, p = Math.pow(10, Math.floor(Math.log10(want)));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9), top = step * 5, slot = 236 / rows.length, bw = Math.min(28, slot * 0.55);
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9), top = step * 5;
+  // Same 20px gap whatever the count: fewer bars are wider (up to 96px), the group centred.
+  const gap = 20, bw = Math.min(96, (236 - gap * (rows.length - 1)) / rows.length), x0 = (236 - (bw * rows.length + gap * (rows.length - 1))) / 2;
   const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit)}</text>`; }).join("");
-  const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = slot * n + (slot - bw) / 2; return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${delay + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(r.label)}</text>`; }).join("");
+  const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = x0 + n * (bw + gap); return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${delay + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(r.label)}</text>`; }).join("");
   return `<svg class="gfx-plot" viewBox="0 0 280 150" role="img" aria-label="${esc(rows.map((r) => `${r.label} ${r.value}${unit || ""}`).join(", "))}">${grid}${bars}</svg>`;
 }
 // Rings fill from zero to the number: out of 100 for % (or no measure), otherwise out of the larger number.
-function ringsGraph(rows, unit, delay) {
-  const u = String(unit || "").trim() || "%", vals = rows.map((r) => Math.max(0, statNum(r.value))), max = u === "%" ? 100 : Math.max(...vals, 1);
+// "Rings: full ring" sets the scale: "360" = a full ring at 360; "360 = 50%" = half a ring at 360.
+function ringFull(v) {
+  const m = String(v ?? "").replace(/,/g, "").match(/^\s*(\d+(?:\.\d+)?)\s*(?:=\s*(\d+(?:\.\d+)?)\s*%?)?\s*$/);
+  if (!m) return 0;
+  const n = +m[1], pct = m[2] == null ? 100 : +m[2];
+  return n > 0 && pct > 0 ? (n * 100) / pct : 0;
+}
+function ringsGraph(rows, unit, delay, scale) {
+  const u = String(unit || "").trim() || "%", vals = rows.map((r) => Math.max(0, statNum(r.value))), max = ringFull(scale) || (u === "%" ? 100 : Math.max(...vals, 1));
   return `<div class="gfx-rings">${rows.map((r, n) => { const pct = Math.min(100, (vals[n] / max) * 100);
     return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(r.value, u, delay + n * 150)}</b></div><span>${esc(r.label)}</span></div>`; }).join("")}</div>`;
 }
@@ -2302,8 +2319,9 @@ const graphRows = (v) => (Array.isArray(v) ? v.filter((r) => r && Object.values(
 function pickGraph(k, lineKey, delay) {
   const ln = graphRows(P(k(lineKey)))[0], br = graphRows(P(k("bars"))).slice(0, 6), rg = graphRows(P(k("rings"))).slice(0, 2);
   const u = P(k("graphUnit")) || ln?.unit || "", t = P(k("graphTitle")) || ln?.kicker || "";
-  const pick = ln && (ln.from || ln.to) ? [lineKey, lineGraph({ ...ln, unit: u }, delay)] : br.length ? ["bars", barsGraph(br, u, delay)] : rg.length ? ["rings", ringsGraph(rg, u, delay)] : null;
-  return pick && { key: pick[0], html: `${t ? `<small>${esc(t)}</small>` : ""}${pick[1]}` };
+  const pick = ln && (ln.from || ln.to) ? [lineKey, lineGraph({ ...ln, unit: u }, delay)] : br.length ? ["bars", barsGraph(br, u, delay)] : rg.length ? ["rings", ringsGraph(rg, u, delay, P(k("ringScale")))] : null;
+  // Studio: an empty heading shows as a dotted spot above the graph (the site shows nothing).
+  return pick && { key: pick[0], html: `${t ? `<small ${filledAttr(k("graphTitle"))}>${esc(t)}</small>` : slotBox(k("graphTitle"), "on-dark slot-optional gfx-title-slot")}${pick[1]}` };
 }
 // No graph yet: dotted spots show the three options (Studio only; the site shows nothing).
 const graphSpots = (k, lineKey, cls) => `<div class="${cls}">${[lineKey, "bars", "rings"].map((t) => slotBox(k(t), "on-dark slot-optional")).join("")}</div>`;
@@ -2362,7 +2380,7 @@ const SECTION_HTML = {
     const img = P(k("image")), cards = P(k("cards"));
     return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
       <div class="sys-top">${text(k("label"), "p", "tagline", "on-dark")}<div class="sys-statement">${text(k("headline"), "h2", "sys-head", "on-dark")}${text(k("answer"), "p", "sys-answer", "on-dark slot-optional")}</div></div>
-      ${cards ? `<div ${filledAttr(k("cards")).replace('class="', 'class="sys-cards ')}>${cards.map((r, i) => sysCard(r, i, `data-item="${k("cards")}:${i}"`, sysIcon(sec, k, i, r))).join("")}</div>` : `<div class="sys-cards">${slotBox(k("cards"), "on-dark", "grid-column:1/-1;min-height:200px")}</div>`}`;
+      ${cards ? `<div ${filledAttr(k("cards")).replace('class="', 'class="sys-cards ')}>${cards.map((r, i) => sysCard(r, i, `data-item="${k("cards")}:${i}"`, sysIcon(sec, k, i, r), !S.noNums[sec.id])).join("")}</div>` : `<div class="sys-cards">${slotBox(k("cards"), "on-dark", "grid-column:1/-1;min-height:200px")}</div>`}`;
   },
   engine: (sec, k) => {
     const img = P(k("image")), nodes = P(k("nodes")) && P(k("nodes")).slice(0, 5);
@@ -2701,6 +2719,7 @@ function renderCards() {
   } else if (sec) {
     $("#cards").innerHTML = eBlock("section", esc(sec.name), sec.slots.length ? `<div class="spot-list">${sec.slots.map((x) => spotRow(x)).join("")}</div>` : `<p class="hint" style="margin:0">Nothing to fill: this section is fixed by the design.</p>`, `<span class="chip">${esc(TPL[sec.template].name)}</span>`)
       + (sec.iconToggle ? eBlock("icons", "Icons", `<label class="set-check"><input type="checkbox" data-noicons="${sec.id}" ${S.noIcons[sec.id] ? "" : "checked"}><span><b>Show icons</b><span>${S.noIcons[sec.id] ? "No icons on these cards." : "Each card shows its own icon, the built-in one, or none (set in each card's row)."}</span></span></label>`) : "")
+      + (sec.type === "system" ? eBlock("nums", "Card numbers", `<label class="set-check"><input type="checkbox" data-nonums="${sec.id}" ${S.noNums[sec.id] ? "" : "checked"}><span><b>Show numbers</b><span>${S.noNums[sec.id] ? "No “01 —” on these cards." : "Each card starts with 01 —, 02 — …"}</span></span></label>`) : "")
       + (sec.type === "hero" ? eBlock("tabs", "Phone tab bar", `<label class="set-check"><input type="checkbox" data-notabs="${sec.id}" ${S.noTabs[sec.id] ? "" : "checked"}><span><b>Show tab bar</b><span>${S.noTabs[sec.id] ? "Hidden on this hero." : "Phones only: icon links under the button."}</span></span></label><button type="button" class="btn btn-small btn-outline" data-chromeopen="nav">Edit tab bar items</button>`) : "")
       + (sec.bgChoice ? eBlock("bg", "Background", `<div class="seg" role="group" aria-label="Background">${sec.bgChoice.map((v) => `<button type="button" data-secbg="${sec.id}:${v}" aria-pressed="${bgOf(sec) === v}">${BG_NAME[v]}${v === sec.bgChoice[0] ? " (default)" : ""}</button>`).join("")}</div><p class="hint" style="margin:0">${sec.type === "spacer" ? "Match the sections above and below. Clay Light is the page’s own background." : "Black turns the words white."}</p>`) : "")
       + eBlock("anchor", "Link name", anchorField(sec.id, false));
@@ -2872,7 +2891,7 @@ function closeRemove(yes) {
   const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
   l.splice(i, 1);
   for (const sid of Object.keys(S.slots)) if (sid.startsWith(id + ".")) delete S.slots[sid];
-  delete S.flip[id]; delete S.noIcons[id]; delete S.noTabs[id]; delete S.bg[id];
+  delete S.flip[id]; delete S.noIcons[id]; delete S.noTabs[id]; delete S.noNums[id]; delete S.bg[id];
   if (curSec === id) curSec = null;
   if (selected?.startsWith(id + ".")) selected = openCard = null;
   rebuildSlots(); render(); toast(`Removed ${name}.`);
@@ -3084,6 +3103,7 @@ function refreshCard(id, input) {
 }
 document.addEventListener("change", (e) => {
   const t = e.target;
+  if (t.dataset.nonums) { const sid = t.dataset.nonums; if (t.checked) delete S.noNums[sid]; else S.noNums[sid] = true; render(); toast(t.checked ? "Numbers on." : "Numbers off for these cards."); return; }
   if (t.dataset.notabs) { const sid = t.dataset.notabs; if (t.checked) delete S.noTabs[sid]; else S.noTabs[sid] = true; render(); toast(t.checked ? "Tab bar on (phones)." : "Tab bar hidden on this hero."); return; }
   if (t.dataset.noicons) { const sid = t.dataset.noicons; if (t.checked) delete S.noIcons[sid]; else S.noIcons[sid] = true; render(); toast(t.checked ? "Icons on." : "Icons off for these cards."); return; }
   if (t.dataset.embed) {

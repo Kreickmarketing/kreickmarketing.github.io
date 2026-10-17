@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Photo + points · graph: bars · desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700&amp;family=Courier+Prime:wght@400;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2D6AA5}a:hover{color:#294079}
+
+/* Graph card drawing (same as Studio). Colours: blue = Tidal Azure (default), red = Rogue Cherry. */
+.hstat-chart{display:block;width:100%;height:auto;overflow:visible}
+.hstat-grid{fill:none;stroke:rgba(255,255,255,0.18);stroke-width:1}
+.hstat-a,.hstat-b{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.hstat-a{stroke:rgba(255,255,255,0.6)}.hstat-b{stroke:#DB1F3D}.hstat-area{fill:#DB1F3D;opacity:0.28}
+.hstat-keys{display:flex;gap:32px}.hstat-key{margin:0;display:flex;flex-direction:column;gap:4px}
+.hstat-key b{font-size:26px;line-height:28px;letter-spacing:-1px;font-weight:700;white-space:nowrap}
+.hstat-key.a b{color:rgba(255,255,255,0.7)}
+.hstat-key>span{display:flex;align-items:center;gap:8px;font-size:13px;line-height:16px}
+.hstat-key>span::before{content:"";width:14px;height:3px;border-radius:2px;background:rgba(255,255,255,0.6)}
+.hstat-key.b>span::before{background:#DB1F3D}
+.gfx-plot{display:block;width:100%;height:auto;overflow:visible}
+.gfx-plot text{fill:rgba(255,255,255,0.75);font-size:10px;font-family:'Saira',sans-serif}
+.gfx-bar{fill:#0099CE}.gfx-bar.gc-red{fill:#DB1F3D}
+.gfx-rings{display:flex;justify-content:space-around;gap:16px}
+.gfx-ring{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;max-width:128px}
+.gfx-ring>span{font-size:15px;line-height:20px}
+.gfx-dial{position:relative;width:104px;aspect-ratio:1}
+.gfx-dial svg{display:block;width:100%;height:100%;transform:rotate(-90deg)}
+.gfx-track,.gfx-arc{fill:none;stroke-width:10}.gfx-track{stroke:rgba(255,255,255,0.2)}
+.gfx-arc{stroke:#0099CE;stroke-linecap:round}.gfx-ring.gc-red .gfx-arc{stroke:#DB1F3D}
+.gfx-dial b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;white-space:nowrap}
+</style>
+</helmet>
+<section data-template="photo-points" style="width: 1280px; height: 688px; box-sizing: border-box; padding: 96px; background: #F6F5F2; color: #1C2026; font-family: 'Saira', sans-serif; font-weight: 300">
+<div data-spot="columns" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 96px; align-items: center">
+<div style="position: relative"><img data-spot="photo" src="/_blob/34350bbb573b9ceb659787badf270115" alt="Andrew Kreick on a dock by a lake" style="width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 18px">
+<aside data-spot="graph" style="position: absolute; left: 8%; bottom: 8%; width: 340px; box-sizing: border-box; padding: 20px; border-radius: 18px; background: rgba(28,32,38,0.55); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.12); color: #FFFFFF; display: flex; flex-direction: column; gap: 14px">
+<span data-spot="graphTitle" style="font-size: 12px; line-height: 16px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700">Launch time</span>
+<div data-spot="bars"><svg class="gfx-plot" viewBox="0 0 280 150" role="img" aria-label="Before 360days, After 112days"><path class="hstat-grid" d="M0 124.0H236"/><text x="280" y="127.5" text-anchor="end">0 days</text><path class="hstat-grid" d="M0 100.8H236"/><text x="280" y="104.3" text-anchor="end">100 days</text><path class="hstat-grid" d="M0 77.6H236"/><text x="280" y="81.1" text-anchor="end">200 days</text><path class="hstat-grid" d="M0 54.4H236"/><text x="280" y="57.9" text-anchor="end">300 days</text><path class="hstat-grid" d="M0 31.2H236"/><text x="280" y="34.7" text-anchor="end">400 days</text><path class="hstat-grid" d="M0 8.0H236"/><text x="280" y="11.5" text-anchor="end">500 days</text><rect class="gfx-bar" x="12.0" y="40.5" width="96.0" height="83.5" rx="4"/><text x="60.0" y="143" text-anchor="middle">Before</text><rect class="gfx-bar gc-red" x="128.0" y="98.0" width="96.0" height="26.0" rx="4"/><text x="176.0" y="143" text-anchor="middle">After</text></svg></div>
+</aside>
+</div>
+<div data-spot="points" style="display: flex; flex-direction: column; gap: 24px; min-width: 0">
+<div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #E1DDD5; padding-top: 16px">
+<h3 style="margin: 0; font-size: 22px; line-height: 24px; letter-spacing: -0.5px; font-weight: 700">Our Philosophy</h3>
+<p style="margin: 0; font-size: 17px; line-height: 24px; color: #444D4D">AI lent a magic wand, it's a toolset. And tools only work if people know how to use them. That's where we come in making AI real, usable, and sustainable.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #E1DDD5; padding-top: 16px">
+<h3 style="margin: 0; font-size: 22px; line-height: 24px; letter-spacing: -0.5px; font-weight: 700">Creative Direction &amp; AI Strategy</h3>
+<p style="margin: 0; font-size: 17px; line-height: 24px; color: #444D4D">We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 16px; border-top: 1px solid #E1DDD5; padding-top: 16px">
+<h3 style="margin: 0; font-size: 22px; line-height: 24px; letter-spacing: -0.5px; font-weight: 700">Built by Doers, Not Talkers</h3>
+<p style="margin: 0; font-size: 17px; line-height: 24px; color: #444D4D">Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams.</p>
+</div>
+</div>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":688}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
