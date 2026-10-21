@@ -2071,10 +2071,10 @@ function seed() {
   ]);
   return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, noTabs: {}, noNums: {}, bg: {}, device: "desktop", guides: true };
 }
-// Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
+// Live Studio (/apps/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
 const LIVE = window.__STUDIO_LIVE__ === true;
-const API = "/clrcrm/studio/builder/api";
+const API = "/apps/studio/builder/api";
 // Where each page lives on the site. Live Studio uses its own address; the prototype shows the Vercel one.
 // The live site's own address (Oct 14: clearmark.bz moved to Vercel). Page links always use it,
 // whichever address Studio was opened from.
@@ -2102,7 +2102,7 @@ for (const [sid, st] of Object.entries(S.slots || {})) if (sid.endsWith(".cards"
   if (Array.isArray(st[k])) st[k] = st[k].map((r) => (LEGACY_OFFER_IDS[r] ? OFFERS.find((o) => o.slug === LEGACY_OFFER_IDS[r])?.id || r : r));
 // Files uploaded in live Studio before (kept in the draft).
 for (const m of (Array.isArray(S.media) ? S.media : []).slice().reverse()) if (m?.src && !IMAGES.some((i) => i.src === m.src)) IMAGES.unshift({ id: "up-" + IMAGES.length, src: m.src, name: m.name || "Upload", kind: m.kind === "video" ? "video" : "photo" });
-// Open a page straight from a link: /clrcrm/studio/builder?page=about
+// Open a page straight from a link: /apps/studio/builder?page=about
 { const want = new URLSearchParams(location.search).get("page"); if (want && PAGE_LIST.some((p) => p.id === want)) S.page = want; }
 const CAL_URL = "https://calendly.com/andrew-clearmark/15min";
 const CHROME_DEFAULT = {
@@ -3799,7 +3799,7 @@ function renderStyle() {
 
 // ── Pages: add, rename, change address, delete ──
 // Addresses are one lower-case word or words joined by dashes. Home is always "/".
-const RESERVED_SLUGS = ["clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"];
+const RESERVED_SLUGS = ["apps", "clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"];
 const slugify = (t) => String(t).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
 function slugProblem(slug, exceptId) {
   if (!slug) return "Type an address.";
@@ -3860,13 +3860,13 @@ function openPop(id, anchor) {
   pop.querySelector("button, a")?.focus();
 }
 function closePops(except) { for (const [id, btn] of [["#logo-menu", "#rail-logo"], ["#sidebar-menu", "[data-sidebar-menu]"]]) if (id !== except) { $(id).hidden = true; $(btn).setAttribute("aria-expanded", "false"); } }
-const DASH = (LIVE ? "" : BASE_DOMAIN) + "/clrcrm/studio";
+const DASH = (LIVE ? "" : BASE_DOMAIN) + "/apps/studio";
 $("#logo-menu").innerHTML = `<div class="side-label">Sites</div>
   <button type="button" class="side-row" aria-current="true" data-nav-close-pop><span class="rail-logo" style="width:28px;height:28px;font-size:12px;margin:0;border-radius:7px">AI</span><span class="grow">ClearMark</span><span class="check">✓</span></button>
   <a class="side-row" href="https://kreickmarketing.vercel.app" target="_blank" rel="noopener noreferrer"><span class="rail-logo" style="width:28px;height:28px;font-size:12px;margin:0;border-radius:7px;background:var(--iron-pine)">KM</span><span class="grow">Kreick Marketing<br><span class="sub">Not in Studio yet · view site</span></span>↗</a>
   <hr>
   <a class="side-row" href="${DASH}">${svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>')}<span class="grow">Main dashboard</span></a>
-  <a class="side-row" href="${(LIVE ? "" : BASE_DOMAIN)}/clrcrm">${svg('<path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/><circle cx="12" cy="8" r="4"/>')}<span class="grow">Team area (CRM, Playbook)</span></a>
+  <a class="side-row" href="${(LIVE ? "" : BASE_DOMAIN)}/apps">${svg('<path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/><circle cx="12" cy="8" r="4"/>')}<span class="grow">Clearmark Apps</span></a>
   <a class="side-row" href="${SITE_URL}" target="_blank" rel="noopener noreferrer">${svg('<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>')}<span class="grow">View live site</span></a>`;
 
 // ── Events ──
