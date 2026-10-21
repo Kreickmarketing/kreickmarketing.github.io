@@ -1315,7 +1315,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 /* Media gallery: the work, full width, one under the other */
 .brand-km .km-gallery { display: flex; flex-direction: column; gap: 24px; }
 .brand-km .km-shot-wide { min-width: 0; }
-.brand-km .km-shot-wide > .km-fill { height: auto; border-radius: 8px; background: #141513; }
+.brand-km .km-shot-wide .km-fill { height: auto; border-radius: 8px; background: #141513; }
 .brand-km .km-shot-wide figcaption { margin-top: 10px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
 
 /* Big numbers and principle cards: a filled box with thin inset dividers */
@@ -4922,6 +4922,8 @@ const kmHighlight = (h, w) => { const i = w ? h.indexOf(w) : -1; return i < 0 ? 
 const kmAttr = (id, cls) => filledAttr(id).replace('class="', `class="${cls} `);
 const kmMedia = (src, label) => src ? media('class="km-fill"', src) : `<span class="km-empty">${label}</span>`;
 const kmItems = (id, fn) => P(id).map((r, i) => fn(r, `data-item="${id}:${i}"`, i)).join("");
+// A row's picture in the preview: drop an image or video from Sources straight onto it.
+const kmDrop = (id, i, key) => `data-rowimg="${id}:${i}:${key}"`;
 const kmTitle = (k) => P(k("title")) ? `<h2 ${kmAttr(k("title"), "km-title")}>${esc(P(k("title")))}</h2>` : `<div style="margin-bottom:24px">${slotBox(k("title"), "on-dark slot-optional")}</div>`;
 const KM_HTML = {
   kmcover: (sec, k) => {
@@ -4945,16 +4947,16 @@ const KM_HTML = {
   kmcase: (sec, k) => {
     const v = P(k("cases"));
     if (!v) return `<div class="km-in">${slotBox(k("cases"), "on-dark", "min-height:240px")}</div>`;
-    return `<div ${kmAttr(k("cases"), `km-in km-cases ${v.length > 1 ? "two" : "one"}`)}>${kmItems(k("cases"), (r, a) => {
+    return `<div ${kmAttr(k("cases"), `km-in km-cases ${v.length > 1 ? "two" : "one"}`)}>${kmItems(k("cases"), (r, a, i) => {
       const tools = String(r.tools || "").split(",").map((x) => x.trim()).filter(Boolean);
-      return `<article class="km-case" ${a}><div class="km-media">${kmMedia(r.media, "Video or image")}</div>${r.client ? `<p class="km-head">${esc(r.client)}</p>` : ""}${r.title ? `<h3>${esc(r.title)}</h3>` : ""}
+      return `<article class="km-case" ${a}><div class="km-media" ${kmDrop(k("cases"), i, "media")}>${kmMedia(r.media, "Video or image")}</div>${r.client ? `<p class="km-head">${esc(r.client)}</p>` : ""}${r.title ? `<h3>${esc(r.title)}</h3>` : ""}
         ${r.hook || r.text ? `<p class="km-desc">${r.hook ? `<b>${esc(r.hook)}</b> ` : ""}${esc(r.text)}</p>` : ""}
         ${tools.length ? `<ul class="km-chips">${tools.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${r.role ? `<p class="km-role"><b>Role</b>${esc(r.role)}</p>` : ""}</article>`;
     })}</div>`;
   },
   kmsteps: (sec, k) => `<div class="km-in"><p ${kmAttr(k("label"), "km-head km-how")}>${esc(P(k("label")) || SLOTS[k("label")].def)}</p>
-    ${P(k("steps")) ? `<ol ${kmAttr(k("steps"), "km-steps")}>${kmItems(k("steps"), (r, a, i) => `<li ${a}><div class="km-shot">${kmMedia(r.image, "Screenshot")}</div><span class="km-n">${KM_NUMS[i]}</span><h4>${esc(r.title)}</h4><p>${esc(r.text)}</p></li>`)}</ol>` : slotBox(k("steps"), "on-dark", "min-height:200px")}</div>`,
-  kmprojects: (sec, k) => `<div class="km-in">${kmTitle(k)}${P(k("cards")) ? `<div ${kmAttr(k("cards"), "km-projects")}>${kmItems(k("cards"), (r, a) => `<span class="km-proj" ${a}><span class="km-proj-img">${kmMedia(r.image, "Image")}</span><span class="km-proj-name">${esc(r.title)} ${KM_ARROW}</span>${r.years ? `<span class="km-proj-years">${esc(r.years)}</span>` : ""}</span>`)}</div>` : slotBox(k("cards"), "on-dark", "min-height:200px")}</div>`,
+    ${P(k("steps")) ? `<ol ${kmAttr(k("steps"), "km-steps")}>${kmItems(k("steps"), (r, a, i) => `<li ${a}><div class="km-shot" ${kmDrop(k("steps"), i, "image")}>${kmMedia(r.image, "Screenshot")}</div><span class="km-n">${KM_NUMS[i]}</span><h4>${esc(r.title)}</h4><p>${esc(r.text)}</p></li>`)}</ol>` : slotBox(k("steps"), "on-dark", "min-height:200px")}</div>`,
+  kmprojects: (sec, k) => `<div class="km-in">${kmTitle(k)}${P(k("cards")) ? `<div ${kmAttr(k("cards"), "km-projects")}>${kmItems(k("cards"), (r, a, i) => `<span class="km-proj" ${a}><span class="km-proj-img" ${kmDrop(k("cards"), i, "image")}>${kmMedia(r.image, "Image or video")}</span><span class="km-proj-name">${esc(r.title)} ${KM_ARROW}</span>${r.years ? `<span class="km-proj-years">${esc(r.years)}</span>` : ""}</span>`)}</div>` : slotBox(k("cards"), "on-dark", "min-height:200px")}</div>`,
   kmproject: (sec, k) => {
     const meta = [P(k("years")), P(k("tagline"))].filter(Boolean);
     return `<div class="km-in km-project"><div class="km-project-head">${text(k("title"), "h1", "km-title", "on-dark")}
@@ -4963,7 +4965,7 @@ const KM_HTML = {
       <div class="km-project-story">${text(k("summary"), "p", "km-lede", "on-dark slot-optional")}
         ${KM_STORY.map(([key, label]) => P(k(key)) ? `<div class="km-story"><p class="km-n">${label}</p><p ${filledAttr(k(key))}>${esc(P(k(key)))}</p></div>` : slotBox(k(key), "on-dark slot-optional")).join("")}</div></div>`;
   },
-  kmgallery: (sec, k) => P(k("items")) ? `<div ${kmAttr(k("items"), "km-in km-gallery")}>${kmItems(k("items"), (r, a) => `<figure class="km-shot-wide" ${a}>${r.media ? media('class="km-fill"', r.media) : `<span class="km-empty" style="aspect-ratio:12/5;border-radius:8px;background:#141513">Video or image</span>`}${r.caption ? `<figcaption>${esc(r.caption)}</figcaption>` : ""}</figure>`)}</div>`
+  kmgallery: (sec, k) => P(k("items")) ? `<div ${kmAttr(k("items"), "km-in km-gallery")}>${kmItems(k("items"), (r, a, i) => `<figure class="km-shot-wide" ${a}><div ${kmDrop(k("items"), i, "media")}>${r.media ? media('class="km-fill"', r.media) : `<span class="km-empty" style="aspect-ratio:12/5;border-radius:8px;background:#141513">Video or image</span>`}</div>${r.caption ? `<figcaption>${esc(r.caption)}</figcaption>` : ""}</figure>`)}</div>`
     : `<div class="km-in">${slotBox(k("items"), "on-dark", "min-height:320px")}</div>`,
   kmtitle: (sec, k) => {
     const t = P(k("title")), acc = P(k("accent"));
@@ -5164,13 +5166,23 @@ function fit() {
 }
 
 // ── Content cards ──
-// An image column in a list row (System card icon): drop or tap an image, keep the built-in one, or none.
+// An image column in a list row. On the System template it's the card's icon: drop or tap an image,
+// keep the built-in one, or none. Everywhere else (Kreick project cards, case studies, gallery, steps)
+// it's the row's picture: an image or a video (Oct 21), dropped here or straight onto the preview.
+const rowIsIcon = (id) => TPL[pageView(S.page).sections.find((x) => x.id === SLOTS[id]?.section)?.template]?.type === "system";
 function rowImage(id, i, c, val) {
-  const sl = SLOTS[id], builtin = TPL[pageView(S.page).sections.find((x) => x.id === sl.section)?.template]?.type === "system" ? `<svg viewBox="0 0 32 32" aria-hidden="true">${SYS_ICONS[i % 4]}</svg>` : "";
+  if (!rowIsIcon(id)) return rowMedia(id, i, c, val);
+  const builtin = `<svg viewBox="0 0 32 32" aria-hidden="true">${SYS_ICONS[i % 4]}</svg>`;
   const now = val === "none" ? `<span class="row-img-none">No icon</span>` : val ? `<img src="${esc(val)}" alt="">` : builtin ? `<span class="row-img-builtin">${builtin}</span>` : "";
-  const usePick = picked?.type === "image" && !isVideo(picked.value) ? `<button type="button" class="btn btn-small" data-rowimg-set="${id}:${i}:${c.key}">Use selected</button>` : "";
+  const usePick = rowImgOk(picked, id) ? `<button type="button" class="btn btn-small" data-rowimg-set="${id}:${i}:${c.key}">Use selected</button>` : "";
   return `<div class="field"><span aria-hidden="true">${esc(c.label)} (optional)</span><div class="row-img" data-rowimg="${id}:${i}:${c.key}">${now}<span class="row-img-hint">${val && val !== "none" ? "Your icon" : val === "none" ? "Hidden on this card" : builtin ? "Built-in icon" : "None"} · drop an icon here, or tap one in Sources</span></div>
     <div class="card-actions">${usePick}${val ? `<button type="button" class="btn btn-small" data-rowimg-clear="${id}:${i}:${c.key}">${builtin ? "Use built-in" : "Remove"}</button>` : ""}${val !== "none" ? `<button type="button" class="btn btn-small" data-rowimg-none="${id}:${i}:${c.key}">No icon</button>` : ""}</div></div>`;
+}
+function rowMedia(id, i, c, val) {
+  const ref = `${id}:${i}:${c.key}`, now = val ? (isVideo(val) ? `<video src="${esc(val)}" muted playsinline preload="metadata"></video>` : `<img src="${esc(val)}" alt="">`) : "";
+  const usePick = rowImgOk(picked, id) ? `<button type="button" class="btn btn-small" data-rowimg-set="${ref}">Use selected</button>` : "";
+  return `<div class="field"><span aria-hidden="true">${esc(c.label)}</span><div class="row-img" data-rowimg="${ref}">${now}<span class="row-img-hint">${val ? (isVideo(val) ? "Your video" : "Your image") : "Empty"} · drop an image or video here, on the preview, or tap one in Sources</span></div>
+    <div class="card-actions">${usePick}${val ? `<button type="button" class="btn btn-small" data-rowimg-clear="${ref}">Remove</button>` : ""}</div></div>`;
 }
 // Sets one row's image column in the typed value and on the page (if that row is placed).
 function setRowImage(ref, v) {
@@ -5744,7 +5756,7 @@ document.addEventListener("click", (e) => {
   if (d.del) { const [id, i] = d.del.split(":"); S.slots[id].value.splice(+i, 1); render(); return; }
   if (d.move) { const [id, i, dir] = d.move.split(":"); const v = S.slots[id].value; const j = +i + +dir; [v[i], v[j]] = [v[j], v[i]]; render(); return; }
   if (d.use) return fill(d.use, picked, false);
-  if (d.rowimgSet) { if (rowImgOk(picked)) { setRowImage(d.rowimgSet, picked.value); picked = null; render(); toast("Icon set."); } return; }
+  if (d.rowimgSet) { if (rowImgOk(picked, d.rowimgSet)) { setRowImage(d.rowimgSet, picked.value); picked = null; render(); toast(rowImgDone(d.rowimgSet)); } return; }
   if (d.rowimgClear) { setRowImage(d.rowimgClear, ""); return; }
   if (d.rowimgNone) { setRowImage(d.rowimgNone, "none"); toast("No icon on this card."); return; }
   if (d.pick) {
@@ -6027,12 +6039,24 @@ document.addEventListener("pointerup", () => endDrag(true));
 document.addEventListener("pointercancel", () => endDrag(false));
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (pendingRemove) closeRemove(false); endDrag(false); } });
 const dropTarget = (e) => e.target.closest?.("[data-rowimg], #site [data-slot], [data-card]");
-const rowImgOk = (p) => p?.type === "image" && !isVideo(p.value);
+const rowImgOk = (p, ref) => p?.type === "image" && (!isVideo(p.value) || !rowIsIcon(String(ref || "").split(":")[0]));
+const rowImgDone = (ref) => (rowIsIcon(ref.split(":")[0]) ? "Icon set." : "Picture set.");
+// An image or video dropped on a whole list (not on one row's picture) adds a row with it,
+// e.g. the next picture in a Media gallery. Not for System icons, and only while there's room.
+const rowCol = (sl) => sl?.kind === "list" && sl.cols?.find((c) => c.kind === "image");
+const rowAddOk = (id, p) => { const sl = SLOTS[id], col = rowCol(sl); if (!col || p?.type !== "image" || rowIsIcon(id)) return false;
+  const st = S.slots[id], rows = isEmpty(st.value) ? st.placed : st.value; return (Array.isArray(rows) ? rows.length : 0) < sl.max; };
+function addRowWith(id, src) {
+  const sl = SLOTS[id], st = S.slots[id], col = rowCol(sl); snap(id);
+  const rows = structuredClone(isEmpty(st.value) ? (Array.isArray(st.placed) ? st.placed : []) : st.value);
+  rows.push({ [col.key]: src }); st.value = rows; st.placed = structuredClone(rows);
+  selected = openCard = id; curSec = sl.section; save(); render();
+}
 document.addEventListener("dragover", (e) => {
   const t = dropTarget(e); if (!t || !dragging) return;
-  if (t.dataset.rowimg) { if (rowImgOk(dragging)) { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; t.classList.add("drop-ok"); } return; }
+  if (t.dataset.rowimg) { if (rowImgOk(dragging, t.dataset.rowimg)) { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; t.classList.add("drop-ok"); } return; }
   const id = t.dataset.slot || t.dataset.card;
-  if (accepts(SLOTS[id], dragging)) { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; t.classList.add("drop-ok"); }
+  if (accepts(SLOTS[id], dragging) || rowAddOk(id, dragging)) { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; t.classList.add("drop-ok"); }
 });
 document.addEventListener("dragleave", (e) => { const t = dropTarget(e); if (t && !t.contains(e.relatedTarget)) t.classList.remove("drop-ok"); });
 // Dropping on the preview: an image or CMS card changes the page straight away; text
@@ -6042,7 +6066,8 @@ document.addEventListener("drop", (e) => {
   e.preventDefault();
   const d = dragging, id = t.dataset.slot || t.dataset.card, sl = SLOTS[id];
   endSrcDrag();
-  if (t.dataset.rowimg) { if (rowImgOk(d)) { setRowImage(t.dataset.rowimg, d.value); toast("Icon set."); } return; }
+  if (t.dataset.rowimg) { if (rowImgOk(d, t.dataset.rowimg)) { setRowImage(t.dataset.rowimg, d.value); toast(rowImgDone(t.dataset.rowimg)); } return; }
+  if (rowAddOk(id, d) && !accepts(sl, d)) { addRowWith(id, d.value); toast("Added a new row with it."); return; }
   if (!t.dataset.slot) { fill(id, d, false); toast("Added to the card as a draft."); return; }
   curSec = sl.section;
   if (d.type !== "text") { fill(id, d, true); toast("Placed in preview."); return; }
