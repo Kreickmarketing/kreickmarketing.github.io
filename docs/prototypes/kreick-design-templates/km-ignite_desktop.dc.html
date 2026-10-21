@@ -137,6 +137,22 @@ body{margin:0}
 .brand-km .km-proj-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
 .brand-km .km-proj-name svg { width: 16px; height: 16px; }
 
+.brand-km .km-proj-years { margin-top: -8px; font-weight: 300; font-size: 13px; color: var(--km-muted); }
+
+/* Project intro (portfolio pages): name, years and short line on the left; the story on the right */
+.brand-km .km-project { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 80px; align-items: start; }
+.brand-km .km-project .km-title { margin-bottom: 16px; }
+.brand-km .km-project-meta { font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km-muted); }
+.brand-km .km-project-story { display: flex; flex-direction: column; gap: 28px; }
+.brand-km .km-story p + p { margin-top: 8px; font-weight: 300; font-size: 17px; line-height: 1.55; max-width: 62ch; }
+.brand-km .bg-mustard .km-project-meta { color: var(--km-ink); }
+
+/* Media gallery: the work, full width, one under the other */
+.brand-km .km-gallery { display: flex; flex-direction: column; gap: 24px; }
+.brand-km .km-shot-wide { min-width: 0; }
+.brand-km .km-shot-wide > .km-fill { height: auto; border-radius: 8px; background: #141513; }
+.brand-km .km-shot-wide figcaption { margin-top: 10px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+
 /* Big numbers and principle cards: a filled box with thin inset dividers */
 .brand-km .km-box { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); background: var(--km-black); border-radius: 8px; }
 .brand-km .km-box.n1 { --n: 1; } .brand-km .km-box.n2 { --n: 2; } .brand-km .km-box.n3 { --n: 3; } .brand-km .km-box.n4 { --n: 4; }
@@ -223,6 +239,8 @@ body{margin:0}
   .brand-km .km-cases.two .km-media { height: 480px; }
   .brand-km .km-case h3 { font-size: 26px; }
   .brand-km .km-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+  .brand-km .km-project { grid-template-columns: 1fr; gap: 32px; }
+  .brand-km .km-gallery { gap: 16px; }
   .brand-km .km-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
   .brand-km .km-box.n4 { --n: 2; }
   .brand-km .km-box.n4 > :nth-child(3)::before { display: none; }
@@ -267,6 +285,9 @@ body{margin:0}
   .brand-km .km-case h3 { font-size: 24px; }
   .brand-km .km-desc { font-size: 16px; }
   .brand-km .km-steps { grid-template-columns: 1fr; }
+  .brand-km .km-project-story { gap: 20px; }
+  .brand-km .km-story p + p { font-size: 16px; }
+  .brand-km .km-gallery { gap: 12px; }
   .brand-km .km-projects { grid-template-columns: 1fr; gap: 28px; }
   .brand-km .km-box.n2, .brand-km .km-box.n3, .brand-km .km-box.n4 { --n: 1; }
   .brand-km .km-box > * + *::before { display: block !important; top: 0; bottom: auto; left: 24px; right: 24px; width: auto; height: 1px; }
@@ -292,7 +313,7 @@ body{margin:0}
 <div class="site brand-km" style="width: 1280px; container-type: inline-size">
 <section class="sec km t-km-ignite" data-template="km-ignite">
 <div class="km-ignite-bg"><img data-spot="image" aria-hidden="true" src="/_blob/cd9bb3bfa868bc908789b7a3e0e90211" alt=""></div>
-        <div class="km-in km-ignite-in"><h2 class="" data-spot="headline">ignite your team</h2><div class="km-btns" data-spot="buttons"><a class="km-pill sm" href="#">AI Case Studies <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="km-pill sm outline" href="#">Leadership <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="km-pill sm outline" href="#">How I Use AI <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
+        <div class="km-in km-ignite-in"><h2 class="" data-spot="headline">ignite your team</h2></div>
 </section>
 </div>
 </x-dc>

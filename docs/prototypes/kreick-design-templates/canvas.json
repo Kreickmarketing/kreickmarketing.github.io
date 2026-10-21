@@ -25,7 +25,7 @@
       "y": 1160
     },
     "km-cover_phone.dc.html": {
-      "h": 723,
+      "h": 669,
       "title": "km-cover · Mobile 390",
       "w": 390,
       "x": 2208,
@@ -137,214 +137,256 @@
       "y": 7830
     },
     "km-projects_desktop.dc.html": {
-      "h": 774,
+      "h": 1142,
       "title": "km-projects · Desktop 1280",
       "w": 1280,
       "x": 0,
       "y": 10118
     },
     "km-projects_tablet.dc.html": {
-      "h": 667,
+      "h": 1308,
       "title": "km-projects · Tablet 768",
       "w": 768,
       "x": 1360,
       "y": 10118
     },
     "km-projects_phone.dc.html": {
-      "h": 1223,
+      "h": 2228,
       "title": "km-projects · Mobile 390",
       "w": 390,
       "x": 2208,
       "y": 10118
+    },
+    "km-project_desktop.dc.html": {
+      "h": 625,
+      "title": "km-project · Desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 12746
+    },
+    "km-project_tablet.dc.html": {
+      "h": 670,
+      "title": "km-project · Tablet 768",
+      "w": 768,
+      "x": 1360,
+      "y": 12746
+    },
+    "km-project_phone.dc.html": {
+      "h": 721,
+      "title": "km-project · Mobile 390",
+      "w": 390,
+      "x": 2208,
+      "y": 12746
+    },
+    "km-gallery_desktop.dc.html": {
+      "h": 2227,
+      "title": "km-gallery · Desktop 1280",
+      "w": 1280,
+      "x": 0,
+      "y": 13867
+    },
+    "km-gallery_tablet.dc.html": {
+      "h": 1364,
+      "title": "km-gallery · Tablet 768",
+      "w": 768,
+      "x": 1360,
+      "y": 13867
+    },
+    "km-gallery_phone.dc.html": {
+      "h": 741,
+      "title": "km-gallery · Mobile 390",
+      "w": 390,
+      "x": 2208,
+      "y": 13867
     },
     "km-title_desktop.dc.html": {
       "h": 346,
       "title": "km-title · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 11741
+      "y": 16494
     },
     "km-title_tablet.dc.html": {
       "h": 252,
       "title": "km-title · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 11741
+      "y": 16494
     },
     "km-title_phone.dc.html": {
       "h": 236,
       "title": "km-title · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 11741
+      "y": 16494
     },
     "km-stats_desktop.dc.html": {
       "h": 368,
       "title": "km-stats · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 12487
+      "y": 17240
     },
     "km-stats_tablet.dc.html": {
       "h": 282,
       "title": "km-stats · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 12487
+      "y": 17240
     },
     "km-stats_phone.dc.html": {
       "h": 514,
       "title": "km-stats · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 12487
+      "y": 17240
     },
     "km-principles_desktop.dc.html": {
       "h": 392,
       "title": "km-principles · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 13401
+      "y": 18154
     },
     "km-principles_tablet.dc.html": {
       "h": 405,
       "title": "km-principles · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 13401
+      "y": 18154
     },
     "km-principles_phone.dc.html": {
       "h": 610,
       "title": "km-principles · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 13401
+      "y": 18154
     },
     "km-columns_desktop.dc.html": {
       "h": 469,
       "title": "km-columns · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 14411
+      "y": 19164
     },
     "km-columns_tablet.dc.html": {
       "h": 661,
       "title": "km-columns · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 14411
+      "y": 19164
     },
     "km-columns_phone.dc.html": {
       "h": 1156,
       "title": "km-columns · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 14411
+      "y": 19164
     },
     "km-groups_desktop.dc.html": {
-      "h": 974,
+      "h": 803,
       "title": "km-groups · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 15967
+      "y": 20720
     },
     "km-groups_tablet.dc.html": {
-      "h": 1197,
+      "h": 933,
       "title": "km-groups · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 15967
+      "y": 20720
     },
     "km-groups_phone.dc.html": {
-      "h": 1927,
+      "h": 930,
       "title": "km-groups · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 15967
+      "y": 20720
     },
     "km-logo-strip_desktop.dc.html": {
       "h": 104,
       "title": "km-logo-strip · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 18294
+      "y": 22053
     },
     "km-logo-strip_tablet.dc.html": {
       "h": 96,
       "title": "km-logo-strip · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 18294
+      "y": 22053
     },
     "km-logo-strip_phone.dc.html": {
       "h": 90,
       "title": "km-logo-strip · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 18294
+      "y": 22053
     },
     "km-logo-wall_desktop.dc.html": {
       "h": 482,
       "title": "km-logo-wall · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 18798
+      "y": 22557
     },
     "km-logo-wall_tablet.dc.html": {
       "h": 467,
       "title": "km-logo-wall · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 18798
+      "y": 22557
     },
     "km-logo-wall_phone.dc.html": {
       "h": 420,
       "title": "km-logo-wall · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 18798
+      "y": 22557
     },
     "km-edu_desktop.dc.html": {
       "h": 643,
       "title": "km-edu · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 19680
+      "y": 23439
     },
     "km-edu_tablet.dc.html": {
       "h": 800,
       "title": "km-edu · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 19680
+      "y": 23439
     },
     "km-edu_phone.dc.html": {
       "h": 1411,
       "title": "km-edu · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 19680
+      "y": 23439
     },
     "km-footer_desktop.dc.html": {
-      "h": 174,
+      "h": 217,
       "title": "km-footer · Desktop 1280",
       "w": 1280,
       "x": 0,
-      "y": 21491
+      "y": 25250
     },
     "km-footer_tablet.dc.html": {
-      "h": 202,
+      "h": 245,
       "title": "km-footer · Tablet 768",
       "w": 768,
       "x": 1360,
-      "y": 21491
+      "y": 25250
     },
     "km-footer_phone.dc.html": {
-      "h": 329,
+      "h": 372,
       "title": "km-footer · Mobile 390",
       "w": 390,
       "x": 2208,
-      "y": 21491
+      "y": 25250
     },
     "Main.dc.html": {
       "h": 760,
@@ -377,6 +419,12 @@
     "km-projects_desktop.dc.html",
     "km-projects_tablet.dc.html",
     "km-projects_phone.dc.html",
+    "km-project_desktop.dc.html",
+    "km-project_tablet.dc.html",
+    "km-project_phone.dc.html",
+    "km-gallery_desktop.dc.html",
+    "km-gallery_tablet.dc.html",
+    "km-gallery_phone.dc.html",
     "km-title_desktop.dc.html",
     "km-title_tablet.dc.html",
     "km-title_phone.dc.html",
@@ -455,65 +503,79 @@
       "kind": "title1",
       "maxW": 2600
     },
+    "km-project": {
+      "x": 0,
+      "y": 12486,
+      "text": "Project intro · km-project",
+      "kind": "title1",
+      "maxW": 2600
+    },
+    "km-gallery": {
+      "x": 0,
+      "y": 13607,
+      "text": "Media gallery · km-gallery",
+      "kind": "title1",
+      "maxW": 2600
+    },
     "km-title": {
       "x": 0,
-      "y": 11481,
+      "y": 16234,
       "text": "Section title · km-title",
       "kind": "title1",
       "maxW": 2600
     },
     "km-stats": {
       "x": 0,
-      "y": 12227,
+      "y": 16980,
       "text": "Big numbers · km-stats",
       "kind": "title1",
       "maxW": 2600
     },
     "km-principles": {
       "x": 0,
-      "y": 13141,
+      "y": 17894,
       "text": "Principle cards · km-principles",
       "kind": "title1",
       "maxW": 2600
     },
     "km-columns": {
       "x": 0,
-      "y": 14151,
+      "y": 18904,
       "text": "Experience columns · km-columns",
       "kind": "title1",
       "maxW": 2600
     },
     "km-groups": {
       "x": 0,
-      "y": 15707,
+      "y": 20460,
       "text": "Skills & tools · km-groups",
       "kind": "title1",
       "maxW": 2600
     },
     "km-logo-strip": {
       "x": 0,
-      "y": 18034,
+      "y": 21793,
       "text": "Logo strip · km-logo-strip",
       "kind": "title1",
       "maxW": 2600
     },
     "km-logo-wall": {
       "x": 0,
-      "y": 18538,
+      "y": 22297,
       "text": "Logo wall · km-logo-wall",
       "kind": "title1",
       "maxW": 2600
     },
     "km-edu": {
       "x": 0,
-      "y": 19420,
+      "y": 23179,
       "text": "Education cards · km-edu",
       "kind": "title1",
       "maxW": 2600
     },
     "km-footer": {
       "x": 0,
-      "y": 21231,
+      "y": 24990,
       "text": "Footer · km-footer",
       "kind": "title1",
       "maxW": 2600

@@ -73,7 +73,7 @@ export default async function Templates({ searchParams }: { searchParams: Promis
           <section className="tp-group">
             <div className="tp-group-head">
               <h2>Page templates</h2>
-              <a className="tp-btn tp-primary" href={`${BUILDER}?site=kreick&start=site`}>Start the Kreick site from both</a>
+              <a className="tp-btn tp-primary" href={`${BUILDER}?site=kreick&start=site`}>Start the Kreick site from all of them</a>
             </div>
             <ul className="tp-grid tp-pages">
               {KM_PAGES.map((p) => (

@@ -1292,6 +1292,22 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .brand-km .km-proj-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
 .brand-km .km-proj-name svg { width: 16px; height: 16px; }
 
+.brand-km .km-proj-years { margin-top: -8px; font-weight: 300; font-size: 13px; color: var(--km-muted); }
+
+/* Project intro (portfolio pages): name, years and short line on the left; the story on the right */
+.brand-km .km-project { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 80px; align-items: start; }
+.brand-km .km-project .km-title { margin-bottom: 16px; }
+.brand-km .km-project-meta { font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km-muted); }
+.brand-km .km-project-story { display: flex; flex-direction: column; gap: 28px; }
+.brand-km .km-story p + p { margin-top: 8px; font-weight: 300; font-size: 17px; line-height: 1.55; max-width: 62ch; }
+.brand-km .bg-mustard .km-project-meta { color: var(--km-ink); }
+
+/* Media gallery: the work, full width, one under the other */
+.brand-km .km-gallery { display: flex; flex-direction: column; gap: 24px; }
+.brand-km .km-shot-wide { min-width: 0; }
+.brand-km .km-shot-wide > .km-fill { height: auto; border-radius: 8px; background: #141513; }
+.brand-km .km-shot-wide figcaption { margin-top: 10px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+
 /* Big numbers and principle cards: a filled box with thin inset dividers */
 .brand-km .km-box { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); background: var(--km-black); border-radius: 8px; }
 .brand-km .km-box.n1 { --n: 1; } .brand-km .km-box.n2 { --n: 2; } .brand-km .km-box.n3 { --n: 3; } .brand-km .km-box.n4 { --n: 4; }
@@ -1378,6 +1394,8 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   .brand-km .km-cases.two .km-media { height: 480px; }
   .brand-km .km-case h3 { font-size: 26px; }
   .brand-km .km-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+  .brand-km .km-project { grid-template-columns: 1fr; gap: 32px; }
+  .brand-km .km-gallery { gap: 16px; }
   .brand-km .km-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
   .brand-km .km-box.n4 { --n: 2; }
   .brand-km .km-box.n4 > :nth-child(3)::before { display: none; }
@@ -1422,6 +1440,9 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   .brand-km .km-case h3 { font-size: 24px; }
   .brand-km .km-desc { font-size: 16px; }
   .brand-km .km-steps { grid-template-columns: 1fr; }
+  .brand-km .km-project-story { gap: 20px; }
+  .brand-km .km-story p + p { font-size: 16px; }
+  .brand-km .km-gallery { gap: 12px; }
   .brand-km .km-projects { grid-template-columns: 1fr; gap: 28px; }
   .brand-km .km-box.n2, .brand-km .km-box.n3, .brand-km .km-box.n4 { --n: 1; }
   .brand-km .km-box > * + *::before { display: block !important; top: 0; bottom: auto; left: 24px; right: 24px; width: auto; height: 1px; }
@@ -1735,7 +1756,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
    "name": "Project cards",
    "type": "kmprojects",
    "group": "km-work",
-   "about": "Image cards with a name and an arrow, three across. Each card links to its project.",
+   "about": "Image cards with a name, an arrow and optional years, three across. Each card links to its project.",
    "bgChoice": [
     "charcoal",
     "black",
@@ -1755,7 +1776,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
      "key": "cards",
      "label": "Cards",
      "kind": "list",
-     "max": 6,
+     "max": 9,
      "axis": "x",
      "cols": [
       {
@@ -1769,12 +1790,127 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
        "limit": 30
       },
       {
+       "key": "years",
+       "label": "Years",
+       "limit": 20
+      },
+      {
        "key": "link",
        "label": "Link",
        "limit": 300
       }
      ],
      "source": "Your projects"
+    }
+   ]
+  },
+  {
+   "id": "km-project",
+   "name": "Project intro",
+   "type": "kmproject",
+   "group": "km-folio",
+   "about": "A portfolio page's opening: the project name, years and a short line, then Challenge, Solution and Results (or one summary paragraph).",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "title",
+     "label": "Project name",
+     "kind": "text",
+     "limit": 60,
+     "source": "e.g. “INV Canada”"
+    },
+    {
+     "key": "years",
+     "label": "Years",
+     "kind": "text",
+     "limit": 20,
+     "optional": true,
+     "source": "e.g. 2017-2019"
+    },
+    {
+     "key": "tagline",
+     "label": "Short line",
+     "kind": "text",
+     "limit": 60,
+     "optional": true,
+     "source": "e.g. “Branding Canada globally”"
+    },
+    {
+     "key": "summary",
+     "label": "Summary",
+     "kind": "text",
+     "limit": 400,
+     "long": true,
+     "optional": true,
+     "about": "Use this, or the three below, or both.",
+     "source": "One or two sentences"
+    },
+    {
+     "key": "challenge",
+     "label": "Challenge",
+     "kind": "text",
+     "limit": 700,
+     "long": true,
+     "optional": true,
+     "source": "What needed solving"
+    },
+    {
+     "key": "solution",
+     "label": "Solution",
+     "kind": "text",
+     "limit": 900,
+     "long": true,
+     "optional": true,
+     "source": "What you did"
+    },
+    {
+     "key": "results",
+     "label": "Results",
+     "kind": "text",
+     "limit": 700,
+     "long": true,
+     "optional": true,
+     "source": "What changed"
+    }
+   ]
+  },
+  {
+   "id": "km-gallery",
+   "name": "Media gallery",
+   "type": "kmgallery",
+   "group": "km-folio",
+   "about": "The work itself: images and short videos, full width, one under the other, each with an optional caption.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "items",
+     "label": "Images and videos",
+     "kind": "list",
+     "max": 12,
+     "cols": [
+      {
+       "key": "media",
+       "label": "Video or image",
+       "kind": "image"
+      },
+      {
+       "key": "caption",
+       "label": "Caption",
+       "limit": 120
+      }
+     ],
+     "about": "In this order. Videos loop silently.",
+     "source": "Sources → Images & video"
     }
    ]
   },
@@ -2171,6 +2307,14 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
    ]
   },
   {
+   "id": "km-folio",
+   "name": "Portfolio",
+   "tpls": [
+    "km-project",
+    "km-gallery"
+   ]
+  },
+  {
    "id": "km-text",
    "name": "Titles & numbers",
    "tpls": [
@@ -2206,9 +2350,81 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
  ],
  "pages": [
   {
+   "id": "gigs",
+   "name": "Gigs (home)",
+   "path": "/",
+   "source": "kreickmarketing.com/gigs",
+   "about": "The home page (was /gigs; the old home and /case_studies fold into it): cover with three workflows, ignite band, client logo strip, project cards, skills, experience by industry, education and footer.",
+   "sections": [
+    [
+     "gg-cover",
+     "km-cover",
+     "Cover"
+    ],
+    [
+     "gg-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-ignite",
+     "km-ignite",
+     "Ignite your team"
+    ],
+    [
+     "gg-strip",
+     "km-logo-strip",
+     "Client logos"
+    ],
+    [
+     "gg-work",
+     "km-projects",
+     "Projects"
+    ],
+    [
+     "gg-bar2",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-skills",
+     "km-groups",
+     "Skills"
+    ],
+    [
+     "gg-bar3",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-exp",
+     "km-groups",
+     "Experience"
+    ],
+    [
+     "gg-bar4",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-edu",
+     "km-edu",
+     "Education"
+    ],
+    [
+     "gg-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "gg-exp": "black"
+   }
+  },
+  {
    "id": "ai-work",
    "name": "AI Work",
-   "path": "/",
+   "path": "/ai-work",
    "source": "Artifact “Andrew K AI Work”",
    "about": "The AI Creative Director landing page: mustard cover, ignite band, case studies, leadership, the AI stack, the full-stack workflow, more experience and footer.",
    "sections": [
@@ -2328,75 +2544,262 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
    }
   },
   {
-   "id": "gigs",
-   "name": "Gigs",
-   "path": "/gigs",
-   "source": "kreickmarketing.com/gigs",
-   "about": "The freelance page: cover with three workflows, ignite band, client logo strip, project cards, skills, experience by industry, education and footer.",
+   "id": "work-invcanada",
+   "name": "INV Canada",
+   "path": "/work/invcanada",
+   "source": "kreickmarketing.com/work/invcanada",
+   "about": "Portfolio page: INV Canada. Project intro, 7 images and videos, a Book a call bar, the other projects, footer.",
    "sections": [
     [
-     "gg-cover",
-     "km-cover",
-     "Cover"
+     "wic-intro",
+     "km-project",
+     "Project intro"
     ],
     [
-     "gg-bar",
+     "wic-media",
+     "km-gallery",
+     "The work"
+    ],
+    [
+     "wic-bar",
      "km-cta-bar",
      "Book a call bar"
     ],
     [
-     "gg-ignite",
-     "km-ignite",
-     "Ignite your team"
-    ],
-    [
-     "gg-strip",
-     "km-logo-strip",
-     "Client logos"
-    ],
-    [
-     "gg-work",
+     "wic-more",
      "km-projects",
-     "Projects"
+     "More work"
     ],
     [
-     "gg-bar2",
-     "km-cta-bar",
-     "Book a call bar"
-    ],
-    [
-     "gg-skills",
-     "km-groups",
-     "Skills"
-    ],
-    [
-     "gg-bar3",
-     "km-cta-bar",
-     "Book a call bar"
-    ],
-    [
-     "gg-exp",
-     "km-groups",
-     "Experience"
-    ],
-    [
-     "gg-bar4",
-     "km-cta-bar",
-     "Book a call bar"
-    ],
-    [
-     "gg-edu",
-     "km-edu",
-     "Education"
-    ],
-    [
-     "gg-foot",
+     "wic-foot",
      "km-footer",
      "Footer"
     ]
    ],
    "bg": {
-    "gg-exp": "black"
+    "wic-more": "black"
+   }
+  },
+  {
+   "id": "work-pp",
+   "name": "PayPal",
+   "path": "/work/pp",
+   "source": "kreickmarketing.com/work/pp",
+   "about": "Portfolio page: PayPal. Project intro, 7 images and videos, a Book a call bar, the other projects, footer.",
+   "sections": [
+    [
+     "wpp-intro",
+     "km-project",
+     "Project intro"
+    ],
+    [
+     "wpp-media",
+     "km-gallery",
+     "The work"
+    ],
+    [
+     "wpp-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "wpp-more",
+     "km-projects",
+     "More work"
+    ],
+    [
+     "wpp-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "wpp-more": "black"
+   }
+  },
+  {
+   "id": "work-circlerproducts",
+   "name": "Circle R Products",
+   "path": "/work/circlerproducts",
+   "source": "kreickmarketing.com/work/circlerproducts",
+   "about": "Portfolio page: Circle R Products. Project intro, 7 images and videos, a Book a call bar, the other projects, footer.",
+   "sections": [
+    [
+     "wcr-intro",
+     "km-project",
+     "Project intro"
+    ],
+    [
+     "wcr-media",
+     "km-gallery",
+     "The work"
+    ],
+    [
+     "wcr-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "wcr-more",
+     "km-projects",
+     "More work"
+    ],
+    [
+     "wcr-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "wcr-more": "black"
+   }
+  },
+  {
+   "id": "work-expo-dubai",
+   "name": "Expo Dubai 2020",
+   "path": "/work/expo-dubai",
+   "source": "kreickmarketing.com/work/expo-dubai",
+   "about": "Portfolio page: Expo Dubai 2020. Project intro, 7 images and videos, a Book a call bar, the other projects, footer.",
+   "sections": [
+    [
+     "wex-intro",
+     "km-project",
+     "Project intro"
+    ],
+    [
+     "wex-media",
+     "km-gallery",
+     "The work"
+    ],
+    [
+     "wex-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "wex-more",
+     "km-projects",
+     "More work"
+    ],
+    [
+     "wex-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "wex-more": "black"
+   }
+  },
+  {
+   "id": "work-brenning",
+   "name": "Brenning Construction",
+   "path": "/work/brenning",
+   "source": "kreickmarketing.com/work/brenning",
+   "about": "Portfolio page: Brenning Construction. Project intro, 8 images and videos, a Book a call bar, the other projects, footer.",
+   "sections": [
+    [
+     "wbr-intro",
+     "km-project",
+     "Project intro"
+    ],
+    [
+     "wbr-media",
+     "km-gallery",
+     "The work"
+    ],
+    [
+     "wbr-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "wbr-more",
+     "km-projects",
+     "More work"
+    ],
+    [
+     "wbr-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "wbr-more": "black"
+   }
+  },
+  {
+   "id": "work-zavida",
+   "name": "Zavida",
+   "path": "/work/zavida",
+   "source": "kreickmarketing.com/work/zavida",
+   "about": "Portfolio page: Zavida. Project intro, 7 images and videos, a Book a call bar, the other projects, footer.",
+   "sections": [
+    [
+     "wza-intro",
+     "km-project",
+     "Project intro"
+    ],
+    [
+     "wza-media",
+     "km-gallery",
+     "The work"
+    ],
+    [
+     "wza-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "wza-more",
+     "km-projects",
+     "More work"
+    ],
+    [
+     "wza-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "wza-more": "black"
+   }
+  },
+  {
+   "id": "work-flourish",
+   "name": "Flourish Healthcare",
+   "path": "/work/flourish",
+   "source": "kreickmarketing.com/work/flourish",
+   "about": "Portfolio page: Flourish Healthcare. Project intro, 8 images and videos, a Book a call bar, the other projects, footer.",
+   "sections": [
+    [
+     "wfl-intro",
+     "km-project",
+     "Project intro"
+    ],
+    [
+     "wfl-media",
+     "km-gallery",
+     "The work"
+    ],
+    [
+     "wfl-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "wfl-more",
+     "km-projects",
+     "More work"
+    ],
+    [
+     "wfl-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "wfl-more": "black"
    }
   }
  ],
@@ -2706,19 +3109,38 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   "gg-work.cards": [
    {
     "title": "INV Canada",
-    "link": "https://kreickmarketing.com/work/invcanada"
+    "years": "2017-2019",
+    "link": "page:work-invcanada"
    },
    {
     "title": "PayPal",
-    "link": "https://kreickmarketing.com/work/pp"
+    "years": "2019-2024",
+    "link": "page:work-pp"
    },
    {
-    "title": "Zavida",
-    "link": "https://kreickmarketing.com/work/zavida"
+    "title": "Circle R Products",
+    "years": "2013-19",
+    "link": "page:work-circlerproducts"
    },
    {
     "title": "Expo Dubai 2020",
-    "link": "https://kreickmarketing.com/work/expo-dubai"
+    "years": "2019-20",
+    "link": "page:work-expo-dubai"
+   },
+   {
+    "title": "Brenning Construction",
+    "years": "2019-2020",
+    "link": "page:work-brenning"
+   },
+   {
+    "title": "Zavida",
+    "years": "2013-16",
+    "link": "page:work-zavida"
+   },
+   {
+    "title": "Flourish Healthcare",
+    "years": "2021-22",
+    "link": "page:work-flourish"
    }
   ],
   "gg-skills.title": "Skills",
@@ -2847,25 +3269,404 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   ],
   "gg-foot.button": "Book a call",
   "gg-foot.link": "https://calendly.com/andrew-clearmark/15min",
-  "gg-foot.fine": "Copyright 2025 © Kreickmarketing.com"
+  "gg-foot.fine": "Copyright 2025 © Kreickmarketing.com",
+  "wic-intro.title": "INV Canada",
+  "wic-intro.years": "2017-2019",
+  "wic-intro.tagline": "Branding Canada globally",
+  "wic-intro.challenge": "The Canadian government needed a strong national brand identity for global positioning and foreign investment. However, the initial plan was only a basic branding guideline, followed by outsourcing to an external ad agency.",
+  "wic-intro.solution": "Encouraged the full branding to be in-house. Oversaw the creative direction of brand identity, social media, flagship digital branding, experience marketing, annual reports, and onboarding sales kits. Additionally, served as one of the government's first Creative Directors.",
+  "wic-intro.results": "Successfully launched a cohesive national brand identity, saving the program from a large external marketing budget. Led the creative and strategic direction for 18 months, establishing a strong foundation for Canada's global branding efforts.",
+  "wic-bar.button": "Book a call",
+  "wic-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "wic-more.title": "More work",
+  "wic-more.cards": [
+   {
+    "title": "PayPal",
+    "years": "2019-2024",
+    "link": "page:work-pp"
+   },
+   {
+    "title": "Circle R Products",
+    "years": "2013-19",
+    "link": "page:work-circlerproducts"
+   },
+   {
+    "title": "Expo Dubai 2020",
+    "years": "2019-20",
+    "link": "page:work-expo-dubai"
+   },
+   {
+    "title": "Brenning Construction",
+    "years": "2019-2020",
+    "link": "page:work-brenning"
+   },
+   {
+    "title": "Zavida",
+    "years": "2013-16",
+    "link": "page:work-zavida"
+   },
+   {
+    "title": "Flourish Healthcare",
+    "years": "2021-22",
+    "link": "page:work-flourish"
+   }
+  ],
+  "wic-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "wic-foot.button": "Book a call",
+  "wic-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "wic-foot.fine": "Copyright 2025 © Kreickmarketing.com",
+  "wpp-intro.title": "PayPal",
+  "wpp-intro.years": "2019-2024",
+  "wpp-intro.tagline": "PayPal",
+  "wpp-intro.challenge": "PayPal's marketing approach was overly product-driven, with marginal customer engagement, and flattening email click-through rates.",
+  "wpp-intro.solution": "To shift messaging from a product-first approach to customer-first storytelling. The More Plus Less strategy was proposed to deliver shorter emails in a sequence to gradually warm up customers before introducing detailed product information. Digital campaigns could be revamped to better align with user needs and behaviors.",
+  "wpp-intro.results": "The implementation of the More Plus Less strategy significantly increased email click-through rates from 17% to 54%, generating strong lift at a program level. This approach became a foundational playbook for activation marketing.",
+  "wpp-bar.button": "Book a call",
+  "wpp-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "wpp-more.title": "More work",
+  "wpp-more.cards": [
+   {
+    "title": "INV Canada",
+    "years": "2017-2019",
+    "link": "page:work-invcanada"
+   },
+   {
+    "title": "Circle R Products",
+    "years": "2013-19",
+    "link": "page:work-circlerproducts"
+   },
+   {
+    "title": "Expo Dubai 2020",
+    "years": "2019-20",
+    "link": "page:work-expo-dubai"
+   },
+   {
+    "title": "Brenning Construction",
+    "years": "2019-2020",
+    "link": "page:work-brenning"
+   },
+   {
+    "title": "Zavida",
+    "years": "2013-16",
+    "link": "page:work-zavida"
+   },
+   {
+    "title": "Flourish Healthcare",
+    "years": "2021-22",
+    "link": "page:work-flourish"
+   }
+  ],
+  "wpp-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "wpp-foot.button": "Book a call",
+  "wpp-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "wpp-foot.fine": "Copyright 2025 © Kreickmarketing.com",
+  "wcr-intro.title": "Circle R Products",
+  "wcr-intro.years": "2013-19",
+  "wcr-intro.tagline": "Circle R Products",
+  "wcr-intro.challenge": "This major agricultural company in Belize needed to find a way to stop unethical repackaging which was occurring in local grocery stores. They also wanted to establish a brand to sell to neighboring countries.",
+  "wcr-intro.solution": "To develop a distinctive branded product packaging to position Circle R as the optimal brand compared to generic competitors. This would establish the brand at the retail level, engaging directly with merchants, fostering stronger respect for the product. Additionally, direct engagement at national agriculture shows was crucial. The experiential marketing exhibit showcased ethical farming techniques through live crop demonstrations, interactive games, and a sampling program, creating a memorable brand experience.",
+  "wcr-intro.results": "Within two years, consumers replaced “rice” with the brand name, pressuring store owners not to repackage Circle R's products. This national shift was driven by strategic branding, packaging, digital marketing, in-store promotions, and experiential marketing.",
+  "wcr-bar.button": "Book a call",
+  "wcr-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "wcr-more.title": "More work",
+  "wcr-more.cards": [
+   {
+    "title": "INV Canada",
+    "years": "2017-2019",
+    "link": "page:work-invcanada"
+   },
+   {
+    "title": "PayPal",
+    "years": "2019-2024",
+    "link": "page:work-pp"
+   },
+   {
+    "title": "Expo Dubai 2020",
+    "years": "2019-20",
+    "link": "page:work-expo-dubai"
+   },
+   {
+    "title": "Brenning Construction",
+    "years": "2019-2020",
+    "link": "page:work-brenning"
+   },
+   {
+    "title": "Zavida",
+    "years": "2013-16",
+    "link": "page:work-zavida"
+   },
+   {
+    "title": "Flourish Healthcare",
+    "years": "2021-22",
+    "link": "page:work-flourish"
+   }
+  ],
+  "wcr-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "wcr-foot.button": "Book a call",
+  "wcr-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "wcr-foot.fine": "Copyright 2025 © Kreickmarketing.com",
+  "wex-intro.title": "Expo Dubai 2020",
+  "wex-intro.years": "2019-20",
+  "wex-intro.tagline": "Expo Dubai 2020",
+  "wex-intro.challenge": "Canada needed a compelling brand narrative for Expo Dubai 2020 but was overly focused on pavilion architecture rather than positioning the country as a global leader in innovation and economic partnership.",
+  "wex-intro.solution": "We shifted the focus from pavilion-based branding to a nationwide investment and innovation strategy, developing the “Supercharge Your World” campaign to position Canada as a key economic and technological partner on the global stage. Through strategic planning and collaboration, we successfully navigated multiple levels of government approval to secure buy-in for the campaign.",
+  "wex-intro.results": "The campaign was fully approved and the branding strategy was officially adopted and implemented. However, Expo Dubai 2020 was canceled due to pandemic closures.",
+  "wex-bar.button": "Book a call",
+  "wex-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "wex-more.title": "More work",
+  "wex-more.cards": [
+   {
+    "title": "INV Canada",
+    "years": "2017-2019",
+    "link": "page:work-invcanada"
+   },
+   {
+    "title": "PayPal",
+    "years": "2019-2024",
+    "link": "page:work-pp"
+   },
+   {
+    "title": "Circle R Products",
+    "years": "2013-19",
+    "link": "page:work-circlerproducts"
+   },
+   {
+    "title": "Brenning Construction",
+    "years": "2019-2020",
+    "link": "page:work-brenning"
+   },
+   {
+    "title": "Zavida",
+    "years": "2013-16",
+    "link": "page:work-zavida"
+   },
+   {
+    "title": "Flourish Healthcare",
+    "years": "2021-22",
+    "link": "page:work-flourish"
+   }
+  ],
+  "wex-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "wex-foot.button": "Book a call",
+  "wex-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "wex-foot.fine": "Copyright 2025 © Kreickmarketing.com",
+  "wbr-intro.title": "Brenning Construction",
+  "wbr-intro.years": "2019-2020",
+  "wbr-intro.tagline": "Full brand, digital, fleet & swag",
+  "wbr-intro.summary": "Transforming a middle of the pack paving company into a major player in the Eastern Ontario construction market.",
+  "wbr-bar.button": "Book a call",
+  "wbr-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "wbr-more.title": "More work",
+  "wbr-more.cards": [
+   {
+    "title": "INV Canada",
+    "years": "2017-2019",
+    "link": "page:work-invcanada"
+   },
+   {
+    "title": "PayPal",
+    "years": "2019-2024",
+    "link": "page:work-pp"
+   },
+   {
+    "title": "Circle R Products",
+    "years": "2013-19",
+    "link": "page:work-circlerproducts"
+   },
+   {
+    "title": "Expo Dubai 2020",
+    "years": "2019-20",
+    "link": "page:work-expo-dubai"
+   },
+   {
+    "title": "Zavida",
+    "years": "2013-16",
+    "link": "page:work-zavida"
+   },
+   {
+    "title": "Flourish Healthcare",
+    "years": "2021-22",
+    "link": "page:work-flourish"
+   }
+  ],
+  "wbr-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "wbr-foot.button": "Book a call",
+  "wbr-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "wbr-foot.fine": "Copyright 2025 © Kreickmarketing.com",
+  "wza-intro.title": "Zavida",
+  "wza-intro.years": "2013-16",
+  "wza-intro.tagline": "Comms strategy · UX / UI",
+  "wza-intro.summary": "A simple story of becoming better to a saturated market and giving more back to the world.",
+  "wza-bar.button": "Book a call",
+  "wza-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "wza-more.title": "More work",
+  "wza-more.cards": [
+   {
+    "title": "INV Canada",
+    "years": "2017-2019",
+    "link": "page:work-invcanada"
+   },
+   {
+    "title": "PayPal",
+    "years": "2019-2024",
+    "link": "page:work-pp"
+   },
+   {
+    "title": "Circle R Products",
+    "years": "2013-19",
+    "link": "page:work-circlerproducts"
+   },
+   {
+    "title": "Expo Dubai 2020",
+    "years": "2019-20",
+    "link": "page:work-expo-dubai"
+   },
+   {
+    "title": "Brenning Construction",
+    "years": "2019-2020",
+    "link": "page:work-brenning"
+   },
+   {
+    "title": "Flourish Healthcare",
+    "years": "2021-22",
+    "link": "page:work-flourish"
+   }
+  ],
+  "wza-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "wza-foot.button": "Book a call",
+  "wza-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "wza-foot.fine": "Copyright 2025 © Kreickmarketing.com",
+  "wfl-intro.title": "Flourish Healthcare",
+  "wfl-intro.years": "2021-22",
+  "wfl-intro.tagline": "Full branding, naming, & UX / UI design",
+  "wfl-intro.summary": "Developing a health brand that delivers on their promise to work towards healing in all areas of life.",
+  "wfl-bar.button": "Book a call",
+  "wfl-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "wfl-more.title": "More work",
+  "wfl-more.cards": [
+   {
+    "title": "INV Canada",
+    "years": "2017-2019",
+    "link": "page:work-invcanada"
+   },
+   {
+    "title": "PayPal",
+    "years": "2019-2024",
+    "link": "page:work-pp"
+   },
+   {
+    "title": "Circle R Products",
+    "years": "2013-19",
+    "link": "page:work-circlerproducts"
+   },
+   {
+    "title": "Expo Dubai 2020",
+    "years": "2019-20",
+    "link": "page:work-expo-dubai"
+   },
+   {
+    "title": "Brenning Construction",
+    "years": "2019-2020",
+    "link": "page:work-brenning"
+   },
+   {
+    "title": "Zavida",
+    "years": "2013-16",
+    "link": "page:work-zavida"
+   }
+  ],
+  "wfl-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "wfl-foot.button": "Book a call",
+  "wfl-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "wfl-foot.fine": "Copyright 2025 © Kreickmarketing.com"
  },
  "nav": {
   "links": [
    {
-    "label": "AI Case Studies",
-    "link": "page:ai-work#aw-work"
+    "label": "Work",
+    "link": "page:gigs#gg-work"
    },
    {
-    "label": "Leadership",
-    "link": "page:ai-work#aw-lead"
+    "label": "Skills",
+    "link": "page:gigs#gg-skills"
    },
    {
-    "label": "How I Use AI",
-    "link": "page:ai-work#aw-stack"
+    "label": "AI Work",
+    "link": "page:ai-work"
    },
    {
-    "label": "Gigs",
-    "link": "page:gigs"
+    "label": "Education",
+    "link": "page:gigs#gg-edu"
    }
   ],
   "cta": {
@@ -4104,6 +4905,7 @@ function mqRows(list, first, copy) {
 // ── Kreick Marketing sections (km-*). Same drawing as drawKm() in lib/km-sections.ts, plus the editing marks.
 const KM_ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 const KM_NUMS = ["One", "Two", "Three", "Four"];
+const KM_STORY = [["challenge", "Challenge"], ["solution", "Solution"], ["results", "Results"]];
 const kmLines = (v) => String(v || "").split("\n").map((l) => l.trim()).filter(Boolean);
 const kmItem = (l) => { const i = l.indexOf(": "); return i > 0 && i < 40 ? [l.slice(0, i), l.slice(i + 2)] : [l, ""]; };
 const kmHighlight = (h, w) => { const i = w ? h.indexOf(w) : -1; return i < 0 ? h : `${h.slice(0, i)}<em>${w}</em>${h.slice(i + w.length)}`; };
@@ -4142,7 +4944,17 @@ const KM_HTML = {
   },
   kmsteps: (sec, k) => `<div class="km-in"><p ${kmAttr(k("label"), "km-head km-how")}>${esc(P(k("label")) || SLOTS[k("label")].def)}</p>
     ${P(k("steps")) ? `<ol ${kmAttr(k("steps"), "km-steps")}>${kmItems(k("steps"), (r, a, i) => `<li ${a}><div class="km-shot">${kmMedia(r.image, "Screenshot")}</div><span class="km-n">${KM_NUMS[i]}</span><h4>${esc(r.title)}</h4><p>${esc(r.text)}</p></li>`)}</ol>` : slotBox(k("steps"), "on-dark", "min-height:200px")}</div>`,
-  kmprojects: (sec, k) => `<div class="km-in">${kmTitle(k)}${P(k("cards")) ? `<div ${kmAttr(k("cards"), "km-projects")}>${kmItems(k("cards"), (r, a) => `<span class="km-proj" ${a}><span class="km-proj-img">${kmMedia(r.image, "Image")}</span><span class="km-proj-name">${esc(r.title)} ${KM_ARROW}</span></span>`)}</div>` : slotBox(k("cards"), "on-dark", "min-height:200px")}</div>`,
+  kmprojects: (sec, k) => `<div class="km-in">${kmTitle(k)}${P(k("cards")) ? `<div ${kmAttr(k("cards"), "km-projects")}>${kmItems(k("cards"), (r, a) => `<span class="km-proj" ${a}><span class="km-proj-img">${kmMedia(r.image, "Image")}</span><span class="km-proj-name">${esc(r.title)} ${KM_ARROW}</span>${r.years ? `<span class="km-proj-years">${esc(r.years)}</span>` : ""}</span>`)}</div>` : slotBox(k("cards"), "on-dark", "min-height:200px")}</div>`,
+  kmproject: (sec, k) => {
+    const meta = [P(k("years")), P(k("tagline"))].filter(Boolean);
+    return `<div class="km-in km-project"><div class="km-project-head">${text(k("title"), "h1", "km-title", "on-dark")}
+        ${meta.length ? `<p class="km-project-meta">${P(k("years")) ? `<span ${filledAttr(k("years"))}>${esc(P(k("years")))}</span>` : ""}${meta.length > 1 ? ' <span aria-hidden="true">—</span> ' : ""}${P(k("tagline")) ? `<span ${filledAttr(k("tagline"))}>${esc(P(k("tagline")))}</span>` : ""}</p>` : ""}
+        ${P(k("years")) ? "" : slotBox(k("years"), "on-dark slot-optional")}${P(k("tagline")) ? "" : slotBox(k("tagline"), "on-dark slot-optional")}</div>
+      <div class="km-project-story">${text(k("summary"), "p", "km-lede", "on-dark slot-optional")}
+        ${KM_STORY.map(([key, label]) => P(k(key)) ? `<div class="km-story"><p class="km-n">${label}</p><p ${filledAttr(k(key))}>${esc(P(k(key)))}</p></div>` : slotBox(k(key), "on-dark slot-optional")).join("")}</div></div>`;
+  },
+  kmgallery: (sec, k) => P(k("items")) ? `<div ${kmAttr(k("items"), "km-in km-gallery")}>${kmItems(k("items"), (r, a) => `<figure class="km-shot-wide" ${a}>${r.media ? media('class="km-fill"', r.media) : `<span class="km-empty" style="aspect-ratio:12/5;border-radius:8px;background:#141513">Video or image</span>`}${r.caption ? `<figcaption>${esc(r.caption)}</figcaption>` : ""}</figure>`)}</div>`
+    : `<div class="km-in">${slotBox(k("items"), "on-dark", "min-height:320px")}</div>`,
   kmtitle: (sec, k) => {
     const t = P(k("title")), acc = P(k("accent"));
     return `<div class="km-in">${t ? `<h2 ${kmAttr(k("title"), "km-title")}>${esc(t)}${acc ? ` <span ${kmAttr(k("accent"), "km-white")}>${esc(acc)}</span>` : ""}</h2>` : slotBox(k("title"), "on-dark", "min-height:80px;margin-bottom:24px")}
@@ -4184,7 +4996,7 @@ function kmStart(want) {
   if (want === "site") {
     if (Object.values(S.pages).some((l) => l.length) && !confirm("Start the Kreick site again from the templates? This replaces every Kreick page in Studio (the live site doesn't change).")) return;
     const keep = S.chrome; S = kmSeed(); S.chrome = keep; S.chromePage = {}; PAGE_LIST = S.pageList;
-    rebuildSlots(); save(); toast("Started the Kreick site from the templates: AI Work and Gigs."); return;
+    rebuildSlots(); save(); toast(`Started the Kreick site from the templates: ${KM.pages.length} pages, Gigs as home.`); return;
   }
   const p = KM.pages.find((x) => x.id === want); if (!p) return;
   const rand = () => Math.random().toString(36).slice(2, 5);
@@ -4524,6 +5336,8 @@ function tplThumb(type, id = "") {
     "km-logo-strip": F(1, 16, 78, 16) + [6, 22, 38, 54, 70].map((x) => R(x, 21, 8, 6, 1)).join(""),
     "km-logo-wall": L("M8 9h24", 3) + [8, 22, 36, 50, 64].map((x) => R(x, 18, 9, 7, 1) + R(x, 30, 9, 7, 1)).join(""),
     "km-edu": L("M8 9h30", 3) + [6, 25, 44, 63].map((x) => F(x, 15, 15, 28) + L(`M${x + 3} 21h9M${x + 3} 28h7M${x + 3} 32h8`, 1.2)).join(""),
+    "km-project": L("M6 12h26", 4) + L("M6 19h16", 1.2) + L("M40 10h8M40 15h34M40 19h30M40 26h8M40 31h34M40 35h26", 1.2),
+    "km-gallery": F(6, 4, 68, 18) + F(6, 26, 68, 18),
     "km-footer": R(6, 22, 14, 14, 2) + L("M24 26h50", 1) + L("M24 32h10M38 32h10M52 32h8", 2) + R(64, 29, 12, 6, 3),
   };
   g = g[id] || g[type] || "";
@@ -5349,7 +6163,7 @@ const MOD_ICON = {
   forms: '<rect x="3" y="5" width="18" height="5" rx="1.5"/><rect x="3" y="13" width="11" height="5" rx="2.5"/>',
   spacers: '<path d="M4 4h16M4 20h16M12 7v10M9 10l3-3 3 3M9 14l3 3 3-3"/>',
 };
-for (const [g, from] of [["km-bands", "heroes"], ["km-work", "photo"], ["km-text", "headings"], ["km-logos", "logos"], ["km-cards", "cms"], ["km-foot", "forms"]]) MOD_ICON[g] = MOD_ICON[from];
+for (const [g, from] of [["km-bands", "heroes"], ["km-work", "photo"], ["km-folio", "photo"], ["km-text", "headings"], ["km-logos", "logos"], ["km-cards", "cms"], ["km-foot", "forms"]]) MOD_ICON[g] = MOD_ICON[from];
 const svg = (paths, cls = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${paths}</svg>`;
 // Module groups, like Figma's Insert panel.
 function modCats() {

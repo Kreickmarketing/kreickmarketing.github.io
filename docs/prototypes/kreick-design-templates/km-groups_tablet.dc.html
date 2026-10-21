@@ -137,6 +137,22 @@ body{margin:0}
 .brand-km .km-proj-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
 .brand-km .km-proj-name svg { width: 16px; height: 16px; }
 
+.brand-km .km-proj-years { margin-top: -8px; font-weight: 300; font-size: 13px; color: var(--km-muted); }
+
+/* Project intro (portfolio pages): name, years and short line on the left; the story on the right */
+.brand-km .km-project { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 80px; align-items: start; }
+.brand-km .km-project .km-title { margin-bottom: 16px; }
+.brand-km .km-project-meta { font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km-muted); }
+.brand-km .km-project-story { display: flex; flex-direction: column; gap: 28px; }
+.brand-km .km-story p + p { margin-top: 8px; font-weight: 300; font-size: 17px; line-height: 1.55; max-width: 62ch; }
+.brand-km .bg-mustard .km-project-meta { color: var(--km-ink); }
+
+/* Media gallery: the work, full width, one under the other */
+.brand-km .km-gallery { display: flex; flex-direction: column; gap: 24px; }
+.brand-km .km-shot-wide { min-width: 0; }
+.brand-km .km-shot-wide > .km-fill { height: auto; border-radius: 8px; background: #141513; }
+.brand-km .km-shot-wide figcaption { margin-top: 10px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+
 /* Big numbers and principle cards: a filled box with thin inset dividers */
 .brand-km .km-box { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); background: var(--km-black); border-radius: 8px; }
 .brand-km .km-box.n1 { --n: 1; } .brand-km .km-box.n2 { --n: 2; } .brand-km .km-box.n3 { --n: 3; } .brand-km .km-box.n4 { --n: 4; }
@@ -223,6 +239,8 @@ body{margin:0}
   .brand-km .km-cases.two .km-media { height: 480px; }
   .brand-km .km-case h3 { font-size: 26px; }
   .brand-km .km-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+  .brand-km .km-project { grid-template-columns: 1fr; gap: 32px; }
+  .brand-km .km-gallery { gap: 16px; }
   .brand-km .km-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
   .brand-km .km-box.n4 { --n: 2; }
   .brand-km .km-box.n4 > :nth-child(3)::before { display: none; }
@@ -267,6 +285,9 @@ body{margin:0}
   .brand-km .km-case h3 { font-size: 24px; }
   .brand-km .km-desc { font-size: 16px; }
   .brand-km .km-steps { grid-template-columns: 1fr; }
+  .brand-km .km-project-story { gap: 20px; }
+  .brand-km .km-story p + p { font-size: 16px; }
+  .brand-km .km-gallery { gap: 12px; }
   .brand-km .km-projects { grid-template-columns: 1fr; gap: 28px; }
   .brand-km .km-box.n2, .brand-km .km-box.n3, .brand-km .km-box.n4 { --n: 1; }
   .brand-km .km-box > * + *::before { display: block !important; top: 0; bottom: auto; left: 24px; right: 24px; width: auto; height: 1px; }
@@ -291,11 +312,11 @@ body{margin:0}
 </helmet>
 <div class="site brand-km" style="width: 768px; container-type: inline-size">
 <section class="sec km t-km-groups" data-template="km-groups">
-<div class="km-in"><div class="km-groups rich" data-spot="groups"><div class="km-group"><p class="km-head">Direct</p><div class="km-rule"></div><ul class="km-items"><li><b>Claude</b><span>My built-in art director. It builds brand design systems and reusable production templates for every downstream asset.</span></li><li><b>Gemini</b><span>Multimodal review, research and a second read on copy.</span></li><li><b>NotebookLM</b><span>Turning briefs, transcripts and research into usable insight.</span></li><li><b>ChatGPT</b><span>Quick variations, prompt refinement and copy drafts.</span></li></ul></div><div class="km-group"><p class="km-head">Build the pipeline</p><div class="km-rule"></div><ul class="km-items"><li><b>Weavy</b><span>Repeatable image pipelines at volume: 217 unique images for one campaign from a single template.</span></li><li><b>ComfyUI</b><span>Custom, controllable workflows when output has to be precise and repeatable.</span></li><li><b>Make.com</b><span>Automating production handoffs between tools, from ideation to final export.</span></li></ul></div><div class="km-group"><p class="km-head">Image</p><div class="km-rule"></div><ul class="km-items"><li><b>Midjourney</b><span>High-craft concept and hero imagery, and fast art-direction exploration.</span></li><li><b>Nano Banana</b><span>Precise, consistent edits and variations without losing the original.</span></li><li><b>Adobe Firefly + Creative Cloud AI</b><span>Commercially safe generation and production edits inside the tools teams already use.</span></li></ul></div><div class="km-group"><p class="km-head">Video</p><div class="km-rule"></div><ul class="km-items"><li><b>Higgsfield</b><span>Cinematic AI video with directed camera motion.</span></li><li><b>WAN</b><span>Image-to-video from a start frame to an end frame, with audio mixing built in. The most versatile model in my video stack.</span></li><li><b>Runway</b><span>AI video generation and editing for motion concepts.</span></li><li><b>HeyGen</b><span>Avatar-led and localized spokesperson video.</span></li></ul></div><div class="km-group"><p class="km-head">Sound</p><div class="km-rule"></div><ul class="km-items"><li><b>ElevenLabs</b><span>Voiceover and voice design for video and animatics.</span></li><li><b>Udio</b><span>Original music beds and scores for video.</span></li></ul></div><div class="km-group"><p class="km-head">Plan and finish</p><div class="km-rule"></div><ul class="km-items"><li><b>Relume</b><span>AI sitemaps and wireframes for landing pages.</span></li><li><b>monday.com</b><span>One visible workflow for the whole team, from brief to delivery.</span></li><li><b>Adobe Creative Cloud</b><span>Finishing, layout and print-ready export for everything the AI tools produce.</span></li></ul></div></div></div>
+<div class="km-in"><h2 class="km-title" data-spot="title">Skills</h2><div class="km-groups" data-spot="groups"><div class="km-group"><p class="km-head">Brand / Creative Dir.</p><div class="km-rule"></div><ul class="km-items"><li>Packaging Design</li><li>Ideation &amp; Strategy</li><li>Advertising &amp; Comms.</li><li>Brand Dev.</li><li>Digital Design</li></ul></div><div class="km-group"><p class="km-head">A.I. Workflows</p><div class="km-rule"></div><ul class="km-items"><li>A.I. Workflow Design</li><li>A.I. Prompt Design</li><li>Static A.I. Creative</li><li>Video A.I. Creative</li><li>Audio A.I. Creative</li></ul></div><div class="km-group"><p class="km-head">UX UI Design</p><div class="km-rule"></div><ul class="km-items"><li>User Flow Strategy</li><li>User Experience</li><li>Information Architecture</li><li>AI Design &amp; Content</li><li>CMS Design</li><li>Responsive Design</li></ul></div><div class="km-group"><p class="km-head">Agile Workflow</p><div class="km-rule"></div><ul class="km-items"><li>New Business</li><li>Elevated Client Projects</li><li>Project Mgmt.</li><li>Time &amp; Budget</li><li>Production Mgmt.</li></ul></div><div class="km-group"><p class="km-head">Team Leadership</p><div class="km-rule"></div><ul class="km-items"><li>Copy Dir.</li><li>Art Dir.</li><li>Photo Dir.</li><li>Illustration Dir.</li><li>Animation Dir.</li><li>Video Dir.</li><li>Developer Dir.</li></ul></div><div class="km-group"><p class="km-head">Languages</p><div class="km-rule"></div><ul class="km-items"><li>English 100%</li><li>Spanish 30%</li><li>French 20%</li></ul></div></div></div>
 </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":768,"height":1197}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":768,"height":933}}'>
 class Component extends DCLogic {
 renderVals() {
 return {};

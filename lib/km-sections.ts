@@ -30,6 +30,7 @@ const t = (id: string, name: string, type: string, group: string, about: string,
 export const KM_GROUPS = [
   { id: "km-bands", name: "Covers & bands", tpls: ["km-cover", "km-cta-bar", "km-ignite"] },
   { id: "km-work", name: "Work", tpls: ["km-case", "km-steps", "km-projects"] },
+  { id: "km-folio", name: "Portfolio", tpls: ["km-project", "km-gallery"] },
   { id: "km-text", name: "Titles & numbers", tpls: ["km-title", "km-stats", "km-principles", "km-columns", "km-groups"] },
   { id: "km-logos", name: "Logos", tpls: ["km-logo-strip", "km-logo-wall"] },
   { id: "km-cards", name: "Cards", tpls: ["km-edu"] },
@@ -67,9 +68,22 @@ export const KM_TEMPLATES: KmTemplate[] = [
     { key: "label", label: "Label", kind: "text", limit: 30, optional: true, def: "How I made it", source: "One short line" },
     { key: "steps", label: "Steps", kind: "list", max: 4, axis: "x", cols: [{ key: "image", label: "Screenshot", kind: "image" }, { key: "title", label: "Title", limit: 40 }, { key: "text", label: "Text", limit: 220, long: true }], about: "Numbered One to Four in this order.", source: "Workflow screenshots" },
   ]),
-  t("km-projects", "Project cards", "kmprojects", "km-work", "Image cards with a name and an arrow, three across. Each card links to its project.", [
+  t("km-projects", "Project cards", "kmprojects", "km-work", "Image cards with a name, an arrow and optional years, three across. Each card links to its project.", [
     { key: "title", label: "Title", kind: "text", limit: 60, optional: true, source: "Optional" },
-    { key: "cards", label: "Cards", kind: "list", max: 6, axis: "x", cols: [{ key: "image", label: "Image", kind: "image" }, { key: "title", label: "Name", limit: 30 }, { key: "link", label: "Link", limit: 300 }], source: "Your projects" },
+    { key: "cards", label: "Cards", kind: "list", max: 9, axis: "x", cols: [{ key: "image", label: "Image", kind: "image" }, { key: "title", label: "Name", limit: 30 }, { key: "years", label: "Years", limit: 20 }, { key: "link", label: "Link", limit: 300 }], source: "Your projects" },
+  ]),
+  // Portfolio pages (kreickmarketing.com/work/…, Oct 21): the story, then the work.
+  t("km-project", "Project intro", "kmproject", "km-folio", "A portfolio page's opening: the project name, years and a short line, then Challenge, Solution and Results (or one summary paragraph).", [
+    { key: "title", label: "Project name", kind: "text", limit: 60, source: "e.g. “INV Canada”" },
+    { key: "years", label: "Years", kind: "text", limit: 20, optional: true, source: "e.g. 2017-2019" },
+    { key: "tagline", label: "Short line", kind: "text", limit: 60, optional: true, source: "e.g. “Branding Canada globally”" },
+    { key: "summary", label: "Summary", kind: "text", limit: 400, long: true, optional: true, about: "Use this, or the three below, or both.", source: "One or two sentences" },
+    { key: "challenge", label: "Challenge", kind: "text", limit: 700, long: true, optional: true, source: "What needed solving" },
+    { key: "solution", label: "Solution", kind: "text", limit: 900, long: true, optional: true, source: "What you did" },
+    { key: "results", label: "Results", kind: "text", limit: 700, long: true, optional: true, source: "What changed" },
+  ]),
+  t("km-gallery", "Media gallery", "kmgallery", "km-folio", "The work itself: images and short videos, full width, one under the other, each with an optional caption.", [
+    { key: "items", label: "Images and videos", kind: "list", max: 12, cols: [{ key: "media", label: "Video or image", kind: "image" }, { key: "caption", label: "Caption", limit: 120 }], about: "In this order. Videos loop silently.", source: "Sources → Images & video" },
   ]),
   t("km-title", "Section title", "kmtitle", "km-text", "A big gold title (with an optional white second part) and a short intro.", [
     { key: "title", label: "Title", kind: "text", limit: 80, source: "e.g. “AI Case Studies”" },
@@ -109,10 +123,48 @@ export const KM_TEMPLATES: KmTemplate[] = [
   ], ["black", "charcoal", "mustard"]),
 ];
 
+// ── Portfolio projects (kreickmarketing.com/work/<slug>, Oct 21): words from the live pages ──
+// Images and videos (7–8 per page, `media`) are uploaded in Studio; the gallery starts empty (one drop box).
+type KmWork = { slug: string; id: string; name: string; years: string; tagline: string; media: number; summary?: string; challenge?: string; solution?: string; results?: string };
+export const KM_WORK: KmWork[] = [
+  { slug: "invcanada", id: "wic", name: "INV Canada", years: "2017-2019", tagline: "Branding Canada globally", media: 7,
+    challenge: "The Canadian government needed a strong national brand identity for global positioning and foreign investment. However, the initial plan was only a basic branding guideline, followed by outsourcing to an external ad agency.",
+    solution: "Encouraged the full branding to be in-house. Oversaw the creative direction of brand identity, social media, flagship digital branding, experience marketing, annual reports, and onboarding sales kits. Additionally, served as one of the government's first Creative Directors.",
+    results: "Successfully launched a cohesive national brand identity, saving the program from a large external marketing budget. Led the creative and strategic direction for 18 months, establishing a strong foundation for Canada's global branding efforts." },
+  { slug: "pp", id: "wpp", name: "PayPal", years: "2019-2024", tagline: "PayPal", media: 7,
+    challenge: "PayPal's marketing approach was overly product-driven, with marginal customer engagement, and flattening email click-through rates.",
+    solution: "To shift messaging from a product-first approach to customer-first storytelling. The More Plus Less strategy was proposed to deliver shorter emails in a sequence to gradually warm up customers before introducing detailed product information. Digital campaigns could be revamped to better align with user needs and behaviors.",
+    results: "The implementation of the More Plus Less strategy significantly increased email click-through rates from 17% to 54%, generating strong lift at a program level. This approach became a foundational playbook for activation marketing." },
+  { slug: "circlerproducts", id: "wcr", name: "Circle R Products", years: "2013-19", tagline: "Circle R Products", media: 7,
+    challenge: "This major agricultural company in Belize needed to find a way to stop unethical repackaging which was occurring in local grocery stores. They also wanted to establish a brand to sell to neighboring countries.",
+    solution: "To develop a distinctive branded product packaging to position Circle R as the optimal brand compared to generic competitors. This would establish the brand at the retail level, engaging directly with merchants, fostering stronger respect for the product. Additionally, direct engagement at national agriculture shows was crucial. The experiential marketing exhibit showcased ethical farming techniques through live crop demonstrations, interactive games, and a sampling program, creating a memorable brand experience.",
+    results: "Within two years, consumers replaced “rice” with the brand name, pressuring store owners not to repackage Circle R's products. This national shift was driven by strategic branding, packaging, digital marketing, in-store promotions, and experiential marketing." },
+  { slug: "expo-dubai", id: "wex", name: "Expo Dubai 2020", years: "2019-20", tagline: "Expo Dubai 2020", media: 7,
+    challenge: "Canada needed a compelling brand narrative for Expo Dubai 2020 but was overly focused on pavilion architecture rather than positioning the country as a global leader in innovation and economic partnership.",
+    solution: "We shifted the focus from pavilion-based branding to a nationwide investment and innovation strategy, developing the “Supercharge Your World” campaign to position Canada as a key economic and technological partner on the global stage. Through strategic planning and collaboration, we successfully navigated multiple levels of government approval to secure buy-in for the campaign.",
+    results: "The campaign was fully approved and the branding strategy was officially adopted and implemented. However, Expo Dubai 2020 was canceled due to pandemic closures." },
+  { slug: "brenning", id: "wbr", name: "Brenning Construction", years: "2019-2020", tagline: "Full brand, digital, fleet & swag", media: 8,
+    summary: "Transforming a middle of the pack paving company into a major player in the Eastern Ontario construction market." },
+  { slug: "zavida", id: "wza", name: "Zavida", years: "2013-16", tagline: "Comms strategy · UX / UI", media: 7,
+    summary: "A simple story of becoming better to a saturated market and giving more back to the world." },
+  { slug: "flourish", id: "wfl", name: "Flourish Healthcare", years: "2021-22", tagline: "Full branding, naming, & UX / UI design", media: 8,
+    summary: "Developing a health brand that delivers on their promise to work towards healing in all areas of life." },
+];
+const workCards = () => KM_WORK.map((w) => ({ title: w.name, years: w.years, link: `page:work-${w.slug}` }));
+
 // ── Page templates: a page's sections in order ([uid, template, name]) and their words ──
 export type KmPage = { id: string; name: string; path: string; about: string; source: string; sections: [string, string, string][]; bg?: Record<string, string> };
 export const KM_PAGES: KmPage[] = [
-  { id: "ai-work", name: "AI Work", path: "/", source: "Artifact “Andrew K AI Work”",
+  { id: "gigs", name: "Gigs (home)", path: "/", source: "kreickmarketing.com/gigs",
+    about: "The home page (was /gigs; the old home and /case_studies fold into it): cover with three workflows, ignite band, client logo strip, project cards, skills, experience by industry, education and footer.",
+    sections: [
+      ["gg-cover", "km-cover", "Cover"], ["gg-bar", "km-cta-bar", "Book a call bar"], ["gg-ignite", "km-ignite", "Ignite your team"],
+      ["gg-strip", "km-logo-strip", "Client logos"], ["gg-work", "km-projects", "Projects"], ["gg-bar2", "km-cta-bar", "Book a call bar"],
+      ["gg-skills", "km-groups", "Skills"], ["gg-bar3", "km-cta-bar", "Book a call bar"], ["gg-exp", "km-groups", "Experience"],
+      ["gg-bar4", "km-cta-bar", "Book a call bar"], ["gg-edu", "km-edu", "Education"], ["gg-foot", "km-footer", "Footer"],
+    ],
+    bg: { "gg-exp": "black" } },
+  { id: "ai-work", name: "AI Work", path: "/ai-work", source: "Artifact “Andrew K AI Work”",
     about: "The AI Creative Director landing page: mustard cover, ignite band, case studies, leadership, the AI stack, the full-stack workflow, more experience and footer.",
     sections: [
       ["aw-cover", "km-cover", "Cover"], ["aw-bar", "km-cta-bar", "Book a call bar"], ["aw-ignite", "km-ignite", "Ignite your team"],
@@ -124,15 +176,12 @@ export const KM_PAGES: KmPage[] = [
       ["aw-clients", "km-logo-wall", "More Experience"], ["aw-foot", "km-footer", "Footer"],
     ],
     bg: { "aw-lead": "black", "aw-stats": "black", "aw-roles": "black", "aw-lead-p": "black", "aw-flow": "black", "aw-phases": "black" } },
-  { id: "gigs", name: "Gigs", path: "/gigs", source: "kreickmarketing.com/gigs",
-    about: "The freelance page: cover with three workflows, ignite band, client logo strip, project cards, skills, experience by industry, education and footer.",
-    sections: [
-      ["gg-cover", "km-cover", "Cover"], ["gg-bar", "km-cta-bar", "Book a call bar"], ["gg-ignite", "km-ignite", "Ignite your team"],
-      ["gg-strip", "km-logo-strip", "Client logos"], ["gg-work", "km-projects", "Projects"], ["gg-bar2", "km-cta-bar", "Book a call bar"],
-      ["gg-skills", "km-groups", "Skills"], ["gg-bar3", "km-cta-bar", "Book a call bar"], ["gg-exp", "km-groups", "Experience"],
-      ["gg-bar4", "km-cta-bar", "Book a call bar"], ["gg-edu", "km-edu", "Education"], ["gg-foot", "km-footer", "Footer"],
-    ],
-    bg: { "gg-exp": "black" } },
+  // The 7 portfolio pages: intro, the work, a call bar, the other projects, footer.
+  ...KM_WORK.map((w): KmPage => ({ id: `work-${w.slug}`, name: w.name, path: `/work/${w.slug}`, source: `kreickmarketing.com/work/${w.slug}`,
+    about: `Portfolio page: ${w.name}. Project intro, ${w.media} images and videos, a Book a call bar, the other projects, footer.`,
+    sections: [[`${w.id}-intro`, "km-project", "Project intro"], [`${w.id}-media`, "km-gallery", "The work"], [`${w.id}-bar`, "km-cta-bar", "Book a call bar"],
+      [`${w.id}-more`, "km-projects", "More work"], [`${w.id}-foot`, "km-footer", "Footer"]],
+    bg: { [`${w.id}-more`]: "black" } })),
 ];
 
 const CAL = "https://calendly.com/andrew-clearmark/15min";
@@ -225,8 +274,7 @@ export const KM_CONTENT: Record<string, unknown> = {
   "gg-cover.button": "Book a call", "gg-cover.link": CAL, "gg-cover.resume": "Download My Résumé", "gg-cover.resumeLink": RESUME,
   ...bar("gg-bar"), ...bar("gg-bar2"), ...bar("gg-bar3"), ...bar("gg-bar4"),
   "gg-ignite.headline": "ignite your team",
-  "gg-work.cards": [{ title: "INV Canada", link: "https://kreickmarketing.com/work/invcanada" }, { title: "PayPal", link: "https://kreickmarketing.com/work/pp" },
-    { title: "Zavida", link: "https://kreickmarketing.com/work/zavida" }, { title: "Expo Dubai 2020", link: "https://kreickmarketing.com/work/expo-dubai" }],
+  "gg-work.cards": workCards(),
   "gg-skills.title": "Skills",
   "gg-skills.groups": [
     { head: "Brand / Creative Dir.", items: lines("Packaging Design", "Ideation & Strategy", "Advertising & Comms.", "Brand Dev.", "Digital Design") },
@@ -257,12 +305,21 @@ export const KM_CONTENT: Record<string, unknown> = {
     { title: "Rideau Club Canada", sub: "Member", dates: "2018 - 2020", points: lines("Professional Growth", "High End Networking", "Master Class Seminars"), link: "" },
     { title: "Art Director Club of Canada", sub: "Member", dates: "2000 - 2004", points: lines("Industry Dev.", "Advertising Best Practices", "Championing Creative Excellence", "Internationally Recognized Awards"), link: "" }],
   ...footer("gg-foot", "Copyright 2025 © Kreickmarketing.com"),
+  // Portfolio pages
+  ...Object.assign({}, ...KM_WORK.map((w) => ({
+    [`${w.id}-intro.title`]: w.name, [`${w.id}-intro.years`]: w.years, [`${w.id}-intro.tagline`]: w.tagline,
+    ...(w.summary ? { [`${w.id}-intro.summary`]: w.summary } : {}),
+    ...(w.challenge ? { [`${w.id}-intro.challenge`]: w.challenge, [`${w.id}-intro.solution`]: w.solution, [`${w.id}-intro.results`]: w.results } : {}),
+    ...bar(`${w.id}-bar`),
+    [`${w.id}-more.title`]: "More work", [`${w.id}-more.cards`]: workCards().filter((c) => c.title !== w.name),
+    ...footer(`${w.id}-foot`, "Copyright 2025 © Kreickmarketing.com"),
+  }))),
 };
 
 // The Kreick site's starting nav (site chrome, like ClearMark's Global nav).
 export const KM_NAV = {
-  links: [{ label: "AI Case Studies", link: "page:ai-work#aw-work" }, { label: "Leadership", link: "page:ai-work#aw-lead" },
-    { label: "How I Use AI", link: "page:ai-work#aw-stack" }, { label: "Gigs", link: "page:gigs" }],
+  links: [{ label: "Work", link: "page:gigs#gg-work" }, { label: "Skills", link: "page:gigs#gg-skills" },
+    { label: "AI Work", link: "page:ai-work" }, { label: "Education", link: "page:gigs#gg-edu" }],
   cta: { label: "Book a call", link: CAL },
 };
 
@@ -282,6 +339,7 @@ export function kmSample(tplId: string, uid = kmFirstUse(tplId)): Record<string,
   for (const sl of tpl.slots) {
     let v = KM_CONTENT[`${uid}.${sl.key}`];
     if (sl.kind === "image" && !v && PH_IMAGES[`${tplId}.${sl.key}`]) v = ph(...PH_IMAGES[`${tplId}.${sl.key}`]);
+    if (tplId === "km-gallery" && sl.key === "items" && !v) v = [{}, {}, {}];
     if (sl.kind === "logos" && !v) v = Array.from({ length: tplId === "km-logo-wall" ? 10 : 8 }, (_, i) => phLogo(i + 1));
     if (sl.kind === "list" && Array.isArray(v)) v = v.map((r: Record<string, unknown>) => {
       const row = { ...r };
@@ -304,6 +362,7 @@ const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 const rowsOf = (v: unknown): Record<string, unknown>[] => (Array.isArray(v) ? v.filter((r) => r && typeof r === "object" && Object.values(r).some((x) => str(x))) : []);
 const linesOf = (v: unknown) => str(v).split("\n").map((l) => l.trim()).filter(Boolean);
 export const KM_NUMS = ["One", "Two", "Three", "Four"];
+export const KM_STORY: [string, string][] = [["challenge", "Challenge"], ["solution", "Solution"], ["results", "Results"]];
 export const KM_ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 // The headline with its red word (the first time it appears) in <em>. Both are already escaped.
 export const kmHighlight = (h: string, w: string) => { const i = w ? h.indexOf(w) : -1; return i < 0 ? h : `${h.slice(0, i)}<em>${w}</em>${h.slice(i + w.length)}`; };
@@ -352,12 +411,23 @@ export function drawKm(type: string, P: (key: string) => unknown, kit: KmKit): s
       }).join("")}</ol></div>`;
     }
     case "kmprojects": {
-      const cards = rowsOf(P("cards")).slice(0, 6);
+      const cards = rowsOf(P("cards")).slice(0, 9);
       if (!cards.length) return "";
       return `<div class="km-in">${title()}<div class="km-projects" data-slot=".cards">${cards.map((r) => {
         const m = media(r.image, 'class="km-fill"');
-        return a(kit.href(r.link), `<span class="km-proj-img">${m}</span><span class="km-proj-name">${esc(str(r.title))} ${KM_ARROW}</span>`, "km-proj");
+        return a(kit.href(r.link), `<span class="km-proj-img">${m}</span><span class="km-proj-name">${esc(str(r.title))} ${KM_ARROW}</span>${str(r.years) ? `<span class="km-proj-years">${esc(str(r.years))}</span>` : ""}`, "km-proj");
       }).join("")}</div></div>`;
+    }
+    case "kmproject": {
+      const tl = str(P("title")), story = KM_STORY.filter(([k]) => str(P(k)));
+      if (!tl && !story.length && !str(P("summary"))) return "";
+      const meta = [str(P("years")), str(P("tagline"))].filter(Boolean);
+      return `<div class="km-in km-project"><div class="km-project-head">${text("title", "h1", "km-title")}${meta.length ? `<p class="km-project-meta">${meta.map(esc).join(" <span aria-hidden=\"true\">—</span> ")}</p>` : ""}</div>
+        <div class="km-project-story">${text("summary", "p", "km-lede")}${story.map(([k, label]) => `<div class="km-story"><p class="km-n">${label}</p><p data-slot=".${k}">${esc(str(P(k)))}</p></div>`).join("")}</div></div>`;
+    }
+    case "kmgallery": {
+      const v = rowsOf(P("items")).map((r) => ({ m: media(r.media, 'class="km-fill"'), c: str(r.caption) })).filter((x) => x.m);
+      return v.length ? `<div class="km-in km-gallery" data-slot=".items">${v.map((x) => `<figure class="km-shot-wide">${x.m}${x.c ? `<figcaption>${esc(x.c)}</figcaption>` : ""}</figure>`).join("")}</div>` : "";
     }
     case "kmtitle": {
       const tl = str(P("title")), acc = str(P("accent"));
