@@ -12,6 +12,8 @@ import { KM_TEMPLATES, KM_GROUPS, KM_PAGES, KM_CONTENT, KM_NAV, KM_SAMPLE_KIT, d
 const BUILDER = "docs/prototypes/studio-builder/studio-builder.html";
 const OUT = "docs/prototypes/kreick-design-templates";
 const css = readFileSync("styles/brands/kreick.css", "utf8");
+// Canvas boards can't reach the site's /fonts files, so they leave out the @font-face rules (Google's Barlow instead).
+const boardCss = css.replace(/@font-face \{[^}]*\}\n?/g, "");
 
 // 1 + 2: the builder
 const data = JSON.stringify({ templates: KM_TEMPLATES, groups: KM_GROUPS, pages: KM_PAGES, content: KM_CONTENT, nav: KM_NAV }, null, 1).replace(/<\//g, "<\\/");
@@ -64,7 +66,7 @@ const board = (row, size, w) => {
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&amp;display=swap">
 <style>
 body{margin:0}
-${css}
+${boardCss}
 </style>
 </helmet>
 <div class="site brand-km" style="width: ${w}px; container-type: inline-size">

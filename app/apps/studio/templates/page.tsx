@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Barlow } from "next/font/google";
 import { KM_GROUPS, KM_PAGES, KM_SAMPLE_KIT, KM_TEMPLATES, drawKm, kmGround, kmSample } from "@/lib/km-sections";
 import heights from "@/scripts/km-heights.json";
 import "@/styles/brands/kreick.css";
@@ -9,7 +8,6 @@ import "@/styles/brands/kreick.css";
 // size picked: Desktop 1280, Tablet 768 or Mobile 390. "Start" opens the builder on the Kreick site.
 // ClearMark's templates live in its Claude Design canvas and the builder's Modules panel.
 
-const barlow = Barlow({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-barlow" });
 const SIZES = { desktop: ["Desktop", 1280], tablet: ["Tablet", 768], phone: ["Mobile", 390] } as const;
 type Size = keyof typeof SIZES;
 const BOX = 360; // preview width in the card
@@ -26,7 +24,7 @@ function Preview({ id, uid, size, maxH = 300 }: { id: string; uid?: string; size
   const h = Math.min(maxH, Math.round((H[`${id}_${size}`] || 600) * zoom));
   return (
     <div className="tp-frame" style={{ height: h }} aria-hidden="true">
-      <div className={`site brand-km ${barlow.variable}`} style={{ width: w, zoom }}>
+      <div className="site brand-km" style={{ width: w, zoom }}>
         <section className={`sec km t-${id}${ground ? ` bg-${ground}` : ""}`} dangerouslySetInnerHTML={{ __html: html }} />
       </div>
     </div>

@@ -1175,6 +1175,17 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
      Mobile   up to 700px (designed at 390)
    Colors come from the "Andrew K AI Work" artifact and kreickmarketing.com/gigs. */
 
+/* Barlow, self-hosted from Andrew's font files (public/fonts/barlow, SIL Open Font License), Oct 21.
+   Its own name so it never clashes with Google's "Barlow", which the builder prototype and the
+   Claude Design canvas still load (they can't reach /fonts); there "KM Barlow" is missing and
+   "Barlow" is used instead. */
+@font-face { font-family: "KM Barlow"; src: url("/fonts/barlow/Barlow-Light.ttf") format("truetype"); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: "KM Barlow"; src: url("/fonts/barlow/Barlow-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "KM Barlow"; src: url("/fonts/barlow/Barlow-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: "KM Barlow"; src: url("/fonts/barlow/Barlow-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "KM Barlow"; src: url("/fonts/barlow/Barlow-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "KM Barlow"; src: url("/fonts/barlow/Barlow-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
+
 .brand-km {
   --km-mustard: #e6bb5c;
   --km-ink: #1c2026;
@@ -1186,8 +1197,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   --km-line: rgba(255, 255, 255, 0.5);
   --km-gutter: 56px;
   --km-pad: 104px;
-  /* --font-barlow: the self-hosted font where the page loads it (Studio → Templates); else Barlow by name. */
-  --km-font: var(--font-barlow, "Barlow"), "Helvetica Neue", Arial, sans-serif;
+  --km-font: "KM Barlow", "Barlow", "Helvetica Neue", Arial, sans-serif;
   background: var(--km-charcoal);
   color: #fff;
   font-family: var(--km-font);
