@@ -284,3 +284,26 @@ a.studio-row-title:hover { text-decoration: underline; }
 .pe-insert[hidden], .pe-layers[hidden] { display: none; }
 
 /* Link to the new Studio builder on My Sites. */
+
+/* ── Templates (/apps/studio/templates): live previews of each template ── */
+.tp-page { gap: 24px; }
+.tp-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.tp-bar .studio-hint { flex: 1 1 320px; }
+.studio-tabs.tp-sizes { border-bottom: 0; padding-bottom: 0; }
+.tp-group { display: flex; flex-direction: column; gap: 16px; }
+.tp-group-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid var(--pb-line); padding-top: 24px; }
+.studio .tp-group-head h2 { margin: 0; font-size: var(--text-md-size); line-height: var(--text-md-lh); font-weight: var(--font-weight-bold); }
+.tp-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }
+.tp-grid.tp-pages { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
+.tp-card { display: flex; flex-direction: column; background: var(--pb-surface); border: 1px solid var(--pb-line); border-radius: 16px; overflow: hidden; }
+.studio .tp-card > .studio-site-body h3 { margin: 0; font-size: var(--text-md-size); line-height: var(--text-md-lh); font-weight: var(--font-weight-bold); }
+/* The preview: a section drawn at its real width, shrunk with zoom, cut to the card's height. */
+.tp-frame { width: 360px; max-width: 100%; margin: 0 auto; overflow: hidden; pointer-events: none; background: #201e1d; }
+.tp-stack { display: flex; flex-direction: column; align-items: center; background: #201e1d; }
+.tp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px !important; }
+.tp-btn { display: inline-flex; align-items: center; border: 1px solid var(--pb-line); border-radius: 999px; padding: 8px 16px; font-family: var(--font-button); font-size: var(--text-sm-size); text-decoration: none; }
+.tp-btn:hover { border-color: var(--tidal-azure); }
+.studio a.tp-primary { background: var(--white); color: var(--midnight); border-color: var(--white); }
+@media (max-width: 600px) {
+  .tp-grid, .tp-grid.tp-pages { grid-template-columns: 1fr; }
+}
