@@ -1,5 +1,5 @@
 import { LEGACY_OFFER_IDS, type CmsItem } from "./cms";
-// Live pages made in the Studio builder (/clrcrm/studio/builder).
+// Live pages made in the Studio builder (/apps/studio/builder).
 //
 // The builder saves one JSON "state" per site: pages (lists of template copies),
 // spots ({ value, placed }), photo sides (flip) and the page list (names and
@@ -444,7 +444,7 @@ export const BUILDER_PAGES = [
 export type BuilderPageInfo = { id: string; name: string; path: string; unpublished: boolean };
 
 // Addresses Studio pages can't take: the site's own routes.
-export const RESERVED_SLUGS = new Set(["clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"]);
+export const RESERVED_SLUGS = new Set(["apps", "clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"]);
 export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 // The page list in a state, checked: Home is always "/", every other page has a

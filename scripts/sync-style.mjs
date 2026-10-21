@@ -1,7 +1,7 @@
 // Copies styles/colors.css, typography.css and radius.css into the Studio builder
 // (the STYLE-CSS block in studio-builder.html), so the Claude prototype's Style
 // screen shows the same values as the site. The real Studio reads the files
-// directly on every load (app/clrcrm/studio/builder/route.ts).
+// directly on every load (app/apps/studio/builder/route.ts).
 // Run: node scripts/sync-style.mjs
 import { readFileSync, writeFileSync } from "node:fs";
 
