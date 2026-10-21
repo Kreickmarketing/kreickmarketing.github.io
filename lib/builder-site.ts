@@ -1,4 +1,5 @@
 import { LEGACY_OFFER_IDS, type CmsItem } from "./cms";
+import { KM_TEMPLATES, drawKm } from "./km-sections";
 // Live pages made in the Studio builder (/apps/studio/builder).
 //
 // The builder saves one JSON "state" per site: pages (lists of template copies),
@@ -40,7 +41,10 @@ const TEMPLATES: Template[] = [
   // Vertical spacers: empty space between sections (16 / 32 / 64 / 96px).
   { id: "spacer-16", type: "spacer", slots: [] }, { id: "spacer-32", type: "spacer", slots: [] },
   { id: "spacer-64", type: "spacer", slots: [] }, { id: "spacer-96", type: "spacer", slots: [] },
+  // Kreick Marketing templates (km-*, lib/km-sections.ts). Drawn by drawKm(); not on any live route yet.
+  ...KM_TEMPLATES.map((t) => ({ id: t.id, type: t.type, slots: t.slots.map((sl) => s(sl.key, sl.kind)) })),
 ];
+const KM_TYPES = new Set(KM_TEMPLATES.map((t) => t.type));
 
 // Offer cards come from the Studio CMS (Products): title CT100, subtitle CT200, price CP,
 // price note = first CPDT line, photo CI-01, small "+" label = first tag. Cards are found by
@@ -59,7 +63,7 @@ function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
   };
 }
 
-const SECTION_CLASS: Record<string, string> = { spacer: "spacer", hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std" };
+const SECTION_CLASS: Record<string, string> = { spacer: "spacer", hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std", ...Object.fromEntries(KM_TEMPLATES.map((t) => [t.type, "km"])) };
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 
 export type BuilderState = {
@@ -298,7 +302,9 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
       return cards.length ? `<div class="oc-grid" data-slot=".cards">${cards.map((o) => `<article class="oc">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div class="oc-top">${o.title ? `<h3 class="oc-t">${esc(o.title)}</h3>` : ""}${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${plus}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${!o.arrow ? "" : o.link ? `<a class="oc-go" href="${esc(o.link)}" aria-label="See ${esc(o.title || "this offer")}">${arrow}</a>` : `<span class="oc-go" aria-hidden="true">${arrow}</span>`}</div></div></article>`).join("")}</div>` : "";
     }
-    default: return "";
+    default:
+      // Kreick sections: same checks as the rest (local images only, safe links).
+      return KM_TYPES.has(type) ? drawKm(type, P, { img: safeImage, video: safeVideo, href: (v) => safeHref(link(v)) }) : "";
   }
 }
 
@@ -403,7 +409,9 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     if (!tpl || !ID.test(uid)) continue;
     const P = (key: string) => slots[`${uid}.${key}`]?.placed;
     const bgv = state.bg?.[uid];
-    const bg = (tpl.type === "quote" || tpl.type === "spacer") && (bgv === "white" || bgv === "cream" || bgv === "black") ? ` bg-${bgv}` : "";
+    const bg = (tpl.type === "quote" || tpl.type === "spacer") && (bgv === "white" || bgv === "cream" || bgv === "black") ? ` bg-${bgv}`
+      // Kreick grounds: Charcoal, Black or Mustard (styles/brands/kreick.css).
+      : KM_TYPES.has(tpl.type) && (bgv === "charcoal" || bgv === "black" || bgv === "mustard") ? ` bg-${bgv}` : "";
     const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}${bg}`, id = here[uid] || uid;
     // Mailing list: wording left empty in Studio falls back to the starting words.
     if (tpl.type === "mail") sections.push({ kind: "mail", id, uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
@@ -415,7 +423,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
       let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true, tpl.type === "hero" && state.noTabs?.[uid] !== true ? tabs : "", state.noNums?.[uid] === true);
       // Named elements get their link name as an id (the first element drawn for that spot).
       for (const sl of tpl.slots) { const a = here[`${uid}.${sl.key}`]; if (a) html = html.replace(`data-slot=".${sl.key}"`, `id="${a}" data-slot=".${sl.key}"`); }
-      if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id, uid, className, html });
+      if ((KM_TYPES.has(tpl.type) ? /<(img|video|h1|h2|h3|h4|p|li|a|span)\b/ : /<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/).test(html)) sections.push({ kind: "html", id, uid, className, html });
     }
   }
   const first = tpls[str(list[0]?.t)];

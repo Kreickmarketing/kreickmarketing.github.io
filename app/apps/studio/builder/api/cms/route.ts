@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import { safeImage, safeVideo } from "@/lib/builder-site";
 import { checkItem, loadCms, tagSlug, type ItemInput } from "@/lib/cms";
+import { builderSiteFrom } from "@/lib/studio-sites";
 
 // Save one CMS item (Products / Portfolio) from Studio: POST { item }.
 // Checks the login, then every field (lib/cms.ts → checkItem); Supabase's row rules are the
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
   if (!item) return fail(error || "That item isn't valid");
 
   const supabase = await getServerSupabase();
-  const { data: site } = await supabase.from("sites").select("id").eq("slug", "clearmark").maybeSingle();
+  const { data: site } = await supabase.from("sites").select("id").eq("slug", builderSiteFrom(request)).maybeSingle();
   if (!site) return fail("Site not found", 404);
   const { data: col } = await supabase.from("collections").select("id").eq("site_id", site.id).eq("slug", item.collection).maybeSingle();
   if (!col) return fail("Database not found", 404);

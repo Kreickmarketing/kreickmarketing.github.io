@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import { livePageIds, type BuilderState } from "@/lib/builder-site";
 import { loadCms } from "@/lib/cms";
+import { builderSiteFrom } from "@/lib/studio-sites";
 
 // Studio builder: the template-and-spots editor. Its source is one HTML file,
 // docs/prototypes/studio-builder/studio-builder.html (the same file the Claude
@@ -17,10 +18,15 @@ const STYLE_FILES = ["colors", "typography", "radius"].map((f) => path.join(proc
 
 export async function GET(request: Request) {
   const member = await getCrmMember();
-  if (!member) return NextResponse.redirect(new URL("/apps/login?next=/apps/studio/builder", request.url));
+  const slug = builderSiteFrom(request);
+  // Keep ?site and ?start through the login (only these two are passed on).
+  const sp = new URL(request.url).searchParams, keep = new URLSearchParams();
+  for (const k of ["site", "start"]) { const v = sp.get(k); if (v && /^[a-z0-9-]{1,40}$/.test(v)) keep.set(k, v); }
+  const here = "/apps/studio/builder" + (keep.size ? "?" + keep : "");
+  if (!member) return NextResponse.redirect(new URL("/apps/login?next=" + encodeURIComponent(here), request.url));
 
   const supabase = await getServerSupabase();
-  const { data: site } = await supabase.from("sites").select("id").eq("slug", "clearmark").maybeSingle();
+  const { data: site } = await supabase.from("sites").select("id").eq("slug", slug).maybeSingle();
   const { data: row } = site
     ? await supabase.from("builder_sites").select("draft, published").eq("site_id", site.id).maybeSingle()
     : { data: null };
@@ -34,7 +40,7 @@ export async function GET(request: Request) {
   const styleCss = JSON.stringify((await Promise.all(STYLE_FILES.map((f) => readFile(f, "utf8")))).join("\n")).replace(/</g, "\\u003c");
   const html = (await readFile(SOURCE, "utf8"))
     .replace(/(["`])media\//g, "$1/studio-media/")
-    .replace("<script>", () => `<script>window.__STUDIO_LIVE__ = true; window.__STUDIO_STATE__ = ${state}; window.__STUDIO_LIVE_PAGES__ = ${livePages}; window.__STUDIO_CMS__ = ${cmsJson}; window.__STUDIO_STYLE_CSS__ = ${styleCss};</script>\n<script>`);
+    .replace("<script>", () => `<script>window.__STUDIO_LIVE__ = true; window.__STUDIO_SITE__ = "${slug}"; window.__STUDIO_STATE__ = ${state}; window.__STUDIO_LIVE_PAGES__ = ${livePages}; window.__STUDIO_CMS__ = ${cmsJson}; window.__STUDIO_STYLE_CSS__ = ${styleCss};</script>\n<script>`);
 
   return new NextResponse(`<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow">\n${html}`, {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },

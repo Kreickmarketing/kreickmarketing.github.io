@@ -11,6 +11,7 @@ export default async function MySites() {
       <div className="studio-head">
         <p className="studio-kicker">Studio</p>
         <h1>My Sites</h1>
+        <p className="studio-hint"><Link href="/apps/studio/templates">Templates</Link>: browse each site&apos;s templates and start a page from one.</p>
       </div>
 
       {sites.length === 0 ? (
@@ -19,11 +20,12 @@ export default async function MySites() {
         <ul className="studio-sites">
           {sites.map((s) => (
             <li key={s.id}>
-              {s.status === "coming"
-                ? <div className="studio-site studio-site-coming" aria-disabled="true"><SiteCard site={s} /></div>
-                // ClearMark opens the Studio builder (a full page load: it isn't a React page).
-                : s.slug === "clearmark"
-                  ? <a href="/apps/studio/builder" className="studio-site"><SiteCard site={s} /></a>
+              {/* ClearMark and Kreick open the Studio builder (a full page load: it isn't a React page).
+                  Kreick is built there before it has a live address (Oct 21). */}
+              {s.slug === "clearmark" || s.slug === "kreick"
+                ? <a href={s.slug === "kreick" ? "/apps/studio/builder?site=kreick" : "/apps/studio/builder"} className="studio-site"><SiteCard site={s} /></a>
+                : s.status === "coming"
+                  ? <div className="studio-site studio-site-coming" aria-disabled="true"><SiteCard site={s} /></div>
                   : <Link href={`/apps/studio/${s.slug}`} className="studio-site"><SiteCard site={s} /></Link>}
             </li>
           ))}
@@ -41,14 +43,14 @@ function SiteCard({ site: s }: { site: SiteRow }) {
         {s.settings.thumbnail
           ? <Image src={s.settings.thumbnail} alt="" fill sizes="(max-width: 700px) 100vw, 360px" />
           : <span className="studio-thumb-letter" aria-hidden="true">{s.name[0]}</span>}
-        {s.status === "coming" && <span className="studio-pill studio-pill-coming">Coming</span>}
+        {s.status === "coming" && <span className="studio-pill studio-pill-coming">{s.slug === "kreick" ? "Building" : "Coming"}</span>}
       </div>
       <div className="studio-site-body">
         <h2>{s.name}</h2>
         <p>{s.domain ?? "No domain yet"}</p>
         <p className="studio-meta">
           {s.status === "coming"
-            ? "Not connected yet"
+            ? (s.slug === "kreick" ? "Not live yet · open to build it in Studio" : "Not connected yet")
             : `${pageCount} ${pageCount === 1 ? "page" : "pages"} · Edited ${shortDate(s.updated_at)}`}
         </p>
       </div>

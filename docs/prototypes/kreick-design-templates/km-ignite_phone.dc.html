@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ignite band · Mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+/* Kreick Marketing templates (km-*), Oct 21, 2026. One stylesheet for the Studio builder
+   (copied in by scripts/sync-kreick.mjs), the live renderer and the canvas boards.
+   Everything sits under .brand-km, so ClearMark pages never change.
+   Screen sizes (the site's own breakpoints, on the .site container):
+     Desktop  over 1000px (designed at 1280)
+     Tablet   701–1000px  (designed at 768)
+     Mobile   up to 700px (designed at 390)
+   Colors come from the "Andrew K AI Work" artifact and kreickmarketing.com/gigs. */
+
+.brand-km {
+  --km-mustard: #e6bb5c;
+  --km-ink: #1c2026;
+  --km-red: #db1f3d;
+  --km-gold: #cfa535;
+  --km-charcoal: #201e1d;
+  --km-black: #1a1813;
+  --km-muted: #a9a69e;
+  --km-line: rgba(255, 255, 255, 0.5);
+  --km-gutter: 56px;
+  --km-pad: 104px;
+  /* --font-barlow: the self-hosted font where the page loads it (Studio → Templates); else Barlow by name. */
+  --km-font: var(--font-barlow, "Barlow"), "Helvetica Neue", Arial, sans-serif;
+  background: var(--km-charcoal);
+  color: #fff;
+  font-family: var(--km-font);
+  font-weight: 400;
+  /* The breakpoints below measure this box (the page, or a preview of it). */
+  container-type: inline-size;
+}
+.brand-km.brand-km :where(h1, h2, h3, h4, h5, h6, p, ul, ol, figure) { margin: 0; }
+/* Specificity: .brand-km.brand-km :where(…) beats the host page's .crm h1 / h1 rules but not the
+   template rules below (.brand-km .km-…), which come later. Headings start from the Kreick look, whatever the host page sets for h1–h6 (ClearMark's Saira, sizes). */
+.brand-km.brand-km :where(h1, h2, h3, h4, h5, h6) { font-family: var(--km-font); font-weight: 700; font-size: inherit; line-height: 1.1; letter-spacing: normal; text-transform: none; color: inherit; }
+.brand-km.brand-km :where(p, li, span, b) { font-family: inherit; }
+.brand-km.brand-km :where(a) { color: inherit; }
+
+/* Section grounds. Each template has a default; the Ground choice (bg-*) overrides it. */
+.brand-km .sec.km { padding: var(--km-pad) var(--km-gutter); background: var(--km-charcoal); color: #fff; font-family: var(--km-font); }
+.brand-km .sec.t-km-cover { background: var(--km-mustard); color: var(--km-ink); }
+.brand-km .sec.t-km-logo-strip, .brand-km .sec.t-km-footer { background: var(--km-black); }
+.brand-km .sec.km.bg-charcoal { background: var(--km-charcoal); color: #fff; }
+.brand-km .sec.km.bg-black { background: var(--km-black); color: #fff; }
+.brand-km .sec.km.bg-mustard { background: var(--km-mustard); color: var(--km-ink); }
+.brand-km .km-in { max-width: 1200px; margin: 0 auto; }
+
+/* Shared type */
+.brand-km .km-title { color: var(--km-gold); font-size: 58px; line-height: 1; font-weight: 700; letter-spacing: -0.042em; text-wrap: balance; margin-bottom: 32px; }
+.brand-km .km-title .km-white { color: #fff; }
+.brand-km .km-title + .km-lede { margin-top: -14px; }
+.brand-km .km-lede { font-weight: 300; font-size: 22px; line-height: 1.4; letter-spacing: -0.015em; max-width: 52ch; }
+.brand-km .km-head { font-weight: 700; font-size: 14px; line-height: 1.15; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km-gold); }
+.brand-km .km-n { font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km-gold); }
+.brand-km .km-rule { width: 56px; height: 2px; background: var(--km-line); margin: 12px 0 14px; }
+.brand-km .km-fill { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Studio only: an empty image or video spot inside a list row. */
+.brand-km .km-empty { display: grid; place-items: center; width: 100%; height: 100%; min-height: 120px; color: var(--km-muted); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+/* On the mustard ground, gold and white words turn ink. */
+.brand-km .bg-mustard :is(.km-title, .km-title .km-white, .km-head, .km-n) { color: var(--km-ink); }
+.brand-km .bg-mustard .km-rule { background: rgba(28, 32, 38, 0.5); }
+
+/* Buttons: the red pill (ink outline) and the outlined pill */
+.brand-km .km-pill { display: inline-flex; align-items: center; gap: 12px; background: var(--km-red); color: #fff !important; font-weight: 700; font-size: 17px; letter-spacing: 0.12em; text-transform: uppercase; padding: 18px 28px; border-radius: 999px; border: 2px solid var(--km-ink); text-decoration: none; white-space: nowrap; transition: transform 0.15s; }
+.brand-km .km-pill:hover { transform: translateY(-2px); }
+.brand-km .km-pill svg { width: 18px; height: 18px; flex: none; }
+.brand-km .km-pill.sm { font-size: 14px; padding: 13px 20px; letter-spacing: 0.1em; }
+.brand-km .km-pill.outline { background: var(--km-ink); border-color: #fff; }
+.brand-km .km-link { font-weight: 600; font-size: 17px; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+
+/* Cover hero */
+.brand-km .km-cover-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 80px; }
+.brand-km .km-matchbox { display: block; width: 100%; max-width: 500px; height: auto; justify-self: end; }
+.brand-km .km-pitch { display: flex; flex-direction: column; align-items: flex-start; gap: 26px; max-width: 560px; }
+.brand-km .km-pitch h1 { font-size: 46px; line-height: 0.98; font-weight: 700; letter-spacing: -0.03em; text-wrap: balance; }
+.brand-km .km-pitch h1 em { font-style: normal; color: var(--km-red); }
+.brand-km .km-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 28px; list-style: none; padding: 0; align-self: stretch; }
+.brand-km .km-three li { font-weight: 600; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; }
+.brand-km .km-three li span:first-child { display: block; }
+.brand-km .km-contact { display: flex; flex-wrap: wrap; gap: 4px 20px; font-weight: 600; font-size: 14px; line-height: 1.4; }
+
+/* Call bar */
+.brand-km .sec.t-km-cta-bar { padding: 0; background: var(--km-red); }
+.brand-km .km-bar { display: flex; align-items: center; justify-content: center; gap: 12px; height: 72px; color: #fff !important; text-decoration: none; font-weight: 700; font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase; }
+.brand-km .km-bar svg { width: 18px; height: 18px; }
+
+/* Ignite band */
+.brand-km .sec.t-km-ignite { position: relative; overflow: hidden; min-height: 520px; display: grid; place-items: center; padding: 40px var(--km-gutter); background: var(--km-ink); border-top: 6px solid var(--km-mustard); }
+.brand-km .km-ignite-bg { position: absolute; inset: 0; }
+.brand-km .km-ignite-bg > :is(img, video) { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
+.brand-km .sec.t-km-ignite::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28, 32, 38, 0) 35%, rgba(28, 32, 38, 0.55) 100%); pointer-events: none; }
+.brand-km .km-ignite-in { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 28px; text-align: center; }
+.brand-km .km-ignite-in h2 { color: #fff; font-size: 45px; line-height: 1; font-weight: 700; letter-spacing: -0.04em; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55); }
+.brand-km .km-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+/* Case study: one wide (16:9) or two side by side (9:16) */
+.brand-km .km-cases { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 72px 56px; }
+.brand-km .km-cases.one .km-case { grid-column: 1 / -1; }
+.brand-km .km-case { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.brand-km .km-media { border-radius: 8px; overflow: hidden; background: #141513; aspect-ratio: 16 / 9; }
+.brand-km .km-cases.two .km-media { aspect-ratio: 9 / 16; height: 640px; max-width: 100%; }
+.brand-km .km-case h3 { font-size: 30px; line-height: 1.08; font-weight: 700; letter-spacing: -0.03em; }
+.brand-km .km-desc { font-weight: 300; font-size: 17px; line-height: 1.5; max-width: 60ch; }
+.brand-km .km-desc b { color: var(--km-gold); font-weight: 500; }
+.brand-km .km-chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
+.brand-km .km-chips li { border: 2px solid currentColor; border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 13px; }
+.brand-km .km-role { font-weight: 300; font-size: 15px; color: var(--km-muted); }
+.brand-km .km-role b { font-weight: 700; color: #fff; letter-spacing: 0.06em; text-transform: uppercase; font-size: 12px; margin-right: 6px; }
+.brand-km .bg-mustard :is(.km-desc b, .km-role, .km-role b) { color: var(--km-ink); }
+
+/* How I made it: four numbered steps */
+.brand-km .km-how { margin-bottom: 28px; }
+.brand-km .km-steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
+.brand-km .km-steps li { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.brand-km .km-shot { aspect-ratio: 4 / 3; overflow: hidden; border-radius: 8px; background: #141513; }
+.brand-km .km-shot img { object-position: top left; }
+.brand-km .km-steps .km-n { margin-top: 6px; }
+.brand-km .km-steps h4 { font-size: 19px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+.brand-km .km-steps p { font-weight: 300; font-size: 15.5px; line-height: 1.45; }
+
+/* Project cards */
+.brand-km .km-projects { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 32px; }
+.brand-km .km-proj { display: flex; flex-direction: column; gap: 14px; text-decoration: none; color: inherit; min-width: 0; }
+.brand-km .km-proj-img { display: block; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; background: #141513; transition: transform 0.2s; }
+.brand-km .km-proj:hover .km-proj-img { transform: translateY(-4px); }
+.brand-km .km-proj-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
+.brand-km .km-proj-name svg { width: 16px; height: 16px; }
+
+/* Big numbers and principle cards: a filled box with thin inset dividers */
+.brand-km .km-box { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); background: var(--km-black); border-radius: 8px; }
+.brand-km .km-box.n1 { --n: 1; } .brand-km .km-box.n2 { --n: 2; } .brand-km .km-box.n3 { --n: 3; } .brand-km .km-box.n4 { --n: 4; }
+.brand-km .bg-black .km-box { background: var(--km-charcoal); }
+.brand-km .bg-mustard .km-box { background: rgba(28, 32, 38, 0.08); }
+.brand-km .km-box > * { position: relative; padding: 28px; min-width: 0; }
+.brand-km .km-box > * + *::before { content: ""; position: absolute; left: 0; top: 28px; bottom: 28px; width: 1px; background: var(--km-line); }
+.brand-km .km-stat b { display: block; color: var(--km-gold); font-size: 58px; line-height: 1; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.brand-km .km-stat span { display: block; margin-top: 8px; font-weight: 300; font-size: 16px; max-width: 24ch; }
+.brand-km .km-card h3 { margin-top: 6px; font-size: 19px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+.brand-km .km-card .km-n + h3 { margin-top: 6px; }
+.brand-km .km-card p { margin-top: 8px; font-weight: 300; font-size: 16px; line-height: 1.45; }
+
+/* Experience columns */
+.brand-km .km-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 40px; }
+.brand-km .km-col { display: flex; flex-direction: column; min-width: 0; }
+.brand-km .km-col .km-head { color: inherit; }
+.brand-km .km-sub { margin-top: 4px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+.brand-km .km-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-weight: 300; font-size: 17px; line-height: 1.3; letter-spacing: -0.02em; }
+
+/* Skills & tools: short items in rows; "Name: description" lines as tool stages (3 across) */
+.brand-km .km-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px 56px; }
+.brand-km .km-group { min-width: 0; }
+.brand-km .km-items { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; font-weight: 300; font-size: 16px; line-height: 1.35; }
+.brand-km .km-groups.rich .km-items { gap: 14px; }
+.brand-km .km-items b { display: block; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.brand-km .km-items b + span { display: block; margin-top: 2px; color: #e8e6e0; }
+.brand-km .bg-mustard .km-items b + span { color: var(--km-ink); }
+
+/* Logo strip (one sliding row) and logo wall (grid) */
+.brand-km .sec.t-km-logo-strip { padding: 32px 0; }
+.brand-km .km-strip { overflow: hidden; }
+.brand-km .km-strip-track { display: flex; align-items: center; gap: 72px; width: max-content; animation: km-slide var(--km-time, 40s) linear infinite; }
+.brand-km .km-strip img { height: 40px; width: auto; display: block; }
+@keyframes km-slide { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .brand-km .km-strip-track { animation: none; } }
+.brand-km .km-wall { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 44px 56px; align-items: center; justify-items: center; }
+.brand-km .km-wall img { display: block; width: auto; max-width: 100%; max-height: 70px; height: auto; }
+
+/* Education cards */
+.brand-km .km-edu { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.brand-km .km-edu-card { display: flex; flex-direction: column; gap: 10px; padding: 28px; border-radius: 16px; background: var(--km-black); min-width: 0; }
+.brand-km .bg-black .km-edu-card { background: var(--km-charcoal); }
+.brand-km .bg-mustard .km-edu-card { background: rgba(28, 32, 38, 0.08); }
+.brand-km .km-edu-card h3 { font-size: 24px; line-height: 1.1; font-weight: 400; letter-spacing: -0.02em; }
+.brand-km .km-edu-sub { font-size: 14px; font-style: italic; color: var(--km-gold); }
+.brand-km .km-edu-dates { font-size: 14px; color: var(--km-muted); }
+.brand-km .km-ticks { list-style: none; padding: 0; margin-top: 8px; display: flex; flex-direction: column; gap: 10px; font-weight: 300; font-size: 15px; line-height: 1.3; }
+.brand-km .km-ticks li { display: flex; gap: 10px; }
+.brand-km .km-ticks li::before { content: "✓"; color: var(--km-gold); font-weight: 700; }
+.brand-km .km-visit { margin-top: auto; padding-top: 12px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; text-decoration: none; }
+.brand-km .km-visit svg { width: 14px; height: 14px; }
+
+/* Footer */
+.brand-km .sec.t-km-footer { padding: 64px var(--km-gutter) 40px; }
+.brand-km .km-foot { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 32px; align-items: end; }
+.brand-km .km-foot > img { width: 150px; height: auto; display: block; }
+.brand-km .km-foot-line { border-top: 2px solid var(--km-line); padding-top: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 36px; font-weight: 700; font-size: 21px; grid-column: -2; }
+.brand-km .km-foot-line .km-pill { margin-left: auto; }
+.brand-km .km-fine { margin-top: 26px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+
+/* Kreick site nav (site chrome): ink bar, mustard underline, red pill */
+.brand-km .km-nav { display: flex; align-items: center; gap: 36px; padding: 12px var(--km-gutter); background: var(--km-ink); border-bottom: 2px solid var(--km-mustard); color: #fff; font-family: var(--km-font); position: relative; z-index: 2; }
+.brand-km .km-nav-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; text-decoration: none; white-space: nowrap; }
+.brand-km .km-nav-name svg { width: 20px; height: 20px; }
+.brand-km .km-nav ul { display: flex; flex-wrap: wrap; gap: 4px 28px; margin: 0 0 0 auto; padding: 0; list-style: none; }
+.brand-km .km-nav li, .brand-km .km-nav li a { font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 0; white-space: nowrap; color: #fff; text-decoration: none; }
+.brand-km .km-nav li a:hover { color: var(--km-mustard); }
+
+/* ── Tablet: 701–1000px (designed at 768) ── */
+@container (max-width: 1000px) {
+  .brand-km :is(.sec, .km-nav) { --km-gutter: 32px; --km-pad: 72px; }
+  .brand-km .km-title { font-size: 44px; margin-bottom: 24px; }
+  .brand-km .km-lede { font-size: 19px; }
+  .brand-km .km-cover-grid { gap: 40px; }
+  .brand-km .km-pitch { gap: 20px; }
+  .brand-km .km-pitch h1 { font-size: 34px; }
+  .brand-km .km-three { gap: 10px 18px; }
+  .brand-km .km-three li { font-size: 16px; }
+  .brand-km .km-pill { font-size: 15px; padding: 15px 22px; }
+  .brand-km .sec.t-km-ignite { min-height: 420px; }
+  .brand-km .km-ignite-in h2 { font-size: 38px; }
+  .brand-km .km-cases { gap: 56px 32px; }
+  .brand-km .km-cases.two .km-media { height: 480px; }
+  .brand-km .km-case h3 { font-size: 26px; }
+  .brand-km .km-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+  .brand-km .km-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+  .brand-km .km-box.n4 { --n: 2; }
+  .brand-km .km-box.n4 > :nth-child(3)::before { display: none; }
+  .brand-km .km-box.n4 > :nth-child(n + 3)::after { content: ""; position: absolute; top: 0; left: 28px; right: 28px; height: 1px; background: var(--km-line); }
+  .brand-km .km-stat b { font-size: 44px; }
+  .brand-km .km-box > * { padding: 24px; }
+  .brand-km .km-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 32px; }
+  .brand-km .km-wall { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 32px; }
+  .brand-km .km-edu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .brand-km .km-strip img { height: 32px; }
+  .brand-km .km-strip-track { gap: 56px; }
+  .brand-km .km-foot-line { font-size: 18px; gap: 10px 24px; }
+  .brand-km .km-nav { gap: 24px; }
+  .brand-km .km-nav ul { gap: 4px 18px; }
+  .brand-km .km-nav li { font-size: 12.5px; }
+}
+
+/* ── Mobile: up to 700px (designed at 390) ── */
+@container (max-width: 700px) {
+  .brand-km :is(.sec, .km-nav) { --km-gutter: 16px; --km-pad: 56px; }
+  .brand-km .km-title { font-size: 36px; margin-bottom: 20px; }
+  .brand-km .km-title + .km-lede { margin-top: -8px; }
+  .brand-km .km-lede { font-size: 18px; }
+  .brand-km .sec.t-km-cover { padding-top: 0; padding-bottom: 32px; overflow: hidden; }
+  .brand-km .km-cover-grid { grid-template-columns: 1fr; gap: 14px; }
+  .brand-km .km-matchbox { justify-self: center; max-width: 320px; margin-top: -24px; }
+  .brand-km .km-pitch { align-items: center; text-align: center; margin-inline: auto; gap: 16px; }
+  .brand-km .km-pitch h1 { font-size: 28px; }
+  .brand-km .km-three { display: flex; flex-wrap: nowrap; justify-content: center; gap: 0; }
+  .brand-km .km-three li { font-size: 13.5px; line-height: 1.2; padding-inline: 10px; position: relative; }
+  .brand-km .km-three li span:first-child { display: none; }
+  .brand-km .km-three li + li::before { content: ""; position: absolute; left: 0; top: 50%; width: 1px; height: 20px; margin-top: -10px; background: currentColor; }
+  .brand-km .km-contact { justify-content: center; font-size: 13px; gap: 2px 16px; }
+  .brand-km .km-pill { font-size: 15px; padding: 15px 22px; }
+  .brand-km .km-bar { height: 56px; }
+  .brand-km .sec.t-km-ignite { min-height: 560px; }
+  .brand-km .km-ignite-in h2 { font-size: 40px; }
+  .brand-km .km-btns { flex-direction: column; align-items: stretch; width: 100%; max-width: 420px; }
+  .brand-km .km-btns .km-pill { justify-content: center; }
+  .brand-km .km-cases { grid-template-columns: 1fr; gap: 48px; }
+  .brand-km .km-cases.two .km-media { height: auto; width: 100%; max-height: 560px; }
+  .brand-km .km-case h3 { font-size: 24px; }
+  .brand-km .km-desc { font-size: 16px; }
+  .brand-km .km-steps { grid-template-columns: 1fr; }
+  .brand-km .km-projects { grid-template-columns: 1fr; gap: 28px; }
+  .brand-km .km-box.n2, .brand-km .km-box.n3, .brand-km .km-box.n4 { --n: 1; }
+  .brand-km .km-box > * + *::before { display: block !important; top: 0; bottom: auto; left: 24px; right: 24px; width: auto; height: 1px; }
+  .brand-km .km-box > *::after { display: none; }
+  .brand-km .km-stat b { font-size: 40px; }
+  .brand-km .km-groups { grid-template-columns: 1fr; gap: 32px; }
+  .brand-km .km-groups:not(.rich) .km-items { flex-direction: row; flex-wrap: wrap; gap: 8px 18px; }
+  .brand-km .km-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 18px; }
+  .brand-km .km-wall img { max-height: 42px; }
+  .brand-km .km-edu { grid-template-columns: 1fr; }
+  .brand-km .km-strip img { height: 26px; }
+  .brand-km .km-strip-track { gap: 40px; }
+  .brand-km .km-foot { grid-template-columns: 1fr; gap: 18px; }
+  .brand-km .km-foot > img { width: 110px; }
+  .brand-km .km-foot-line { grid-column: auto; font-size: 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .brand-km .km-foot-line .km-pill { margin-left: 0; margin-top: 8px; }
+  .brand-km .km-nav ul { display: none; }
+  .brand-km .km-nav { justify-content: space-between; }
+}
+
+</style>
+</helmet>
+<div class="site brand-km" style="width: 390px; container-type: inline-size">
+<section class="sec km t-km-ignite" data-template="km-ignite">
+<div class="km-ignite-bg"><img data-spot="image" aria-hidden="true" src="/_blob/cd9bb3bfa868bc908789b7a3e0e90211" alt=""></div>
+        <div class="km-in km-ignite-in"><h2 class="" data-spot="headline">ignite your team</h2><div class="km-btns" data-spot="buttons"><a class="km-pill sm" href="#">AI Case Studies <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="km-pill sm outline" href="#">Leadership <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="km-pill sm outline" href="#">How I Use AI <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":646}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

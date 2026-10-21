@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
 import { livePageIds, withUnpublished, type BuilderState } from "@/lib/builder-site";
 import { loadCms } from "@/lib/cms";
+import { builderSiteFrom } from "@/lib/studio-sites";
 
 // Save (PUT), Publish (POST ?action=publish), Unpublish one page
 // (POST ?action=unpublish&page=<id>) and start an upload (POST ?action=upload-url)
@@ -15,9 +16,10 @@ const UPLOAD_TYPES: Record<string, string> = {
   "video/mp4": "mp4", "video/webm": "webm",
 };
 
-async function siteId() {
+// The site this call is for: ?site=kreick, otherwise ClearMark.
+async function siteId(request: Request) {
   const supabase = await getServerSupabase();
-  const { data } = await supabase.from("sites").select("id").eq("slug", "clearmark").maybeSingle();
+  const { data } = await supabase.from("sites").select("id").eq("slug", builderSiteFrom(request)).maybeSingle();
   return { supabase, id: data?.id as string | undefined };
 }
 
@@ -30,7 +32,7 @@ export async function PUT(request: Request) {
   const pages = (draft as { pages?: unknown } | null)?.pages;
   if (!draft || typeof draft !== "object" || Array.isArray(draft) || !pages || typeof pages !== "object") return fail("That draft has no pages");
 
-  const { supabase, id } = await siteId();
+  const { supabase, id } = await siteId(request);
   if (!id) return fail("Site not found", 404);
   const { error } = await supabase.from("builder_sites").upsert({ site_id: id, draft });
   if (error) return fail(error.message, 500);
@@ -41,7 +43,9 @@ export async function POST(request: Request) {
   const params = new URL(request.url).searchParams, action = params.get("action");
   if (action !== "publish" && action !== "unpublish" && action !== "upload-url") return fail("Unknown action");
   if (!(await getCrmMember())) return fail("You're logged out. Log in again", 401);
-  const { supabase, id } = await siteId();
+  // Kreick has no live route yet, so nothing of it can go live (uploads are fine).
+  if (builderSiteFrom(request) === "kreick" && action !== "upload-url") return fail("The Kreick site can't be published yet");
+  const { supabase, id } = await siteId(request);
   if (!id) return fail("Site not found", 404);
   if (action === "upload-url") {
     // A one-time link the browser uses to send the file straight to Supabase Storage

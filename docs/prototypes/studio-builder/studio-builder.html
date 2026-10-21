@@ -1,6 +1,7 @@
 <title>ClearMark Studio Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@200;300;400;500;600;700;800&family=Courier+Prime:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap">
 <style>
 /* Layout: three working panes (page preview · content cards · sources), page thumbnails under the preview.
    Studio chrome is dark (decided Oct 6); the page inside the preview uses ClearMark's own colors. */
@@ -1162,6 +1163,1718 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 <section class="view" id="view-cms" hidden></section>
 <section class="view" id="view-settings" hidden></section>
 <section class="view" id="view-style" hidden></section>
+<!-- KM: Kreick Marketing templates (km-*): styles/brands/kreick.css and lib/km-sections.ts (templates, page templates,
+     starting words). Refresh with `node scripts/sync-kreick.mjs`; don't edit these two blocks by hand. -->
+<style id="km-css">
+/* Kreick Marketing templates (km-*), Oct 21, 2026. One stylesheet for the Studio builder
+   (copied in by scripts/sync-kreick.mjs), the live renderer and the canvas boards.
+   Everything sits under .brand-km, so ClearMark pages never change.
+   Screen sizes (the site's own breakpoints, on the .site container):
+     Desktop  over 1000px (designed at 1280)
+     Tablet   701–1000px  (designed at 768)
+     Mobile   up to 700px (designed at 390)
+   Colors come from the "Andrew K AI Work" artifact and kreickmarketing.com/gigs. */
+
+.brand-km {
+  --km-mustard: #e6bb5c;
+  --km-ink: #1c2026;
+  --km-red: #db1f3d;
+  --km-gold: #cfa535;
+  --km-charcoal: #201e1d;
+  --km-black: #1a1813;
+  --km-muted: #a9a69e;
+  --km-line: rgba(255, 255, 255, 0.5);
+  --km-gutter: 56px;
+  --km-pad: 104px;
+  /* --font-barlow: the self-hosted font where the page loads it (Studio → Templates); else Barlow by name. */
+  --km-font: var(--font-barlow, "Barlow"), "Helvetica Neue", Arial, sans-serif;
+  background: var(--km-charcoal);
+  color: #fff;
+  font-family: var(--km-font);
+  font-weight: 400;
+  /* The breakpoints below measure this box (the page, or a preview of it). */
+  container-type: inline-size;
+}
+.brand-km.brand-km :where(h1, h2, h3, h4, h5, h6, p, ul, ol, figure) { margin: 0; }
+/* Specificity: .brand-km.brand-km :where(…) beats the host page's .crm h1 / h1 rules but not the
+   template rules below (.brand-km .km-…), which come later. Headings start from the Kreick look, whatever the host page sets for h1–h6 (ClearMark's Saira, sizes). */
+.brand-km.brand-km :where(h1, h2, h3, h4, h5, h6) { font-family: var(--km-font); font-weight: 700; font-size: inherit; line-height: 1.1; letter-spacing: normal; text-transform: none; color: inherit; }
+.brand-km.brand-km :where(p, li, span, b) { font-family: inherit; }
+.brand-km.brand-km :where(a) { color: inherit; }
+
+/* Section grounds. Each template has a default; the Ground choice (bg-*) overrides it. */
+.brand-km .sec.km { padding: var(--km-pad) var(--km-gutter); background: var(--km-charcoal); color: #fff; font-family: var(--km-font); }
+.brand-km .sec.t-km-cover { background: var(--km-mustard); color: var(--km-ink); }
+.brand-km .sec.t-km-logo-strip, .brand-km .sec.t-km-footer { background: var(--km-black); }
+.brand-km .sec.km.bg-charcoal { background: var(--km-charcoal); color: #fff; }
+.brand-km .sec.km.bg-black { background: var(--km-black); color: #fff; }
+.brand-km .sec.km.bg-mustard { background: var(--km-mustard); color: var(--km-ink); }
+.brand-km .km-in { max-width: 1200px; margin: 0 auto; }
+
+/* Shared type */
+.brand-km .km-title { color: var(--km-gold); font-size: 58px; line-height: 1; font-weight: 700; letter-spacing: -0.042em; text-wrap: balance; margin-bottom: 32px; }
+.brand-km .km-title .km-white { color: #fff; }
+.brand-km .km-title + .km-lede { margin-top: -14px; }
+.brand-km .km-lede { font-weight: 300; font-size: 22px; line-height: 1.4; letter-spacing: -0.015em; max-width: 52ch; }
+.brand-km .km-head { font-weight: 700; font-size: 14px; line-height: 1.15; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km-gold); }
+.brand-km .km-n { font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--km-gold); }
+.brand-km .km-rule { width: 56px; height: 2px; background: var(--km-line); margin: 12px 0 14px; }
+.brand-km .km-fill { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Studio only: an empty image or video spot inside a list row. */
+.brand-km .km-empty { display: grid; place-items: center; width: 100%; height: 100%; min-height: 120px; color: var(--km-muted); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+/* On the mustard ground, gold and white words turn ink. */
+.brand-km .bg-mustard :is(.km-title, .km-title .km-white, .km-head, .km-n) { color: var(--km-ink); }
+.brand-km .bg-mustard .km-rule { background: rgba(28, 32, 38, 0.5); }
+
+/* Buttons: the red pill (ink outline) and the outlined pill */
+.brand-km .km-pill { display: inline-flex; align-items: center; gap: 12px; background: var(--km-red); color: #fff !important; font-weight: 700; font-size: 17px; letter-spacing: 0.12em; text-transform: uppercase; padding: 18px 28px; border-radius: 999px; border: 2px solid var(--km-ink); text-decoration: none; white-space: nowrap; transition: transform 0.15s; }
+.brand-km .km-pill:hover { transform: translateY(-2px); }
+.brand-km .km-pill svg { width: 18px; height: 18px; flex: none; }
+.brand-km .km-pill.sm { font-size: 14px; padding: 13px 20px; letter-spacing: 0.1em; }
+.brand-km .km-pill.outline { background: var(--km-ink); border-color: #fff; }
+.brand-km .km-link { font-weight: 600; font-size: 17px; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; }
+
+/* Cover hero */
+.brand-km .km-cover-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 80px; }
+.brand-km .km-matchbox { display: block; width: 100%; max-width: 500px; height: auto; justify-self: end; }
+.brand-km .km-pitch { display: flex; flex-direction: column; align-items: flex-start; gap: 26px; max-width: 560px; }
+.brand-km .km-pitch h1 { font-size: 46px; line-height: 0.98; font-weight: 700; letter-spacing: -0.03em; text-wrap: balance; }
+.brand-km .km-pitch h1 em { font-style: normal; color: var(--km-red); }
+.brand-km .km-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 28px; list-style: none; padding: 0; align-self: stretch; }
+.brand-km .km-three li { font-weight: 600; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; }
+.brand-km .km-three li span:first-child { display: block; }
+.brand-km .km-contact { display: flex; flex-wrap: wrap; gap: 4px 20px; font-weight: 600; font-size: 14px; line-height: 1.4; }
+
+/* Call bar */
+.brand-km .sec.t-km-cta-bar { padding: 0; background: var(--km-red); }
+.brand-km .km-bar { display: flex; align-items: center; justify-content: center; gap: 12px; height: 72px; color: #fff !important; text-decoration: none; font-weight: 700; font-size: 16px; letter-spacing: 0.12em; text-transform: uppercase; }
+.brand-km .km-bar svg { width: 18px; height: 18px; }
+
+/* Ignite band */
+.brand-km .sec.t-km-ignite { position: relative; overflow: hidden; min-height: 520px; display: grid; place-items: center; padding: 40px var(--km-gutter); background: var(--km-ink); border-top: 6px solid var(--km-mustard); }
+.brand-km .km-ignite-bg { position: absolute; inset: 0; }
+.brand-km .km-ignite-bg > :is(img, video) { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; display: block; }
+.brand-km .sec.t-km-ignite::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28, 32, 38, 0) 35%, rgba(28, 32, 38, 0.55) 100%); pointer-events: none; }
+.brand-km .km-ignite-in { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 28px; text-align: center; }
+.brand-km .km-ignite-in h2 { color: #fff; font-size: 45px; line-height: 1; font-weight: 700; letter-spacing: -0.04em; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55); }
+.brand-km .km-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+/* Case study: one wide (16:9) or two side by side (9:16) */
+.brand-km .km-cases { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 72px 56px; }
+.brand-km .km-cases.one .km-case { grid-column: 1 / -1; }
+.brand-km .km-case { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.brand-km .km-media { border-radius: 8px; overflow: hidden; background: #141513; aspect-ratio: 16 / 9; }
+.brand-km .km-cases.two .km-media { aspect-ratio: 9 / 16; height: 640px; max-width: 100%; }
+.brand-km .km-case h3 { font-size: 30px; line-height: 1.08; font-weight: 700; letter-spacing: -0.03em; }
+.brand-km .km-desc { font-weight: 300; font-size: 17px; line-height: 1.5; max-width: 60ch; }
+.brand-km .km-desc b { color: var(--km-gold); font-weight: 500; }
+.brand-km .km-chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; }
+.brand-km .km-chips li { border: 2px solid currentColor; border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 13px; }
+.brand-km .km-role { font-weight: 300; font-size: 15px; color: var(--km-muted); }
+.brand-km .km-role b { font-weight: 700; color: #fff; letter-spacing: 0.06em; text-transform: uppercase; font-size: 12px; margin-right: 6px; }
+.brand-km .bg-mustard :is(.km-desc b, .km-role, .km-role b) { color: var(--km-ink); }
+
+/* How I made it: four numbered steps */
+.brand-km .km-how { margin-bottom: 28px; }
+.brand-km .km-steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
+.brand-km .km-steps li { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.brand-km .km-shot { aspect-ratio: 4 / 3; overflow: hidden; border-radius: 8px; background: #141513; }
+.brand-km .km-shot img { object-position: top left; }
+.brand-km .km-steps .km-n { margin-top: 6px; }
+.brand-km .km-steps h4 { font-size: 19px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+.brand-km .km-steps p { font-weight: 300; font-size: 15.5px; line-height: 1.45; }
+
+/* Project cards */
+.brand-km .km-projects { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 32px; }
+.brand-km .km-proj { display: flex; flex-direction: column; gap: 14px; text-decoration: none; color: inherit; min-width: 0; }
+.brand-km .km-proj-img { display: block; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; background: #141513; transition: transform 0.2s; }
+.brand-km .km-proj:hover .km-proj-img { transform: translateY(-4px); }
+.brand-km .km-proj-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
+.brand-km .km-proj-name svg { width: 16px; height: 16px; }
+
+/* Big numbers and principle cards: a filled box with thin inset dividers */
+.brand-km .km-box { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); background: var(--km-black); border-radius: 8px; }
+.brand-km .km-box.n1 { --n: 1; } .brand-km .km-box.n2 { --n: 2; } .brand-km .km-box.n3 { --n: 3; } .brand-km .km-box.n4 { --n: 4; }
+.brand-km .bg-black .km-box { background: var(--km-charcoal); }
+.brand-km .bg-mustard .km-box { background: rgba(28, 32, 38, 0.08); }
+.brand-km .km-box > * { position: relative; padding: 28px; min-width: 0; }
+.brand-km .km-box > * + *::before { content: ""; position: absolute; left: 0; top: 28px; bottom: 28px; width: 1px; background: var(--km-line); }
+.brand-km .km-stat b { display: block; color: var(--km-gold); font-size: 58px; line-height: 1; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.brand-km .km-stat span { display: block; margin-top: 8px; font-weight: 300; font-size: 16px; max-width: 24ch; }
+.brand-km .km-card h3 { margin-top: 6px; font-size: 19px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; }
+.brand-km .km-card .km-n + h3 { margin-top: 6px; }
+.brand-km .km-card p { margin-top: 8px; font-weight: 300; font-size: 16px; line-height: 1.45; }
+
+/* Experience columns */
+.brand-km .km-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 40px; }
+.brand-km .km-col { display: flex; flex-direction: column; min-width: 0; }
+.brand-km .km-col .km-head { color: inherit; }
+.brand-km .km-sub { margin-top: 4px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+.brand-km .km-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-weight: 300; font-size: 17px; line-height: 1.3; letter-spacing: -0.02em; }
+
+/* Skills & tools: short items in rows; "Name: description" lines as tool stages (3 across) */
+.brand-km .km-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px 56px; }
+.brand-km .km-group { min-width: 0; }
+.brand-km .km-items { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; font-weight: 300; font-size: 16px; line-height: 1.35; }
+.brand-km .km-groups.rich .km-items { gap: 14px; }
+.brand-km .km-items b { display: block; font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+.brand-km .km-items b + span { display: block; margin-top: 2px; color: #e8e6e0; }
+.brand-km .bg-mustard .km-items b + span { color: var(--km-ink); }
+
+/* Logo strip (one sliding row) and logo wall (grid) */
+.brand-km .sec.t-km-logo-strip { padding: 32px 0; }
+.brand-km .km-strip { overflow: hidden; }
+.brand-km .km-strip-track { display: flex; align-items: center; gap: 72px; width: max-content; animation: km-slide var(--km-time, 40s) linear infinite; }
+.brand-km .km-strip img { height: 40px; width: auto; display: block; }
+@keyframes km-slide { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .brand-km .km-strip-track { animation: none; } }
+.brand-km .km-wall { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 44px 56px; align-items: center; justify-items: center; }
+.brand-km .km-wall img { display: block; width: auto; max-width: 100%; max-height: 70px; height: auto; }
+
+/* Education cards */
+.brand-km .km-edu { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+.brand-km .km-edu-card { display: flex; flex-direction: column; gap: 10px; padding: 28px; border-radius: 16px; background: var(--km-black); min-width: 0; }
+.brand-km .bg-black .km-edu-card { background: var(--km-charcoal); }
+.brand-km .bg-mustard .km-edu-card { background: rgba(28, 32, 38, 0.08); }
+.brand-km .km-edu-card h3 { font-size: 24px; line-height: 1.1; font-weight: 400; letter-spacing: -0.02em; }
+.brand-km .km-edu-sub { font-size: 14px; font-style: italic; color: var(--km-gold); }
+.brand-km .km-edu-dates { font-size: 14px; color: var(--km-muted); }
+.brand-km .km-ticks { list-style: none; padding: 0; margin-top: 8px; display: flex; flex-direction: column; gap: 10px; font-weight: 300; font-size: 15px; line-height: 1.3; }
+.brand-km .km-ticks li { display: flex; gap: 10px; }
+.brand-km .km-ticks li::before { content: "✓"; color: var(--km-gold); font-weight: 700; }
+.brand-km .km-visit { margin-top: auto; padding-top: 12px; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; text-decoration: none; }
+.brand-km .km-visit svg { width: 14px; height: 14px; }
+
+/* Footer */
+.brand-km .sec.t-km-footer { padding: 64px var(--km-gutter) 40px; }
+.brand-km .km-foot { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 32px; align-items: end; }
+.brand-km .km-foot > img { width: 150px; height: auto; display: block; }
+.brand-km .km-foot-line { border-top: 2px solid var(--km-line); padding-top: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 36px; font-weight: 700; font-size: 21px; grid-column: -2; }
+.brand-km .km-foot-line .km-pill { margin-left: auto; }
+.brand-km .km-fine { margin-top: 26px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+
+/* Kreick site nav (site chrome): ink bar, mustard underline, red pill */
+.brand-km .km-nav { display: flex; align-items: center; gap: 36px; padding: 12px var(--km-gutter); background: var(--km-ink); border-bottom: 2px solid var(--km-mustard); color: #fff; font-family: var(--km-font); position: relative; z-index: 2; }
+.brand-km .km-nav-name { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #fff; text-decoration: none; white-space: nowrap; }
+.brand-km .km-nav-name svg { width: 20px; height: 20px; }
+.brand-km .km-nav ul { display: flex; flex-wrap: wrap; gap: 4px 28px; margin: 0 0 0 auto; padding: 0; list-style: none; }
+.brand-km .km-nav li, .brand-km .km-nav li a { font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 0; white-space: nowrap; color: #fff; text-decoration: none; }
+.brand-km .km-nav li a:hover { color: var(--km-mustard); }
+
+/* ── Tablet: 701–1000px (designed at 768) ── */
+@container (max-width: 1000px) {
+  .brand-km :is(.sec, .km-nav) { --km-gutter: 32px; --km-pad: 72px; }
+  .brand-km .km-title { font-size: 44px; margin-bottom: 24px; }
+  .brand-km .km-lede { font-size: 19px; }
+  .brand-km .km-cover-grid { gap: 40px; }
+  .brand-km .km-pitch { gap: 20px; }
+  .brand-km .km-pitch h1 { font-size: 34px; }
+  .brand-km .km-three { gap: 10px 18px; }
+  .brand-km .km-three li { font-size: 16px; }
+  .brand-km .km-pill { font-size: 15px; padding: 15px 22px; }
+  .brand-km .sec.t-km-ignite { min-height: 420px; }
+  .brand-km .km-ignite-in h2 { font-size: 38px; }
+  .brand-km .km-cases { gap: 56px 32px; }
+  .brand-km .km-cases.two .km-media { height: 480px; }
+  .brand-km .km-case h3 { font-size: 26px; }
+  .brand-km .km-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+  .brand-km .km-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
+  .brand-km .km-box.n4 { --n: 2; }
+  .brand-km .km-box.n4 > :nth-child(3)::before { display: none; }
+  .brand-km .km-box.n4 > :nth-child(n + 3)::after { content: ""; position: absolute; top: 0; left: 28px; right: 28px; height: 1px; background: var(--km-line); }
+  .brand-km .km-stat b { font-size: 44px; }
+  .brand-km .km-box > * { padding: 24px; }
+  .brand-km .km-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 32px; }
+  .brand-km .km-wall { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 32px; }
+  .brand-km .km-edu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .brand-km .km-strip img { height: 32px; }
+  .brand-km .km-strip-track { gap: 56px; }
+  .brand-km .km-foot-line { font-size: 18px; gap: 10px 24px; }
+  .brand-km .km-nav { gap: 24px; }
+  .brand-km .km-nav ul { gap: 4px 18px; }
+  .brand-km .km-nav li { font-size: 12.5px; }
+}
+
+/* ── Mobile: up to 700px (designed at 390) ── */
+@container (max-width: 700px) {
+  .brand-km :is(.sec, .km-nav) { --km-gutter: 16px; --km-pad: 56px; }
+  .brand-km .km-title { font-size: 36px; margin-bottom: 20px; }
+  .brand-km .km-title + .km-lede { margin-top: -8px; }
+  .brand-km .km-lede { font-size: 18px; }
+  .brand-km .sec.t-km-cover { padding-top: 0; padding-bottom: 32px; overflow: hidden; }
+  .brand-km .km-cover-grid { grid-template-columns: 1fr; gap: 14px; }
+  .brand-km .km-matchbox { justify-self: center; max-width: 320px; margin-top: -24px; }
+  .brand-km .km-pitch { align-items: center; text-align: center; margin-inline: auto; gap: 16px; }
+  .brand-km .km-pitch h1 { font-size: 28px; }
+  .brand-km .km-three { display: flex; flex-wrap: nowrap; justify-content: center; gap: 0; }
+  .brand-km .km-three li { font-size: 13.5px; line-height: 1.2; padding-inline: 10px; position: relative; }
+  .brand-km .km-three li span:first-child { display: none; }
+  .brand-km .km-three li + li::before { content: ""; position: absolute; left: 0; top: 50%; width: 1px; height: 20px; margin-top: -10px; background: currentColor; }
+  .brand-km .km-contact { justify-content: center; font-size: 13px; gap: 2px 16px; }
+  .brand-km .km-pill { font-size: 15px; padding: 15px 22px; }
+  .brand-km .km-bar { height: 56px; }
+  .brand-km .sec.t-km-ignite { min-height: 560px; }
+  .brand-km .km-ignite-in h2 { font-size: 40px; }
+  .brand-km .km-btns { flex-direction: column; align-items: stretch; width: 100%; max-width: 420px; }
+  .brand-km .km-btns .km-pill { justify-content: center; }
+  .brand-km .km-cases { grid-template-columns: 1fr; gap: 48px; }
+  .brand-km .km-cases.two .km-media { height: auto; width: 100%; max-height: 560px; }
+  .brand-km .km-case h3 { font-size: 24px; }
+  .brand-km .km-desc { font-size: 16px; }
+  .brand-km .km-steps { grid-template-columns: 1fr; }
+  .brand-km .km-projects { grid-template-columns: 1fr; gap: 28px; }
+  .brand-km .km-box.n2, .brand-km .km-box.n3, .brand-km .km-box.n4 { --n: 1; }
+  .brand-km .km-box > * + *::before { display: block !important; top: 0; bottom: auto; left: 24px; right: 24px; width: auto; height: 1px; }
+  .brand-km .km-box > *::after { display: none; }
+  .brand-km .km-stat b { font-size: 40px; }
+  .brand-km .km-groups { grid-template-columns: 1fr; gap: 32px; }
+  .brand-km .km-groups:not(.rich) .km-items { flex-direction: row; flex-wrap: wrap; gap: 8px 18px; }
+  .brand-km .km-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 18px; }
+  .brand-km .km-wall img { max-height: 42px; }
+  .brand-km .km-edu { grid-template-columns: 1fr; }
+  .brand-km .km-strip img { height: 26px; }
+  .brand-km .km-strip-track { gap: 40px; }
+  .brand-km .km-foot { grid-template-columns: 1fr; gap: 18px; }
+  .brand-km .km-foot > img { width: 110px; }
+  .brand-km .km-foot-line { grid-column: auto; font-size: 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .brand-km .km-foot-line .km-pill { margin-left: 0; margin-top: 8px; }
+  .brand-km .km-nav ul { display: none; }
+  .brand-km .km-nav { justify-content: space-between; }
+}
+
+</style>
+<script type="application/json" id="km-data">
+{
+ "templates": [
+  {
+   "id": "km-cover",
+   "name": "Cover hero",
+   "type": "kmcover",
+   "group": "km-bands",
+   "about": "Big picture (the matchbox) beside the pitch: headline with one red word, three short points, the Book a call button and contact line.",
+   "bgChoice": [
+    "mustard",
+    "charcoal",
+    "black"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "image",
+     "label": "Cover image",
+     "kind": "image",
+     "source": "Images · Matchbox"
+    },
+    {
+     "key": "headline",
+     "label": "Headline",
+     "kind": "text",
+     "limit": 140,
+     "long": true,
+     "source": "One sentence"
+    },
+    {
+     "key": "highlight",
+     "label": "Red word",
+     "kind": "text",
+     "limit": 20,
+     "optional": true,
+     "about": "A word from the headline to show in red.",
+     "source": "e.g. “three”"
+    },
+    {
+     "key": "three",
+     "label": "Three points",
+     "kind": "list",
+     "max": 3,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "num",
+       "label": "Number",
+       "limit": 10
+      },
+      {
+       "key": "text",
+       "label": "Point",
+       "limit": 40
+      }
+     ],
+     "source": "e.g. One: / Own the Creative Vision"
+    },
+    {
+     "key": "button",
+     "label": "Button text",
+     "kind": "text",
+     "limit": 22,
+     "source": "Usually “Book a call”"
+    },
+    {
+     "key": "link",
+     "label": "Button link",
+     "kind": "link",
+     "source": "Your Calendly link"
+    },
+    {
+     "key": "resume",
+     "label": "Second link text",
+     "kind": "text",
+     "limit": 30,
+     "optional": true,
+     "source": "e.g. “Download My Résumé”"
+    },
+    {
+     "key": "resumeLink",
+     "label": "Second link",
+     "kind": "link",
+     "optional": true,
+     "source": "Google Drive link"
+    },
+    {
+     "key": "contact",
+     "label": "Contact line",
+     "kind": "list",
+     "max": 3,
+     "axis": "x",
+     "optional": true,
+     "cols": [
+      {
+       "key": "item",
+       "label": "Item",
+       "limit": 40
+      }
+     ],
+     "source": "Email, phone, title"
+    }
+   ]
+  },
+  {
+   "id": "km-cta-bar",
+   "name": "Call bar",
+   "type": "kmbar",
+   "group": "km-bands",
+   "about": "A full-width red bar with one call to action. Use it between sections.",
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "button",
+     "label": "Bar text",
+     "kind": "text",
+     "limit": 30,
+     "source": "Usually “Book a call”"
+    },
+    {
+     "key": "link",
+     "label": "Bar link",
+     "kind": "link",
+     "source": "Your Calendly link"
+    }
+   ]
+  },
+  {
+   "id": "km-ignite",
+   "name": "Ignite band",
+   "type": "kmignite",
+   "group": "km-bands",
+   "about": "A looping video or photo behind a short headline and up to three buttons.",
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "image",
+     "label": "Video or photo",
+     "kind": "image",
+     "about": "A short MP4 loops silently; a photo works too.",
+     "source": "Images & video · Match"
+    },
+    {
+     "key": "headline",
+     "label": "Headline",
+     "kind": "text",
+     "limit": 40,
+     "source": "e.g. “ignite your team”"
+    },
+    {
+     "key": "buttons",
+     "label": "Buttons",
+     "kind": "list",
+     "max": 3,
+     "axis": "x",
+     "optional": true,
+     "cols": [
+      {
+       "key": "label",
+       "label": "Text",
+       "limit": 24
+      },
+      {
+       "key": "link",
+       "label": "Link",
+       "limit": 300
+      }
+     ],
+     "about": "The first is red, the rest are outlined.",
+     "source": "Links to sections or pages"
+    }
+   ]
+  },
+  {
+   "id": "km-case",
+   "name": "Case study",
+   "type": "kmcase",
+   "group": "km-work",
+   "about": "One wide case (16:9 video or image) or two side by side (tall 9:16). Client, title, gold hook, text, tool chips and role.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "cases",
+     "label": "Cases",
+     "kind": "list",
+     "max": 2,
+     "cols": [
+      {
+       "key": "media",
+       "label": "Video or image",
+       "kind": "image"
+      },
+      {
+       "key": "client",
+       "label": "Client",
+       "limit": 40
+      },
+      {
+       "key": "title",
+       "label": "Title",
+       "limit": 60
+      },
+      {
+       "key": "hook",
+       "label": "Hook",
+       "limit": 120,
+       "long": true
+      },
+      {
+       "key": "text",
+       "label": "Text",
+       "limit": 600,
+       "long": true
+      },
+      {
+       "key": "tools",
+       "label": "Tools (commas)",
+       "limit": 120
+      },
+      {
+       "key": "role",
+       "label": "Role",
+       "limit": 90
+      }
+     ],
+     "about": "One case fills the row; two sit side by side (stacked on phones).",
+     "source": "Your case studies"
+    }
+   ]
+  },
+  {
+   "id": "km-steps",
+   "name": "How I made it",
+   "type": "kmsteps",
+   "group": "km-work",
+   "about": "Up to four numbered steps, each with a screenshot, a title and a short text.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "label",
+     "label": "Label",
+     "kind": "text",
+     "limit": 30,
+     "optional": true,
+     "def": "How I made it",
+     "source": "One short line"
+    },
+    {
+     "key": "steps",
+     "label": "Steps",
+     "kind": "list",
+     "max": 4,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "image",
+       "label": "Screenshot",
+       "kind": "image"
+      },
+      {
+       "key": "title",
+       "label": "Title",
+       "limit": 40
+      },
+      {
+       "key": "text",
+       "label": "Text",
+       "limit": 220,
+       "long": true
+      }
+     ],
+     "about": "Numbered One to Four in this order.",
+     "source": "Workflow screenshots"
+    }
+   ]
+  },
+  {
+   "id": "km-projects",
+   "name": "Project cards",
+   "type": "kmprojects",
+   "group": "km-work",
+   "about": "Image cards with a name and an arrow, three across. Each card links to its project.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "title",
+     "label": "Title",
+     "kind": "text",
+     "limit": 60,
+     "optional": true,
+     "source": "Optional"
+    },
+    {
+     "key": "cards",
+     "label": "Cards",
+     "kind": "list",
+     "max": 6,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "image",
+       "label": "Image",
+       "kind": "image"
+      },
+      {
+       "key": "title",
+       "label": "Name",
+       "limit": 30
+      },
+      {
+       "key": "link",
+       "label": "Link",
+       "limit": 300
+      }
+     ],
+     "source": "Your projects"
+    }
+   ]
+  },
+  {
+   "id": "km-title",
+   "name": "Section title",
+   "type": "kmtitle",
+   "group": "km-text",
+   "about": "A big gold title (with an optional white second part) and a short intro.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "title",
+     "label": "Title",
+     "kind": "text",
+     "limit": 80,
+     "source": "e.g. “AI Case Studies”"
+    },
+    {
+     "key": "accent",
+     "label": "White words after the title",
+     "kind": "text",
+     "limit": 40,
+     "optional": true,
+     "source": "e.g. “The suite does.”"
+    },
+    {
+     "key": "lede",
+     "label": "Intro",
+     "kind": "text",
+     "limit": 500,
+     "long": true,
+     "optional": true,
+     "source": "One or two sentences"
+    }
+   ]
+  },
+  {
+   "id": "km-stats",
+   "name": "Big numbers",
+   "type": "kmstats",
+   "group": "km-text",
+   "about": "Up to three big gold numbers with a short line each, in a filled box.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "stats",
+     "label": "Numbers",
+     "kind": "list",
+     "max": 3,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "number",
+       "label": "Number",
+       "limit": 12
+      },
+      {
+       "key": "text",
+       "label": "Line",
+       "limit": 80
+      }
+     ],
+     "source": "Proof points"
+    }
+   ]
+  },
+  {
+   "id": "km-principles",
+   "name": "Principle cards",
+   "type": "kmprinciples",
+   "group": "km-text",
+   "about": "Up to four short cards (optional small label, title, text) in a filled box with thin dividers.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "cards",
+     "label": "Cards",
+     "kind": "list",
+     "max": 4,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "label",
+       "label": "Small label",
+       "limit": 20
+      },
+      {
+       "key": "title",
+       "label": "Title",
+       "limit": 50
+      },
+      {
+       "key": "text",
+       "label": "Text",
+       "limit": 200,
+       "long": true
+      }
+     ],
+     "source": "How you work"
+    }
+   ]
+  },
+  {
+   "id": "km-columns",
+   "name": "Experience columns",
+   "type": "kmcolumns",
+   "group": "km-text",
+   "about": "Up to six columns: a name, a small line, a rule, then a list (one item per line).",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "cols",
+     "label": "Columns",
+     "kind": "list",
+     "max": 6,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "head",
+       "label": "Name",
+       "limit": 30
+      },
+      {
+       "key": "sub",
+       "label": "Small line",
+       "limit": 40
+      },
+      {
+       "key": "lines",
+       "label": "List (one per line)",
+       "limit": 300,
+       "long": true
+      }
+     ],
+     "source": "Roles, years, results"
+    }
+   ]
+  },
+  {
+   "id": "km-groups",
+   "name": "Skills & tools",
+   "type": "kmgroups",
+   "group": "km-text",
+   "about": "Groups of short items (skills, industries, languages). Write “Name: description” on a line to show a tool with its description.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "title",
+     "label": "Title",
+     "kind": "text",
+     "limit": 60,
+     "optional": true,
+     "source": "e.g. “Skills”"
+    },
+    {
+     "key": "groups",
+     "label": "Groups",
+     "kind": "list",
+     "max": 12,
+     "cols": [
+      {
+       "key": "head",
+       "label": "Group",
+       "limit": 30
+      },
+      {
+       "key": "items",
+       "label": "Items (one per line)",
+       "limit": 900,
+       "long": true
+      }
+     ],
+     "source": "Skills, clients by industry, tools"
+    }
+   ]
+  },
+  {
+   "id": "km-logo-strip",
+   "name": "Logo strip",
+   "type": "kmstrip",
+   "group": "km-logos",
+   "about": "One row of white logos sliding sideways on a dark band.",
+   "bgChoice": [
+    "black",
+    "charcoal",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "logos",
+     "label": "Logos",
+     "kind": "logos",
+     "max": 20,
+     "axis": "x",
+     "source": "Images · Client logos (white)"
+    }
+   ]
+  },
+  {
+   "id": "km-logo-wall",
+   "name": "Logo wall",
+   "type": "kmwall",
+   "group": "km-logos",
+   "about": "A title and a grid of logos: five across, three on phones.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "title",
+     "label": "Title",
+     "kind": "text",
+     "limit": 60,
+     "optional": true,
+     "source": "e.g. “More Experience”"
+    },
+    {
+     "key": "logos",
+     "label": "Logos",
+     "kind": "logos",
+     "max": 20,
+     "axis": "x",
+     "source": "Images · Client or tool logos"
+    }
+   ]
+  },
+  {
+   "id": "km-edu",
+   "name": "Education cards",
+   "type": "kmedu",
+   "group": "km-cards",
+   "about": "A title and up to six cards: name, a gold line, dates, ticked points and a link.",
+   "bgChoice": [
+    "charcoal",
+    "black",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "title",
+     "label": "Title",
+     "kind": "text",
+     "limit": 60,
+     "optional": true,
+     "source": "e.g. “Education & Professional Organizations”"
+    },
+    {
+     "key": "cards",
+     "label": "Cards",
+     "kind": "list",
+     "max": 6,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "title",
+       "label": "Name",
+       "limit": 50
+      },
+      {
+       "key": "sub",
+       "label": "Gold line",
+       "limit": 60
+      },
+      {
+       "key": "dates",
+       "label": "Dates",
+       "limit": 20
+      },
+      {
+       "key": "points",
+       "label": "Points (one per line)",
+       "limit": 300,
+       "long": true
+      },
+      {
+       "key": "link",
+       "label": "Link",
+       "limit": 300
+      }
+     ],
+     "source": "Schools and memberships"
+    }
+   ]
+  },
+  {
+   "id": "km-footer",
+   "name": "Footer",
+   "type": "kmfooter",
+   "group": "km-foot",
+   "about": "Logo, a line of contact details with the Book a call button, and a small print line.",
+   "bgChoice": [
+    "black",
+    "charcoal",
+    "mustard"
+   ],
+   "site": "kreick",
+   "slots": [
+    {
+     "key": "logo",
+     "label": "Logo",
+     "kind": "image",
+     "optional": true,
+     "source": "Images · Andrew K logo"
+    },
+    {
+     "key": "items",
+     "label": "Contact line",
+     "kind": "list",
+     "max": 4,
+     "axis": "x",
+     "cols": [
+      {
+       "key": "item",
+       "label": "Item",
+       "limit": 40
+      }
+     ],
+     "source": "Title, phone, email"
+    },
+    {
+     "key": "button",
+     "label": "Button text",
+     "kind": "text",
+     "limit": 22,
+     "optional": true,
+     "source": "Usually “Book a call”"
+    },
+    {
+     "key": "link",
+     "label": "Button link",
+     "kind": "link",
+     "optional": true,
+     "source": "Your Calendly link"
+    },
+    {
+     "key": "fine",
+     "label": "Small print",
+     "kind": "text",
+     "limit": 120,
+     "optional": true,
+     "source": "e.g. Copyright © 2026 Kreickmarketing.com"
+    }
+   ]
+  }
+ ],
+ "groups": [
+  {
+   "id": "km-bands",
+   "name": "Covers & bands",
+   "tpls": [
+    "km-cover",
+    "km-cta-bar",
+    "km-ignite"
+   ]
+  },
+  {
+   "id": "km-work",
+   "name": "Work",
+   "tpls": [
+    "km-case",
+    "km-steps",
+    "km-projects"
+   ]
+  },
+  {
+   "id": "km-text",
+   "name": "Titles & numbers",
+   "tpls": [
+    "km-title",
+    "km-stats",
+    "km-principles",
+    "km-columns",
+    "km-groups"
+   ]
+  },
+  {
+   "id": "km-logos",
+   "name": "Logos",
+   "tpls": [
+    "km-logo-strip",
+    "km-logo-wall"
+   ]
+  },
+  {
+   "id": "km-cards",
+   "name": "Cards",
+   "tpls": [
+    "km-edu"
+   ]
+  },
+  {
+   "id": "km-foot",
+   "name": "Footer",
+   "tpls": [
+    "km-footer"
+   ]
+  }
+ ],
+ "pages": [
+  {
+   "id": "ai-work",
+   "name": "AI Work",
+   "path": "/",
+   "source": "Artifact “Andrew K AI Work”",
+   "about": "The AI Creative Director landing page: mustard cover, ignite band, case studies, leadership, the AI stack, the full-stack workflow, more experience and footer.",
+   "sections": [
+    [
+     "aw-cover",
+     "km-cover",
+     "Cover"
+    ],
+    [
+     "aw-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "aw-ignite",
+     "km-ignite",
+     "Ignite your team"
+    ],
+    [
+     "aw-work",
+     "km-title",
+     "AI Case Studies · title"
+    ],
+    [
+     "aw-nori",
+     "km-case",
+     "Nori Media"
+    ],
+    [
+     "aw-chevy",
+     "km-case",
+     "Silverado"
+    ],
+    [
+     "aw-padis",
+     "km-case",
+     "Padis (two)"
+    ],
+    [
+     "aw-spirit",
+     "km-case",
+     "The Spirit Prompt"
+    ],
+    [
+     "aw-steps",
+     "km-steps",
+     "How I made it"
+    ],
+    [
+     "aw-kinney",
+     "km-case",
+     "Kinney AI"
+    ],
+    [
+     "aw-lead",
+     "km-title",
+     "Leadership · title"
+    ],
+    [
+     "aw-stats",
+     "km-stats",
+     "Leadership numbers"
+    ],
+    [
+     "aw-roles",
+     "km-columns",
+     "Roles"
+    ],
+    [
+     "aw-lead-p",
+     "km-principles",
+     "How I lead"
+    ],
+    [
+     "aw-stack",
+     "km-title",
+     "AI stack · title"
+    ],
+    [
+     "aw-stack-p",
+     "km-principles",
+     "Why the suite"
+    ],
+    [
+     "aw-tools",
+     "km-groups",
+     "The tools"
+    ],
+    [
+     "aw-flow",
+     "km-title",
+     "Workflow · title"
+    ],
+    [
+     "aw-phases",
+     "km-principles",
+     "Workflow phases"
+    ],
+    [
+     "aw-clients",
+     "km-logo-wall",
+     "More Experience"
+    ],
+    [
+     "aw-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "aw-lead": "black",
+    "aw-stats": "black",
+    "aw-roles": "black",
+    "aw-lead-p": "black",
+    "aw-flow": "black",
+    "aw-phases": "black"
+   }
+  },
+  {
+   "id": "gigs",
+   "name": "Gigs",
+   "path": "/gigs",
+   "source": "kreickmarketing.com/gigs",
+   "about": "The freelance page: cover with three workflows, ignite band, client logo strip, project cards, skills, experience by industry, education and footer.",
+   "sections": [
+    [
+     "gg-cover",
+     "km-cover",
+     "Cover"
+    ],
+    [
+     "gg-bar",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-ignite",
+     "km-ignite",
+     "Ignite your team"
+    ],
+    [
+     "gg-strip",
+     "km-logo-strip",
+     "Client logos"
+    ],
+    [
+     "gg-work",
+     "km-projects",
+     "Projects"
+    ],
+    [
+     "gg-bar2",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-skills",
+     "km-groups",
+     "Skills"
+    ],
+    [
+     "gg-bar3",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-exp",
+     "km-groups",
+     "Experience"
+    ],
+    [
+     "gg-bar4",
+     "km-cta-bar",
+     "Book a call bar"
+    ],
+    [
+     "gg-edu",
+     "km-edu",
+     "Education"
+    ],
+    [
+     "gg-foot",
+     "km-footer",
+     "Footer"
+    ]
+   ],
+   "bg": {
+    "gg-exp": "black"
+   }
+  }
+ ],
+ "content": {
+  "aw-cover.headline": "I ignite creative teams in three ways that raise the quality and speed of AI work.",
+  "aw-cover.highlight": "three",
+  "aw-cover.three": [
+   {
+    "num": "One:",
+    "text": "Own the Creative Vision"
+   },
+   {
+    "num": "Two:",
+    "text": "Direct and Grow the Team"
+   },
+   {
+    "num": "Three:",
+    "text": "Build AI Into the Craft"
+   }
+  ],
+  "aw-cover.button": "Book a call",
+  "aw-cover.link": "https://calendly.com/andrew-clearmark/15min",
+  "aw-cover.resume": "Download My Résumé",
+  "aw-cover.resumeLink": "https://drive.google.com/file/d/1psuAI-fFjlhwbq_lX7xMUlvn2soBuCE2/view?usp=sharing",
+  "aw-cover.contact": [
+   {
+    "item": "andrew@kreickmarketing.com"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "AI Creative Director"
+   }
+  ],
+  "aw-bar.button": "Book a call",
+  "aw-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "aw-ignite.headline": "ignite your team",
+  "aw-ignite.buttons": [
+   {
+    "label": "AI Case Studies",
+    "link": "page:ai-work#aw-work"
+   },
+   {
+    "label": "Leadership",
+    "link": "page:ai-work#aw-lead"
+   },
+   {
+    "label": "How I Use AI",
+    "link": "page:ai-work#aw-stack"
+   }
+  ],
+  "aw-work.title": "AI Case Studies",
+  "aw-work.lede": "One AI pipeline that keeps a product, a person and a look consistent from the first frame to the last.",
+  "aw-nori.cases": [
+   {
+    "client": "Nori Media Group",
+    "title": "Take It Further",
+    "hook": "Leave “that's how we've always done it” in the rearview.",
+    "text": "A supercar tears out of the city and into open desert under the stars, leaving the old way of doing things behind. The film lands on the publisher's promise: take it further. I concepted, generated and edited it entirely in an AI pipeline. The vehicle, lighting and camera language hold steady from the first frame to the last.",
+    "tools": "Weavy, Nano Banana, WAN",
+    "role": "AI Creative Director, concept through final edit"
+   }
+  ],
+  "aw-chevy.cases": [
+   {
+    "client": "Chevrolet · Media.Monks",
+    "title": "Silverado 1500 TurboMax: “Dirt n Dust”",
+    "hook": "Every super is a real spec from the brief.",
+    "text": "A 20-second spot for the 2025 Silverado 1500 TurboMax: 430 lb-ft of torque, a 2-inch factory lift, 35-inch tires. The grille, badge and body lines stay accurate through every dune shot, finished with a high-quality AI voiceover and an original score.",
+    "tools": "Midjourney, Runway, ElevenLabs, Udio",
+    "role": "Senior Art Director, Media.Monks"
+   }
+  ],
+  "aw-padis.cases": [
+   {
+    "client": "Padis Jewelry",
+    "title": "Concept Two: Golden Gate",
+    "hook": "Luxury you notice from across the water.",
+    "text": "A couple on a classic wooden boat beneath the Golden Gate leads into a close-up of a lab-grown diamond stud, then the offer: $910 elsewhere, $299 at Padis. The model and the earring stay identical in every shot, and the score is original.",
+    "tools": "Weavy, Nano Banana, WAN, Udio",
+    "role": "AI Creative Director: concept, art direction and production"
+   },
+   {
+    "client": "Padis Jewelry",
+    "title": "Concept Three: Coastal Cliffs",
+    "hook": "A quiet moment that makes the diamond the headline.",
+    "text": "Same brief, a quieter story. A woman stands alone on rugged coastal cliffs until the camera finds the stud, then the same $910 versus $299 reveal. Three concepts from one brief let Padis test which story converts. Model and product stay accurate from wide shot to macro close-up.",
+    "tools": "Weavy, Nano Banana, WAN, Udio",
+    "role": "AI Creative Director: concept, art direction and production"
+   }
+  ],
+  "aw-spirit.cases": [
+   {
+    "client": "The Spirit Prompt",
+    "title": "“Lay It Down”",
+    "hook": "Three voices, one moment. Four steps from a mood to a performance.",
+    "text": "Three singers in warm studio light, layered as stacking photo cards under kinetic lyric type. The performers and the music are AI-generated and original. Every step ran as a node workflow in Weavy, so the look, the faces and the frames stay locked from shot to shot.",
+    "tools": "Midjourney, Weavy, WAN 2.7, Nano Banana, Udio, Adobe CC",
+    "role": "AI Creative Director: art direction, workflow and final edit"
+   }
+  ],
+  "aw-steps.steps": [
+   {
+    "title": "Set the style",
+    "text": "I chose the look in Midjourney, then had an LLM break my references into a reusable style prompt: warm stage light, red-orange palette, 85mm lens at f/1.8, Kodak Portra 400 grain."
+   },
+   {
+    "title": "Cast the singers",
+    "text": "I swapped in the faces I wanted, keeping each shot's composition, microphone and pose, then directed new angles and emotion from the same performer."
+   },
+   {
+    "title": "Build the first and last frames",
+    "text": "I applied the saved style to every shot with faces and wardrobe locked, then made a wide first frame and a close last frame for the video to travel between."
+   },
+   {
+    "title": "Sync the performance",
+    "text": "I fed my vocal track into WAN 2.7 Video to lip-sync each singer to the lyrics, then cut the edit and the kinetic type in Adobe CC."
+   }
+  ],
+  "aw-kinney.cases": [
+   {
+    "client": "Kinney AI · now Clearmark Training",
+    "title": "Sustaining Leadership",
+    "hook": "A launch system for a book on leadership, emotional intelligence and AI.",
+    "text": "The brand, launch site, imagery and video for James Nicholas Kinney's Sustaining Leadership: Rewriting the Language Model for Leadership, built to drive pre-release waitlist signups. One visual identity runs from the cover to the site to the ads. The AI imagery was refined to hold up in print and on screen.",
+    "tools": "Midjourney, Nano Banana, Runway",
+    "role": "AI Creative Director: branding, book cover, launch site, video and ads"
+   }
+  ],
+  "aw-lead.title": "I lead from inside the tools.",
+  "aw-lead.lede": "At Nori Media I lead 20+ people through an AI and monday.com rollout, with creative direction and mentoring running alongside it. I built automation and AI into the whole creative process, from ideation to final export to press. Generic AI output went down and the quality of the final creative went up.",
+  "aw-stats.stats": [
+   {
+    "number": "20+",
+    "text": "people led through an AI and monday.com rollout"
+   },
+   {
+    "number": "16 weeks",
+    "text": "publisher's launch cycle, down from 360 days"
+   },
+   {
+    "number": "4",
+    "text": "books shipped on time, with zero delays"
+   }
+  ],
+  "aw-roles.cols": [
+   {
+    "head": "Nori Media",
+    "sub": "",
+    "lines": "AI Strategic Creative Dir.\n(2026 - Present)\n20+ people\nLaunch cycle from 360 days to 16 weeks; four books on time"
+   },
+   {
+    "head": "Kinney AI",
+    "sub": "now Clearmark Training",
+    "lines": "AI Creative Dir.\n(2025 - 2026)\nBranding, startup launch, AI workflows\nSustaining Leadership book launch system"
+   },
+   {
+    "head": "Media.Monks",
+    "sub": "",
+    "lines": "Sr. Art Dir., PayPal + Chevrolet\n(2021 - 2025)\nTrained account leads and creatives on AI fundamentals\nPayPal email CTR from 17% to 54%"
+   },
+   {
+    "head": "ClearMark",
+    "sub": "",
+    "lines": "Creative Dir.\n(2019 - 2021)\nFour graphic designers\nBrand and comms for Brenning and the Information Commissioner of Canada"
+   },
+   {
+    "head": "Invest in Canada",
+    "sub": "",
+    "lines": "Creative Dir., Government of Canada\n(2017 - 2019)\nTeam of four across social, design, video and web, plus tradeshow suppliers\nNational brand built in-house, saving a large external agency budget"
+   }
+  ],
+  "aw-lead-p.cards": [
+   {
+    "title": "Direction with the reasoning.",
+    "text": "The team knows what to make and why, so they can make the next call without me."
+   },
+   {
+    "title": "Feedback that is direct and kind.",
+    "text": "Clear about what isn't working, respectful of the person who made it."
+   },
+   {
+    "title": "Room to test and learn.",
+    "text": "Small experiments beat long debates."
+   },
+   {
+    "title": "I make the work alongside the team.",
+    "text": "My feedback comes from inside the tools, not from a slide."
+   }
+  ],
+  "aw-stack.title": "No single A.I. tool makes the work.",
+  "aw-stack.accent": "The suite does.",
+  "aw-stack.lede": "You need an AI suite, not a favourite app. I pick each tool for control, not novelty. Claude sets the direction, node pipelines produce at volume, and Adobe finishes the work to print-ready. On one campaign, that chain turned a single template into 217 unique images.",
+  "aw-stack-p.cards": [
+   {
+    "title": "Control over surprise.",
+    "text": "Output has to be precise and repeatable, not lucky."
+   },
+   {
+    "title": "Consistency.",
+    "text": "The same product, face and light from the wide shot to the macro close-up."
+   },
+   {
+    "title": "Commercial safety.",
+    "text": "Work a client can put their name on."
+   },
+   {
+    "title": "It fits the team.",
+    "text": "One visible path from brief to delivery, in tools people already use."
+   }
+  ],
+  "aw-tools.groups": [
+   {
+    "head": "Direct",
+    "items": "Claude: My built-in art director. It builds brand design systems and reusable production templates for every downstream asset.\nGemini: Multimodal review, research and a second read on copy.\nNotebookLM: Turning briefs, transcripts and research into usable insight.\nChatGPT: Quick variations, prompt refinement and copy drafts."
+   },
+   {
+    "head": "Build the pipeline",
+    "items": "Weavy: Repeatable image pipelines at volume: 217 unique images for one campaign from a single template.\nComfyUI: Custom, controllable workflows when output has to be precise and repeatable.\nMake.com: Automating production handoffs between tools, from ideation to final export."
+   },
+   {
+    "head": "Image",
+    "items": "Midjourney: High-craft concept and hero imagery, and fast art-direction exploration.\nNano Banana: Precise, consistent edits and variations without losing the original.\nAdobe Firefly + Creative Cloud AI: Commercially safe generation and production edits inside the tools teams already use."
+   },
+   {
+    "head": "Video",
+    "items": "Higgsfield: Cinematic AI video with directed camera motion.\nWAN: Image-to-video from a start frame to an end frame, with audio mixing built in. The most versatile model in my video stack.\nRunway: AI video generation and editing for motion concepts.\nHeyGen: Avatar-led and localized spokesperson video."
+   },
+   {
+    "head": "Sound",
+    "items": "ElevenLabs: Voiceover and voice design for video and animatics.\nUdio: Original music beds and scores for video."
+   },
+   {
+    "head": "Plan and finish",
+    "items": "Relume: AI sitemaps and wireframes for landing pages.\nmonday.com: One visible workflow for the whole team, from brief to delivery.\nAdobe Creative Cloud: Finishing, layout and print-ready export for everything the AI tools produce."
+   }
+  ],
+  "aw-flow.title": "Full-Stack A.I. Workflow",
+  "aw-flow.lede": "One prompt chain takes a company from research to channel-ready content. Each step feeds the next, so strategy, pitch and production share one line of reasoning instead of starting over at every handoff.",
+  "aw-phases.cards": [
+   {
+    "label": "Research",
+    "title": "Know the company",
+    "text": "A company info prompt feeds three in parallel: industry fit, target company fit and target personas."
+   },
+   {
+    "label": "Strategy",
+    "title": "Build the plan",
+    "text": "Content strategy development workflow prompts combine all four research outputs, including the company info directly, into one strategy."
+   },
+   {
+    "label": "Pitch",
+    "title": "Show the idea",
+    "text": "Sample pitch content, then user journey prompts that map the full funnel, with the strategy feeding both."
+   },
+   {
+    "label": "Create",
+    "title": "Make it for every channel",
+    "text": "Ten channels, from traditional media and events to social, PR, partnerships, direct sales and customer advocacy, feed the content creation prompts."
+   }
+  ],
+  "aw-clients.title": "More Experience",
+  "aw-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "aw-foot.button": "Book a call",
+  "aw-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "aw-foot.fine": "",
+  "gg-cover.headline": "I specialize in three simple creative direction workflows to ignite your team.",
+  "gg-cover.highlight": "three",
+  "gg-cover.three": [
+   {
+    "num": "One:",
+    "text": "Short Term Creative Help"
+   },
+   {
+    "num": "Two:",
+    "text": "Pitch Winning Support"
+   },
+   {
+    "num": "Three:",
+    "text": "Activate New Clients Projects"
+   }
+  ],
+  "gg-cover.button": "Book a call",
+  "gg-cover.link": "https://calendly.com/andrew-clearmark/15min",
+  "gg-cover.resume": "Download My Résumé",
+  "gg-cover.resumeLink": "https://drive.google.com/file/d/1psuAI-fFjlhwbq_lX7xMUlvn2soBuCE2/view?usp=sharing",
+  "gg-bar.button": "Book a call",
+  "gg-bar.link": "https://calendly.com/andrew-clearmark/15min",
+  "gg-bar2.button": "Book a call",
+  "gg-bar2.link": "https://calendly.com/andrew-clearmark/15min",
+  "gg-bar3.button": "Book a call",
+  "gg-bar3.link": "https://calendly.com/andrew-clearmark/15min",
+  "gg-bar4.button": "Book a call",
+  "gg-bar4.link": "https://calendly.com/andrew-clearmark/15min",
+  "gg-ignite.headline": "ignite your team",
+  "gg-work.cards": [
+   {
+    "title": "INV Canada",
+    "link": "https://kreickmarketing.com/work/invcanada"
+   },
+   {
+    "title": "PayPal",
+    "link": "https://kreickmarketing.com/work/pp"
+   },
+   {
+    "title": "Zavida",
+    "link": "https://kreickmarketing.com/work/zavida"
+   },
+   {
+    "title": "Expo Dubai 2020",
+    "link": "https://kreickmarketing.com/work/expo-dubai"
+   }
+  ],
+  "gg-skills.title": "Skills",
+  "gg-skills.groups": [
+   {
+    "head": "Brand / Creative Dir.",
+    "items": "Packaging Design\nIdeation & Strategy\nAdvertising & Comms.\nBrand Dev.\nDigital Design"
+   },
+   {
+    "head": "A.I. Workflows",
+    "items": "A.I. Workflow Design\nA.I. Prompt Design\nStatic A.I. Creative\nVideo A.I. Creative\nAudio A.I. Creative"
+   },
+   {
+    "head": "UX UI Design",
+    "items": "User Flow Strategy\nUser Experience\nInformation Architecture\nAI Design & Content\nCMS Design\nResponsive Design"
+   },
+   {
+    "head": "Agile Workflow",
+    "items": "New Business\nElevated Client Projects\nProject Mgmt.\nTime & Budget\nProduction Mgmt."
+   },
+   {
+    "head": "Team Leadership",
+    "items": "Copy Dir.\nArt Dir.\nPhoto Dir.\nIllustration Dir.\nAnimation Dir.\nVideo Dir.\nDeveloper Dir."
+   },
+   {
+    "head": "Languages",
+    "items": "English 100%\nSpanish 30%\nFrench 20%"
+   }
+  ],
+  "gg-exp.title": "Experience",
+  "gg-exp.groups": [
+   {
+    "head": "Food Service",
+    "items": "Coca Cola\nPepsi\nDare\nKinder Bueno\nKRAFT\nMars\nMcCain\nNabob"
+   },
+   {
+    "head": "Finance",
+    "items": "PayPal\nADP\nMoneris\nAllstate\nCIBC\nScotia"
+   },
+   {
+    "head": "Infrastructure",
+    "items": "Brenning Ltd.\nBlack & Decker\nCircle R"
+   },
+   {
+    "head": "Public Sector",
+    "items": "Expo 2020 Dubai\nLibrary of Parliament\nInvest in Canada\nInformation Commissioner of Canada"
+   },
+   {
+    "head": "Telecomm.",
+    "items": "CMAP\nRogers\nTelus\nVerizon"
+   },
+   {
+    "head": "Retail",
+    "items": "McDonald's\nZavida\nCircle R"
+   },
+   {
+    "head": "Automotive",
+    "items": "General Motors\nChevrolet"
+   },
+   {
+    "head": "Electronics",
+    "items": "Sharp\nSony"
+   },
+   {
+    "head": "Health Beauty",
+    "items": "Ivory\nRight Guard\nOil of Olay"
+   },
+   {
+    "head": "Home Care",
+    "items": "Purex\nTide\nP&G"
+   },
+   {
+    "head": "Pet Care",
+    "items": "FirstMate\nKasiks"
+   },
+   {
+    "head": "Pharma",
+    "items": "Bell Lifestyle"
+   },
+   {
+    "head": "Real Estate",
+    "items": "RE/MAX"
+   }
+  ],
+  "gg-edu.title": "Education & Professional Organizations",
+  "gg-edu.cards": [
+   {
+    "title": "George Brown University",
+    "sub": "Advertising & Design · Honours Degree",
+    "dates": "1999 - 2001",
+    "points": "Advertising Fundamentals\nGraphic Design\nProject Mgmt.\nDigital & Traditional",
+    "link": "https://www.georgebrown.ca/"
+   },
+   {
+    "title": "Ambrose University",
+    "sub": "Masters in Intercultural Studies · in progress",
+    "dates": "2009 - 2010",
+    "points": "Research Strategy & Analysis\nProgram Design & Dev.\nLeadership & Coaching\nAdvanced Presentation",
+    "link": "https://ambrose.edu/"
+   },
+   {
+    "title": "Rideau Club Canada",
+    "sub": "Member",
+    "dates": "2018 - 2020",
+    "points": "Professional Growth\nHigh End Networking\nMaster Class Seminars",
+    "link": ""
+   },
+   {
+    "title": "Art Director Club of Canada",
+    "sub": "Member",
+    "dates": "2000 - 2004",
+    "points": "Industry Dev.\nAdvertising Best Practices\nChampioning Creative Excellence\nInternationally Recognized Awards",
+    "link": ""
+   }
+  ],
+  "gg-foot.items": [
+   {
+    "item": "AI Creative Director"
+   },
+   {
+    "item": "613.328.2881"
+   },
+   {
+    "item": "andrew@kreickmarketing.com"
+   }
+  ],
+  "gg-foot.button": "Book a call",
+  "gg-foot.link": "https://calendly.com/andrew-clearmark/15min",
+  "gg-foot.fine": "Copyright 2025 © Kreickmarketing.com"
+ },
+ "nav": {
+  "links": [
+   {
+    "label": "AI Case Studies",
+    "link": "page:ai-work#aw-work"
+   },
+   {
+    "label": "Leadership",
+    "link": "page:ai-work#aw-lead"
+   },
+   {
+    "label": "How I Use AI",
+    "link": "page:ai-work#aw-stack"
+   },
+   {
+    "label": "Gigs",
+    "link": "page:gigs"
+   }
+  ],
+  "cta": {
+   "label": "Book a call",
+   "link": "https://calendly.com/andrew-clearmark/15min"
+  }
+ }
+}
+</script>
 <!-- STYLE-CSS: a copy of styles/colors.css, typography.css and radius.css for the Claude prototype.
      Refresh with `node scripts/sync-style.mjs`; the real Studio reads the files themselves. -->
 <script type="text/plain" id="style-css">
@@ -1799,7 +3512,7 @@ h6 {
 
 <header class="top" id="top">
   <div class="brand">
-    <p>ClearMark · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span> <button type="button" class="btn btn-small" id="page-edit" data-setnav="page:home">Edit address</button></p>
+    <p><span id="site-name">ClearMark</span> · <span id="page-name">Home</span> · <a id="page-url" class="page-url" target="_blank" rel="noopener noreferrer"></a> <span id="page-live" class="live-chip" hidden></span> <button type="button" class="btn btn-small" id="page-edit" data-setnav="page:home">Edit address</button></p>
   </div>
   <div class="top-actions">
     <span class="save-state mono" id="save-state" hidden></span>
@@ -2005,6 +3718,18 @@ const TEMPLATES = [
   { id: "spacer-64", name: "Spacer 64px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 64px tall at every screen size.", slots: [] },
   { id: "spacer-96", name: "Spacer 96px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 96px tall at every screen size.", slots: [] },
 ];
+// Which site Studio is editing (Oct 21): ClearMark, or Kreick Marketing with /apps/studio/builder?site=kreick
+// (live Studio hands it over as __STUDIO_SITE__). Each site sees only its own templates.
+// Kreick templates (km-*) come from lib/km-sections.ts through the km-data block above.
+const KM = (() => { try { return JSON.parse(document.getElementById("km-data").textContent); } catch { return null; } })() || {};
+for (const k of ["templates", "groups", "pages"]) if (!Array.isArray(KM[k])) KM[k] = [];
+KM.content ||= {};
+const SITE = window.__STUDIO_SITE__ || (new URLSearchParams(location.search).get("site") === "kreick" ? "kreick" : "clearmark");
+const IS_KM = SITE === "kreick";
+TEMPLATES.push(...KM.templates);
+const siteOf = (t) => t.site || "clearmark";
+const SITE_NAME = IS_KM ? "Kreick Marketing" : "ClearMark";
+if (IS_KM) { document.getElementById("site-name").textContent = SITE_NAME; document.getElementById("site").classList.add("brand-km"); document.getElementById("rail-logo").textContent = "KM"; document.title = "Kreick Marketing · Studio Builder"; }
 // How templates look is decided in code (and in Claude Design), not here.
 const TPL = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
 
@@ -2024,6 +3749,12 @@ const START_SECTIONS = {
   pricing: [["pr-head", "heading", "Pricing · heading"], ["pr-cards", "offer-three", "Offers"]],
   book: [["bk-head", "heading", "Book a call · heading"], ["bk-cal", "calendly", "Calendly"]],
 };
+// Kreick: its pages start from the page templates (AI Work, Gigs).
+if (IS_KM) {
+  START_PAGES.splice(0, START_PAGES.length, ...KM.pages.map((p) => ({ id: p.id, name: p.name, path: p.path })));
+  for (const k of Object.keys(START_SECTIONS)) delete START_SECTIONS[k];
+  for (const p of KM.pages) START_SECTIONS[p.id] = p.sections;
+}
 
 // SLOTS: every spot on every page, keyed "sectionId.key". Rebuilt whenever sections change.
 let SLOTS = {};
@@ -2046,9 +3777,18 @@ function rebuildSlots() {
 }
 
 // ── State: each spot holds what's typed (value) and what's on the page (placed) ──
-const KEY = "clearmark-studio-builder-v4";
+const KEY = IS_KM ? "kreick-studio-builder-v1" : "clearmark-studio-builder-v4";
 const blank = (sl) => (sl.kind === "list" || sl.kind === "logos" || sl.kind === "offers") ? [] : "";
+// Kreick: both page templates with their starting words and grounds.
+function kmSeed() {
+  const pages = Object.fromEntries(KM.pages.map((p) => [p.id, p.sections.map(([uid, t, name]) => ({ uid, t, name }))]));
+  const slots = {};
+  for (const [id, v] of Object.entries(KM.content)) slots[id] = { value: structuredClone(v), placed: structuredClone(v) };
+  const bg = Object.assign({}, ...KM.pages.map((p) => p.bg || {}));
+  return { pages, pageList: structuredClone(START_PAGES), protoLive: {}, slots, page: START_PAGES[0]?.id, flip: {}, noIcons: {}, noTabs: {}, noNums: {}, bg, device: "desktop", guides: true };
+}
 function seed() {
+  if (IS_KM) return kmSeed();
   const pages = Object.fromEntries(Object.entries(START_SECTIONS).map(([pid, list]) => [pid, list.map(([uid, t, name]) => ({ uid, t, name }))]));
   const v = {};
   const set = (id, value, placed = true) => { v[id] = { value, placed: placed ? structuredClone(value) : (Array.isArray(value) ? [] : "") }; };
@@ -2075,10 +3815,12 @@ function seed() {
 // saves back to it; the prototype on its own keeps everything in this browser.
 const LIVE = window.__STUDIO_LIVE__ === true;
 const API = "/apps/studio/builder/api";
+// The API address for this site: apiUrl("/cms") or apiUrl("", "action=publish"); Kreick adds site=kreick.
+const apiUrl = (path = "", q = "") => { q = [String(q).replace(/^\?/, ""), IS_KM ? "site=kreick" : ""].filter(Boolean).join("&"); return API + path + (q ? "?" + q : ""); };
 // Where each page lives on the site. Live Studio uses its own address; the prototype shows the Vercel one.
 // The live site's own address (Oct 14: clearmark.bz moved to Vercel). Page links always use it,
 // whichever address Studio was opened from.
-const SITE_URL = "https://www.clearmark.bz";
+const SITE_URL = IS_KM ? "https://www.kreickmarketing.com" : "https://www.clearmark.bz";
 let LIVE_PAGES = LIVE && Array.isArray(window.__STUDIO_LIVE_PAGES__) ? window.__STUDIO_LIVE_PAGES__ : null;
 const pageUrl = (p) => SITE_URL + p.path;
 // Live = visitors see it (green). Work in progress = not published, or unpublished (yellow).
@@ -2114,6 +3856,7 @@ const CHROME_DEFAULT = {
 // S.chrome.nav / S.chrome.footer = the site's default. S.chromePage[pageId].nav | .footer = a
 // page's own version ("Only this page"). Links use the button format ("page:<id>#<ref>",
 // a web address, or a site path like /privacy).
+if (IS_KM && KM.nav) CHROME_DEFAULT.nav = structuredClone(KM.nav);
 S.chrome ||= {}; S.chrome.nav ||= structuredClone(CHROME_DEFAULT.nav); S.chrome.footer ||= structuredClone(CHROME_DEFAULT.footer);
 // Phone tab bar (Oct 15): up to 4 icon links at the bottom of the hero, on phones only. Part of the
 // Global nav: S.chrome.nav.tabs = [{ label, link, icon }]; icon = a built-in name or an image from Sources.
@@ -2131,6 +3874,7 @@ const TAB_ICONS = {
 const TAB_ICON_NAME = { solutions: "Solutions", platforms: "Platforms", engine: "Engine", pricing: "Pricing", about: "Person", calendar: "Calendar", mail: "Mail", home: "Home" };
 const TAB_MAX = 4, TAB_LABEL = 16;
 const tabIcon = (v) => TAB_ICONS[v] ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TAB_ICONS[v]}</svg>` : v ? `<img src="${esc(v)}" alt="">` : "";
+if (IS_KM && !Array.isArray(S.chrome.nav.tabs)) S.chrome.nav.tabs = [];
 if (!Array.isArray(S.chrome.nav.tabs)) {
   const eng = (S.pages.home || []).find((x) => TPL[x.t]?.type === "engine");
   S.chrome.nav.tabs = [{ label: "Solutions", link: "page:home#solutions", icon: "solutions" }, { label: "Platforms", link: "page:home#platforms", icon: "platforms" },
@@ -2150,7 +3894,7 @@ async function syncNow() {
   const body = JSON.stringify(S);
   if (body === lastSent) { setSaveState("Saved"); return true; }
   try {
-    const res = await fetch(API, { method: "PUT", headers: { "content-type": "application/json" }, body });
+    const res = await fetch(apiUrl(), { method: "PUT", headers: { "content-type": "application/json" }, body });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j.error || "Couldn't save");
     lastSent = body; setSaveState("Saved"); return true;
@@ -2158,7 +3902,7 @@ async function syncNow() {
     setSaveState("Not saved"); toast(`${e.message}. Trying again…`); syncT = setTimeout(syncNow, 5000); return false;
   }
 }
-if (LIVE) addEventListener("beforeunload", (e) => { if (JSON.stringify(S) !== lastSent) { fetch(API, { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(S), keepalive: true }); e.preventDefault(); } });
+if (LIVE) addEventListener("beforeunload", (e) => { if (JSON.stringify(S) !== lastSent) { fetch(apiUrl(), { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(S), keepalive: true }); e.preventDefault(); } });
 
 let selected = null, openCard = null, filter = "all", srcTab = "images", picked = null, curSec = null;
 
@@ -2357,6 +4101,103 @@ function mqRows(list, first, copy) {
     return `<div class="mq-row ${n ? "mq-right" : "mq-left"}"><div class="mq-track" style="--mq-time:${r.length * reps * 9}s">${set}<span style="display:contents" aria-hidden="true">${setCopy}</span></div></div>`;
   }).join("");
 }
+// ── Kreick Marketing sections (km-*). Same drawing as drawKm() in lib/km-sections.ts, plus the editing marks.
+const KM_ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const KM_NUMS = ["One", "Two", "Three", "Four"];
+const kmLines = (v) => String(v || "").split("\n").map((l) => l.trim()).filter(Boolean);
+const kmItem = (l) => { const i = l.indexOf(": "); return i > 0 && i < 40 ? [l.slice(0, i), l.slice(i + 2)] : [l, ""]; };
+const kmHighlight = (h, w) => { const i = w ? h.indexOf(w) : -1; return i < 0 ? h : `${h.slice(0, i)}<em>${w}</em>${h.slice(i + w.length)}`; };
+const kmAttr = (id, cls) => filledAttr(id).replace('class="', `class="${cls} `);
+const kmMedia = (src, label) => src ? media('class="km-fill"', src) : `<span class="km-empty">${label}</span>`;
+const kmItems = (id, fn) => P(id).map((r, i) => fn(r, `data-item="${id}:${i}"`, i)).join("");
+const kmTitle = (k) => P(k("title")) ? `<h2 ${kmAttr(k("title"), "km-title")}>${esc(P(k("title")))}</h2>` : `<div style="margin-bottom:24px">${slotBox(k("title"), "on-dark slot-optional")}</div>`;
+const KM_HTML = {
+  kmcover: (sec, k) => {
+    const img = P(k("image")), h = P(k("headline")), btn = P(k("button")), res = P(k("resume"));
+    return `<div class="km-in km-cover-grid">${img ? media(`${kmAttr(k("image"), "km-matchbox")}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "", "min-height:420px")}
+      <div class="km-pitch">${h ? `<h1 ${filledAttr(k("headline"))}>${kmHighlight(esc(h), esc(P(k("highlight")) || ""))}</h1>` : slotBox(k("headline"), "", "width:100%;min-height:120px")}
+        ${P(k("highlight")) ? "" : slotBox(k("highlight"), "slot-optional")}
+        ${P(k("three")) ? `<ul ${kmAttr(k("three"), "km-three")}>${kmItems(k("three"), (r, a) => `<li ${a}><span>${esc(r.num)}</span> <span>${esc(r.text)}</span></li>`)}</ul>` : slotBox(k("three"), "", "width:100%")}
+        ${btn ? `<span ${kmAttr(k("button"), "km-pill")}>${esc(btn)} ${KM_ARROW}</span>` : slotBox(k("button"), "", "min-width:220px")}
+        ${P(k("link")) ? "" : slotBox(k("link"))}
+        ${res ? `<span ${kmAttr(k("resume"), "km-link")}>${esc(res)}</span>${P(k("resumeLink")) ? "" : slotBox(k("resumeLink"), "slot-optional")}` : slotBox(k("resume"), "slot-optional")}
+        ${P(k("contact")) ? `<p ${kmAttr(k("contact"), "km-contact")}>${kmItems(k("contact"), (r, a) => `<span ${a}>${esc(r.item)}</span>`)}</p>` : slotBox(k("contact"), "slot-optional")}</div></div>`;
+  },
+  kmbar: (sec, k) => `${P(k("button")) ? `<span ${kmAttr(k("button"), "km-bar")}>${esc(P(k("button")))} ${KM_ARROW}</span>` : `<div style="padding:12px">${slotBox(k("button"), "on-dark")}</div>`}${P(k("link")) ? "" : `<div style="padding:0 12px 12px">${slotBox(k("link"), "on-dark")}</div>`}`,
+  kmignite: (sec, k) => {
+    const img = P(k("image"));
+    return `<div class="km-ignite-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark", "position:absolute;inset:24px;place-items:start end")}</div>
+      <div class="km-in km-ignite-in">${text(k("headline"), "h2", "", "on-dark")}
+        ${P(k("buttons")) ? `<div ${kmAttr(k("buttons"), "km-btns")}>${kmItems(k("buttons"), (r, a, i) => `<span class="km-pill sm${i ? " outline" : ""}" ${a}>${esc(r.label)} ${KM_ARROW}</span>`)}</div>` : slotBox(k("buttons"), "on-dark slot-optional")}</div>`;
+  },
+  kmcase: (sec, k) => {
+    const v = P(k("cases"));
+    if (!v) return `<div class="km-in">${slotBox(k("cases"), "on-dark", "min-height:240px")}</div>`;
+    return `<div ${kmAttr(k("cases"), `km-in km-cases ${v.length > 1 ? "two" : "one"}`)}>${kmItems(k("cases"), (r, a) => {
+      const tools = String(r.tools || "").split(",").map((x) => x.trim()).filter(Boolean);
+      return `<article class="km-case" ${a}><div class="km-media">${kmMedia(r.media, "Video or image")}</div>${r.client ? `<p class="km-head">${esc(r.client)}</p>` : ""}${r.title ? `<h3>${esc(r.title)}</h3>` : ""}
+        ${r.hook || r.text ? `<p class="km-desc">${r.hook ? `<b>${esc(r.hook)}</b> ` : ""}${esc(r.text)}</p>` : ""}
+        ${tools.length ? `<ul class="km-chips">${tools.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${r.role ? `<p class="km-role"><b>Role</b>${esc(r.role)}</p>` : ""}</article>`;
+    })}</div>`;
+  },
+  kmsteps: (sec, k) => `<div class="km-in"><p ${kmAttr(k("label"), "km-head km-how")}>${esc(P(k("label")) || SLOTS[k("label")].def)}</p>
+    ${P(k("steps")) ? `<ol ${kmAttr(k("steps"), "km-steps")}>${kmItems(k("steps"), (r, a, i) => `<li ${a}><div class="km-shot">${kmMedia(r.image, "Screenshot")}</div><span class="km-n">${KM_NUMS[i]}</span><h4>${esc(r.title)}</h4><p>${esc(r.text)}</p></li>`)}</ol>` : slotBox(k("steps"), "on-dark", "min-height:200px")}</div>`,
+  kmprojects: (sec, k) => `<div class="km-in">${kmTitle(k)}${P(k("cards")) ? `<div ${kmAttr(k("cards"), "km-projects")}>${kmItems(k("cards"), (r, a) => `<span class="km-proj" ${a}><span class="km-proj-img">${kmMedia(r.image, "Image")}</span><span class="km-proj-name">${esc(r.title)} ${KM_ARROW}</span></span>`)}</div>` : slotBox(k("cards"), "on-dark", "min-height:200px")}</div>`,
+  kmtitle: (sec, k) => {
+    const t = P(k("title")), acc = P(k("accent"));
+    return `<div class="km-in">${t ? `<h2 ${kmAttr(k("title"), "km-title")}>${esc(t)}${acc ? ` <span ${kmAttr(k("accent"), "km-white")}>${esc(acc)}</span>` : ""}</h2>` : slotBox(k("title"), "on-dark", "min-height:80px;margin-bottom:24px")}
+      ${acc ? "" : `<div style="margin-bottom:16px">${slotBox(k("accent"), "on-dark slot-optional")}</div>`}${text(k("lede"), "p", "km-lede", "on-dark slot-optional")}</div>`;
+  },
+  kmstats: (sec, k) => `<div class="km-in">${P(k("stats")) ? `<div ${kmAttr(k("stats"), `km-box n${P(k("stats")).length}`)}>${kmItems(k("stats"), (r, a) => `<div class="km-stat" ${a}><b>${esc(r.number)}</b><span>${esc(r.text)}</span></div>`)}</div>` : slotBox(k("stats"), "on-dark", "min-height:140px")}</div>`,
+  kmprinciples: (sec, k) => `<div class="km-in">${P(k("cards")) ? `<div ${kmAttr(k("cards"), `km-box n${P(k("cards")).length}`)}>${kmItems(k("cards"), (r, a) => `<div class="km-card" ${a}>${r.label ? `<span class="km-n">${esc(r.label)}</span>` : ""}<h3>${esc(r.title)}</h3><p>${esc(r.text)}</p></div>`)}</div>` : slotBox(k("cards"), "on-dark", "min-height:140px")}</div>`,
+  kmcolumns: (sec, k) => P(k("cols")) ? `<div ${kmAttr(k("cols"), "km-in km-cols")}>${kmItems(k("cols"), (r, a) => `<div class="km-col" ${a}><p class="km-head">${esc(r.head)}</p>${r.sub ? `<p class="km-sub">${esc(r.sub)}</p>` : ""}<div class="km-rule"></div><ul class="km-list">${kmLines(r.lines).map((l) => `<li>${esc(l)}</li>`).join("")}</ul></div>`)}</div>` : `<div class="km-in">${slotBox(k("cols"), "on-dark", "min-height:160px")}</div>`,
+  kmgroups: (sec, k) => {
+    const v = P(k("groups")), rich = v && v.some((r) => kmLines(r.items).some((l) => kmItem(l)[1]));
+    return `<div class="km-in">${kmTitle(k)}${v ? `<div ${kmAttr(k("groups"), `km-groups${rich ? " rich" : ""}`)}>${kmItems(k("groups"), (r, a) => `<div class="km-group" ${a}><p class="km-head">${esc(r.head)}</p><div class="km-rule"></div><ul class="km-items">${kmLines(r.items).map((l) => { const [n, d] = kmItem(l); return d && rich ? `<li><b>${esc(n)}</b><span>${esc(d)}</span></li>` : `<li>${esc(l)}</li>`; }).join("")}</ul></div>`)}</div>` : slotBox(k("groups"), "on-dark", "min-height:200px")}</div>`;
+  },
+  kmstrip: (sec, k) => {
+    const v = P(k("logos"));
+    if (!v) return `<div class="km-in" style="padding:0 16px">${slotBox(k("logos"), "on-dark", "min-height:64px")}</div>`;
+    // The real logos first (draggable), then repeats until the row is long enough, then all of it again for a seamless loop.
+    const reps = Math.max(1, Math.ceil(10 / v.length)), plain = () => v.map((s) => `<img src="${esc(s)}" alt="" draggable="false">`).join("");
+    const first = v.map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("") + Array.from({ length: reps - 1 }, plain).join("");
+    return `<div ${kmAttr(k("logos"), "km-strip")}><div class="km-strip-track" style="--km-time:${v.length * reps * 4}s">${first}<span style="display:contents" aria-hidden="true">${Array.from({ length: reps }, plain).join("")}</span></div></div>`;
+  },
+  kmwall: (sec, k) => `<div class="km-in">${kmTitle(k)}${P(k("logos")) ? `<div ${kmAttr(k("logos"), "km-wall")}>${P(k("logos")).map((s, i) => `<img src="${esc(s)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`).join("")}</div>` : slotBox(k("logos"), "on-dark", "min-height:140px")}</div>`,
+  kmedu: (sec, k) => `<div class="km-in">${kmTitle(k)}${P(k("cards")) ? `<div ${kmAttr(k("cards"), "km-edu")}>${kmItems(k("cards"), (r, a) => `<article class="km-edu-card" ${a}><h3>${esc(r.title)}</h3>${r.sub ? `<p class="km-edu-sub">${esc(r.sub)}</p>` : ""}${r.dates ? `<p class="km-edu-dates">${esc(r.dates)}</p>` : ""}<ul class="km-ticks">${kmLines(r.points).map((l) => `<li>${esc(l)}</li>`).join("")}</ul>${r.link ? `<span class="km-visit">Visit online ${KM_ARROW}</span>` : ""}</article>`)}</div>` : slotBox(k("cards"), "on-dark", "min-height:200px")}</div>`,
+  kmfooter: (sec, k) => {
+    const logo = P(k("logo")), btn = P(k("button"));
+    return `<div class="km-in"><div class="km-foot">${logo ? `<img ${filledAttr(k("logo"))} src="${esc(logo)}" alt="">` : slotBox(k("logo"), "on-dark slot-optional", "width:150px")}
+      ${P(k("items")) ? `<div ${kmAttr(k("items"), "km-foot-line")}>${kmItems(k("items"), (r, a) => `<span ${a}>${esc(r.item)}</span>`)}${btn ? `<span ${kmAttr(k("button"), "km-pill sm")}>${esc(btn)} ${KM_ARROW}</span>` : slotBox(k("button"), "on-dark slot-optional")}</div>` : slotBox(k("items"), "on-dark")}</div>
+      ${btn && !P(k("link")) ? slotBox(k("link"), "on-dark slot-optional") : ""}${text(k("fine"), "p", "km-fine", "on-dark slot-optional")}</div>`;
+  },
+};
+const KM_HOME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/></svg>';
+function kmNavHtml(pid) {
+  const n = chromeFor("nav", pid), links = (n.links || []).filter((l) => l.label);
+  return `<nav class="km-nav${curSec === "@nav" && pid === S.page ? " is-current" : ""}" data-chrome="nav"><span class="km-nav-name">${KM_HOME}<span>Home</span></span><ul>${links.map((l) => `<li>${esc(l.label)}</li>`).join("")}</ul>${n.cta?.label ? `<span class="km-pill sm">${esc(n.cta.label)}</span>` : ""}</nav>`;
+}
+// Start from a page template (Studio → Templates). "site" starts the whole Kreick site again
+// (after a confirm when it has work); a page template id adds that page with its starting words.
+function kmStart(want) {
+  history.replaceState(null, "", location.pathname + "?site=kreick");
+  if (want === "site") {
+    if (Object.values(S.pages).some((l) => l.length) && !confirm("Start the Kreick site again from the templates? This replaces every Kreick page in Studio (the live site doesn't change).")) return;
+    const keep = S.chrome; S = kmSeed(); S.chrome = keep; S.chromePage = {}; PAGE_LIST = S.pageList;
+    rebuildSlots(); save(); toast("Started the Kreick site from the templates: AI Work and Gigs."); return;
+  }
+  const p = KM.pages.find((x) => x.id === want); if (!p) return;
+  const rand = () => Math.random().toString(36).slice(2, 5);
+  let id = p.id; while (S.pages[id]) id = `${p.id}-${rand()}`;
+  const path = PAGE_LIST.some((x) => x.path === p.path) ? "/" + id : p.path;
+  const used = (uid) => Object.values(S.pages).some((l) => l.some((x) => x.uid === uid));
+  const map = {};
+  S.pages[id] = p.sections.map(([uid, t, name]) => { let nu = uid; while (used(nu) || Object.values(map).includes(nu)) nu = `${uid}-${rand()}`; map[uid] = nu; return { uid: nu, t, name }; });
+  for (const [sid, v] of Object.entries(KM.content)) { const dot = sid.indexOf("."), nu = map[sid.slice(0, dot)]; if (nu) S.slots[nu + sid.slice(dot)] = { value: structuredClone(v), placed: structuredClone(v) }; }
+  for (const [uid, v] of Object.entries(p.bg || {})) if (map[uid]) S.bg[map[uid]] = v;
+  S.pageList.push({ id, name: p.name, path, unpublished: true });
+  S.page = id; rebuildSlots(); save(); toast(`Added ${p.name} from the template, as work in progress.`);
+}
 const SECTION_HTML = {
   hero: (sec, k) => {
     const img = P(k("image")), q = P(k("quote")), st = P(k("stat")), btn = P(k("button"));
@@ -2421,14 +4262,16 @@ const SECTION_HTML = {
     return `${text(k("headline"), "h2", "video-title", "slot-optional")}${inner}`;
   },
   spacer: () => "",
+  ...KM_HTML,
   calendly: () => `<div class="calendly"><b>Calendly booking</b><br>Your 15-minute call calendar appears here. It's part of the design, not a spot.</div>`,
 };
 // Section background choice (Quote and Spacers, Oct 14). A template's bgChoice lists its options, the first being its
 // default (nothing saved). Clay Light = the page background (Spacers' default; saved as "white"); Cream = Clay (the Quote's default).
-const BG_NAME = { white: "Clay Light", cream: "Cream", black: "Black" };
+const BG_NAME = { white: "Clay Light", cream: "Cream", black: "Black", charcoal: "Charcoal", mustard: "Mustard" };
 const bgOf = (sec) => S.bg[sec.id] || sec.bgChoice[0];
 const SECTION_CLASS = { spacer: "spacer", hero: "hero on-dark", cred: "cred on-dark", photopoints: "std", plat: "std plat on-dark", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero on-dark", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys on-dark", engine: "std plat eng on-dark", video: "std", calendly: "std" };
 
+for (const t of KM.templates) SECTION_CLASS[t.type] = "km";
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 const CHROME_MAX = { links: 7, label: 30, text: 140 };
 const chromeOwn = (kind, pid = S.page) => S.chromePage?.[pid]?.[kind] || null;
@@ -2437,6 +4280,7 @@ const CHROME_NAME = { nav: "Global nav", footer: "Footer" };
 // The preview's nav, from the page's nav content. The menu control is a <span role="button">,
 // not a <button>: Pages-panel thumbnails are buttons that contain this nav.
 function navHtml(pid, overPhoto) {
+  if (IS_KM) return kmNavHtml(pid);
   const n = chromeFor("nav", pid), links = (n.links || []).filter((l) => l.label);
   const cta = n.cta?.label ? `<li class="pill-cta">${esc(n.cta.label)}</li>` : "";
   return `<nav class="site-nav${overPhoto ? "" : " nav-bar"}${curSec === "@nav" && pid === S.page ? " is-current" : ""}" data-chrome="nav"><img src="media/logo-white.png" alt="ClearMark Training"><ul>${links.map((l) => `<li>${esc(l.label)}</li>`).join("")}${cta}</ul><span class="burger" role="button" tabindex="0" aria-label="Open menu" aria-expanded="false" data-navmenu><span></span><span></span><span></span></span><div class="nav-menu"><div class="nav-menu-inner"><ol>${links.map((l) => `<li>${esc(l.label)}</li>`).join("")}</ol>${n.cta?.label ? `<span class="nav-menu-cta">${esc(n.cta.label)}</span>` : ""}</div></div></nav>`;
@@ -2455,6 +4299,7 @@ function tabHref(v) {
   return resolveLink(v);
 }
 function footerHtml(pid) {
+  if (IS_KM) return "";
   const f = chromeFor("footer", pid), year = new Date().getFullYear();
   return `<footer class="site-footer${curSec === "@footer" && pid === S.page ? " is-current" : ""}" data-chrome="footer"><div class="foot-top"><div class="foot-col"><img src="media/logo-white.png" alt="ClearMark Training"><p>${esc(f.tagline)}</p></div>
     <div class="foot-col">${f.meetLabel ? `<span class="u">${esc(f.meetLabel)}</span>` : ""}<p>${esc(f.address)}</p></div></div>
@@ -2664,6 +4509,22 @@ function tplThumb(type, id = "") {
     "spacer-32": R(8, 8, 64, 6) + R(8, 26, 64, 6) + L("M40 16v8", 1),
     "spacer-64": R(8, 8, 64, 6) + R(8, 34, 64, 6) + L("M40 16v16", 1),
     "spacer-96": R(8, 8, 64, 6) + R(8, 40, 64, 6) + L("M40 16v22", 1),
+    // Kreick Marketing
+    "km-cover": F(1, 1, 78, 46) + R(10, 7, 20, 34, 1) + L("M40 14h30M40 20h24", 3) + L("M40 28h8M52 28h8M64 28h8", 1.2) + R(40, 34, 16, 6, 3),
+    "km-cta-bar": F(1, 18, 78, 12) + L("M30 24h16M50 24h4", 2),
+    "km-ignite": F(1, 1, 78, 46) + L("M26 20h28", 3) + [16, 34, 52].map((x) => R(x, 28, 14, 6, 3)).join(""),
+    "km-case": F(6, 5, 68, 22) + L("M6 32h14", 2) + L("M6 37h40", 3) + L("M6 42h60", 1.2),
+    "km-steps": [5, 23, 41, 59].map((x) => F(x, 8, 16, 12) + L(`M${x} 25h8`, 2) + L(`M${x} 30h16M${x} 34h12`, 1.2)).join(""),
+    "km-projects": [5, 29, 53].map((x) => F(x, 10, 22, 16) + L(`M${x} 31h12`, 1.5)).join(""),
+    "km-title": L("M8 18h40", 4) + L("M8 28h56M8 33h44", 1.2),
+    "km-stats": R(5, 12, 70, 24, 2) + [9, 32, 55].map((x) => L(`M${x} 20h12`, 4) + L(`M${x} 28h16`, 1.2)).join(""),
+    "km-principles": R(5, 12, 70, 24, 2) + [8, 25, 42, 59].map((x) => L(`M${x} 19h12`, 2) + L(`M${x} 25h13M${x} 29h10`, 1.2)).join(""),
+    "km-columns": [6, 21, 36, 51, 66].map((x) => L(`M${x} 12h10`, 2) + L(`M${x} 17h6`, 1) + L(`M${x} 23h10M${x} 28h9M${x} 33h10`, 1.2)).join(""),
+    "km-groups": L("M8 10h16", 3) + [8, 32, 56].map((x) => L(`M${x} 20h12`, 2) + L(`M${x} 26h16M${x} 31h14M${x} 36h16`, 1.2)).join(""),
+    "km-logo-strip": F(1, 16, 78, 16) + [6, 22, 38, 54, 70].map((x) => R(x, 21, 8, 6, 1)).join(""),
+    "km-logo-wall": L("M8 9h24", 3) + [8, 22, 36, 50, 64].map((x) => R(x, 18, 9, 7, 1) + R(x, 30, 9, 7, 1)).join(""),
+    "km-edu": L("M8 9h30", 3) + [6, 25, 44, 63].map((x) => F(x, 15, 15, 28) + L(`M${x + 3} 21h9M${x + 3} 28h7M${x + 3} 32h8`, 1.2)).join(""),
+    "km-footer": R(6, 22, 14, 14, 2) + L("M24 26h50", 1) + L("M24 32h10M38 32h10M52 32h8", 2) + R(64, 29, 12, 6, 3),
   };
   g = g[id] || g[type] || "";
   return `<svg viewBox="0 0 80 48" class="tpl-thumb" aria-hidden="true">${R(1, 1, 78, 46, 4)}${g}</svg>`;
@@ -2673,7 +4534,7 @@ function renderTemplates() {
   const page = pageView(S.page);
   const after = curSec && page.sections.find((x) => x.id === curSec);
   $("#cards").innerHTML = `<p class="hint" style="margin:0">Each template is a section designed in code. <b style="color:var(--ink-2)">+ Add</b> puts it ${after ? `after <b style="color:var(--ink)">${esc(after.name)}</b>` : "at the end of the page"}; or drag it onto the preview, where a blue line shows where it lands.</p>
-    <div class="tpl-list">${TEMPLATES.filter((t) => !t.hidden).map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">
+    <div class="tpl-list">${TEMPLATES.filter((t) => !t.hidden && siteOf(t) === SITE).map((t) => `<div class="tpl" data-tpldrag="${t.id}" title="Drag onto the preview">
       ${tplThumb(t.type, t.id)}<div class="tpl-text"><b>${esc(t.name)}</b><span>${esc(t.about)}</span><span class="chip" style="align-self:flex-start">${t.slots.length ? `${t.slots.length} ${t.slots.length === 1 ? "spot" : "spots"}` : "nothing to fill"}${t.flip ? " · photo left or right" : ""}</span></div>
       <button type="button" class="btn btn-small btn-primary" data-addtpl="${t.id}">+ Add</button></div>`).join("")}</div>`;
 }
@@ -3179,7 +5040,7 @@ async function uploadMedia(f) {
     return;
   }
   try {
-    const res = await fetch(API + "?action=upload-url", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: f.type, size: f.size }) });
+    const res = await fetch(apiUrl("", "action=upload-url"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: f.type, size: f.size }) });
     const j = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(j.error || "Couldn't start the upload");
     if (!UP) return;  // cancelled meanwhile
@@ -3386,7 +5247,7 @@ function placeAllDrafts() {
   return n;
 }
 async function apiPost(q) {
-  const res = await fetch(API + q, { method: "POST" });
+  const res = await fetch(apiUrl("", q), { method: "POST" });
   const j = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(j.error || "That didn't work");
   if (Array.isArray(j.livePages)) LIVE_PAGES = j.livePages;
@@ -3395,6 +5256,7 @@ async function apiPost(q) {
 const arm = (which) => { if (which === "pub") pubArmed = true; else unpubArmed = true; renderSide(); setTimeout(() => { pubArmed = unpubArmed = false; renderSide(); }, 4000); };
 async function publishPage() {
   if (pubBusy) return;
+  if (IS_KM && LIVE) return toast("The Kreick site isn't on a web address yet, so it can't be published. Your work is saved as a draft.");
   if (!pubArmed) return arm("pub");
   pubArmed = false; pubBusy = "publish"; renderSide();
   const p = curPage(); delete p.unpublished;
@@ -3487,9 +5349,11 @@ const MOD_ICON = {
   forms: '<rect x="3" y="5" width="18" height="5" rx="1.5"/><rect x="3" y="13" width="11" height="5" rx="2.5"/>',
   spacers: '<path d="M4 4h16M4 20h16M12 7v10M9 10l3-3 3 3M9 14l3 3 3-3"/>',
 };
+for (const [g, from] of [["km-bands", "heroes"], ["km-work", "photo"], ["km-text", "headings"], ["km-logos", "logos"], ["km-cards", "cms"], ["km-foot", "forms"]]) MOD_ICON[g] = MOD_ICON[from];
 const svg = (paths, cls = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${paths}</svg>`;
 // Module groups, like Figma's Insert panel.
 function modCats() {
+  if (IS_KM) return KM.groups.map((g) => ({ ...g, color: "var(--km-mustard, #e6bb5c)" }));
   const cats = [
     { id: "heroes", name: "Heroes", color: "var(--cm-cherry)", tpls: ["hero", "page-hero"] },
     { id: "headings", name: "Headings", color: "var(--aegean)", tpls: ["heading"] },
@@ -3534,7 +5398,7 @@ function renderSide() {
     const blocks = {
       pages: [title("pages", "Pages", ` <button type="button" class="btn btn-small" data-addpage-open aria-expanded="${UI.adding}">+ Add page</button>`), (UI.adding ? addPageForm() : "") + allPages().map((p) => {
         const ids = countable(p), n = ids.filter((id) => status(id) === "placed").length;
-        return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span><span class="dot ${pageIsLive(p) ? "placed" : "draft"}" title="${pageIsLive(p) ? "Live" : "Work in progress"}"></span></button>`;
+        return `<button type="button" class="side-row" data-page="${p.id}" aria-current="${p.id === S.page && NAV_VIEW === "editor"}"><span class="mini"><div class="site${IS_KM ? " brand-km" : ""}" style="transform:scale(${56 / 1280})">${pageHtml(p, false)}</div></span><span class="grow">${esc(p.name)}<br><span class="sub">${esc(p.path)} · ${n}/${ids.length}</span></span><span class="dot ${pageIsLive(p) ? "placed" : "draft"}" title="${pageIsLive(p) ? "Live" : "Work in progress"}"></span></button>`;
       }).join("")],
       layers: [title("layers", `Layers · ${esc(page.name)}`), chromeRow("nav") + page.sections.map((sec, si) => layerHtml(sec, si, page.sections.length)).join("")
         + `<button type="button" class="side-row" data-mods-focus>${svg('<path d="M12 5v14M5 12h14"/>')}<span class="grow">Add a section</span></button>` + chromeRow("footer")],
@@ -3543,7 +5407,7 @@ function renderSide() {
     };
     // Keep each block's scroll position when the panel redraws.
     const keep = { side: el.scrollTop }; el.querySelectorAll("[data-blkbody]").forEach((b) => (keep[b.dataset.blkbody] = b.scrollTop));
-    el.innerHTML = `<div class="side-head"><h2>ClearMark ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>${pubActions(curPage())}</div>`
+    el.innerHTML = `<div class="side-head"><h2>${SITE_NAME} ${closeX}</h2><p><a class="set-link" href="${esc(pageUrl(page))}" target="_blank" rel="noopener noreferrer">${esc(pageUrl(page).replace(/^https?:\/\//, ""))} ↗</a></p>${pubActions(curPage())}</div>`
       + UI.blocks.map((b) => `<div class="side-sec blk${UI.closed.has(b) ? " is-closed" : ""}${b === "layers" ? " layers" : b === "modules" || b === "sources" ? " sources-sec" : ""}" data-block="${b}">${blocks[b][0]}
           ${UI.closed.has(b) ? "" : `<div class="blk-body" data-blkbody="${b}" id="side-${b}" style="max-height:${UI.h[b] || BLOCK_H[b]}px">${blocks[b][1]}</div>
           <div class="blk-resize" data-blkresize="${b}" role="separator" aria-orientation="horizontal" aria-label="Resize ${b}" title="Drag to make this taller or shorter · double-click to reset"></div>`}</div>`).join("");
@@ -3674,7 +5538,7 @@ async function saveCmsItem() {
     media: it.media.map((m) => ({ code: m.code, url: m.url, alt: m.alt || "" })) };
   if (LIVE) {
     try {
-      const res = await fetch(API + "/cms", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ item: payload }) });
+      const res = await fetch(apiUrl("/cms"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ item: payload }) });
       const j = await res.json().catch(() => ({}));
       if (!res.ok) return err(j.error || "Couldn't save");
       CMS = j.cms; cmsEdit = structuredClone(CMS.find((x) => x.id === j.id) || it);
@@ -3809,12 +5673,12 @@ function slugProblem(slug, exceptId) {
   return "";
 }
 const HOST = SITE_URL.replace("https://", "") + "/";
-const START_WITH = { hero: ["page-hero", "heading"], heading: ["heading", "photo-text"], empty: [] };
+const START_WITH = IS_KM ? { hero: ["km-cover", "km-cta-bar"], heading: ["km-title", "km-principles"], empty: [] } : { hero: ["page-hero", "heading"], heading: ["heading", "photo-text"], empty: [] };
 function addPageForm() {
   return `<div class="set-card" style="padding:12px;gap:10px;margin:4px 0 8px">
     <label class="set-field"><span>Page name</span><input type="text" id="np-name" placeholder="e.g. Case studies" maxlength="60"></label>
     <label class="set-field"><span>Address</span><span class="slug-row"><span class="mono">/</span><input type="text" id="np-slug" placeholder="case-studies" maxlength="60" autocapitalize="off" spellcheck="false"></span><small id="np-err" class="slug-err"></small></label>
-    <label class="set-field"><span>Start with</span><select id="np-start"><option value="hero">Page hero + heading</option><option value="heading">Heading + photo and text</option><option value="empty">Nothing (add modules yourself)</option></select></label>
+    <label class="set-field"><span>Start with</span><select id="np-start"><option value="hero">${IS_KM ? "Cover + call bar" : "Page hero + heading"}</option><option value="heading">${IS_KM ? "Section title + principle cards" : "Heading + photo and text"}</option><option value="empty">Nothing (add modules yourself)</option></select></label>
     <div class="set-row" style="gap:8px"><button type="button" class="btn btn-primary btn-small" data-addpage>Add page</button><button type="button" class="btn btn-small" data-addpage-cancel>Cancel</button></div></div>`;
 }
 function addPage() {
@@ -3861,10 +5725,17 @@ function openPop(id, anchor) {
 }
 function closePops(except) { for (const [id, btn] of [["#logo-menu", "#rail-logo"], ["#sidebar-menu", "[data-sidebar-menu]"]]) if (id !== except) { $(id).hidden = true; $(btn).setAttribute("aria-expanded", "false"); } }
 const DASH = (LIVE ? "" : BASE_DOMAIN) + "/apps/studio";
+// Site switcher (Oct 21): the site being edited is ticked; the other opens the builder on it.
+const siteRow = (slug, mark, name, sub, style) => {
+  const inner = `<span class="rail-logo" style="width:28px;height:28px;font-size:12px;margin:0;border-radius:7px;${style}">${mark}</span><span class="grow">${name}${sub ? `<br><span class="sub">${sub}</span>` : ""}</span>`;
+  return slug === SITE ? `<button type="button" class="side-row" aria-current="true" data-nav-close-pop>${inner}<span class="check">✓</span></button>`
+    : `<a class="side-row" href="${LIVE ? "/apps/studio/builder" : location.pathname}${slug === "clearmark" ? "" : "?site=" + slug}">${inner}</a>`;
+};
 $("#logo-menu").innerHTML = `<div class="side-label">Sites</div>
-  <button type="button" class="side-row" aria-current="true" data-nav-close-pop><span class="rail-logo" style="width:28px;height:28px;font-size:12px;margin:0;border-radius:7px">AI</span><span class="grow">ClearMark</span><span class="check">✓</span></button>
-  <a class="side-row" href="https://kreickmarketing.vercel.app" target="_blank" rel="noopener noreferrer"><span class="rail-logo" style="width:28px;height:28px;font-size:12px;margin:0;border-radius:7px;background:var(--iron-pine)">KM</span><span class="grow">Kreick Marketing<br><span class="sub">Not in Studio yet · view site</span></span>↗</a>
+  ${siteRow("clearmark", "AI", "ClearMark", "", "")}
+  ${siteRow("kreick", "KM", "Kreick Marketing", "Building · not live yet", "background:var(--iron-pine)")}
   <hr>
+  <a class="side-row" href="${DASH}/templates?set=${SITE}">${svg('<rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="8" height="6" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/>')}<span class="grow">Templates</span></a>
   <a class="side-row" href="${DASH}">${svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>')}<span class="grow">Main dashboard</span></a>
   <a class="side-row" href="${(LIVE ? "" : BASE_DOMAIN)}/apps">${svg('<path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6"/><circle cx="12" cy="8" r="4"/>')}<span class="grow">Clearmark Apps</span></a>
   <a class="side-row" href="${SITE_URL}" target="_blank" rel="noopener noreferrer">${svg('<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>')}<span class="grow">View live site</span></a>`;
@@ -4100,5 +5971,7 @@ document.addEventListener("pointerdown", (e) => {
 document.addEventListener("pointermove", (e) => { if (cropping) setCrop(e); });
 document.addEventListener("pointerup", () => { if (!cropping) return; cropping = null; save(); renderCards(); });
 
+// Start from a Kreick page template (Studio → Templates links here with ?start=…), once everything is set up.
+{ const want = new URLSearchParams(location.search).get("start"); if (IS_KM && want) kmStart(want); }
 render();
 </script>
