@@ -143,6 +143,7 @@ textarea.input { resize: vertical; min-height: 72px; line-height: 1.4; }
 .row-img { display: flex; align-items: center; gap: 10px; border: 1.5px dashed var(--line); border-radius: 8px; padding: 8px 10px; min-height: 48px; color: var(--ink-3); font-size: 12px; }
 .row-img.drop-ok { border-color: var(--accent); background: var(--accent-soft); }
 .row-img img, .row-img svg { width: 32px; height: 32px; flex: none; object-fit: contain; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; color: var(--ink); }
+.row-img.is-media img, .row-img.is-media video { width: 64px; height: 48px; flex: none; object-fit: cover; border-radius: 4px; background: #000; }
 .row-img-none { flex: none; font-weight: 600; color: var(--ink-2); }
 .row-btns .x { height: 24px; font-size: 12px; padding: 0; }
 .row-btns .x:disabled { opacity: 0.3; }
@@ -477,6 +478,19 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   .panes { grid-template-columns: minmax(0, 1fr); }
   .pane-cards { position: fixed; top: 0; bottom: 0; right: 0; width: var(--edit-w); z-index: 35; background: var(--panel-2); border-left: 1px solid var(--line); overflow: auto; overscroll-behavior: contain; gap: 0; }
   .edit-float { position: static; gap: 0; }
+  /* Drag the Edit panel's left edge to make it wider or narrower; the tab on that edge folds it away (Oct 21). */
+  html.has-edit.edit-shut body { padding-right: 40px; }
+  html.edit-shut .pane-cards { display: none; }
+  .edit-resize { display: none; position: fixed; top: 0; bottom: 0; right: calc(var(--edit-w) - 4px); width: 7px; z-index: 37; cursor: col-resize; touch-action: none; }
+  html.has-edit:not(.edit-shut) .edit-resize { display: block; }
+  .edit-resize:hover, body.is-resizing-e .edit-resize { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .pane-cards.will-close { opacity: 0.45; }
+  .edit-tab { display: none; position: fixed; top: 50%; right: calc(var(--edit-w) - 12px); z-index: 38; width: 24px; height: 48px; margin-top: -24px; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); color: var(--ink-2); }
+  .edit-tab:hover { color: var(--ink); border-color: var(--ink-2); }
+  .edit-tab svg { width: 14px; height: 14px; }
+  html.has-edit .edit-tab { display: grid; }
+  html.edit-shut .edit-tab { right: 8px; }
+  html.edit-shut .edit-tab svg { transform: scaleX(-1); }
 }
 .chrome-ed .note { margin: 0; font-size: 12px; line-height: 1.45; color: var(--ink-2); }
 .chrome-ed .row-btns { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -4359,6 +4373,8 @@ h6 {
   </section>
 
 </main>
+<div class="edit-resize" id="edit-resize" role="separator" aria-orientation="vertical" aria-label="Resize edit panel" title="Drag to resize. Double-click for the normal width. Drag far right to fold it away."></div>
+<button type="button" class="edit-tab" id="edit-tab" aria-label="Fold the edit panel" title="Fold the edit panel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
 <div class="toast" id="toast" hidden></div>
 <div class="confirm-backdrop" id="confirm" hidden>
   <div class="confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-text">
@@ -5181,7 +5197,7 @@ function rowImage(id, i, c, val) {
 function rowMedia(id, i, c, val) {
   const ref = `${id}:${i}:${c.key}`, now = val ? (isVideo(val) ? `<video src="${esc(val)}" muted playsinline preload="metadata"></video>` : `<img src="${esc(val)}" alt="">`) : "";
   const usePick = rowImgOk(picked, id) ? `<button type="button" class="btn btn-small" data-rowimg-set="${ref}">Use selected</button>` : "";
-  return `<div class="field"><span aria-hidden="true">${esc(c.label)}</span><div class="row-img" data-rowimg="${ref}">${now}<span class="row-img-hint">${val ? (isVideo(val) ? "Your video" : "Your image") : "Empty"} · drop an image or video here, on the preview, or tap one in Sources</span></div>
+  return `<div class="field"><span aria-hidden="true">${esc(c.label)}</span><div class="row-img is-media" data-rowimg="${ref}">${now}<span class="row-img-hint">${val ? (isVideo(val) ? "Your video" : "Your image") : "Empty"} · drop an image or video here, on the preview, or tap one in Sources</span></div>
     <div class="card-actions">${usePick}${val ? `<button type="button" class="btn btn-small" data-rowimg-clear="${ref}">Remove</button>` : ""}</div></div>`;
 }
 // Sets one row's image column in the typed value and on the page (if that row is placed).
@@ -6161,7 +6177,7 @@ document.addEventListener("load", (e) => { if (e.target.tagName === "IMG" && e.t
 // Pages and Modules work beside the editor; CMS and Settings replace it.
 // How the panel behaves (Expanded / Collapsed / Expand on hover) is kept per browser.
 const UI_KEY = "clearmark-studio-ui";
-const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "modules", "sources"], mods: new Set(), w: 280, h: {}, closed: new Set() };
+const UI = { sidebar: "expanded", rail: "pages", open: true, cat: null, cms: "products", set: "general", adding: false, exp: new Set(), src: new Set(["images"]), blocks: ["pages", "layers", "modules", "sources"], mods: new Set(), w: 280, ew: 320, eshut: false, h: {}, closed: new Set() };
 // How tall each block in the Pages panel starts (drag its bottom line to change; double-click resets).
 const BLOCK_H = { pages: 240, layers: 380, modules: 320, sources: 360 };
 try {
@@ -6174,11 +6190,15 @@ try {
   }
   if (UI.rail === "modules") UI.rail = "pages";
   if (typeof u?.w === "number") UI.w = Math.min(520, Math.max(220, u.w));
+  if (typeof u?.ew === "number") UI.ew = Math.min(640, Math.max(280, u.ew));
+  UI.eshut = u?.eshut === true;
   if (Array.isArray(u?.closed)) UI.closed = new Set(u.closed.filter((b) => ["pages", "layers", "modules", "sources"].includes(b)));
   if (u?.h && typeof u.h === "object") for (const [k, v] of Object.entries(u.h)) if (k in BLOCK_H && typeof v === "number") UI.h[k] = Math.min(2000, Math.max(48, v));
 } catch {}
 document.documentElement.style.setProperty("--side-w", UI.w + "px");
-const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w, h: UI.h, closed: [...UI.closed] })); } catch {} };
+document.documentElement.style.setProperty("--edit-w", UI.ew + "px");
+document.documentElement.classList.toggle("edit-shut", UI.eshut);
+const saveUI = () => { try { localStorage.setItem(UI_KEY, JSON.stringify({ sidebar: UI.sidebar, rail: UI.rail, cms: UI.cms, set: UI.set, blocks: UI.blocks, w: UI.w, ew: UI.ew, eshut: UI.eshut, h: UI.h, closed: [...UI.closed] })); } catch {} };
 const isPhone = () => matchMedia("(max-width: 760px)").matches;
 const docked = () => UI.sidebar === "expanded" && UI.open && !isPhone();
 const viewFor = (r) => (r === "cms" || r === "settings" || r === "style" ? r : "editor");
@@ -6774,6 +6794,34 @@ const endResize = () => {
 };
 $("#side-resize").addEventListener("pointerup", endResize);
 $("#side-resize").addEventListener("pointercancel", endResize);
+
+// The Edit panel on the right: drag its left edge to resize, drag far right (or press the tab) to fold it away.
+const EDIT_MIN = 280, EDIT_MAX = 640, EDIT_CLOSE = EDIT_MIN - 70;
+const setEditShut = (shut) => {
+  UI.eshut = shut; document.documentElement.classList.toggle("edit-shut", shut); saveUI(); fit();
+  const label = shut ? "Open the edit panel" : "Fold the edit panel";
+  $("#edit-tab").setAttribute("aria-label", label); $("#edit-tab").title = label;
+};
+setEditShut(UI.eshut);
+$("#edit-tab").addEventListener("click", () => setEditShut(!UI.eshut));
+let erz = null;
+$("#edit-resize").addEventListener("pointerdown", (e) => { if (e.button > 0) return; e.preventDefault(); erz = { x: e.clientX, w: UI.ew, now: UI.ew }; $("#edit-resize").setPointerCapture(e.pointerId); document.body.classList.add("is-resizing-e"); });
+$("#edit-resize").addEventListener("pointermove", (e) => {
+  if (!erz) return;
+  erz.now = erz.w - (e.clientX - erz.x);
+  document.documentElement.style.setProperty("--edit-w", Math.min(EDIT_MAX, Math.max(EDIT_MIN, erz.now)) + "px");
+  $(".pane-cards").classList.toggle("will-close", erz.now < EDIT_CLOSE);
+  fit();
+});
+const endEditResize = () => {
+  if (!erz) return;
+  const w = erz.now; erz = null; document.body.classList.remove("is-resizing-e"); $(".pane-cards").classList.remove("will-close");
+  if (w < EDIT_CLOSE) { document.documentElement.style.setProperty("--edit-w", UI.ew + "px"); setEditShut(true); return; }
+  UI.ew = Math.round(Math.min(EDIT_MAX, Math.max(EDIT_MIN, w))); saveUI(); fit();
+};
+$("#edit-resize").addEventListener("pointerup", endEditResize);
+$("#edit-resize").addEventListener("pointercancel", endEditResize);
+$("#edit-resize").addEventListener("dblclick", () => { UI.ew = 320; document.documentElement.style.setProperty("--edit-w", "320px"); saveUI(); fit(); });
 applyNav();
 
 // Crop: press or drag on the photo in the Edit pane to set its focus point.
