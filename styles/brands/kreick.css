@@ -179,11 +179,12 @@
 .brand-km .km-items b + span { display: block; margin-top: 2px; color: #e8e6e0; }
 .brand-km .bg-mustard .km-items b + span { color: var(--km-ink); }
 
-/* Logo strip (one sliding row) and logo wall (grid) */
-.brand-km .sec.t-km-logo-strip { padding: 32px 0; }
+/* Logo strip (one sliding row) and logo wall (grid). Sizes from kreickmarketing.com: square
+   logo boxes, 150px 40px apart on desktop, 80px 30px apart on tablet and phone. */
+.brand-km .sec.t-km-logo-strip { padding: 75px 0; }
 .brand-km .km-strip { overflow: hidden; }
-.brand-km .km-strip-track { display: flex; align-items: center; gap: 72px; width: max-content; animation: km-slide var(--km-time, 40s) linear infinite; }
-.brand-km .km-strip img { height: 40px; width: auto; display: block; }
+.brand-km .km-strip-track { display: flex; align-items: center; gap: 40px; width: max-content; animation: km-slide var(--km-time, 40s) linear infinite; }
+.brand-km .km-strip img { width: 150px; height: 150px; object-fit: contain; display: block; flex: none; }
 @keyframes km-slide { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .brand-km .km-strip-track { animation: none; } }
 .brand-km .km-wall { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 44px 56px; align-items: center; justify-items: center; }
@@ -247,8 +248,9 @@
   .brand-km .km-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 32px; }
   .brand-km .km-wall { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 32px; }
   .brand-km .km-edu { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .brand-km .km-strip img { height: 32px; }
-  .brand-km .km-strip-track { gap: 56px; }
+  .brand-km .sec.t-km-logo-strip { padding: 10px 0; }
+  .brand-km .km-strip img { width: 80px; height: 80px; }
+  .brand-km .km-strip-track { gap: 30px; }
   .brand-km .km-foot-line { font-size: 18px; gap: 10px 24px; }
   .brand-km .km-nav { gap: 24px; }
   .brand-km .km-nav ul { gap: 4px 18px; }
@@ -295,8 +297,6 @@
   .brand-km .km-wall { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 18px; }
   .brand-km .km-wall img { max-height: 42px; }
   .brand-km .km-edu { grid-template-columns: 1fr; }
-  .brand-km .km-strip img { height: 26px; }
-  .brand-km .km-strip-track { gap: 40px; }
   .brand-km .km-foot { grid-template-columns: 1fr; gap: 18px; }
   .brand-km .km-foot > img { width: 110px; }
   .brand-km .km-foot-line { grid-column: auto; font-size: 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
