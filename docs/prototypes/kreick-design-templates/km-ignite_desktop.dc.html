@@ -155,8 +155,10 @@ body{margin:0}
 /* Media gallery: the images and videos touch, one under the other, and the whole stack has
    the rounded corners (not each piece). Captions sit between pieces, inside the stack. */
 .brand-km .km-gallery { display: flex; flex-direction: column; gap: 0; border-radius: 8px; overflow: hidden; }
-.brand-km .km-shot-wide { min-width: 0; margin: 0; }
-.brand-km .km-shot-wide .km-fill { height: auto; background: #141513; }
+/* Each piece loses 1px at its top and bottom (clipped), so a light edge in an image or video
+   doesn't show as a thin line where two pieces meet. */
+.brand-km .km-shot-wide { min-width: 0; margin: 0; overflow: hidden; }
+.brand-km .km-shot-wide .km-fill { height: auto; background: #141513; margin: -1px 0; }
 .brand-km .km-shot-wide figcaption { padding: 10px 16px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
 
 /* Big numbers and principle cards: a filled box with thin inset dividers */
