@@ -25,8 +25,10 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         { source: "/kreick-site/:path*", missing: kreick, destination: "/not-found" },
-        { source: "/", has: kreick, destination: "/kreick-site" },
+        // Order matters: each rule sees the address the rules above it made. "/" goes last,
+        // so the folder it adds isn't rewritten again.
         { source: "/:path((?!_next/|fonts/|studio-media/).+)", has: kreick, destination: "/kreick-site/:path" },
+        { source: "/", has: kreick, destination: "/kreick-site" },
       ],
       afterFiles: [],
       fallback: [],
