@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { KREICK_HOSTS } from "./lib/studio-sites";
 
 // While the move from /clrcrm to /apps settles (Oct 2026) the redirects are temporary (307),
 // so a rollback is safe. After a week with no problems, set this to true (308, permanent).
@@ -15,6 +16,25 @@ const nextConfig: NextConfig = {
       { source: "/clrcrm", destination: "/apps/playbook", permanent },
       { source: "/clrcrm/:path+", destination: "/apps/:path+", permanent },
     ];
+  },
+  // The Kreick Marketing site (Oct 22, 2026): on a Kreick address every page comes from app/kreick-site,
+  // so none of ClearMark's pages show there (except the shared /_next, /fonts and /studio-media files).
+  // On any other address that folder doesn't exist.
+  async rewrites() {
+    const kreick = [{ type: "host" as const, value: KREICK_HOSTS }];
+    return {
+      beforeFiles: [
+        { source: "/kreick-site/:path*", missing: kreick, destination: "/not-found" },
+        { source: "/", has: kreick, destination: "/kreick-site" },
+        { source: "/:path((?!_next/|fonts/|studio-media/).+)", has: kreick, destination: "/kreick-site/:path" },
+      ],
+      afterFiles: [],
+      fallback: [],
+    };
+  },
+  // The test address stays out of search engines while kreickmarketing.com is still the Framer site.
+  async headers() {
+    return [{ source: "/:path*", has: [{ type: "host", value: "new\\.kreickmarketing\\.com" }], headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
   },
   // The Studio builder and new CRM routes read their HTML source at run time; ship those files with them.
   outputFileTracingIncludes: {

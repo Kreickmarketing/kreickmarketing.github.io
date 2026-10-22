@@ -361,7 +361,8 @@ function anchorsOn(state: BuilderState, pageId: string): Record<string, string> 
 }
 
 // cms: the site's CMS items visitors may see (published only), for offer cards.
-export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem[] = []): LivePage | null {
+// `hrefOf`: where a link to a Studio page goes (the page's address; Studio → Preview points it at the preview instead).
+export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem[] = [], hrefOf: (p: BuilderPageInfo) => string = (p) => p.path): LivePage | null {
   const list = Array.isArray(state?.pages?.[pageId]) ? state.pages![pageId] : null;
   if (!list?.length) return null;
   const tpls: Record<string, Template> = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
@@ -381,7 +382,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     // ref is a section or element id; the address uses its link name (an element that lost
     // its name falls back to its section).
     const m = ref ? anchorsFor(pid) : {}, a = ref ? m[ref] || m[ref.split(".")[0]] || "" : "";
-    return p.path + (a ? "#" + a : "");
+    return hrefOf(p) + (a ? "#" + a : "");
   };
   const here = anchorsFor(pageId);
   // Nav and footer: this page's own version if it has one, otherwise the site default.
@@ -455,8 +456,8 @@ export type BuilderPageInfo = { id: string; name: string; path: string; unpublis
 export const RESERVED_SLUGS = new Set(["apps", "clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"]);
 export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-// The page list in a state, checked: Home is always "/", every other page has a
-// unique, safe one-word address. Bad or missing entries fall back to the start list.
+// The page list in a state, checked: Home (or Kreick's Gigs) is always "/", every other page has a
+// unique, safe address of one to three words (Kreick's work pages are /work/<name>). Bad or missing entries fall back to the start list.
 export function pagesOf(state: BuilderState | null | undefined): BuilderPageInfo[] {
   const list = Array.isArray(state?.pageList) ? state!.pageList : null;
   if (!list) return BUILDER_PAGES.map((p) => ({ ...p, unpublished: false }));
@@ -466,9 +467,10 @@ export function pagesOf(state: BuilderState | null | undefined): BuilderPageInfo
     if (!ID.test(id) || out.some((x) => x.id === id)) continue;
     const name = str(p?.name).slice(0, 60) || id;
     const unpublished = p?.unpublished === true;
-    if (id === "home") { out.push({ id, name, path: "/", unpublished }); continue; }
-    const slug = str(p?.path).replace(/^\//, "");
-    if (!SLUG.test(slug) || slug.length > 60 || RESERVED_SLUGS.has(slug) || seen.has(slug)) continue;
+    // Home: ClearMark's is "home"; Kreick's front page is Gigs (any page saved at "/", the first one).
+    if (id === "home" || (str(p?.path) === "/" && !out.some((x) => x.path === "/"))) { out.push({ id, name, path: "/", unpublished }); continue; }
+    const slug = str(p?.path).replace(/^\//, ""), parts = slug.split("/");
+    if (parts.length > 3 || !parts.every((x) => SLUG.test(x)) || slug.length > 60 || RESERVED_SLUGS.has(parts[0]) || seen.has(slug)) continue;
     seen.add(slug);
     out.push({ id, name, path: "/" + slug, unpublished });
   }

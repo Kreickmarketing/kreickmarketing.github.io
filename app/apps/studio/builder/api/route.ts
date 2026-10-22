@@ -1,7 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getCrmMember, getServerSupabase } from "@/lib/supabase-server";
-import { livePageIds, withUnpublished, type BuilderState } from "@/lib/builder-site";
+import { livePageIds, pagesOf, withUnpublished, type BuilderState } from "@/lib/builder-site";
 import { loadCms } from "@/lib/cms";
 import { builderSiteFrom } from "@/lib/studio-sites";
 
@@ -43,8 +43,6 @@ export async function POST(request: Request) {
   const params = new URL(request.url).searchParams, action = params.get("action");
   if (action !== "publish" && action !== "unpublish" && action !== "upload-url") return fail("Unknown action");
   if (!(await getCrmMember())) return fail("You're logged out. Log in again", 401);
-  // Kreick has no live route yet, so nothing of it can go live (uploads are fine).
-  if (builderSiteFrom(request) === "kreick" && action !== "upload-url") return fail("The Kreick site can't be published yet");
   const { supabase, id } = await siteId(request);
   if (!id) return fail("Site not found", 404);
   if (action === "upload-url") {
@@ -69,6 +67,7 @@ export async function POST(request: Request) {
     if (!/^[a-z0-9-]{1,60}$/.test(page) || page === "home") return fail("That page can't be unpublished");
     const { data: row, error: readError } = await supabase.from("builder_sites").select("draft, published").eq("site_id", id).maybeSingle();
     if (readError || !row) return fail(readError?.message || "Nothing saved yet", 500);
+    if (pagesOf(row.draft as BuilderState).find((p) => p.id === page)?.path === "/") return fail("The home page can't be unpublished");
     const published = row.published && Object.keys(row.published).length ? withUnpublished(row.published as BuilderState, page, true) : row.published;
     const { error } = await supabase.from("builder_sites").update({ draft: withUnpublished(row.draft as BuilderState, page, true), published }).eq("site_id", id);
     if (error) return fail(error.message, 500);

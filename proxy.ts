@@ -1,9 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { KREICK_HOSTS } from "@/lib/studio-sites";
 
 // Runs before every /apps request (except Social Studio, a separate app): keeps the login cookie fresh and sends
 // logged-out visitors to the login page. The page itself does the full check.
 export async function proxy(request: NextRequest) {
+  // The Kreick site has no team apps: there /apps is just a missing page (next.config.ts).
+  if (new RegExp(`^${KREICK_HOSTS}$`).test(request.headers.get("host") ?? "")) return NextResponse.next();
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
