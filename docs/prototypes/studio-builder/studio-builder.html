@@ -733,6 +733,9 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
 .side .src-img .im img { display: block; }
 .side .upload { padding: 8px; font-size: 11.5px; }
 .side .upload input { font-size: 11px; }
+.side .upload { margin-bottom: 4px; }
+#side-sources.file-over { outline: 2px dashed var(--accent); outline-offset: -2px; border-radius: 8px; background: var(--accent-soft); }
+#side-sources.file-over .upload { border-color: var(--accent); color: var(--ink); }
 .src-row { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border-radius: 8px; border: 1px solid transparent; cursor: grab; }
 .src-row:hover { background: var(--panel); border-color: var(--line); }
 .src-row.is-picked { outline: 2px solid var(--accent); }
@@ -5623,8 +5626,8 @@ const SRC_GROUPS = [
   { id: "cms", name: "CMS Cards", icon: '<rect x="3" y="5" width="8" height="14" rx="1.5"/><rect x="13" y="5" width="8" height="14" rx="1.5"/>', count: () => OFFERS.length },
 ];
 function sourceItems(id) {
-  if (id === "images") return `<div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im">${isVideo(im.src) ? `<video src="${esc(im.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(im.src)}" alt="">`}</div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>
-      ${UP ? upBox() : `<label class="upload" for="upload">+ Upload an image or video${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`}`;
+  if (id === "images") return `${UP ? upBox() : `<label class="upload" for="upload">+ Upload or drop images and videos here${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`}
+      <div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im">${isVideo(im.src) ? `<video src="${esc(im.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(im.src)}" alt="">`}</div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>`;
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
   return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0">${o.image ? `<img src="${esc(o.image)}" alt="">` : `<span class="src-noimg"></span>`}<span class="grow"><b>${esc(o.name)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
@@ -5840,7 +5843,7 @@ document.addEventListener("change", (e) => {
   }
   if (t.dataset.addoffer && t.value) { snap(t.dataset.addoffer); S.slots[t.dataset.addoffer].value.push(t.value); render(); }
   if (t.id === "guides") { S.guides = t.checked; render(); }
-  if (t.id === "upload" && t.files[0]) { uploadMedia(t.files[0]); t.value = ""; }
+  if (t.id === "upload" && t.files.length) { queueUploads(t.files); t.value = ""; }
 });
 
 // ── Uploads (images and video). Live Studio sends the file straight to Supabase Storage
@@ -5864,10 +5867,33 @@ function upPaint() {
   box.querySelector(".up-bar").setAttribute("aria-valuenow", pct);
   box.querySelector(".up-row small").textContent = `${pct}% · ${mb(UP.loaded)} of ${mb(UP.total)} MB`;
 }
-const upDone = () => { UP = null; renderSources(); };
-document.addEventListener("click", (e) => { if (e.target.closest?.("[data-up-cancel]") && UP) { UP.stop?.(); upDone(); toast("Upload cancelled."); } });
+const upDone = () => { UP = null; renderSources(); nextUpload(); };
+document.addEventListener("click", (e) => { if (e.target.closest?.("[data-up-cancel]") && UP) { UPQ.length = 0; UP.stop?.(); upDone(); toast("Upload cancelled."); } });
+// Files picked or dropped together wait here and go up one after another. A file that's
+// refused (wrong type, too big) is skipped with a message, and the next one starts.
+const UPQ = [];
+function queueUploads(files) { UPQ.push(...files); if (UP) toast(`${UPQ.length} more waiting: they'll upload one after another.`); nextUpload(); }
+function nextUpload() { while (!UP && UPQ.length) uploadMedia(UPQ.shift()); }
+// Drag files from the desktop onto Sources (the left nav) to upload them. Dropped anywhere
+// else, the browser would open the file in place of Studio, so that's blocked.
+const hasFiles = (e) => !dragging && [...(e.dataTransfer?.types || [])].includes("Files");
+const fileZone = (e) => e.target.closest?.("#side-sources");
+document.addEventListener("dragover", (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  const z = fileZone(e); e.dataTransfer.dropEffect = z ? "copy" : "none";
+  if (z && !z.classList.contains("file-over")) { z.classList.add("file-over"); if (!UI.src.has("images")) { UI.src.add("images"); renderSources(); } }
+});
+document.addEventListener("dragleave", (e) => { const z = fileZone(e); if (z && !z.contains(e.relatedTarget)) z.classList.remove("file-over"); });
+document.addEventListener("drop", (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  const z = fileZone(e); if (!z) return;
+  z.classList.remove("file-over");
+  if (e.dataTransfer.files.length) queueUploads(e.dataTransfer.files);
+});
 async function uploadMedia(f) {
-  if (UP) return toast("One upload at a time: wait for this one to finish.");
+  if (UP) { UPQ.push(f); return; }
   const video = f.type.startsWith("video/");
   if (video && !/^video\/(mp4|webm)$/.test(f.type)) return toast("Videos need to be MP4 or WebM.");
   if (!video && !/^image\/(jpeg|png|webp|gif|avif)$/.test(f.type)) return toast("Images need to be JPG, PNG, WebP, GIF or AVIF.");
@@ -5878,6 +5904,7 @@ async function uploadMedia(f) {
     if (keep) { (S.media ||= []).unshift({ src, name: f.name.slice(0, 80), kind: video ? "video" : "photo" }); save(); }
     UI.src.add("images"); UP = null; renderSources();
     toast(`Added to Images & video. Drag it onto a photo, a background or a Video module.${big}`);
+    nextUpload();
   };
   UP = { name: f.name, loaded: 0, total: f.size };
   UI.src.add("images"); renderSources();
