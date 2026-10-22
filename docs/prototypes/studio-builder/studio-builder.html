@@ -1330,10 +1330,12 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .brand-km .bg-mustard .km-project-meta { color: var(--km-ink); }
 
 /* Media gallery: the work, full width, one under the other */
-.brand-km .km-gallery { display: flex; flex-direction: column; gap: 24px; }
-.brand-km .km-shot-wide { min-width: 0; }
-.brand-km .km-shot-wide .km-fill { height: auto; border-radius: 8px; background: #141513; }
-.brand-km .km-shot-wide figcaption { margin-top: 10px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
+/* Media gallery: the images and videos touch, one under the other, and the whole stack has
+   the rounded corners (not each piece). Captions sit between pieces, inside the stack. */
+.brand-km .km-gallery { display: flex; flex-direction: column; gap: 0; border-radius: 8px; overflow: hidden; }
+.brand-km .km-shot-wide { min-width: 0; margin: 0; }
+.brand-km .km-shot-wide .km-fill { height: auto; background: #141513; }
+.brand-km .km-shot-wide figcaption { padding: 10px 16px; font-weight: 300; font-size: 14px; color: var(--km-muted); }
 
 /* Big numbers and principle cards: a filled box with thin inset dividers */
 .brand-km .km-box { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); background: var(--km-black); border-radius: 8px; }
@@ -1423,7 +1425,6 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   .brand-km .km-case h3 { font-size: 26px; }
   .brand-km .km-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
   .brand-km .km-project { grid-template-columns: 1fr; gap: 32px; }
-  .brand-km .km-gallery { gap: 16px; }
   .brand-km .km-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 24px; }
   .brand-km .km-box.n4 { --n: 2; }
   .brand-km .km-box.n4 > :nth-child(3)::before { display: none; }
@@ -1471,7 +1472,6 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
   .brand-km .km-steps { grid-template-columns: 1fr; }
   .brand-km .km-project-story { gap: 20px; }
   .brand-km .km-story p + p { font-size: 16px; }
-  .brand-km .km-gallery { gap: 12px; }
   .brand-km .km-projects { grid-template-columns: 1fr; gap: 28px; }
   .brand-km .km-box.n2, .brand-km .km-box.n3, .brand-km .km-box.n4 { --n: 1; }
   .brand-km .km-box > * + *::before { display: block !important; top: 0; bottom: auto; left: 24px; right: 24px; width: auto; height: 1px; }
@@ -4985,7 +4985,7 @@ const KM_HTML = {
       <div class="km-project-story">${text(k("summary"), "p", "km-lede", "on-dark slot-optional")}
         ${KM_STORY.map(([key, label]) => P(k(key)) ? `<div class="km-story"><p class="km-n">${label}</p><p ${filledAttr(k(key))}>${esc(P(k(key)))}</p></div>` : slotBox(k(key), "on-dark slot-optional")).join("")}</div></div>`;
   },
-  kmgallery: (sec, k) => P(k("items")) ? `<div ${kmAttr(k("items"), "km-in km-gallery")}>${kmItems(k("items"), (r, a, i) => `<figure class="km-shot-wide" ${a}><div ${kmDrop(k("items"), i, "media")}>${r.media ? media('class="km-fill"', r.media) : `<span class="km-empty" style="aspect-ratio:12/5;border-radius:8px;background:#141513">Video or image</span>`}</div>${r.caption ? `<figcaption>${esc(r.caption)}</figcaption>` : ""}</figure>`)}</div>`
+  kmgallery: (sec, k) => P(k("items")) ? `<div ${kmAttr(k("items"), "km-in km-gallery")}>${kmItems(k("items"), (r, a, i) => `<figure class="km-shot-wide" ${a}><div ${kmDrop(k("items"), i, "media")}>${r.media ? media('class="km-fill"', r.media) : `<span class="km-empty" style="aspect-ratio:12/5;background:#141513;border-bottom:1px solid #2a2b28">Video or image</span>`}</div>${r.caption ? `<figcaption>${esc(r.caption)}</figcaption>` : ""}</figure>`)}</div>`
     : `<div class="km-in">${slotBox(k("items"), "on-dark", "min-height:320px")}</div>`,
   kmtitle: (sec, k) => {
     const t = P(k("title")), acc = P(k("accent"));
