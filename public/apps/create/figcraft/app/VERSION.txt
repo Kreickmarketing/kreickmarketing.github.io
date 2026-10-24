@@ -1,7 +1,11 @@
-FigCraft web build 0.10.0, unchanged from figcraft-web-0.10.0.zip
-https://github.com/storytold/figcraft/releases/tag/v0.10.0
-SHA-256 of the zip: 852e6c7980602a5255d52250d587f7be62dc86738150b181fe20214055aec723
+FigCraft web build: Clearmark's fork, based on release 0.10.0
+https://github.com/Kreickmarketing/figcraft (branch clearmark-web; upstream https://github.com/storytold/figcraft)
+Adds: Save and Export download in the browser, a message bridge for this page
+(apps/figcraft-web/src/bridge.rs) and the Clearmark Library on the home screen
+(crates/ui-egui/src/library.rs).
 License: MIT or Apache-2.0 (LICENSE-MIT, LICENSE-APACHE, NOTICE). Fonts: SIL OFL (OFL-*.txt).
 
-To update: replace every file in this folder with the new release's web zip contents.
-The .js and .wasm names carry a content hash, so app/apps/create/figcraft needs no change.
+To update: in ~/Developer/figcraft on clearmark-web, run `trunk build --release` in
+apps/figcraft-web, then replace index.html and the figcraft-web-*.js / *_bg.wasm files here with
+those in dist/web. The .js and .wasm names carry a content hash, so app/apps/create/figcraft needs
+no change.

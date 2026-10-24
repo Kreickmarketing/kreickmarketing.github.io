@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCrmMember } from "@/lib/supabase-server";
-import CrmShell from "../../CrmShell";
-import "../../clrcrm.css";
+import FigcraftWorkspace from "./FigcraftWorkspace";
 import "../create.css";
 
 export const metadata: Metadata = {
@@ -10,20 +9,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// FigCraft's web build (public/apps/create/figcraft/app/) in a full-height frame under the team bar.
-// It runs entirely in the browser; nothing is saved to Supabase yet.
-export default async function FigCraftPage() {
+// FigCraft full screen, with no team bar: its tab bar has a Clearmark button back to /apps/create,
+// and its home screen shows the Craft Library (FigcraftWorkspace). ?file=<id> opens a Library file.
+export default async function FigCraftPage({ searchParams }: { searchParams: Promise<{ file?: string }> }) {
   const member = await getCrmMember();
   if (!member) redirect("/apps/login?denied=1");
-  return (
-    <CrmShell current="create" username={member.username} className="craft-full">
-      <iframe
-        src="/apps/create/figcraft/app/index.html"
-        title="FigCraft interface design tool"
-        className="craft-frame"
-        allow="fullscreen; clipboard-read; clipboard-write"
-        allowFullScreen
-      />
-    </CrmShell>
-  );
+  const { file } = await searchParams;
+  return <FigcraftWorkspace openFile={file} />;
 }

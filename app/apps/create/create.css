@@ -12,3 +12,9 @@
   border: 0;
   display: block;
 }
+/* A Craft app with its own way back (FigCraft's Clearmark button): the whole window. */
+.craft-frame-full {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+}
