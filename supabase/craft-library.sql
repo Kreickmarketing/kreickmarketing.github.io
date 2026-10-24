@@ -1,5 +1,5 @@
 -- Craft Library: designs and exports saved from the Craft apps (FigCraft first) at /apps/create.
--- NOT YET APPLIED. Paste into Supabase > SQL Editor (project clearmark-test) and run.
+-- Applied to clearmark-website (the site's project, formerly clearmark-test) on Oct 24, 2026, in the SQL Editor.
 --
 -- Private bucket "craft-library": files are only reachable through short-lived signed links that
 -- the Library API (app/apps/create/library/api) hands out after checking the login. Uploads go
