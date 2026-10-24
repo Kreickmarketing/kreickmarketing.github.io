@@ -55,12 +55,14 @@ export default function FigcraftWorkspace({ openFile }: { openFile?: string }) {
   // The Library's designs, with their pictures, onto FigCraft's home screen.
   const refresh = useCallback(async () => {
     try {
-      const { files } = (await library({ action: "list", kind: "design" })) as { files: LibraryFile[] };
-      const withThumbs = await Promise.all(files.map(async (f) => {
-        const thumb = f.thumbUrl ? await fetch(f.thumbUrl).then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null) : null;
-        return { id: f.id, name: f.name, detail: edited(f.updatedAt), thumb: thumb ? new Uint8Array(thumb) : null };
+      const [designs, exports] = await Promise.all(["design", "export"].map(async (kind) => {
+        const { files } = (await library({ action: "list", kind })) as { files: LibraryFile[] };
+        return Promise.all(files.map(async (f) => {
+          const thumb = f.thumbUrl ? await fetch(f.thumbUrl).then((r) => (r.ok ? r.arrayBuffer() : null)).catch(() => null) : null;
+          return { id: f.id, name: f.name, detail: edited(f.updatedAt), thumb: thumb ? new Uint8Array(thumb) : null };
+        }));
       }));
-      await request("setLibrary", { title: "Clearmark Library", files: withThumbs });
+      await request("setLibrary", { title: "Clearmark Library", files: designs, exports });
     } catch (e) {
       toast(e instanceof Error ? e.message : "Couldn't load the Library");
     }
@@ -92,6 +94,36 @@ export default function FigcraftWorkspace({ openFile }: { openFile?: string }) {
     }
   }, [request, refresh]);
 
+  // A PNG exported in FigCraft: kept in the Library (kind "export") for Social Studio and the rest.
+  const keepExport = useCallback(async (m: Message) => {
+    const bytes = m.bytes as Uint8Array, name = String(m.name || "Export");
+    try {
+      const start = await library({ action: "upload-url", kind: "export", size: bytes.length });
+      await upload(start.file.uploadUrl, bytes, "image/png");
+      await library({ action: "commit", id: start.id, kind: "export", name, size: bytes.length, path: start.file.path });
+      toast(`Saved ${name} to the Library`);
+      refresh();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Couldn't save the export to the Library");
+    }
+  }, [toast, refresh]);
+
+  // An export chosen in the Library: downloaded to the computer.
+  const download = useCallback(async (id: string) => {
+    try {
+      const { url, name } = await library({ action: "download-url", id });
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Couldn't download the file");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(await res.blob());
+      link.download = `${name}.png`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 40_000);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Couldn't download the file");
+    }
+  }, [toast]);
+
   useEffect(() => {
     let opened = false;
     const onMessage = (e: MessageEvent<Message>) => {
@@ -111,13 +143,15 @@ export default function FigcraftWorkspace({ openFile }: { openFile?: string }) {
       } else if (m.type === "figcraft:event") {
         if (m.event === "open" && typeof m.id === "string") open(m.id);
         else if (m.event === "save") save(m);
+        else if (m.event === "export") keepExport(m);
+        else if (m.event === "download" && typeof m.id === "string") download(m.id);
         else if (m.event === "refresh") refresh();
         else if (m.event === "leave") location.href = "/apps/create";
       }
     };
     addEventListener("message", onMessage);
     return () => removeEventListener("message", onMessage);
-  }, [refresh, open, save, openFile]);
+  }, [refresh, open, save, keepExport, download, openFile]);
 
   return (
     <iframe
