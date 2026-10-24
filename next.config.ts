@@ -35,8 +35,19 @@ const nextConfig: NextConfig = {
     };
   },
   // The test address stays out of search engines while kreickmarketing.com is still the Framer site.
+  // Craft app builds: the .wasm and .js names carry a content hash, so browsers can keep them for good
+  // (FigCraft's wasm is 24 MB; this saves downloading it on every visit).
   async headers() {
-    return [{ source: "/:path*", has: [{ type: "host", value: "new\\.kreickmarketing\\.com" }], headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+    return [
+      { source: "/:path*", has: [{ type: "host", value: "new\\.kreickmarketing\\.com" }], headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      { source: "/apps/create/:craft/app/:file(.+\\.(?:wasm|js))", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      { source: "/apps/create/:craft/app/index.html", headers: [{ key: "Cache-Control", value: "no-cache" }] },
+    ];
+  },
+  // The Studio builder route makes the build trace the whole project. Keep the Craft app builds
+  // (24 MB+ each) out of the server functions; they're only ever served as static files.
+  outputFileTracingExcludes: {
+    "*": ["./public/apps/create/**"],
   },
   // The Studio builder and new CRM routes read their HTML source at run time; ship those files with them.
   outputFileTracingIncludes: {

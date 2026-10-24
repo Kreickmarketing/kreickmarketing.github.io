@@ -8,6 +8,7 @@ const tools = [
   { key: "products", label: "Products (price list)", href: "/apps/crm/products", external: false },
   { key: "playbook", label: "Playbook", href: "/apps/playbook", external: false },
   { key: "interview", label: "Interview app", href: "/apps/interview", external: false },
+  { key: "create", label: "Create (FigCraft)", href: "/apps/create", external: false },
 ] as const;
 
 export type CrmTool = (typeof tools)[number]["key"];

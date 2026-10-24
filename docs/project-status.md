@@ -7,6 +7,8 @@
 - Kreick Marketing site (separate repo kreickmarketing-site): https://kreickmarketing.vercel.app (Gigs, 6 case studies, AI Explorations).
 - Kreick Marketing in Studio (Oct 21, 2026, branch `kreick-templates`, not merged): 17 `km-*` templates + 9 page templates (Gigs as home, AI Work, 7 portfolio pages), `/apps/studio/templates`, `/apps/studio/builder?site=kreick`, canvas https://claude.ai/artifact/2QVUF1U7BcnCxZiwFAREQv. Details: `docs/studio-plan.md`, Oct 21.
 
+- Create (Oct 24, 2026): /apps/create (a card per Craft app, `app/apps/create/craft-list.ts`) and /apps/create/figcraft (FigCraft 0.10.0 web build in a full-height frame under the team bar). The build is unchanged from the open-source release and lives in `public/apps/create/figcraft/app/` (`VERSION.txt` says how to update it). Behind the team login, including its files. Runs entirely in the browser; nothing is saved to Supabase yet. DesignCraft, PhotoCraft and FilmCraft show as "Coming". `next.config.ts` keeps these files out of the server functions and caches the hashed .wasm/.js for a year.
+
 ## Where things live in this repo
 - `styles/colors.css`, `styles/typography.css`, `styles/buttons.css`: the only sources for color, type and buttons.
 - `components/`: Card (13 sizes), Hero, SectionHeader, Credibility, Platforms, SiteNav (+ SiteTabBar), Footer. All size themselves by their own width.
