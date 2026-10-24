@@ -18,7 +18,8 @@ const nextConfig: NextConfig = {
     ];
   },
   // The Kreick Marketing site (Oct 22, 2026): on a Kreick address every page comes from app/kreick-site,
-  // so none of ClearMark's pages show there (except the shared /_next, /fonts and /studio-media files).
+  // so none of ClearMark's pages show there (except the shared /_next, /fonts and /studio-media files,
+  // and Drive's public website files at /files).
   // On any other address that folder doesn't exist.
   async rewrites() {
     const kreick = [{ type: "host" as const, value: KREICK_HOSTS }];
@@ -27,7 +28,7 @@ const nextConfig: NextConfig = {
         { source: "/kreick-site/:path*", missing: kreick, destination: "/not-found" },
         // Order matters: each rule sees the address the rules above it made. "/" goes last,
         // so the folder it adds isn't rewritten again.
-        { source: "/:path((?!_next/|fonts/|studio-media/).+)", has: kreick, destination: "/kreick-site/:path" },
+        { source: "/:path((?!_next/|fonts/|studio-media/|files/).+)", has: kreick, destination: "/kreick-site/:path" },
         { source: "/", has: kreick, destination: "/kreick-site" },
       ],
       afterFiles: [],

@@ -10,6 +10,7 @@ export const APPS: AppCard[] = [
   { key: "playbook", name: "Playbook", href: "/apps/playbook", blurb: "ClearMark brand playbook" },
   { key: "interview", name: "Interview", href: "/apps/interview", blurb: "Interview drill" },
   { key: "create", name: "Create", href: "/apps/create", blurb: "FigCraft and the Craft apps" },
+  { key: "drive", name: "Drive", href: "/apps/drive", blurb: "Every file, in folders" },
   // Until the products are moved into the CRM by hand; then remove this card.
   { key: "products", name: "Products", href: "/apps/crm/products", blurb: "Price list" },
   { key: "socialstudio", name: "Social Studio", href: "/apps/socialstudio", blurb: "Social posts and calendar", status: "coming", fullLoad: true },

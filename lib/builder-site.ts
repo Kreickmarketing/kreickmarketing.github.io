@@ -453,7 +453,7 @@ export const BUILDER_PAGES = [
 export type BuilderPageInfo = { id: string; name: string; path: string; unpublished: boolean };
 
 // Addresses Studio pages can't take: the site's own routes.
-export const RESERVED_SLUGS = new Set(["apps", "clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"]);
+export const RESERVED_SLUGS = new Set(["apps", "clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin", "files"]);
 export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 // The page list in a state, checked: Home (or Kreick's Gigs) is always "/", every other page has a
