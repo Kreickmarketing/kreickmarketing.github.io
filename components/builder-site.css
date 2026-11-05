@@ -427,8 +427,8 @@
 .site .eng .hero-bg::after { background: none; }
 .site .eng .hero-bg :is(img, .site video) { object-position: center bottom; }
 .site .eng-stage { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; aspect-ratio: 1280 / 480; }
-.site .eng-fan { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.site .eng-node { position: absolute; width: 64px; height: 64px; }
+.site .eng-fan { position: absolute; left: 26.992%; top: 8.333%; width: 46.016%; height: auto; pointer-events: none; }
+.site .eng-node { position: absolute; width: 64px; height: 64px; transform: translate(-50%, -50%); }
 .site .eng-dot, .site .eng-list .eng-dot { box-sizing: border-box; width: 64px; height: 64px; border: 1.5px solid var(--white); border-radius: 999px; background: color-mix(in srgb, var(--deep-teal) 85%, transparent); display: grid; place-items: center; flex: none; }
 .site .eng-dot svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .site .eng-label { position: absolute; text-align: center; display: flex; flex-direction: column; gap: 4px; }
@@ -436,18 +436,18 @@
 .site .eng-label p, .site .eng-list p { margin: 0; font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 300; }
 .site .eng-copy { padding: 0 64px; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; }
 .site .eng-head { margin: 0; max-width: 960px; font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 200; }
-.site .eng-body { margin: 0; max-width: 1100px; font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 300; }
+.site .eng-body { margin: 0; max-width: 1100px; font-size: 20px; line-height: 28px; letter-spacing: -1px; font-weight: 300; }
 .site .eng-list { display: none; }
-.site .eng-n1 { left: 29.766%; top: 63.958%; }
-.site .eng-n1 .eng-label { left: -206px; top: 50%; transform: translateY(-50%); width: 220px; }
-.site .eng-n2 { left: 37.188%; top: 32.500%; }
-.site .eng-n2 .eng-label { left: -77px; top: -72px; transform: translateX(-50%); width: 260px; }
-.site .eng-n3 { left: 47.500%; top: 22.083%; }
+.site .eng-n1 { left: 33.125%; top: 64.583%; }
+.site .eng-n1 .eng-label { left: -226px; top: 20%; transform: translateY(-50%); width: 220px; }
+.site .eng-n2 { left: 40.000%; top: 38.125%; }
+.site .eng-n2 .eng-label { left: -102px; top: -62px; transform: translateX(-50%); width: 260px; }
+.site .eng-n3 { left: 50.000%; top: 27.500%; }
 .site .eng-n3 .eng-label { left: 50%; bottom: 76px; transform: translateX(-50%); width: 260px; }
-.site .eng-n4 { left: 57.969%; top: 32.083%; }
-.site .eng-n4 .eng-label { left: 141px; top: -67px; transform: translateX(-50%); width: 260px; }
-.site .eng-n5 { left: 64.922%; top: 61.458%; }
-.site .eng-n5 .eng-label { left: 61px; top: 50%; transform: translateY(-50%); width: 240px; }
+.site .eng-n4 { left: 59.922%; top: 38.125%; }
+.site .eng-n4 .eng-label { left: 160px; top: -67px; transform: translateX(-50%); width: 260px; }
+.site .eng-n5 { left: 66.797%; top: 64.583%; }
+.site .eng-n5 .eng-label { left: 71px; top: 0%; transform: translateY(-50%); width: 240px; }
 @container (max-width: 1000px) {
   .site .eng { min-height: 0; padding: 96px 0 320px; justify-content: flex-start; gap: 48px; }
   .site .eng-label { display: none; }
