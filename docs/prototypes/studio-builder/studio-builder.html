@@ -1053,7 +1053,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
    then a headline and paragraph. Nov 5: one screen tall, diagram and words centred, no hover movement. Tablet and phone aren't designed yet:
    for now the words move into a list under the diagram. */
 .eng { padding: 96px 0; min-height: var(--screen-h, 800px); justify-content: center; gap: 48px; }
-.eng .hero-bg::after { background: none; }
+.eng .hero-bg::after { background: color-mix(in srgb, var(--cm-midnight) 20%, transparent); }  /* Nov 5: 20% shade so the lotus stands out */
 .eng .hero-bg :is(img, video) { object-position: center bottom; }
 .eng-stage { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; aspect-ratio: 1280 / 480; }
 .eng-fan { position: absolute; left: 26.992%; top: 8.333%; width: 46.016%; height: auto; pointer-events: none; }

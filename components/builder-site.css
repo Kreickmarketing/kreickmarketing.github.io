@@ -424,7 +424,7 @@
 
 /* Engine (T.O.E., Oct 8): fan of five icons that slide outward on hover. Tablet and phone: words move to a list. */
 .site .eng { padding: 96px 0; min-height: 100vh; min-height: 100svh; justify-content: center; gap: 48px; }
-.site .eng .hero-bg::after { background: none; }
+.site .eng .hero-bg::after { background: color-mix(in srgb, var(--midnight) 20%, transparent); }  /* Nov 5: 20% shade so the lotus stands out */
 .site .eng .hero-bg :is(img, .site video) { object-position: center bottom; }
 .site .eng-stage { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; aspect-ratio: 1280 / 480; }
 .site .eng-fan { position: absolute; left: 26.992%; top: 8.333%; width: 46.016%; height: auto; pointer-events: none; }
