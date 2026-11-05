@@ -175,7 +175,9 @@ function withUnit(num: string, unit: string, at = ""): string {
   if (u.length === 1 && !/[\p{L}%]/u.test(u)) return esc(u) + num;
   return num + (/^\p{L}{2}/u.test(u) ? "\u00a0" : "") + esc(u);  // no-break space: flex boxes drop a plain one
 }
-const statValue = (n: string, unit: string, delay: number, at = "") => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit, at);
+// A number typed with its own symbol ("17%", "$120", "3x") keeps it, and the Graph measure is left off.
+const ownUnit = (n: string) => n.trim().match(/^([^\d.,\s-]*)\s*(-?[\d.,]+)\s*(\S.*)?$/);
+const statValue = (n: string, unit: string, delay: number, at = "") => { const m = ownUnit(n); if (m && (m[1] || m[3])) { unit = m[1] || m[3]; at = m[1] ? "before" : "after"; n = m[2]; } return withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit, at); };
 // Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare, green = Emerald Tide, white).
 const gcClass = (v: unknown) => ({ red: " gc-red", blue: " gc-blue", yellow: " gc-yellow", green: " gc-green", white: " gc-white" } as Record<string, string>)[str(v).toLowerCase()] || "";
 function growPath(end: number, max: number, seed: number): string {
