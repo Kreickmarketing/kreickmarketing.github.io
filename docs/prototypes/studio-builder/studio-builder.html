@@ -4555,8 +4555,8 @@ const TEMPLATES = [
   // Text with a "def" shows that wording until you change it (so the spot is never blank).
   { id: "mailing", name: "Mailing list", type: "mail", about: "Headline, one line of intro, and the sign-up form.", slots: [
     { key: "label", label: "Small label", kind: "text", limit: 24, optional: true, def: "Mailing list", source: "One or two words above the headline" },
-    { key: "headline", label: "Headline", kind: "text", limit: 60, source: "e.g. “Stay in the loop”. Enter for a second line." },
-    { key: "intro", label: "Intro", kind: "text", limit: 200, long: true, source: "One or two sentences on what people get" },
+    { key: "headline", label: "Headline", kind: "text", limit: 32, source: "e.g. “Stay in the loop”" },
+    { key: "intro", label: "Intro", kind: "text", limit: 120, long: true, source: "One sentence on what people get" },
     { key: "name", label: "Name field label", kind: "text", limit: 24, optional: true, def: "Name", source: "e.g. “Your name”" },
     { key: "email", label: "Email field label", kind: "text", limit: 24, optional: true, def: "Email", source: "e.g. “Work email”" },
     { key: "button", label: "Button text", kind: "text", limit: 22, optional: true, def: "Sign up", source: "e.g. “Join the list”" },
