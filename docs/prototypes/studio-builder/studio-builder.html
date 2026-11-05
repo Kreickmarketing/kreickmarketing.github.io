@@ -1906,10 +1906,30 @@ rebuildOffers();
 // ── Templates: section designs, made in code. Each has named spots to fill. ──
 // kind: text (limit) · link · image · logos (max) · list (max rows, columns with limits) · offers (max)
 // axis "x": items in the spot sit side by side, so dragging reorders left/right.
+// Headlines typed in one box (Heading, Photo + tags): Enter = new line; <b>…</b> or Ctrl/⌘ B = bold.
+// They were two list rows (one per line) before Nov 5, 2026; those are turned into one text when Studio opens.
+const RICH_ABOUT = "Press Enter for a new line. Bold: select words and press Ctrl B (⌘ B on Mac) or the B button, or type <b>words</b>.";
+const richLen = (v) => String(v ?? "").replace(/<\/?b>/gi, "").length;
+function richLines(v) {
+  let open = false;
+  return String(v ?? "").trim().split(/\r?\n/).map((line) => {
+    const start = open;
+    const html = esc(line.trim()).replace(/&lt;(\/?)b&gt;/gi, (_m, close) => { if (!close && !open) { open = true; return "<b>"; } if (close && open) { open = false; return "</b>"; } return ""; });
+    return `<span>${start ? "<b>" : ""}${html || "&nbsp;"}${open ? "</b>" : ""}</span>`;
+  }).join("");
+}
+// Ctrl/⌘ B or the B button: put <b> </b> round the selected words (or take it off if already there).
+function toggleBold(ta) {
+  const a = ta.selectionStart, b = ta.selectionEnd, v = ta.value;
+  if (v.slice(a - 3, a).toLowerCase() === "<b>" && v.slice(b, b + 4).toLowerCase() === "</b>") { ta.value = v.slice(0, a - 3) + v.slice(a, b) + v.slice(b + 4); ta.setSelectionRange(a - 3, b - 3); }
+  else if (/^<b>[\s\S]*<\/b>$/i.test(v.slice(a, b))) { ta.value = v.slice(0, a) + v.slice(a + 3, b - 4) + v.slice(b); ta.setSelectionRange(a, b - 7); }
+  else { ta.value = v.slice(0, a) + "<b>" + v.slice(a, b) + "</b>" + v.slice(b); ta.setSelectionRange(a + 3, b + 3); }
+  ta.dispatchEvent(new Event("input", { bubbles: true }));
+}
 // Graph spots, shared by Hero and Photo + text. `colours` is the wording shown on each Colour field.
 const graphSlots = (lineKey, colours, lineSource) => [
   { key: "graphTitle", label: "Small title", kind: "text", limit: 32, optional: true, about: "Small heading on the graph card.", source: "e.g. “Customer feedback”" },
-  { key: "graphUnit", label: "Graph measure", kind: "text", limit: 8, optional: true, about: "%, $, MPH, days… Rings use % when left empty.", source: "e.g. %" },
+  { key: "graphUnit", label: "Graph measure", kind: "text", limit: 8, optional: true, unitAt: true, about: "Anything: %, $, €, MPH, days… Choose whether it goes before or after the number. Rings use % when left empty.", source: "e.g. %" },
   { key: lineKey, label: "Graph: line", kind: "list", max: 1, cols: [{ key: "from", label: "First number", limit: 10 }, { key: "fromLabel", label: "First label", limit: 16 }, { key: "fromColor", label: `First colour: ${colours}`, limit: 6 }, { key: "to", label: "Second number", limit: 10 }, { key: "toLabel", label: "Second label", limit: 16 }, { key: "toColor", label: `Second colour: ${colours}`, limit: 6 }], optional: true, about: "Two numbers drawn as two rising lines. Fill one graph; line shows first, then bars, then rings.", source: lineSource },
   { key: "bars", label: "Graph: bars", kind: "list", max: 6, cols: [{ key: "label", label: "Label", limit: 6 }, { key: "value", label: "Number", limit: 10 }, { key: "color", label: `Colour: ${colours}`, limit: 6 }], optional: true, about: "Up to six bars that grow from the bottom.", source: "e.g. Q1–Q5" },
   { key: "ringScale", label: "Rings: full ring", kind: "text", limit: 16, optional: true, about: "What a full ring stands for. “360” fills the ring at 360; “360 = 50%” fills half a ring at 360 (it still shows 360). Empty: % numbers fill out of 100, others out of the larger number.", source: "e.g. 360 or 360 = 50%" },
@@ -1926,7 +1946,7 @@ const TEMPLATES = [
   ]},
   { id: "heading", name: "Heading", type: "header", about: "Tagline on the left; a two-line headline and an optional paragraph on the right.", slots: [
     { key: "tagline", label: "Tagline", kind: "text", limit: 24, source: "One or two words, e.g. “Solutions”" },
-    { key: "headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "Playbook · Pillars" },
+    { key: "headline", label: "Headline", kind: "text", rich: true, long: true, limit: 60, about: RICH_ABOUT, source: "Playbook · Pillars" },
     { key: "body", label: "Paragraph", kind: "text", limit: 260, long: true, optional: true, about: "Fill it, or leave it empty and the heading stands alone.", source: "Playbook · Value proposition" },
   ]},
   { id: "logos", name: "Logo row", type: "cred", about: "A short label and a row of white logos on Charcoal.", slots: [
@@ -1946,7 +1966,7 @@ const TEMPLATES = [
   { id: "photo-tags", name: "Photo background + tags", type: "plat", about: "Full-width photo with a headline, + tags and a logo grid.", slots: [
     { key: "image", label: "Background image", kind: "image", source: "Images · Platforms background" },
     { key: "label", label: "Label", kind: "text", limit: 24, source: "e.g. “Platforms”" },
-    { key: "headline", label: "Headline, two lines", kind: "list", max: 2, cols: [{ key: "line", label: "Line", limit: 28 }], source: "e.g. “For any business. / On any platform.”" },
+    { key: "headline", label: "Headline", kind: "text", rich: true, long: true, limit: 60, about: RICH_ABOUT, source: "e.g. “For any business.” Enter “On any platform.”" },
     { key: "tags", label: "+ Tags", kind: "list", max: 9, axis: "x", cols: [{ key: "tag", label: "Tag", limit: 30 }], source: "Business areas you serve" },
     { key: "logos", label: "Logos", kind: "logos", max: 20, axis: "x", about: "Up to 20. Two rows that slide sideways: the first half on top (moving left), the rest below (moving right).", source: "Images · Platform logos" },
   ]},
@@ -2061,7 +2081,7 @@ function seed() {
   set("hero.stat", [{ from: "17", fromLabel: "Before", to: "54", toLabel: "After" }]);
   set("credibility.label", "Speaker & certifications:", false);
   set("platforms.label", "Platforms");
-  set("platforms.headline", [{ line: "For any business." }, { line: "On any platform." }]);
+  set("platforms.headline", "For any business.\nOn any platform.");
   set("sol-offers.cards", ["content", "agency", "publishing"]);
   set("why-proof.photo", "media/founder.webp");
   set("why-proof.points", [
@@ -2069,7 +2089,7 @@ function seed() {
     { title: "Creative Direction & AI Strategy", proof: "We integrate human-centric AI with visual storytelling to drive wins and achieve tangible business value through strategic AI deployment." },
     { title: "Built by Doers, Not Talkers", proof: "Our team has led transformations across Fortune 2,000 companies, marketing agencies, financial services, and global ops teams." },
   ]);
-  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, noTabs: {}, noNums: {}, bg: {}, device: "desktop", guides: true };
+  return { pages, pageList: structuredClone(START_PAGES), protoLive: { home: true }, slots: v, page: "home", flip: {}, noIcons: {}, noTabs: {}, noNums: {}, bg: {}, unitAt: {}, device: "desktop", guides: true };
 }
 // Live Studio (/clrcrm/studio/builder) hands over the saved draft from Supabase and
 // saves back to it; the prototype on its own keeps everything in this browser.
@@ -2088,7 +2108,7 @@ const liveChip = (p) => `<span class="live-chip${pageIsLive(p) ? " is-live" : ""
 let S;
 if (LIVE) S = window.__STUDIO_STATE__?.pages ? window.__STUDIO_STATE__ : null;
 else try { S = JSON.parse(localStorage.getItem(KEY)) || null; } catch { S = null; }
-if (S) { S.flip ||= {}; S.noIcons ||= {}; S.noTabs ||= {}; S.noNums ||= {}; S.bg ||= {}; if (!S.pages) S = null; }
+if (S) { S.flip ||= {}; S.noIcons ||= {}; S.noTabs ||= {}; S.noNums ||= {}; S.bg ||= {}; S.unitAt ||= {}; if (!S.pages) S = null; }
 if (!S) { S = seed(); if (matchMedia("(max-width: 760px)").matches) S.device = "phone"; }
 // Sections made from copies in the old Design view go back to their original template;
 // design now lives in Claude Design, so the builder keeps no design of its own.
@@ -2097,6 +2117,11 @@ delete S.design; delete S.customTpls;
 if (!Array.isArray(S.pageList)) S.pageList = structuredClone(START_PAGES);
 for (const p of S.pageList) S.pages[p.id] = (S.pages[p.id] || []).filter((inst) => TPL[inst.t]);
 PAGE_LIST = S.pageList;
+// Two-line headlines saved as list rows (before Nov 5, 2026) become one text, a line each.
+for (const l of Object.values(S.pages)) for (const inst of l) for (const sl of TPL[inst.t]?.slots || []) if (sl.rich) {
+  const st = S.slots?.[`${inst.uid}.${sl.key}`]; if (!st) continue;
+  for (const k of ["value", "placed"]) if (Array.isArray(st[k])) st[k] = st[k].map((r) => String(r?.line ?? "").trim()).filter(Boolean).join("\n");
+}
 // Offer cards picked before the CMS used ids like "agency": point them at the CMS items.
 for (const [sid, st] of Object.entries(S.slots || {})) if (sid.endsWith(".cards")) for (const k of ["value", "placed"])
   if (Array.isArray(st[k])) st[k] = st[k].map((r) => (LEGACY_OFFER_IDS[r] ? OFFERS.find((o) => o.slug === LEGACY_OFFER_IDS[r])?.id || r : r));
@@ -2176,7 +2201,7 @@ function status(id) {
 const P = (id) => { const st = S.slots[id]; return !st || isEmpty(st.placed) ? null : st.placed; };
 function overLimit(id) {
   const sl = SLOTS[id], v = S.slots[id]?.value ?? "";
-  if (sl.kind === "text") return v.length > sl.limit;
+  if (sl.kind === "text") return (sl.rich ? richLen(v) : v.length) > sl.limit;
   if (sl.kind === "list") return v.some((r) => sl.cols.some((c) => (r[c.key] || "").length > c.limit));
   return false;
 }
@@ -2190,7 +2215,7 @@ function slotBox(id, extra = "", style = "") {
 }
 const filledAttr = (id) => `data-slot="${id}" class="filled${selected === id ? " is-sel" : ""}"`;
 const text = (id, tag, cls = "", extraSlotCls = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${esc(v)}</${tag}>` : slotBox(id, extraSlotCls); };
-const lines = (id, tag, cls = "", extra = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${v.map((r) => `<span>${esc(r.line)}</span>`).join("")}</${tag}>` : slotBox(id, extra); };
+const lines = (id, tag, cls = "", extra = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${typeof v === "string" ? richLines(v) : v.map((r) => `<span>${esc(r.line)}</span>`).join("")}</${tag}>` : slotBox(id, extra); };
 const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY_OFFER_IDS[oid] || oid));
 // Design-system offer card (Offer Card Full / Two / Three): its size per screen comes from CSS.
 const OC_PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
@@ -2262,13 +2287,16 @@ const photoBox = (sec, id, alt = "") => { const photo = P(id); return photo ? `<
 // `first` draws the real logos (draggable in the preview); `copy` draws the repeats.
 // Hero stat chart. A one-character symbol such as $ goes before the number; %, x and words go after.
 const statNum = (v) => parseFloat(String(v ?? "").replace(/[^0-9.-]/g, "")) || 0;
-function withUnit(num, unit) {
+// at: "before" / "after" (Graph measure → Where it goes); empty = the rule above.
+function withUnit(num, unit, at = "") {
   const u = String(unit || "").trim();
   if (!u) return num;
+  if (at === "before") return esc(u) + (/\p{L}$/u.test(u) && u.length > 1 ? "\u00a0" : "") + num;
+  if (at === "after") return num + (/^\p{L}{2}/u.test(u) ? "\u00a0" : "") + esc(u);
   if (u.length === 1 && !/[\p{L}%]/u.test(u)) return esc(u) + num;
   return num + (/^\p{L}{2}/u.test(u) ? "\u00a0" : "") + esc(u);  // no-break space: flex boxes drop a plain one
 }
-const statValue = (n, unit, delay) => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit);
+const statValue = (n, unit, delay, at = "") => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit, at);
 // Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare, green = Emerald Tide, white).
 const gcClass = (v) => ({ red: " gc-red", blue: " gc-blue", yellow: " gc-yellow", green: " gc-green", white: " gc-white" })[String(v ?? "").trim().toLowerCase()] || "";
 // A rising line from near zero to `end` (out of `max`), with a gentle wobble so it reads as real data.
@@ -2288,15 +2316,15 @@ function growPath(end, max, seed) {
 function lineGraph(d, delay) {
   const a = statNum(d.from), b = statNum(d.to), max = Math.max(a, b, 1) * 1.1, da = growPath(a, max, 1), db = growPath(b, max, 4);
   return `<svg class="hstat-chart" viewBox="0 0 312 120" aria-hidden="true"><path class="hstat-grid" d="M0 0.5H312M0 40.5H312M0 80.5H312M0 119.5H312"/><path class="hstat-area${gcClass(d.toColor)}" d="${db} L312 120 L0 120Z"/><path class="hstat-a${gcClass(d.fromColor)}" pathLength="1" d="${da}"/><path class="hstat-b${gcClass(d.toColor)}" pathLength="1" d="${db}"/></svg>
-    <div class="hstat-keys"><p class="hstat-key a${gcClass(d.fromColor)}"><b>${statValue(d.from, d.unit, delay)}</b><span>${esc(d.fromLabel)}</span></p><p class="hstat-key b${gcClass(d.toColor)}"><b>${statValue(d.to, d.unit, delay + 150)}</b><span>${esc(d.toLabel)}</span></p></div>`;
+    <div class="hstat-keys"><p class="hstat-key a${gcClass(d.fromColor)}"><b>${statValue(d.from, d.unit, delay, d.at)}</b><span>${esc(d.fromLabel)}</span></p><p class="hstat-key b${gcClass(d.toColor)}"><b>${statValue(d.to, d.unit, delay + 150, d.at)}</b><span>${esc(d.toLabel)}</span></p></div>`;
 }
 // Bars on a tidy scale (0 to five even steps), labels under the bars, the scale on the right.
-function barsGraph(rows, unit, delay) {
+function barsGraph(rows, unit, delay, at = "") {
   const vals = rows.map((r) => Math.max(0, statNum(r.value))), want = Math.max(...vals, 1) / 5, p = Math.pow(10, Math.floor(Math.log10(want)));
   const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9), top = step * 5;
   // Same 20px gap whatever the count: fewer bars are wider (up to 96px), the group centred.
   const gap = 20, bw = Math.min(96, (236 - gap * (rows.length - 1)) / rows.length), x0 = (236 - (bw * rows.length + gap * (rows.length - 1))) / 2;
-  const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit)}</text>`; }).join("");
+  const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit, at)}</text>`; }).join("");
   const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = x0 + n * (bw + gap); return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${delay + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(r.label)}</text>`; }).join("");
   return `<svg class="gfx-plot" viewBox="0 0 280 150" role="img" aria-label="${esc(rows.map((r) => `${r.label} ${r.value}${unit || ""}`).join(", "))}">${grid}${bars}</svg>`;
 }
@@ -2308,18 +2336,18 @@ function ringFull(v) {
   const n = +m[1], pct = m[2] == null ? 100 : +m[2];
   return n > 0 && pct > 0 ? (n * 100) / pct : 0;
 }
-function ringsGraph(rows, unit, delay, scale) {
+function ringsGraph(rows, unit, delay, scale, at = "") {
   const u = String(unit || "").trim() || "%", vals = rows.map((r) => Math.max(0, statNum(r.value))), max = ringFull(scale) || (u === "%" ? 100 : Math.max(...vals, 1));
   return `<div class="gfx-rings">${rows.map((r, n) => { const pct = Math.min(100, (vals[n] / max) * 100);
-    return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(r.value, u, delay + n * 150)}</b></div><span>${esc(r.label)}</span></div>`; }).join("")}</div>`;
+    return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(r.value, u, delay + n * 150, at)}</b></div><span>${esc(r.label)}</span></div>`; }).join("")}</div>`;
 }
 // The first filled graph (line, then bars, then rings) with its small heading. Hero saved its title
 // and measure inside the line row before Oct 9 (kicker, unit); those still work.
 const graphRows = (v) => (Array.isArray(v) ? v.filter((r) => r && Object.values(r).some((x) => String(x ?? "").trim())) : []);
 function pickGraph(k, lineKey, delay) {
   const ln = graphRows(P(k(lineKey)))[0], br = graphRows(P(k("bars"))).slice(0, 6), rg = graphRows(P(k("rings"))).slice(0, 2);
-  const u = P(k("graphUnit")) || ln?.unit || "", t = P(k("graphTitle")) || ln?.kicker || "";
-  const pick = ln && (ln.from || ln.to) ? [lineKey, lineGraph({ ...ln, unit: u }, delay)] : br.length ? ["bars", barsGraph(br, u, delay)] : rg.length ? ["rings", ringsGraph(rg, u, delay, P(k("ringScale")))] : null;
+  const u = P(k("graphUnit")) || ln?.unit || "", t = P(k("graphTitle")) || ln?.kicker || "", at = S.unitAt[SLOTS[k("graphUnit")]?.section] || "";
+  const pick = ln && (ln.from || ln.to) ? [lineKey, lineGraph({ ...ln, unit: u, at }, delay)] : br.length ? ["bars", barsGraph(br, u, delay, at)] : rg.length ? ["rings", ringsGraph(rg, u, delay, P(k("ringScale")), at)] : null;
   // Studio: an empty heading shows as a dotted spot above the graph (the site shows nothing).
   return pick && { key: pick[0], html: `${t ? `<small ${filledAttr(k("graphTitle"))}>${esc(t)}</small>` : slotBox(k("graphTitle"), "on-dark slot-optional gfx-title-slot")}${pick[1]}` };
 }
@@ -2516,9 +2544,11 @@ function cardBody(id) {
   const counter = (n, lim) => `<span class="count${n > lim ? " over" : ""}">${n}/${lim}</span>`;
   let ed = "";
   if (sl.kind === "text") {
-    ed = `<div class="field"><label for="in-${id}">Content · up to ${sl.limit} characters</label>${sl.long
-      ? `<textarea class="input" id="in-${id}" data-edit="${id}" rows="3">${esc(v)}</textarea>`
-      : `<input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}"${sl.def ? ` placeholder="${esc(sl.def)}"` : ""}>`}${counter(v.length, sl.limit)}</div>${sl.def ? `<p class="source">Empty = “${esc(sl.def)}”.</p>` : ""}`;
+    const n = sl.rich ? richLen(v) : v.length;
+    ed = `<div class="field"><label for="in-${id}">Content · up to ${sl.limit} characters${sl.rich ? " (line breaks and bold allowed)" : ""}</label>${sl.rich ? `<div class="card-actions" style="margin:0 0 6px"><button type="button" class="btn btn-small" data-bold="${id}" aria-label="Bold the selected words" title="Bold (Ctrl B / ⌘ B)" style="font-weight:700;min-width:44px">B</button></div>` : ""}${sl.long
+      ? `<textarea class="input" id="in-${id}" data-edit="${id}"${sl.rich ? " data-rich" : ""} rows="3">${esc(v)}</textarea>`
+      : `<input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}"${sl.def ? ` placeholder="${esc(sl.def)}"` : ""}>`}${counter(n, sl.limit)}</div>${sl.def ? `<p class="source">Empty = “${esc(sl.def)}”.</p>` : ""}${sl.rich ? `<p class="source">${esc(RICH_ABOUT)}</p>` : ""}`;
+    if (sl.unitAt) { const at = S.unitAt[sl.section] || ""; ed += `<div class="field"><label>Where it goes</label><div class="seg" role="group" aria-label="Where the measure goes">${[["", "Auto"], ["before", "Before the number"], ["after", "After the number"]].map(([k, l]) => `<button type="button" data-unitat="${sl.section}:${k}" aria-pressed="${at === k}">${l}</button>`).join("")}</div><p class="source">${at ? `Shows as ${esc(at === "before" ? `${v.trim() || "$"}120` : `120${v.trim() || "%"}`)}. Changes at once.` : "Auto: a single symbol such as $ goes before; %, x and words go after."}</p></div>`; }
     // A button: its link is edited right here too.
     const linkId = `${sl.section}.link`;
     if (sl.key === "button" && SLOTS[linkId]) ed += linkEditor(linkId);
@@ -2891,7 +2921,7 @@ function closeRemove(yes) {
   const l = list(), i = l.findIndex((x) => x.uid === id), name = l[i].name;
   l.splice(i, 1);
   for (const sid of Object.keys(S.slots)) if (sid.startsWith(id + ".")) delete S.slots[sid];
-  delete S.flip[id]; delete S.noIcons[id]; delete S.noTabs[id]; delete S.noNums[id]; delete S.bg[id];
+  delete S.flip[id]; delete S.noIcons[id]; delete S.noTabs[id]; delete S.noNums[id]; delete S.bg[id]; delete S.unitAt[id];
   if (curSec === id) curSec = null;
   if (selected?.startsWith(id + ".")) selected = openCard = null;
   rebuildSlots(); render(); toast(`Removed ${name}.`);
@@ -3045,6 +3075,8 @@ document.addEventListener("click", (e) => {
     const order = sec.bgChoice, now = bgOf(sec), pick = v === "next" ? order[(order.indexOf(now) + 1) % order.length] : v;
     if (!order.includes(pick)) return; if (pick === order[0]) delete S.bg[sid]; else S.bg[sid] = pick;
     render(); toast(`Background: ${BG_NAME[pick]}.`); return; }
+  if (d.unitat) { const [sid, v] = d.unitat.split(":"); if (v === "before" || v === "after") S.unitAt[sid] = v; else delete S.unitAt[sid]; render(); toast(v ? `Measure goes ${v} the number.` : "Measure placed automatically."); return; }
+  if (d.bold) { const ta = document.getElementById(`in-${d.bold}`); if (ta) { ta.focus(); toggleBold(ta); } return; }
   if (d.flip) { S.flip[d.flip] = !S.flip[d.flip]; render(); scrollToSection(d.flip); toast(S.flip[d.flip] ? "Photo on the right." : "Photo on the left."); return; }
   if (d.secmove) { const [id, dir] = d.secmove.split(":"); moveSectionBy(id, +dir); return; }
   if (d.revert) return revert(d.revert);
@@ -3084,6 +3116,8 @@ document.addEventListener("focusin", (e) => {
   const id = e.target.dataset?.edit || e.target.dataset?.cell?.split(":")[0];
   typingSnap = id && S.slots[id] ? { id, snap: takeSnap(id) } : null;
 });
+document.addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && !e.altKey && e.key.toLowerCase() === "b" && e.target.matches?.("textarea[data-rich]")) { e.preventDefault(); toggleBold(e.target); } });
+document.addEventListener("pointerdown", (e) => { if (e.target.closest?.("[data-bold]")) e.preventDefault(); });
 document.addEventListener("input", (e) => {
   const t = e.target;
   const tid = t.dataset.edit || t.dataset.cell?.split(":")[0];
@@ -3093,7 +3127,7 @@ document.addEventListener("input", (e) => {
 });
 function refreshCard(id, input) {
   const c = input.parentElement.querySelector(".count");
-  if (c) { const lim = SLOTS[id].kind === "text" ? SLOTS[id].limit : SLOTS[id].cols.find((x) => x.key === input.dataset.cell.split(":")[2]).limit; c.textContent = `${input.value.length}/${lim}`; c.classList.toggle("over", input.value.length > lim); }
+  if (c) { const lim = SLOTS[id].kind === "text" ? SLOTS[id].limit : SLOTS[id].cols.find((x) => x.key === input.dataset.cell.split(":")[2]).limit, n = SLOTS[id].rich ? richLen(input.value) : input.value.length; c.textContent = `${n}/${lim}`; c.classList.toggle("over", n > lim); }
   const card = document.querySelector(`[data-card="${id}"]`), s = status(id);
   card.className = `ccard is-${s} is-selected`;
   const pill = document.querySelector('[data-eblock="spot"] .ed-extra .pill'); if (pill) { pill.className = `pill pill-${s}`; pill.textContent = s[0].toUpperCase() + s.slice(1); }

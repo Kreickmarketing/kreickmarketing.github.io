@@ -1,4 +1,4 @@
-# Project status (updated Oct 14, 2026, email sending live; clearmark.bz moving to Vercel)
+# Project status (updated Nov 5, 2026: one-box headlines with line breaks and bold; graph measure before or after the number)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app, and www.clearmark.bz once the DNS change from Oct 14 finishes (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.

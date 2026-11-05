@@ -75,6 +75,8 @@ export type BuilderState = {
   // Section background choice (Quote, Spacers): "white" (shown as Clay Light), "cream" (Clay) or "black" (Charcoal);
   // missing = the template's default (Quote: Cream; Spacer: Clay Light, the page background).
   bg?: Record<string, unknown>;
+  // Where a graph's measure sits: "before" or "after" the number (Studio: Graph measure). Missing = automatic.
+  unitAt?: Record<string, unknown>;
   // Image focus points (% from top-left) and zoom (1–3×): Desktop, plus optional tablet/phone crops.
   crop?: Record<string, { x?: unknown; y?: unknown; z?: unknown; tablet?: unknown; phone?: unknown }>;
   pageList?: { id: string; name?: string; path?: string; unpublished?: boolean }[];
@@ -159,13 +161,16 @@ const hasText = (r: Record<string, unknown>) => Object.values(r).some((x) => str
 // A one-character symbol such as $ goes before the number; %, x and words go after.
 // The numbers count up in the browser (components/CountUp.tsx); without it they simply show.
 const statNum = (v: unknown) => parseFloat(str(v).replace(/[^0-9.-]/g, "")) || 0;
-function withUnit(num: string, unit: string): string {
+// at: "before" / "after" (set in Studio, Graph measure → Where it goes); empty = the rule above.
+function withUnit(num: string, unit: string, at = ""): string {
   const u = unit.trim();
   if (!u) return num;
+  if (at === "before") return esc(u) + (/\p{L}$/u.test(u) && u.length > 1 ? "\u00a0" : "") + num;
+  if (at === "after") return num + (/^\p{L}{2}/u.test(u) ? "\u00a0" : "") + esc(u);
   if (u.length === 1 && !/[\p{L}%]/u.test(u)) return esc(u) + num;
   return num + (/^\p{L}{2}/u.test(u) ? "\u00a0" : "") + esc(u);  // no-break space: flex boxes drop a plain one
 }
-const statValue = (n: string, unit: string, delay: number) => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit);
+const statValue = (n: string, unit: string, delay: number, at = "") => withUnit(`<span data-count="${esc(n)}" data-delay="${delay}">${esc(n)}</span>`, unit, at);
 // Graph colours: only brand colours (red = Rogue Cherry, blue = Tidal Azure, yellow = Solar Flare, green = Emerald Tide, white).
 const gcClass = (v: unknown) => ({ red: " gc-red", blue: " gc-blue", yellow: " gc-yellow", green: " gc-green", white: " gc-white" } as Record<string, string>)[str(v).toLowerCase()] || "";
 function growPath(end: number, max: number, seed: number): string {
@@ -181,18 +186,18 @@ function growPath(end: number, max: number, seed: number): string {
   }
   return d;
 }
-function lineGraph(d: Record<string, unknown>, unit: string, delay: number): string {
+function lineGraph(d: Record<string, unknown>, unit: string, delay: number, at = ""): string {
   const a = statNum(d.from), b = statNum(d.to), max = Math.max(a, b, 1) * 1.1, da = growPath(a, max, 1), db = growPath(b, max, 4);
   return `<svg class="hstat-chart" viewBox="0 0 312 120" aria-hidden="true"><path class="hstat-grid" d="M0 0.5H312M0 40.5H312M0 80.5H312M0 119.5H312"/><path class="hstat-area${gcClass(d.toColor)}" d="${db} L312 120 L0 120Z"/><path class="hstat-a${gcClass(d.fromColor)}" pathLength="1" d="${da}"/><path class="hstat-b${gcClass(d.toColor)}" pathLength="1" d="${db}"/></svg>`
-    + `<div class="hstat-keys"><p class="hstat-key a${gcClass(d.fromColor)}"><b>${statValue(str(d.from), unit, delay)}</b><span>${esc(str(d.fromLabel))}</span></p><p class="hstat-key b${gcClass(d.toColor)}"><b>${statValue(str(d.to), unit, delay + 150)}</b><span>${esc(str(d.toLabel))}</span></p></div>`;
+    + `<div class="hstat-keys"><p class="hstat-key a${gcClass(d.fromColor)}"><b>${statValue(str(d.from), unit, delay, at)}</b><span>${esc(str(d.fromLabel))}</span></p><p class="hstat-key b${gcClass(d.toColor)}"><b>${statValue(str(d.to), unit, delay + 150, at)}</b><span>${esc(str(d.toLabel))}</span></p></div>`;
 }
 // Bars on a tidy scale (0 to five even steps), labels under the bars, the scale on the right.
-function barsGraph(rows: Record<string, unknown>[], unit: string, delay: number): string {
+function barsGraph(rows: Record<string, unknown>[], unit: string, delay: number, at = ""): string {
   const vals = rows.map((r) => Math.max(0, statNum(r.value))), want = Math.max(...vals, 1) / 5, p = Math.pow(10, Math.floor(Math.log10(want)));
   const step = [1, 2, 2.5, 5, 10].map((m) => m * p).find((m) => m >= want - 1e-9) ?? 10 * p, top = step * 5;
   // Same 20px gap whatever the count: fewer bars are wider (up to 96px), the group centred.
   const gap = 20, bw = Math.min(96, (236 - gap * (rows.length - 1)) / rows.length), x0 = (236 - (bw * rows.length + gap * (rows.length - 1))) / 2;
-  const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit)}</text>`; }).join("");
+  const grid = [0, 1, 2, 3, 4, 5].map((n) => { const y = 124 - n * 23.2; return `<path class="hstat-grid" d="M0 ${y.toFixed(1)}H236"/><text x="280" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${withUnit(String(+(step * n).toFixed(2)), unit, at)}</text>`; }).join("");
   const bars = rows.map((r, n) => { const h = (vals[n] / top) * 116, x = x0 + n * (bw + gap); return `<rect class="gfx-bar${gcClass(r.color)}" x="${x.toFixed(1)}" y="${(124 - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" style="animation-delay:${delay + n * 90}ms"/><text x="${(x + bw / 2).toFixed(1)}" y="143" text-anchor="middle">${esc(str(r.label))}</text>`; }).join("");
   return `<svg class="gfx-plot" viewBox="0 0 280 150" role="img" aria-label="${esc(rows.map((r) => `${str(r.label)} ${str(r.value)}${unit}`).join(", "))}">${grid}${bars}</svg>`;
 }
@@ -204,25 +209,37 @@ function ringFull(v: unknown): number {
   const n = +m[1], pct = m[2] == null ? 100 : +m[2];
   return n > 0 && pct > 0 ? (n * 100) / pct : 0;
 }
-function ringsGraph(rows: Record<string, unknown>[], unit: string, delay: number, scale: unknown = ""): string {
+function ringsGraph(rows: Record<string, unknown>[], unit: string, delay: number, scale: unknown = "", at = ""): string {
   const u = unit.trim() || "%", vals = rows.map((r) => Math.max(0, statNum(r.value))), max = ringFull(scale) || (u === "%" ? 100 : Math.max(...vals, 1));
   return `<div class="gfx-rings">${rows.map((r, n) => { const pct = Math.min(100, (vals[n] / max) * 100);
-    return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(str(r.value), u, delay + n * 150)}</b></div><span>${esc(str(r.label))}</span></div>`; }).join("")}</div>`;
+    return `<div class="gfx-ring${gcClass(r.color)}"><div class="gfx-dial"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="gfx-track" cx="50" cy="50" r="42"/><circle class="gfx-arc" cx="50" cy="50" r="42" pathLength="100" style="stroke-dasharray:${pct.toFixed(1)} 100;animation-delay:${delay + n * 150}ms"/></svg><b>${statValue(str(r.value), u, delay + n * 150, at)}</b></div><span>${esc(str(r.label))}</span></div>`; }).join("")}</div>`;
 }
 
 // The first filled graph (line, then bars, then rings) with its small heading, for Hero and
 // Photo + text. Hero saved its title and measure inside the line row before Oct 9 (kicker, unit).
-function pickGraph(P: (key: string) => unknown, lineKey: string, delay: number): { key: string; html: string } | null {
+function pickGraph(P: (key: string) => unknown, lineKey: string, delay: number, at = ""): { key: string; html: string } | null {
   const ln = rows(P(lineKey)).filter(hasText)[0], br = rows(P("bars")).filter(hasText).slice(0, 6), rg = rows(P("rings")).filter(hasText).slice(0, 2);
   const unit = str(P("graphUnit")) || str(ln?.unit), title = str(P("graphTitle")) || str(ln?.kicker);
-  const pick = ln && (str(ln.from) || str(ln.to)) ? [lineKey, lineGraph(ln, unit, delay)] : br.length ? ["bars", barsGraph(br, unit, delay)] : rg.length ? ["rings", ringsGraph(rg, unit, delay, P("ringScale"))] : null;
+  const pick = ln && (str(ln.from) || str(ln.to)) ? [lineKey, lineGraph(ln, unit, delay, at)] : br.length ? ["bars", barsGraph(br, unit, delay, at)] : rg.length ? ["rings", ringsGraph(rg, unit, delay, P("ringScale"), at)] : null;
   return pick && { key: pick[0], html: `${title ? `<small>${esc(title)}</small>` : ""}${pick[1]}` };
 }
 
+// A headline typed in one box: each line its own <span>, and only <b> and </b> kept from what was typed
+// (everything else is escaped). Bold that runs over a line break carries on, and is always closed.
+export function richLines(v: unknown): string {
+  let open = false;
+  return str(v).split(/\r?\n/).map((line) => {
+    const start = open;
+    const html = esc(line.trim()).replace(/&lt;(\/?)b&gt;/gi, (_m, close: string) => { if (!close && !open) { open = true; return "<b>"; } if (close && open) { open = false; return "</b>"; } return ""; });
+    return `<span>${start ? "<b>" : ""}${html || "&nbsp;"}${open ? "</b>" : ""}</span>`;
+  }).join("");
+}
+
 // ── Drawing each template (live mode: empty spots are simply left out) ──
-function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false, tabs = "", noNums = false): string {
+function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false, tabs = "", noNums = false, unitAt = ""): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
-  const lines = (key: string, tag: string) => { const v = rows(P(key)).map((r) => str(r.line)).filter(Boolean); return v.length ? `<${tag} data-slot=".${key}">${v.map((l) => `<span>${esc(l)}</span>`).join("")}</${tag}>` : ""; };
+  // Two-line headlines: one text (Enter = new line, <b>…</b> = bold; Oct 2026), or the older list of lines.
+  const lines = (key: string, tag: string) => { const raw = P(key), html = typeof raw === "string" ? richLines(raw) : rows(raw).map((r) => str(r.line)).filter(Boolean).map((l) => `<span>${esc(l)}</span>`).join(""); return html ? `<${tag} data-slot=".${key}">${html}</${tag}>` : ""; };
   const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
   const photo = (key: string) => { const tag = mediaTag(P(key), `class="photo" data-slot=".${key}"${crop(key)}`); return tag ? `<div class="crop-clip">${tag}</div>` : "<div></div>"; };
   const points = (key: string) => { const v = rows(P(key)).filter(hasText); return v.length ? `<div class="points" data-slot=".${key}">${v.map((r) => `<div class="point"><b>${esc(str(r.title))}</b><p>${esc(str(r.proof))}</p></div>`).join("")}</div>` : ""; };
@@ -239,13 +256,13 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
     return `<div class="plat-logos mq" data-slot=".${key}">${rows.join("")}</div>`;
   };
   // Photo + text and Photo + points: the first filled graph (line, then bars, then rings) as a card over the photo.
-  const photoWithGraph = () => { const g = pickGraph(P, "line", 600); return g ? `<div class="gfx-wrap">${photo("photo")}<aside class="gfx" data-slot=".${g.key}">${g.html}</aside></div>` : photo("photo"); };
+  const photoWithGraph = () => { const g = pickGraph(P, "line", 600, unitAt); return g ? `<div class="gfx-wrap">${photo("photo")}<aside class="gfx" data-slot=".${g.key}">${g.html}</aside></div>` : photo("photo"); };
   const logos = (key: string, cls: string, max = 20) => { const v = (Array.isArray(P(key)) ? (P(key) as unknown[]) : []).map(safeImage).filter(Boolean).slice(0, max); return v.length ? `<div class="${cls}" data-slot=".${key}">${v.map((src) => `<img src="${esc(src)}" alt="">`).join("")}</div>` : ""; };
 
   switch (type) {
     case "hero": {
       const btn = str(P("button")), href = safeHref(link(P("link")));
-      const q = rows(P("quote")).filter(hasText)[0], old = rows(P("stat")).filter(hasText)[0], g = pickGraph(P, "stat", 1600);
+      const q = rows(P("quote")).filter(hasText)[0], old = rows(P("stat")).filter(hasText)[0], g = pickGraph(P, "stat", 1600, unitAt);
       // An old one-number stat (before Oct 9) keeps its white card.
       const st = old && !str(old.from) && !str(old.to) && str(old.value) ? `<aside class="stat-card" data-slot=".stat"><small>${esc(str(old.kicker))}</small><b>${esc(str(old.value))}</b></aside>`
         : g ? `<aside class="hstat" data-slot=".${g.key}">${g.html}</aside>` : "";
@@ -412,7 +429,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     else if (tpl.type === "spacer") sections.push({ kind: "html", id, uid, className, html: "" });
     else {
       // A section with nothing placed in it is left off the live page.
-      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true, tpl.type === "hero" && state.noTabs?.[uid] !== true ? tabs : "", state.noNums?.[uid] === true);
+      let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true, tpl.type === "hero" && state.noTabs?.[uid] !== true ? tabs : "", state.noNums?.[uid] === true, state.unitAt?.[uid] === "before" || state.unitAt?.[uid] === "after" ? String(state.unitAt[uid]) : "");
       // Named elements get their link name as an id (the first element drawn for that spot).
       for (const sl of tpl.slots) { const a = here[`${uid}.${sl.key}`]; if (a) html = html.replace(`data-slot=".${sl.key}"`, `id="${a}" data-slot=".${sl.key}"`); }
       if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id, uid, className, html });
