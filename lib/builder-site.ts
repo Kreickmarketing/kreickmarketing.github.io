@@ -96,6 +96,7 @@ export type BuilderState = {
 export type LiveSection =
   // id: the section's address on the page (its link name, or its uid); uid: Studio's own id.
   | { kind: "html"; id: string; uid: string; className: string; html: string }
+  // label, headline, intro: safe HTML from rich() (line breaks and bold only).
   | { kind: "mail"; id: string; uid: string; className: string; label: string; headline: string; intro: string; nameLabel: string; emailLabel: string; button: string; thanks: string }
   | { kind: "calendly"; id: string; uid: string; className: string };
 
@@ -225,7 +226,7 @@ function pickGraph(P: (key: string) => unknown, lineKey: string, delay: number, 
   const ln = rows(P(lineKey)).filter(hasText)[0], br = rows(P("bars")).filter(hasText).slice(0, 6), rg = rows(P("rings")).filter(hasText).slice(0, 2);
   const unit = str(P("graphUnit")) || str(ln?.unit), title = str(P("graphTitle")) || str(ln?.kicker);
   const pick = ln && (str(ln.from) || str(ln.to)) ? [lineKey, lineGraph(ln, unit, delay, at)] : br.length ? ["bars", barsGraph(br, unit, delay, at)] : rg.length ? ["rings", ringsGraph(rg, unit, delay, P("ringScale"), at)] : null;
-  return pick && { key: pick[0], html: `${title ? `<small>${esc(title)}</small>` : ""}${pick[1]}` };
+  return pick && { key: pick[0], html: `${title ? `<small>${rich(title)}</small>` : ""}${pick[1]}` };
 }
 
 // A headline typed in one box: each line its own <span>, and only <b> and </b> kept from what was typed
@@ -239,14 +240,25 @@ export function richLines(v: unknown): string {
   }).join("");
 }
 
+// Any other writing box (Nov 5, 2026): Enter = a line break (<br>), <b>…</b> = bold; everything else escaped.
+// Plain on purpose (escaped as before): button words, the graph's measure and the sign-up form's labels.
+export function rich(v: unknown): string {
+  let open = false;
+  return str(v).split(/\r?\n/).map((line) => {
+    const start = open;
+    const html = esc(line).replace(/&lt;(\/?)b&gt;/gi, (_m, close: string) => { if (!close && !open) { open = true; return "<b>"; } if (close && open) { open = false; return "</b>"; } return ""; });
+    return `${start ? "<b>" : ""}${html}${open ? "</b>" : ""}`;
+  }).join("<br>");
+}
+
 // ── Drawing each template (live mode: empty spots are simply left out) ──
 function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false, tabs = "", noNums = false, unitAt = ""): string {
-  const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${esc(v)}</${tag}>` : ""; };
+  const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${rich(v)}</${tag}>` : ""; };
   // Two-line headlines: one text (Enter = new line, <b>…</b> = bold; Oct 2026), or the older list of lines.
   const lines = (key: string, tag: string) => { const raw = P(key), html = typeof raw === "string" ? richLines(raw) : rows(raw).map((r) => str(r.line)).filter(Boolean).map((l) => `<span>${esc(l)}</span>`).join(""); return html ? `<${tag} data-slot=".${key}">${html}</${tag}>` : ""; };
   const bg = (key: string) => `<div class="hero-bg">${mediaTag(P(key), `data-slot=".${key}"${crop(key)}`)}</div>`;
   const photo = (key: string) => { const tag = mediaTag(P(key), `class="photo" data-slot=".${key}"${crop(key)}`); return tag ? `<div class="crop-clip">${tag}</div>` : "<div></div>"; };
-  const points = (key: string) => { const v = rows(P(key)).filter(hasText); return v.length ? `<div class="points" data-slot=".${key}">${v.map((r) => `<div class="point"><b>${esc(str(r.title))}</b><p>${esc(str(r.proof))}</p></div>`).join("")}</div>` : ""; };
+  const points = (key: string) => { const v = rows(P(key)).filter(hasText); return v.length ? `<div class="points" data-slot=".${key}">${v.map((r) => `<div class="point"><b>${rich(r.title)}</b><p>${rich(r.proof)}</p></div>`).join("")}</div>` : ""; };
   // Photo + tags: up to 20 logos in two sliding rows (first half moves left, the rest right).
   // Each row repeats until long enough, then twice over (the copy hidden from screen readers) for a seamless loop.
   const mq = (key: string) => {
@@ -271,22 +283,22 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const st = old && !str(old.from) && !str(old.to) && str(old.value) ? `<aside class="stat-card" data-slot=".stat"><small>${esc(str(old.kicker))}</small><b>${esc(str(old.value))}</b></aside>`
         : g ? `<aside class="hstat" data-slot=".${g.key}">${g.html}</aside>` : "";
       return `${bg("image")}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}${tabs}</div>`
-        + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${esc(str(q.name))}</b><span>${esc(str(q.quote))}</span></figure>` : "<div></div>"}${st}</div>` : "");
+        + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${rich(q.name)}</b><span>${rich(q.quote)}</span></figure>` : "<div></div>"}${st}</div>` : "");
     }
     case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row", 10)}`;
     case "photopoints": return `<div class="split${flip ? " flip" : ""}">${photoWithGraph()}${points("points")}</div>`;
     case "story": {
       const body = str(P("body"));
-      return `<div class="split${flip ? " flip" : ""}">${photoWithGraph()}${body ? `<p class="body" data-slot=".body" style="font-size:20px;line-height:1.5;color:var(--iron-pine)">${esc(body)}</p>` : ""}</div>`; }
+      return `<div class="split${flip ? " flip" : ""}">${photoWithGraph()}${body ? `<p class="body" data-slot=".body" style="font-size:20px;line-height:1.5;color:var(--iron-pine)">${rich(body)}</p>` : ""}</div>`; }
     case "plat": {
       const tags = rows(P("tags")).map((r) => str(r.tag)).filter(Boolean);
       return `${bg("image")}<div class="sh">${text("label", "p", "tagline")}${lines("headline", "h2")}</div><div class="plat-foot">${tags.length ? `<ul class="tag-pills" data-slot=".tags">${tags.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}${mq("logos")}</div>`;
     }
-    case "quote": { const q = str(P("text")); return `${q ? `<blockquote data-slot=".text">“${esc(q)}”</blockquote>` : ""}${text("by", "cite")}`; }
+    case "quote": { const q = str(P("text")); return `${q ? `<blockquote data-slot=".text">“${rich(q)}”</blockquote>` : ""}${text("by", "cite")}`; }
     case "pagehero": return `${bg("image")}<div class="hero-main">${text("headline", "h1")}</div>`;
     case "points": return points("points");
     case "video": { const v = embedHtml(P("video")); return v ? `${text("headline", "h2", "video-title")}<div class="video-frame" data-slot=".video">${v}</div>` : ""; }
-    case "header": { const body = str(P("body")); return `<div class="sh">${text("tagline", "p", "tagline")}<div>${lines("headline", "h2")}${body ? `<p class="body" data-slot=".body">${esc(body)}</p>` : ""}</div></div>`; }
+    case "header": { const body = str(P("body")); return `<div class="sh">${text("tagline", "p", "tagline")}<div>${lines("headline", "h2")}${body ? `<p class="body" data-slot=".body">${rich(body)}</p>` : ""}</div></div>`; }
     case "system": {
       const icons = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><path d=\"M5 12h22M5 20h12M15 4v16\"/><path d=\"M20 26l3 3 6-7\"/>", "<rect x=\"3\" y=\"5\" width=\"26\" height=\"18\" rx=\"2\"/><path d=\"M7 15h4l2-4 3 7 2-3h3\"/><path d=\"M24 30s-5-3-5-6a2.5 2.5 0 0 1 5-1 2.5 2.5 0 0 1 5 1c0 3-5 6-5 6z\"/>", "<path d=\"M3 16h10l8-9h7M24 3l4 4-4 4\"/><path d=\"M13 16l8 9h7M24 21l4 4-4 4\"/>", "<path d=\"M5 28v-3M11 28v-6M17 28v-9M23 28v-12M29 28v-15\"/><path d=\"M4 18l8-7 6 4 11-10M24 5h5v5\"/>"];
       const cards = rows(P("cards")).filter(hasText).slice(0, 4);
@@ -298,16 +310,16 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
         const mine = safeImage(r.icon) || own[i];
         return mine ? `<img class="sys-icon" src="${esc(mine)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${icons[i]}</svg>`;
       };
-      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card${icon(i, r) ? "" : " no-icon"}">${noNums ? "" : `<p class="sys-num">${String(i + 1).padStart(2, "0")} —</p>`}<h3>${esc(str(r.title))}</h3><p class="sys-text">${esc(str(r.text))}</p>${icon(i, r)}</article>`).join("")}</div>` : ""}`;
+      return `${bg("image")}<div class="sys-top">${text("label", "p", "tagline")}<div class="sys-statement">${text("headline", "h2", "sys-head")}${text("answer", "p", "sys-answer")}</div></div>${cards.length ? `<div class="sys-cards" data-slot=".cards">${cards.map((r, i) => `<article class="sys-card${icon(i, r) ? "" : " no-icon"}">${noNums ? "" : `<p class="sys-num">${String(i + 1).padStart(2, "0")} —</p>`}<h3>${rich(r.title)}</h3><p class="sys-text">${rich(r.text)}</p>${icon(i, r)}</article>`).join("")}</div>` : ""}`;
     }
     case "engine": {
-      // Engine (T.O.E.): the icon for each place, the fan + laptop drawing, then the words. Hover moves: builder-site.css.
+      // Engine (T.O.E.): the icon for each place, the fan + laptop drawing, then the words. 
       const icons = ["<path d=\"M20 8a9 9 0 1 0 2.6 6.4\"/><path d=\"M22 6v5h-5\"/><path d=\"M14 10v5l3 2\"/>", "<rect x=\"5\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M9 12h4M9 16h3\"/><circle cx=\"20\" cy=\"14\" r=\"2\"/><path d=\"M20 16v4l-3 3\"/>", "<path d=\"M5 9V6h3M20 6h3v3M23 19v3h-3M8 22H5v-3\"/><circle cx=\"12\" cy=\"11\" r=\"2\"/><path d=\"M9 19l2-4 3 2\"/><path d=\"M19 14l4 7h-8z\"/><path d=\"M19 17v2\"/>", "<path d=\"M6 22v-2M10 22v-5M14 22v-8M18 22v-6M22 22v-11\"/><path d=\"M5 15l6-6 4 3 8-7M19 5h4v4\"/>", "<circle cx=\"11\" cy=\"10\" r=\"4\"/><path d=\"M4 23c0-4 3-6 7-6s7 2 7 6\"/><path d=\"M21 9v6M18 12h6\"/>"];
-      const fan = "<svg class=\"eng-fan\" viewBox=\"0 0 1280 560\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M550 480H405A235 235 0 0 1 460 328.9L552.7 406.7\"/><path d=\"M552.7 406.7L448.5 319.3A250 250 0 0 1 575.3 238.5L620.2 406.1\"/><path d=\"M620.2 406.1L572.2 226.9A262 262 0 0 1 707.8 226.9L659.8 406.1\"/><path d=\"M659.8 406.1L705.2 236.6A252 252 0 0 1 833 318L727.3 406.7\"/><path d=\"M727.3 406.7L820 328.9A235 235 0 0 1 875 480H730\"/><path d=\"M405 480H552M728 480H875\"/><rect x=\"552\" y=\"408\" width=\"176\" height=\"108\" rx=\"8\"/><path d=\"M544 516H736L754 544H526Z\"/><path d=\"M624 533h32\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g fill=\"currentColor\"><path d=\"M596 454a22 22 0 1 0 22 22h-22z\"/><path d=\"M600 450v-18a18 18 0 0 1 18 18z\"/><rect x=\"650\" y=\"484\" width=\"9\" height=\"13\" rx=\"2\"/><rect x=\"664\" y=\"475\" width=\"9\" height=\"22\" rx=\"2\"/><rect x=\"678\" y=\"479\" width=\"9\" height=\"18\" rx=\"2\"/><rect x=\"692\" y=\"461\" width=\"9\" height=\"36\" rx=\"2\"/></g><path d=\"M650 468l13-15 11 9 20-22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
+      const fan = "<svg class=\"eng-fan\" viewBox=\"0 80 1280 480\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M550 480H405A235 235 0 0 1 460 328.9L552.7 406.7\"/><path d=\"M552.7 406.7L448.5 319.3A250 250 0 0 1 575.3 238.5L620.2 406.1\"/><path d=\"M620.2 406.1L572.2 226.9A262 262 0 0 1 707.8 226.9L659.8 406.1\"/><path d=\"M659.8 406.1L705.2 236.6A252 252 0 0 1 833 318L727.3 406.7\"/><path d=\"M727.3 406.7L820 328.9A235 235 0 0 1 875 480H730\"/><path d=\"M405 480H552M728 480H875\"/><rect x=\"552\" y=\"408\" width=\"176\" height=\"108\" rx=\"8\"/><path d=\"M544 516H736L754 544H526Z\"/><path d=\"M624 533h32\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g fill=\"currentColor\"><path d=\"M596 454a22 22 0 1 0 22 22h-22z\"/><path d=\"M600 450v-18a18 18 0 0 1 18 18z\"/><rect x=\"650\" y=\"484\" width=\"9\" height=\"13\" rx=\"2\"/><rect x=\"664\" y=\"475\" width=\"9\" height=\"22\" rx=\"2\"/><rect x=\"678\" y=\"479\" width=\"9\" height=\"18\" rx=\"2\"/><rect x=\"692\" y=\"461\" width=\"9\" height=\"36\" rx=\"2\"/></g><path d=\"M650 468l13-15 11 9 20-22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
       const nodes = rows(P("nodes")).filter(hasText).slice(0, 5);
       const icon = (i: number) => `<svg viewBox="0 0 28 28" aria-hidden="true">${icons[i]}</svg>`;
-      const words = (r: Record<string, unknown>) => `<h3>${esc(str(r.title))}</h3><p>${esc(str(r.text)).replace(/\n/g, "<br>")}</p>`;
-      return `${bg("image")}<div class="eng-stage">${fan}${nodes.map((r, i) => `<div class="eng-node eng-n${i + 1}" tabindex="0"><span class="eng-dot">${icon(i)}</span><div class="eng-label">${words(r)}</div></div>`).join("")}</div>`
+      const words = (r: Record<string, unknown>) => `<h3>${rich(r.title)}</h3><p>${rich(r.text)}</p>`;
+      return `${bg("image")}<div class="eng-stage">${fan}${nodes.map((r, i) => `<div class="eng-node eng-n${i + 1}"><span class="eng-dot">${icon(i)}</span><div class="eng-label">${words(r)}</div></div>`).join("")}</div>`
         + `<div class="eng-copy">${text("headline", "h2", "eng-head")}${text("body", "p", "eng-body")}</div>`
         + (nodes.length ? `<ol class="eng-list" data-slot=".nodes">${nodes.map((r, i) => `<li><span class="eng-dot">${icon(i)}</span><div>${words(r)}</div></li>`).join("")}</ol>` : "");
     }
@@ -432,7 +444,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
       : KM_TYPES.has(tpl.type) && (bgv === "charcoal" || bgv === "black" || bgv === "mustard") ? ` bg-${bgv}` : "";
     const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}${bg}`, id = here[uid] || uid;
     // Mailing list: wording left empty in Studio falls back to the starting words.
-    if (tpl.type === "mail") sections.push({ kind: "mail", id, uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
+    if (tpl.type === "mail") sections.push({ kind: "mail", id, uid, className, label: rich(str(P("label")) || "Mailing list"), headline: rich(P("headline")), intro: rich(P("intro")),
       nameLabel: str(P("name")) || "Name", emailLabel: str(P("email")) || "Email", button: str(P("button")) || "Sign up", thanks: str(P("thanks")) });
     else if (tpl.type === "calendly") sections.push({ kind: "calendly", id, uid, className });
     else if (tpl.type === "spacer") sections.push({ kind: "html", id, uid, className, html: "" });

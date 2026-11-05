@@ -1023,7 +1023,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .sys .hero-bg :is(img, video) { object-position: left center; }
 .sys-top { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
 .sys-statement { display: flex; flex-direction: column; }
-.sys-head, .sys-answer { margin: 0; font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 200; }
+.sys-head, .sys-answer { margin: 0; font-size: 40px; line-height: 36px; letter-spacing: -2px; font-weight: 200; }
 .sys-answer { font-weight: 700; }
 .sys-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
 .sys-card { box-sizing: border-box; min-height: 320px; padding: 32px; border-radius: 32px; background: color-mix(in srgb, var(--cm-midnight) 85%, transparent); display: flex; flex-direction: column; gap: 16px; }
@@ -1037,53 +1037,47 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 @container (max-width: 1000px) {
   .sys { padding: 64px 32px; gap: 64px; }
   .sys-top { grid-template-columns: 1fr; gap: 16px; }
-  .sys-head, .sys-answer { font-size: 40px; line-height: 36px; letter-spacing: -2px; }
+  .sys-head, .sys-answer { font-size: 32px; line-height: 29px; letter-spacing: -2px; }
   .sys-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sys-card { min-height: 260px; }
 }
 @container (max-width: 700px) {
   .sys { padding: 64px 16px; gap: 48px; }
-  .sys-head, .sys-answer { font-size: 36px; line-height: 36px; letter-spacing: -1.5px; }
+  .sys-head, .sys-answer { font-size: 32px; line-height: 29px; letter-spacing: -2px; }
   .sys-cards { grid-template-columns: 1fr; gap: 16px; }
   .sys-card { min-height: 232px; }
 }
 
 /* Engine (T.O.E. diagram, Oct 8, canvas row "Engine"): photo background, a fan of five icons around a laptop,
-   then a headline and paragraph. Icons slide outward on hover. Tablet and phone aren't designed yet:
+   then a headline and paragraph. Nov 5: one screen tall, diagram and words centred, no hover movement. Tablet and phone aren't designed yet:
    for now the words move into a list under the diagram. */
-.eng { padding: 0 0 64px; min-height: 1600px; justify-content: flex-start; gap: 32px; }
+.eng { padding: 48px 0; min-height: var(--screen-h, 800px); justify-content: center; gap: 48px; }
 .eng .hero-bg::after { background: none; }
 .eng .hero-bg :is(img, video) { object-position: center bottom; }
-.eng-stage { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; aspect-ratio: 1280 / 560; }
+.eng-stage { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; aspect-ratio: 1280 / 480; }
 .eng-fan { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.eng-node { position: absolute; width: 64px; height: 64px; transition: transform 0.35s ease; outline-offset: 4px; }
+.eng-node { position: absolute; width: 64px; height: 64px; }
 .eng-dot, .eng-list .eng-dot { box-sizing: border-box; width: 64px; height: 64px; border: 1.5px solid var(--white); border-radius: 999px; background: color-mix(in srgb, var(--deep-teal) 85%, transparent); display: grid; place-items: center; flex: none; }
 .eng-dot svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .eng-label { position: absolute; text-align: center; display: flex; flex-direction: column; gap: 4px; }
 .eng-label h3, .eng-list h3 { margin: 0; font-size: 32px; line-height: 36px; letter-spacing: -2px; font-weight: 200; }
 .eng-label p, .eng-list p { margin: 0; font-size: 16px; line-height: 20px; letter-spacing: -1px; font-weight: 300; }
-.eng-copy { padding: 0 64px; display: flex; flex-direction: column; align-items: center; gap: 32px; text-align: center; }
+.eng-copy { padding: 0 64px; display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center; }
 .eng-head { margin: 0; max-width: 960px; font-size: 52px; line-height: 48px; letter-spacing: -2px; font-weight: 200; }
 .eng-body { margin: 0; max-width: 1100px; font-size: 20px; line-height: 24px; letter-spacing: -1px; font-weight: 300; }
 .eng-list { display: none; }
-.eng-n1 { left: 29.766%; top: 69.107%; }
+.eng-n1 { left: 29.766%; top: 63.958%; }
 .eng-n1 .eng-label { left: -206px; top: 50%; transform: translateY(-50%); width: 220px; }
-.eng-n1:focus-visible, .eng-n1:hover { transform: translate(-15.5px, -4.1px) scale(1.06); }
-.eng-n2 { left: 37.188%; top: 42.143%; }
+.eng-n2 { left: 37.188%; top: 32.500%; }
 .eng-n2 .eng-label { left: -77px; top: -72px; transform: translateX(-50%); width: 260px; }
-.eng-n2:focus-visible, .eng-n2:hover { transform: translate(-8.5px, -13.6px) scale(1.06); }
-.eng-n3 { left: 47.500%; top: 33.214%; }
+.eng-n3 { left: 47.500%; top: 22.083%; }
 .eng-n3 .eng-label { left: 50%; bottom: 76px; transform: translateX(-50%); width: 260px; }
-.eng-n3:focus-visible, .eng-n3:hover { transform: translate(0px, -16px) scale(1.06); }
-.eng-n4 { left: 57.969%; top: 41.786%; }
+.eng-n4 { left: 57.969%; top: 32.083%; }
 .eng-n4 .eng-label { left: 141px; top: -67px; transform: translateX(-50%); width: 260px; }
-.eng-n4:focus-visible, .eng-n4:hover { transform: translate(8.5px, -13.6px) scale(1.06); }
-.eng-n5 { left: 64.922%; top: 66.964%; }
+.eng-n5 { left: 64.922%; top: 61.458%; }
 .eng-n5 .eng-label { left: 61px; top: 50%; transform: translateY(-50%); width: 240px; }
-.eng-n5:focus-visible, .eng-n5:hover { transform: translate(15.2px, -4.9px) scale(1.06); }
-@media (prefers-reduced-motion: reduce) { .eng-node { transition: none; } }
 @container (max-width: 1000px) {
-  .eng { min-height: 0; padding-bottom: 320px; gap: 48px; }
+  .eng { min-height: 0; padding: 0 0 320px; justify-content: flex-start; gap: 48px; }
   .eng-label { display: none; }
   .eng-copy { padding: 0 32px; }
   .eng-head { font-size: 40px; line-height: 36px; letter-spacing: -2px; }
@@ -4455,7 +4449,8 @@ rebuildOffers();
 // axis "x": items in the spot sit side by side, so dragging reorders left/right.
 // Headlines typed in one box (Heading, Photo + tags): Enter = new line; <b>…</b> or Ctrl/⌘ B = bold.
 // They were two list rows (one per line) before Nov 5, 2026; those are turned into one text when Studio opens.
-const RICH_ABOUT = "Press Enter for a new line. Bold: select words and press Ctrl B (⌘ B on Mac) or the B button, or type <b>words</b>.";
+const RICH_ABOUT = "Enter = new line. Bold: select words, then Ctrl B (⌘ B on Mac) or the B button, or type <b>words</b>.";
+const BOLD_BTN = (id) => `<div class="card-actions" style="margin:0 0 6px"><button type="button" class="btn btn-small" data-bold="${id}" aria-label="Bold the selected words" title="Bold (Ctrl B / ⌘ B)" style="font-weight:700;min-width:44px">B</button></div>`;
 const richLen = (v) => String(v ?? "").replace(/<\/?b>/gi, "").length;
 function richLines(v) {
   let open = false;
@@ -4464,6 +4459,15 @@ function richLines(v) {
     const html = esc(line.trim()).replace(/&lt;(\/?)b&gt;/gi, (_m, close) => { if (!close && !open) { open = true; return "<b>"; } if (close && open) { open = false; return "</b>"; } return ""; });
     return `<span>${start ? "<b>" : ""}${html || "&nbsp;"}${open ? "</b>" : ""}</span>`;
   }).join("");
+}
+// Any other writing box (Nov 5, 2026): the same, inline: Enter = a line break (<br>), <b>…</b> = bold.
+function richInline(v) {
+  let open = false;
+  return String(v ?? "").trim().split(/\r?\n/).map((line) => {
+    const start = open;
+    const html = esc(line).replace(/&lt;(\/?)b&gt;/gi, (_m, close) => { if (!close && !open) { open = true; return "<b>"; } if (close && open) { open = false; return "</b>"; } return ""; });
+    return `${start ? "<b>" : ""}${html}${open ? "</b>" : ""}`;
+  }).join("<br>");
 }
 // Ctrl/⌘ B or the B button: put <b> </b> round the selected words (or take it off if already there).
 function toggleBold(ta) {
@@ -4572,6 +4576,14 @@ const TEMPLATES = [
   { id: "spacer-64", name: "Spacer 64px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 64px tall at every screen size.", slots: [] },
   { id: "spacer-96", name: "Spacer 96px", type: "spacer", bgChoice: ["white", "cream", "black"], about: "Empty space between two sections, 96px tall at every screen size.", slots: [] },
 ];
+// Line breaks and bold in every writing box (Andrew, Nov 5, 2026). Left plain: the graph's measure and
+// full-ring scale, button words and the sign-up form's own labels. List rows: only their writing columns.
+const PLAIN_TEXT = new Set(["graphUnit", "ringScale", "button", "name", "email", "thanks"]);
+const RICH_COLS = { quote: ["name", "quote"], points: ["title", "proof"], cards: ["title", "text"], nodes: ["title", "text"] };
+for (const t of TEMPLATES) for (const sl of t.slots || []) {
+  if (sl.kind === "text" && !PLAIN_TEXT.has(sl.key)) sl.rich = true;
+  if (sl.kind === "list" && RICH_COLS[sl.key]) for (const c of sl.cols) if (RICH_COLS[sl.key].includes(c.key)) c.rich = true;
+}
 // Which site Studio is editing (Oct 21): ClearMark, or Kreick Marketing with /apps/studio/builder?site=kreick
 // (live Studio hands it over as __STUDIO_SITE__). Each site sees only its own templates.
 // Kreick templates (km-*) come from lib/km-sections.ts through the km-data block above.
@@ -4781,7 +4793,7 @@ const P = (id) => { const st = S.slots[id]; return !st || isEmpty(st.placed) ? n
 function overLimit(id) {
   const sl = SLOTS[id], v = S.slots[id]?.value ?? "";
   if (sl.kind === "text") return (sl.rich ? richLen(v) : v.length) > sl.limit;
-  if (sl.kind === "list") return v.some((r) => sl.cols.some((c) => (r[c.key] || "").length > c.limit));
+  if (sl.kind === "list") return v.some((r) => sl.cols.some((c) => (c.rich ? richLen(r[c.key] || "") : (r[c.key] || "").length) > c.limit));
   return false;
 }
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
@@ -4793,7 +4805,7 @@ function slotBox(id, extra = "", style = "") {
   return `<div class="slot ${extra}${selected === id ? " is-sel" : ""}" data-slot="${id}" style="${style}" role="button" tabindex="0">${esc(sl.label)}${sl.kind === "text" ? ` · ${sl.limit}` : ""}${sl.optional ? " (optional)" : ""}</div>`;
 }
 const filledAttr = (id) => `data-slot="${id}" class="filled${selected === id ? " is-sel" : ""}"`;
-const text = (id, tag, cls = "", extraSlotCls = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${esc(v)}</${tag}>` : slotBox(id, extraSlotCls); };
+const text = (id, tag, cls = "", extraSlotCls = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${SLOTS[id]?.rich ? richInline(v) : esc(v)}</${tag}>` : slotBox(id, extraSlotCls); };
 const lines = (id, tag, cls = "", extra = "") => { const v = P(id); return v ? `<${tag} ${filledAttr(id).replace('class="', `class="${cls} `)}>${typeof v === "string" ? richLines(v) : v.map((r) => `<span>${esc(r.line)}</span>`).join("")}</${tag}>` : slotBox(id, extra); };
 const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY_OFFER_IDS[oid] || oid));
 // Design-system offer card (Offer Card Full / Two / Three): its size per screen comes from CSS.
@@ -4814,14 +4826,14 @@ const SYS_ICONS = ["<rect x=\"5\" y=\"4\" width=\"22\" height=\"24\" rx=\"2\"/><
 // Card icon: the card's own (row.icon), "none" for no icon, else the older Card icons spot, else the built-in one.
 // Show icons off (section panel) hides them all.
 const sysIcon = (sec, k, i, r = {}) => { if (S.noIcons[sec.id] || r.icon === "none") return ""; const own = r.icon || (P(k("icons")) || [])[i]; return own ? `<img class="sys-icon" src="${esc(own)}" alt="">` : `<svg viewBox="0 0 32 32" aria-hidden="true">${SYS_ICONS[i % 4]}</svg>`; };
-const sysCard = (r, i, attr = "", icon = "", num = true) => `<article class="sys-card${icon ? "" : " no-icon"}" ${attr}>${num ? `<p class="sys-num">${String(i + 1).padStart(2, "0")} —</p>` : ""}<h3>${esc(r.title)}</h3><p class="sys-text">${esc(r.text)}</p>${icon}</article>`;
+const sysCard = (r, i, attr = "", icon = "", num = true) => `<article class="sys-card${icon ? "" : " no-icon"}" ${attr}>${num ? `<p class="sys-num">${String(i + 1).padStart(2, "0")} —</p>` : ""}<h3>${richInline(r.title)}</h3><p class="sys-text">${richInline(r.text)}</p>${icon}</article>`;
 // Engine template: the five icons (by place) and the fan + laptop drawing.
 const ENG_ICONS = ["<path d=\"M20 8a9 9 0 1 0 2.6 6.4\"/><path d=\"M22 6v5h-5\"/><path d=\"M14 10v5l3 2\"/>", "<rect x=\"5\" y=\"7\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"M9 12h4M9 16h3\"/><circle cx=\"20\" cy=\"14\" r=\"2\"/><path d=\"M20 16v4l-3 3\"/>", "<path d=\"M5 9V6h3M20 6h3v3M23 19v3h-3M8 22H5v-3\"/><circle cx=\"12\" cy=\"11\" r=\"2\"/><path d=\"M9 19l2-4 3 2\"/><path d=\"M19 14l4 7h-8z\"/><path d=\"M19 17v2\"/>", "<path d=\"M6 22v-2M10 22v-5M14 22v-8M18 22v-6M22 22v-11\"/><path d=\"M5 15l6-6 4 3 8-7M19 5h4v4\"/>", "<circle cx=\"11\" cy=\"10\" r=\"4\"/><path d=\"M4 23c0-4 3-6 7-6s7 2 7 6\"/><path d=\"M21 9v6M18 12h6\"/>"];
-const ENG_FAN = "<svg class=\"eng-fan\" viewBox=\"0 0 1280 560\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M550 480H405A235 235 0 0 1 460 328.9L552.7 406.7\"/><path d=\"M552.7 406.7L448.5 319.3A250 250 0 0 1 575.3 238.5L620.2 406.1\"/><path d=\"M620.2 406.1L572.2 226.9A262 262 0 0 1 707.8 226.9L659.8 406.1\"/><path d=\"M659.8 406.1L705.2 236.6A252 252 0 0 1 833 318L727.3 406.7\"/><path d=\"M727.3 406.7L820 328.9A235 235 0 0 1 875 480H730\"/><path d=\"M405 480H552M728 480H875\"/><rect x=\"552\" y=\"408\" width=\"176\" height=\"108\" rx=\"8\"/><path d=\"M544 516H736L754 544H526Z\"/><path d=\"M624 533h32\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g fill=\"currentColor\"><path d=\"M596 454a22 22 0 1 0 22 22h-22z\"/><path d=\"M600 450v-18a18 18 0 0 1 18 18z\"/><rect x=\"650\" y=\"484\" width=\"9\" height=\"13\" rx=\"2\"/><rect x=\"664\" y=\"475\" width=\"9\" height=\"22\" rx=\"2\"/><rect x=\"678\" y=\"479\" width=\"9\" height=\"18\" rx=\"2\"/><rect x=\"692\" y=\"461\" width=\"9\" height=\"36\" rx=\"2\"/></g><path d=\"M650 468l13-15 11 9 20-22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
+const ENG_FAN = "<svg class=\"eng-fan\" viewBox=\"0 80 1280 480\" aria-hidden=\"true\"><g fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linejoin=\"round\"><path d=\"M550 480H405A235 235 0 0 1 460 328.9L552.7 406.7\"/><path d=\"M552.7 406.7L448.5 319.3A250 250 0 0 1 575.3 238.5L620.2 406.1\"/><path d=\"M620.2 406.1L572.2 226.9A262 262 0 0 1 707.8 226.9L659.8 406.1\"/><path d=\"M659.8 406.1L705.2 236.6A252 252 0 0 1 833 318L727.3 406.7\"/><path d=\"M727.3 406.7L820 328.9A235 235 0 0 1 875 480H730\"/><path d=\"M405 480H552M728 480H875\"/><rect x=\"552\" y=\"408\" width=\"176\" height=\"108\" rx=\"8\"/><path d=\"M544 516H736L754 544H526Z\"/><path d=\"M624 533h32\" stroke-width=\"3\" stroke-linecap=\"round\"/></g><g fill=\"currentColor\"><path d=\"M596 454a22 22 0 1 0 22 22h-22z\"/><path d=\"M600 450v-18a18 18 0 0 1 18 18z\"/><rect x=\"650\" y=\"484\" width=\"9\" height=\"13\" rx=\"2\"/><rect x=\"664\" y=\"475\" width=\"9\" height=\"22\" rx=\"2\"/><rect x=\"678\" y=\"479\" width=\"9\" height=\"18\" rx=\"2\"/><rect x=\"692\" y=\"461\" width=\"9\" height=\"36\" rx=\"2\"/></g><path d=\"M650 468l13-15 11 9 20-22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>";
 const engIcon = (i) => `<svg viewBox="0 0 28 28" aria-hidden="true">${ENG_ICONS[i]}</svg>`;
-const engText = (s) => esc(s).replace(/\n/g, "<br>");
+const engText = (s) => richInline(s);
 // Each template's drawing. `k(key)` is the full id of one of this section's spots.
-const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${id}:${i}"><b>${esc(r.title)}</b><p>${esc(r.proof)}</p></div>`).join("");
+const pointsHtml = (id) => P(id).map((r, i) => `<div class="point" data-item="${id}:${i}"><b>${richInline(r.title)}</b><p>${richInline(r.proof)}</p></div>`).join("");
 // Crop: which part of a photo stays in view when it's cut to fit (a focus point; none = centre).
 // Zoom (z, 1–3×) scales the photo around that point; the photo sits in a clipping frame so it never spills out.
 // Each screen size can have its own crop of the same photo: S.crop[id] = { x, y, z } is Desktop,
@@ -4928,7 +4940,7 @@ function pickGraph(k, lineKey, delay) {
   const u = P(k("graphUnit")) || ln?.unit || "", t = P(k("graphTitle")) || ln?.kicker || "", at = S.unitAt[SLOTS[k("graphUnit")]?.section] || "";
   const pick = ln && (ln.from || ln.to) ? [lineKey, lineGraph({ ...ln, unit: u, at }, delay)] : br.length ? ["bars", barsGraph(br, u, delay, at)] : rg.length ? ["rings", ringsGraph(rg, u, delay, P(k("ringScale")), at)] : null;
   // Studio: an empty heading shows as a dotted spot above the graph (the site shows nothing).
-  return pick && { key: pick[0], html: `${t ? `<small ${filledAttr(k("graphTitle"))}>${esc(t)}</small>` : slotBox(k("graphTitle"), "on-dark slot-optional gfx-title-slot")}${pick[1]}` };
+  return pick && { key: pick[0], html: `${t ? `<small ${filledAttr(k("graphTitle"))}>${richInline(t)}</small>` : slotBox(k("graphTitle"), "on-dark slot-optional gfx-title-slot")}${pick[1]}` };
 }
 // No graph yet: dotted spots show the three options (Studio only; the site shows nothing).
 const graphSpots = (k, lineKey, cls) => `<div class="${cls}">${[lineKey, "bars", "rings"].map((t) => slotBox(k(t), "on-dark slot-optional")).join("")}</div>`;
@@ -5082,7 +5094,7 @@ const SECTION_HTML = {
         ${btn ? `<span ${filledAttr(k("button")).replace('class="', 'class="cta ')}>${esc(btn)} →</span>` : slotBox(k("button"), "on-dark", "align-self:flex-start;min-width:220px")}
         ${P(k("link")) ? "" : `<div style="max-width:320px">${slotBox(k("link"), "on-dark")}</div>`}${tabbarHtml(sec)}</div>
       <div class="hero-bottom">
-        ${q ? `<figure ${filledAttr(k("quote")).replace('class="', 'class="glass ')} style="margin:0"><b>${esc(q[0].name)}</b><span>${esc(q[0].quote)}</span></figure>` : `<div style="width:520px">${slotBox(k("quote"), "on-dark", "min-height:140px")}</div>`}
+        ${q ? `<figure ${filledAttr(k("quote")).replace('class="', 'class="glass ')} style="margin:0"><b>${richInline(q[0].name)}</b><span>${richInline(q[0].quote)}</span></figure>` : `<div style="width:520px">${slotBox(k("quote"), "on-dark", "min-height:140px")}</div>`}
         ${heroGraph(k)}
       </div>`;
   },
@@ -5101,11 +5113,11 @@ const SECTION_HTML = {
   },
   engine: (sec, k) => {
     const img = P(k("image")), nodes = P(k("nodes")) && P(k("nodes")).slice(0, 5);
-    const node = (r, i) => `<div class="eng-node eng-n${i + 1}" tabindex="0" data-item="${k("nodes")}:${i}"><span class="eng-dot">${engIcon(i)}</span><div class="eng-label"><h3>${esc(r.title)}</h3><p>${engText(r.text)}</p></div></div>`;
+    const node = (r, i) => `<div class="eng-node eng-n${i + 1}" data-item="${k("nodes")}:${i}"><span class="eng-dot">${engIcon(i)}</span><div class="eng-label"><h3>${richInline(r.title)}</h3><p>${engText(r.text)}</p></div></div>`;
     return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
       ${nodes ? `<div ${filledAttr(k("nodes")).replace('class="', 'class="eng-stage ')}>${ENG_FAN}${nodes.map(node).join("")}</div>` : `<div class="eng-stage">${ENG_FAN}${slotBox(k("nodes"), "on-dark", "position:absolute;left:30%;right:30%;top:82%;min-height:56px")}</div>`}
       <div class="eng-copy">${text(k("headline"), "h2", "eng-head", "on-dark")}${text(k("body"), "p", "eng-body", "on-dark slot-optional")}</div>
-      ${nodes ? `<ol ${filledAttr(k("nodes")).replace('class="', 'class="eng-list ')}>${nodes.map((r, i) => `<li><span class="eng-dot">${engIcon(i)}</span><div><h3>${esc(r.title)}</h3><p>${engText(r.text)}</p></div></li>`).join("")}</ol>` : ""}`;
+      ${nodes ? `<ol ${filledAttr(k("nodes")).replace('class="', 'class="eng-list ')}>${nodes.map((r, i) => `<li><span class="eng-dot">${engIcon(i)}</span><div><h3>${richInline(r.title)}</h3><p>${engText(r.text)}</p></div></li>`).join("")}</ol>` : ""}`;
   },
   plat: (sec, k) => {
     const img = P(k("image")), tags = P(k("tags")), logos = P(k("logos"));
@@ -5114,20 +5126,20 @@ const SECTION_HTML = {
       <div class="plat-foot">${tags ? `<ul ${filledAttr(k("tags")).replace('class="', 'class="tag-pills ')}>${tags.map((t, i) => `<li data-item="${k("tags")}:${i}">${esc(t.tag)}</li>`).join("")}</ul>` : slotBox(k("tags"), "on-dark")}
       ${logos ? `<div ${filledAttr(k("logos")).replace('class="', 'class="plat-logos mq ')}>${mqRows(logos, (src, i) => `<img src="${esc(src)}" alt="" data-item="${k("logos")}:${i}" draggable="false">`, (src) => `<img src="${esc(src)}" alt="" draggable="false">`)}</div>` : slotBox(k("logos"), "on-dark", "min-height:120px")}</div>`;
   },
-  quote: (sec, k) => `${P(k("text")) ? `<blockquote ${filledAttr(k("text"))}>“${esc(P(k("text")))}”</blockquote>` : slotBox(k("text"), "", "min-height:120px")}${text(k("by"), "cite")}`,
+  quote: (sec, k) => `${P(k("text")) ? `<blockquote ${filledAttr(k("text"))}>“${richInline(P(k("text")))}”</blockquote>` : slotBox(k("text"), "", "min-height:120px")}${text(k("by"), "cite")}`,
   mail: (sec, k) => {
     // Every word here is a spot; ones you haven't changed show their starting wording.
-    const own = (key, tag, cls = "", style = "") => `<${tag} ${filledAttr(k(key)).replace('class="', `class="${cls} `)}${style ? ` style="${style}"` : ""}>${esc(P(k(key)) || SLOTS[k(key)].def)}</${tag}>`;
+    const own = (key, tag, cls = "", style = "") => `<${tag} ${filledAttr(k(key)).replace('class="', `class="${cls} `)}${style ? ` style="${style}"` : ""}>${SLOTS[k(key)].rich ? richInline(P(k(key)) || SLOTS[k(key)].def) : esc(P(k(key)) || SLOTS[k(key)].def)}</${tag}>`;
     return `<div>${own("label", "p", "tagline")}${text(k("headline"), "h2")}${text(k("intro"), "p")}</div>
       <div class="fake-form">${own("name", "div")}${own("email", "div")}${own("button", "span", "cta cta-red", "align-self:flex-start")}${own("thanks", "p", "mail-thanks")}</div>`;
   },
   pagehero: (sec, k) => { const img = P(k("image")); return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div><div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}</div>`; },
-  story: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}"><div class="gfx-wrap">${photoBox(sec, k("photo"))}${graphCard(sec, k)}</div>${P(k("body")) ? `<p ${filledAttr(k("body")).replace('class="', 'class="body ')} style="font-size:20px;line-height:1.5;color:var(--cm-iron)">${esc(P(k("body")))}</p>` : slotBox(k("body"), "", "min-height:240px")}</div>`,
+  story: (sec, k) => `<div class="split${S.flip[sec.id] ? " flip" : ""}"><div class="gfx-wrap">${photoBox(sec, k("photo"))}${graphCard(sec, k)}</div>${P(k("body")) ? `<p ${filledAttr(k("body")).replace('class="', 'class="body ')} style="font-size:20px;line-height:1.5;color:var(--cm-iron)">${richInline(P(k("body")))}</p>` : slotBox(k("body"), "", "min-height:240px")}</div>`,
   points: (sec, k) => P(k("points")) ? `<div ${filledAttr(k("points")).replace('class="', 'class="points ')}>${pointsHtml(k("points"))}</div>` : `<div class="points">${slotBox(k("points"), "", "min-height:160px")}</div>`,
   // A heading block: tagline on the left; headline (and an optional paragraph) on the right.
   header: (sec, k) => {
     const body = k("body");
-    const bodyHtml = P(body) ? `<p ${filledAttr(body).replace('class="', 'class="body ')}>${esc(P(body))}</p>` : `<div style="margin-top:16px">${slotBox(body, "slot-optional", "min-height:56px")}</div>`;
+    const bodyHtml = P(body) ? `<p ${filledAttr(body).replace('class="', 'class="body ')}>${richInline(P(body))}</p>` : `<div style="margin-top:16px">${slotBox(body, "slot-optional", "min-height:56px")}</div>`;
     return `<div class="sh">${text(k("tagline"), "p", "tagline")}<div>${lines(k("headline"), "h2")}${bodyHtml}</div></div>`;
   },
   ocards: (sec, k) => ocBlock(k("cards"), SLOTS[k("cards")].max),
@@ -5248,9 +5260,10 @@ function cardBody(id) {
   let ed = "";
   if (sl.kind === "text") {
     const n = sl.rich ? richLen(v) : v.length;
-    ed = `<div class="field"><label for="in-${id}">Content · up to ${sl.limit} characters${sl.rich ? " (line breaks and bold allowed)" : ""}</label>${sl.rich ? `<div class="card-actions" style="margin:0 0 6px"><button type="button" class="btn btn-small" data-bold="${id}" aria-label="Bold the selected words" title="Bold (Ctrl B / ⌘ B)" style="font-weight:700;min-width:44px">B</button></div>` : ""}${sl.long
-      ? `<textarea class="input" id="in-${id}" data-edit="${id}"${sl.rich ? " data-rich" : ""} rows="3">${esc(v)}</textarea>`
+    ed = `<div class="field"><label for="in-${id}">Content · up to ${sl.limit} characters${sl.rich ? " (line breaks and bold allowed)" : ""}</label>${sl.rich ? BOLD_BTN(id) : ""}${sl.long || sl.rich
+      ? `<textarea class="input" id="in-${id}" data-edit="${id}"${sl.rich ? " data-rich" : ""} rows="${sl.long ? 3 : 2}">${esc(v)}</textarea>`
       : `<input class="input" id="in-${id}" data-edit="${id}" value="${esc(v)}"${sl.def ? ` placeholder="${esc(sl.def)}"` : ""}>`}${counter(n, sl.limit)}</div>${sl.def ? `<p class="source">Empty = “${esc(sl.def)}”.</p>` : ""}${sl.rich ? `<p class="source">${esc(RICH_ABOUT)}</p>` : ""}`;
+    // (BOLD_BTN: one B button per card; it bolds the box you were typing in.)
     if (sl.unitAt) { const at = S.unitAt[sl.section] || ""; ed += `<div class="field"><label>Where it goes</label><div class="seg" role="group" aria-label="Where the measure goes">${[["", "Auto"], ["before", "Before the number"], ["after", "After the number"]].map(([k, l]) => `<button type="button" data-unitat="${sl.section}:${k}" aria-pressed="${at === k}">${l}</button>`).join("")}</div><p class="source">${at ? `Shows as ${esc(at === "before" ? `${v.trim() || "$"}120` : `120${v.trim() || "%"}`)}. Changes at once.` : "Auto: a single symbol such as $ goes before; %, x and words go after."}</p></div>`; }
     // A button: its link is edited right here too.
     const linkId = `${sl.section}.link`;
@@ -5287,8 +5300,8 @@ function cardBody(id) {
       ${left.length && v.length < sl.max ? `<select class="input" data-addoffer="${id}" aria-label="Add an offer card"><option value="">+ Add an offer card…</option>${left.map((o) => `<option value="${o.id}">${esc(o.name)} · ${esc(o.price)}</option>`).join("")}</select>` : ""}`;
   } else if (sl.kind === "list") {
     const rows = v.length ? v : [];
-    ed = `<div class="field"><label>Content · up to ${sl.max} ${sl.max === 1 ? "row" : "rows"}</label><div class="rows">${rows.map((r, i) => `<div class="row" style="--cols:${sl.cols.length}"><span class="row-n">${i + 1}</span>
-      ${sl.cols.map((c) => { const val = r[c.key] || ""; if (c.kind === "image") return rowImage(id, i, c, val); return `<div class="field">${sl.cols.length > 1 ? `<span aria-hidden="true">${esc(c.label)}</span>` : ""}${c.long ? `<textarea class="input" rows="2" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}">${esc(val)}</textarea>` : `<input class="input" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}" value="${esc(val)}">`}${counter(val.length, c.limit)}</div>`; }).join("")}
+    ed = `${sl.cols.some((c) => c.rich) ? BOLD_BTN(id) : ""}<div class="field"><label>Content · up to ${sl.max} ${sl.max === 1 ? "row" : "rows"}</label><div class="rows">${rows.map((r, i) => `<div class="row" style="--cols:${sl.cols.length}"><span class="row-n">${i + 1}</span>
+      ${sl.cols.map((c) => { const val = r[c.key] || ""; if (c.kind === "image") return rowImage(id, i, c, val); return `<div class="field">${sl.cols.length > 1 ? `<span aria-hidden="true">${esc(c.label)}</span>` : ""}${c.long || c.rich ? `<textarea class="input" rows="2" data-cell="${id}:${i}:${c.key}"${c.rich ? " data-rich" : ""} aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}">${esc(val)}</textarea>` : `<input class="input" data-cell="${id}:${i}:${c.key}" aria-label="${esc(c.label)} ${i + 1}" placeholder="${esc(c.label)}" value="${esc(val)}">`}${counter(c.rich ? richLen(val) : val.length, c.limit)}</div>`; }).join("")}
       <span class="row-btns"><button type="button" class="x" data-move="${id}:${i}:-1" aria-label="Move row ${i + 1} up" ${i === 0 ? "disabled" : ""}>↑</button><button type="button" class="x" data-move="${id}:${i}:1" aria-label="Move row ${i + 1} down" ${i === rows.length - 1 ? "disabled" : ""}>↓</button><button type="button" class="x" data-del="${id}:${i}" aria-label="Remove row ${i + 1}">×</button></span></div>`).join("")}</div></div>
       ${rows.length < sl.max ? `<button type="button" class="add-row" data-addrow="${id}">+ Add row (${rows.length}/${sl.max})</button>` : ""}`;
   }
@@ -5797,7 +5810,7 @@ document.addEventListener("click", (e) => {
     if (!order.includes(pick)) return; if (pick === order[0]) delete S.bg[sid]; else S.bg[sid] = pick;
     render(); toast(`Background: ${BG_NAME[pick]}.`); return; }
   if (d.unitat) { const [sid, v] = d.unitat.split(":"); if (v === "before" || v === "after") S.unitAt[sid] = v; else delete S.unitAt[sid]; render(); toast(v ? `Measure goes ${v} the number.` : "Measure placed automatically."); return; }
-  if (d.bold) { const ta = document.getElementById(`in-${d.bold}`); if (ta) { ta.focus(); toggleBold(ta); } return; }
+  if (d.bold) { const card = t.closest("[data-card]") || document, act = document.activeElement, ta = act?.matches?.("textarea[data-rich]") && card.contains(act) ? act : card.querySelector("textarea[data-rich]"); if (ta) { ta.focus(); toggleBold(ta); } return; }
   if (d.flip) { S.flip[d.flip] = !S.flip[d.flip]; render(); scrollToSection(d.flip); toast(S.flip[d.flip] ? "Photo on the right." : "Photo on the left."); return; }
   if (d.secmove) { const [id, dir] = d.secmove.split(":"); moveSectionBy(id, +dir); return; }
   if (d.revert) return revert(d.revert);
@@ -5848,7 +5861,7 @@ document.addEventListener("input", (e) => {
 });
 function refreshCard(id, input) {
   const c = input.parentElement.querySelector(".count");
-  if (c) { const lim = SLOTS[id].kind === "text" ? SLOTS[id].limit : SLOTS[id].cols.find((x) => x.key === input.dataset.cell.split(":")[2]).limit, n = SLOTS[id].rich ? richLen(input.value) : input.value.length; c.textContent = `${n}/${lim}`; c.classList.toggle("over", n > lim); }
+  if (c) { const lim = SLOTS[id].kind === "text" ? SLOTS[id].limit : SLOTS[id].cols.find((x) => x.key === input.dataset.cell.split(":")[2]).limit, n = (SLOTS[id].rich || SLOTS[id].cols?.find((x) => x.key === input.dataset.cell?.split(":")[2])?.rich) ? richLen(input.value) : input.value.length; c.textContent = `${n}/${lim}`; c.classList.toggle("over", n > lim); }
   const card = document.querySelector(`[data-card="${id}"]`), s = status(id);
   card.className = `ccard is-${s} is-selected`;
   const pill = document.querySelector('[data-eblock="spot"] .ed-extra .pill'); if (pill) { pill.className = `pill pill-${s}`; pill.textContent = s[0].toUpperCase() + s.slice(1); }
