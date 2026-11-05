@@ -20,7 +20,7 @@ type Template = { id: string; type: string; slots: Slot[] };
 
 const s = (key: string, kind: Slot["kind"]): Slot => ({ key, kind });
 const TEMPLATES: Template[] = [
-  { id: "hero", type: "hero", slots: [s("image", "image"), s("headline", "text"), s("button", "text"), s("link", "link"), s("quote", "list"), s("stat", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("bars", "list"), s("ringScale", "text"), s("rings", "list")] },
+  { id: "hero", type: "hero", slots: [s("image", "image"), s("imageTablet", "image"), s("imagePhone", "image"), s("headline", "text"), s("button", "text"), s("link", "link"), s("quote", "list"), s("stat", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("bars", "list"), s("ringScale", "text"), s("rings", "list")] },
   { id: "heading", type: "header", slots: [s("tagline", "text"), s("headline", "list"), s("body", "text")] },
   { id: "logos", type: "cred", slots: [s("label", "text"), s("logos", "logos")] },
   { id: "photo-points", type: "photopoints", slots: [s("photo", "image"), s("points", "list"), s("graphTitle", "text"), s("graphUnit", "text"), s("line", "list"), s("bars", "list"), s("ringScale", "text"), s("rings", "list")] },
@@ -284,7 +284,9 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       // An old one-number stat (before Oct 9) keeps its white card.
       const st = old && !str(old.from) && !str(old.to) && str(old.value) ? `<aside class="stat-card" data-slot=".stat"><small>${esc(str(old.kicker))}</small><b>${esc(str(old.value))}</b></aside>`
         : g ? `<aside class="hstat" data-slot=".${g.key}">${g.html}</aside>` : "";
-      return `${bg("image")}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}${tabs}</div>`
+      // Its own picture per screen size (Nov 5): Desktop (image), and optional Tablet / Phone ones.
+      const heroBg = `<div class="hero-bg">${[["image", "hb-desk"], ["imageTablet", "hb-tab"], ["imagePhone", "hb-ph"]].map(([key, cls]) => mediaTag(P(key), `class="${cls}" data-slot=".${key}"${crop(key)}`)).join("")}</div>`;
+      return `${heroBg}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}${tabs}</div>`
         + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${rich(q.name)}</b><span>${rich(q.quote)}</span></figure>` : "<div></div>"}${st}</div>` : "");
     }
     case "cred": return `${text("label", "p", "tagline")}${logos("logos", "logo-row", 10)}`;
@@ -353,7 +355,7 @@ function cropRules(uid: string, secId: string, crops: BuilderState["crop"]): str
   for (const [id, c] of Object.entries(crops || {})) {
     if (!id.startsWith(uid + ".")) continue;
     const key = id.slice(uid.length + 1);
-    if (!ID.test(key) || !c || typeof c !== "object") continue;
+    if (!/^[A-Za-z0-9-]{1,60}$/.test(key) || !c || typeof c !== "object") continue;  // spot keys can be camelCase (imageTablet)
     for (const [bp, w] of [["tablet", 1000], ["phone", 700]] as const) {
       const v = cropParts((c as Record<string, unknown>)[bp]);
       if (v) out.push(`@container (max-width: ${w}px) { .site [id="${secId}"] :is(img, video)[data-slot=".${key}"] { object-position: ${v.x}% ${v.y}% !important; transform: ${v.z > 1 ? `scale(${v.z})` : "none"} !important; transform-origin: ${v.x}% ${v.y}% !important; } }`);

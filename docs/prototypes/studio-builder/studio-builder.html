@@ -280,6 +280,10 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .hero { min-height: var(--screen-h, 800px); color: #fff; background: var(--cm-midnight); display: flex; flex-direction: column; justify-content: flex-end; padding: 160px 64px 64px; gap: 32px; overflow: hidden; }
 .hero-bg { position: absolute; inset: 0; z-index: 0; }
 .hero-bg :is(img, video) { width: 100%; height: 100%; object-fit: cover; }
+/* Hero: its own image or video per screen size (Nov 5). Tablet empty → Desktop; Phone empty → Tablet, then Desktop. */
+.hero-bg > :is(.hb-tab, .hb-ph) { display: none; }
+@container (max-width: 1000px) { .hero-bg:has(> .hb-tab) > .hb-desk { display: none; } .hero-bg > .hb-tab { display: block; } }
+@container (max-width: 700px) { .hero-bg:has(> .hb-ph) > :is(.hb-desk, .hb-tab) { display: none; } .hero-bg > .hb-ph { display: block; } }
 .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
 .hero-bg .slot { position: absolute; inset: 24px; z-index: 1; min-height: 0; font-size: 18px; place-items: start end; padding: 64px 24px; }
 .hero > *:not(.hero-bg):not(.sec-tag) { position: relative; z-index: 2; }
@@ -4490,6 +4494,8 @@ const graphSlots = (lineKey, colours, lineSource) => [
 const TEMPLATES = [
   { id: "hero", name: "Hero", type: "hero", about: "Full-width photo with the headline and a button. Best as the first section.", slots: [
     { key: "image", label: "Hero image", kind: "image", about: "Full-width photo behind the headline.", source: "Images" },
+    { key: "imageTablet", label: "Tablet image or video", kind: "image", optional: true, about: "Its own picture for tablets. Empty: tablets show the Desktop one.", source: "Images" },
+    { key: "imagePhone", label: "Phone image or video", kind: "image", optional: true, about: "Its own picture for phones. Empty: phones show the Tablet one (or the Desktop one).", source: "Images" },
     { key: "headline", label: "Headline", kind: "text", limit: 80, about: "The one line every visitor reads.", source: "Playbook · Headline" },
     { key: "button", label: "Button text", kind: "text", limit: 22, about: "What the white button says.", source: "Usually “Book a call”" },
     { key: "link", label: "Button link", kind: "link", about: "Where the button goes.", source: "Your Calendly link" },
@@ -5092,7 +5098,9 @@ function kmStart(want) {
 const SECTION_HTML = {
   hero: (sec, k) => {
     const img = P(k("image")), q = P(k("quote")), st = P(k("stat")), btn = P(k("button"));
-    return `<div class="hero-bg">${img ? media(`${filledAttr(k("image"))}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}</div>
+    // Tablet / Phone pictures (optional): drawn too, and shown at their size by CSS (.hb-tab, .hb-ph).
+    const extra = [["imageTablet", "hb-tab"], ["imagePhone", "hb-ph"]].map(([key, cls]) => P(k(key)) ? media(`${filledAttr(k(key)).replace('class="', `class="${cls} `)}${cropAttr(k(key))}`, P(k(key))) : "").join("");
+    return `<div class="hero-bg">${img ? media(`${filledAttr(k("image")).replace('class="', 'class="hb-desk ')}${cropAttr(k("image"))}`, img) : slotBox(k("image"), "on-dark")}${extra}</div>
       <div class="hero-main">${text(k("headline"), "h1", "", "on-dark")}
         ${btn ? `<span ${filledAttr(k("button")).replace('class="', 'class="cta ')}>${esc(btn)} →</span>` : slotBox(k("button"), "on-dark", "align-self:flex-start;min-width:220px")}
         ${P(k("link")) ? "" : `<div style="max-width:320px">${slotBox(k("link"), "on-dark")}</div>`}${tabbarHtml(sec)}</div>
@@ -5280,7 +5288,7 @@ function cardBody(id) {
       <p class="source">YouTube keeps a small logo and suggests your own videos at the end. Vimeo (paid plan) and uploaded videos show nothing extra.</p>`;
   } else if (sl.kind === "image") {
     // The crop shown is for the size the preview is on; the size buttons switch both.
-    const bp = S.device in BPN ? S.device : "desktop", c = cropAt(id, bp), own = ownCrop(id, bp), bgShape = sl.key === "image";
+    const bp = S.device in BPN ? S.device : "desktop", c = cropAt(id, bp), own = ownCrop(id, bp), bgShape = /^image/.test(sl.key);
     const shape = (bgShape ? { desktop: "16 / 9", tablet: "1 / 1", phone: "9 / 16" } : { desktop: "4 / 5", tablet: "4 / 3", phone: "4 / 5" })[bp];
     const tall = shape === "4 / 5" || shape === "9 / 16" || shape === "1 / 1";
     const parent = bp === "phone" && ownCrop(id, "tablet") ? "Tablet" : "Desktop";
