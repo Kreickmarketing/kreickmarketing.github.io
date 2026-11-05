@@ -420,7 +420,7 @@ function overlay(html,bind){const h=$('ovhost');h.innerHTML=`<div class="ov" id=
 function closeOv(){$('ovhost').innerHTML='';document.removeEventListener('keydown',escClose)}
 function escClose(e){if(e.key==='Escape')closeOv()}
 const fmtDate=s=>{const d=new Date(s+'T12:00:00');return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
-// On the site (window.__CRM__ set by app/clrcrm/crm/route.ts) dates count from today; the prototype keeps Oct 13.
+// On the site (window.__CRM__ set by app/apps/crm/route.ts) dates count from today; the prototype keeps Oct 13.
 const TODAY=window.__CRM__?new Date(new Date().toDateString()+' 12:00'):new Date('2026-10-13T12:00:00');
 const isoToday=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const daysTo=s=>Math.round((new Date(s+'T12:00:00')-TODAY)/864e5);
@@ -498,7 +498,7 @@ const NOTES={p1:[['Andrew Kreick','2 days ago','Kevin flies a Phenom 300. Keep t
 
 /* ---------- live data ----------
    On clearmark.bz the page is handed the saved records (window.__CRM__) and saves each change
-   through /clrcrm/crm/api. In the Claude prototype it keeps the sample data above.
+   through /apps/crm/api. In the Claude prototype it keeps the sample data above.
    Messages, Assistants and the Author Portal still run on sample data. */
 const LIVE=!!window.__CRM__;
 // Follow-ups: { id, person, title, due (YYYY-MM-DD or null), done }. Sample ones in the prototype.
@@ -515,7 +515,7 @@ if(LIVE){const D=window.__CRM__;
   }
 // Saves one change. Returns the server's answer, or null (with a message) if it didn't save.
 async function save(action,data){if(!LIVE)return{ok:true};
-  try{const r=await fetch('/clrcrm/crm/api',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action,...data})});
+  try{const r=await fetch('/apps/crm/api',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action,...data})});
     if(r.redirected)throw new Error('Log in again');const j=await r.json().catch(()=>null);if(!r.ok||!j)throw new Error(j&&j.error||'Not saved');return j}
   catch(e){toast(`${e.message||'Not saved'}. Your change wasn’t saved; reload and try again.`);return null}}
 
@@ -757,7 +757,7 @@ function renderRec(){
 
 // A company typed into a form shows in Companies straight away (the server makes the real row).
 function ensureCompany(name){if(name&&name!=='—'&&!COMPANIES.some(c=>c.name===name)){COMPANIES.push({id:'',name,industry:'—',market:'—',status:null,people:0,deal:null});COMPANIES.sort((a,b)=>a.name.localeCompare(b.name))}}
-/* Recap and Research assistants (Claude, through /clrcrm/crm/api; only on the site with a key) */
+/* Recap and Research assistants (Claude, through /apps/crm/api; only on the site with a key) */
 const AI=LIVE&&!!window.__CRM__.ai;
 async function refreshRecap(p,quiet){if(!AI||p._recapping)return;p._recapping=true;if(S.rec===p.id)renderRec();
   const r=await save('recap',{personId:p.id});p._recapping=false;
@@ -814,7 +814,7 @@ function editCompany(c){if(c&&LIVE&&!c.id){toast(`Reload the page to edit ${c.na
     COMPANIES.sort((a,b)=>a.name.localeCompare(b.name));closeOv();toast(isNew?`${name} added.`:'Saved.');render()};
   if($('co-del'))$('co-del').onclick=()=>{const b=$('co-del');if(!b.dataset.sure){b.dataset.sure='1';b.textContent=`Click again: people and deals stay, without a company`;return}
     b.disabled=true;save('deleteCompany',{id:c.id}).then(r=>{if(!r){b.disabled=false;return}COMPANIES.splice(COMPANIES.indexOf(c),1);PEOPLE.forEach(p=>{if(p.company===c.name)p.company='—'});DEALS.forEach(d=>{if(d.company===c.name)d.company='—'});closeOv();toast(`${c.name} deleted.`);render()})}})}
-/* edit and delete: people and deals (saved through /clrcrm/crm/api on the site) */
+/* edit and delete: people and deals (saved through /apps/crm/api on the site) */
 const val=v=>v&&v!=='—'?v:'';
 function personForm(p){const inp=(id,l,v,type)=>`<label class="fld"><label>${l}</label><input class="in" id="${id}" value="${esc(val(v))}"${type?` type="${type}"`:''}></label>`;
   return`<div class="fld"><label>Editing</label><div class="v muted">Changes save when you press Save.</div></div>`
@@ -1113,7 +1113,7 @@ const isCollapsed=()=>APPEL.classList.contains('collapsed');
 document.addEventListener('keydown',e=>{if(e.key==='['&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!document.activeElement.isContentEditable)setCollapsed(!isCollapsed(),true)});
 setWidth(PW);
 {let st=null;try{st=localStorage.getItem('cm:side')}catch(_){}setCollapsed(st==='0'||(st==null&&innerWidth<=900),false)}
-// A copied record link (…/clrcrm/crm#p=<id>) opens that person.
+// A copied record link (…/apps/crm#p=<id>) opens that person.
 {const m=/^#p=([\w-]+)$/.exec(location.hash);const pr=m&&PEOPLE.find(x=>x.id===m[1]);
   if(pr){S.sec='crm';S.view='people';S.rec=pr.id;S.rtab='details';const g=GROUPS.find(x=>(pr.groups||[]).includes(x.id));if(g)S.group=g.id}}
 render();

@@ -1,5 +1,6 @@
 import { LEGACY_OFFER_IDS, type CmsItem } from "./cms";
-// Live pages made in the Studio builder (/clrcrm/studio/builder).
+import { KM_TEMPLATES, drawKm } from "./km-sections";
+// Live pages made in the Studio builder (/apps/studio/builder).
 //
 // The builder saves one JSON "state" per site: pages (lists of template copies),
 // spots ({ value, placed }), photo sides (flip) and the page list (names and
@@ -40,7 +41,10 @@ const TEMPLATES: Template[] = [
   // Vertical spacers: empty space between sections (16 / 32 / 64 / 96px).
   { id: "spacer-16", type: "spacer", slots: [] }, { id: "spacer-32", type: "spacer", slots: [] },
   { id: "spacer-64", type: "spacer", slots: [] }, { id: "spacer-96", type: "spacer", slots: [] },
+  // Kreick Marketing templates (km-*, lib/km-sections.ts). Drawn by drawKm(); not on any live route yet.
+  ...KM_TEMPLATES.map((t) => ({ id: t.id, type: t.type, slots: t.slots.map((sl) => s(sl.key, sl.kind)) })),
 ];
+const KM_TYPES = new Set(KM_TEMPLATES.map((t) => t.type));
 
 // Offer cards come from the Studio CMS (Products): title CT100, subtitle CT200, price CP,
 // price note = first CPDT line, photo CI-01, small "+" label = first tag. Cards are found by
@@ -59,7 +63,7 @@ function offerCards(cms: CmsItem[]): (ref: unknown) => OfferCard | null {
   };
 }
 
-const SECTION_CLASS: Record<string, string> = { spacer: "spacer", hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std" };
+const SECTION_CLASS: Record<string, string> = { spacer: "spacer", hero: "hero", cred: "cred", photopoints: "std", plat: "std plat", quote: "std quote-sec", mail: "mail", pagehero: "hero page-hero", story: "std", points: "std", header: "std", ocards: "std ocards", system: "std plat sys", engine: "std plat eng", video: "std", calendly: "std", ...Object.fromEntries(KM_TEMPLATES.map((t) => [t.type, "km"])) };
 const PHOTO_TOP = ["hero", "pagehero", "plat", "system", "engine"];
 
 export type BuilderState = {
@@ -315,7 +319,9 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const arrow = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
       return cards.length ? `<div class="oc-grid" data-slot=".cards">${cards.map((o) => `<article class="oc">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}<div class="oc-top">${o.title ? `<h3 class="oc-t">${esc(o.title)}</h3>` : ""}${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${plus}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${!o.arrow ? "" : o.link ? `<a class="oc-go" href="${esc(o.link)}" aria-label="See ${esc(o.title || "this offer")}">${arrow}</a>` : `<span class="oc-go" aria-hidden="true">${arrow}</span>`}</div></div></article>`).join("")}</div>` : "";
     }
-    default: return "";
+    default:
+      // Kreick sections: same checks as the rest (local images only, safe links).
+      return KM_TYPES.has(type) ? drawKm(type, P, { img: safeImage, video: safeVideo, href: (v) => safeHref(link(v)) }) : "";
   }
 }
 
@@ -372,7 +378,8 @@ function anchorsOn(state: BuilderState, pageId: string): Record<string, string> 
 }
 
 // cms: the site's CMS items visitors may see (published only), for offer cards.
-export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem[] = []): LivePage | null {
+// `hrefOf`: where a link to a Studio page goes (the page's address; Studio → Preview points it at the preview instead).
+export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem[] = [], hrefOf: (p: BuilderPageInfo) => string = (p) => p.path): LivePage | null {
   const list = Array.isArray(state?.pages?.[pageId]) ? state.pages![pageId] : null;
   if (!list?.length) return null;
   const tpls: Record<string, Template> = Object.fromEntries(TEMPLATES.map((t) => [t.id, t]));
@@ -392,7 +399,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     // ref is a section or element id; the address uses its link name (an element that lost
     // its name falls back to its section).
     const m = ref ? anchorsFor(pid) : {}, a = ref ? m[ref] || m[ref.split(".")[0]] || "" : "";
-    return p.path + (a ? "#" + a : "");
+    return hrefOf(p) + (a ? "#" + a : "");
   };
   const here = anchorsFor(pageId);
   // Nav and footer: this page's own version if it has one, otherwise the site default.
@@ -420,7 +427,9 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
     if (!tpl || !ID.test(uid)) continue;
     const P = (key: string) => slots[`${uid}.${key}`]?.placed;
     const bgv = state.bg?.[uid];
-    const bg = (tpl.type === "quote" || tpl.type === "spacer") && (bgv === "white" || bgv === "cream" || bgv === "black") ? ` bg-${bgv}` : "";
+    const bg = (tpl.type === "quote" || tpl.type === "spacer") && (bgv === "white" || bgv === "cream" || bgv === "black") ? ` bg-${bgv}`
+      // Kreick grounds: Charcoal, Black or Mustard (styles/brands/kreick.css).
+      : KM_TYPES.has(tpl.type) && (bgv === "charcoal" || bgv === "black" || bgv === "mustard") ? ` bg-${bgv}` : "";
     const className = `sec t-${tpl.id} ${SECTION_CLASS[tpl.type]}${bg}`, id = here[uid] || uid;
     // Mailing list: wording left empty in Studio falls back to the starting words.
     if (tpl.type === "mail") sections.push({ kind: "mail", id, uid, className, label: str(P("label")) || "Mailing list", headline: str(P("headline")), intro: str(P("intro")),
@@ -432,7 +441,7 @@ export function renderLivePage(state: BuilderState, pageId: string, cms: CmsItem
       let html = drawSection(tpl.type, P, state.flip?.[uid] === true, (key) => cropStyle(state.crop?.[`${uid}.${key}`]), link, offer, state.noIcons?.[uid] === true, tpl.type === "hero" && state.noTabs?.[uid] !== true ? tabs : "", state.noNums?.[uid] === true, state.unitAt?.[uid] === "before" || state.unitAt?.[uid] === "after" ? String(state.unitAt[uid]) : "");
       // Named elements get their link name as an id (the first element drawn for that spot).
       for (const sl of tpl.slots) { const a = here[`${uid}.${sl.key}`]; if (a) html = html.replace(`data-slot=".${sl.key}"`, `id="${a}" data-slot=".${sl.key}"`); }
-      if (/<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/.test(html)) sections.push({ kind: "html", id, uid, className, html });
+      if ((KM_TYPES.has(tpl.type) ? /<(img|video|h1|h2|h3|h4|p|li|a|span)\b/ : /<(img|video|iframe|h1|h2|h3|p|li|blockquote|cite|article)\b/).test(html)) sections.push({ kind: "html", id, uid, className, html });
     }
   }
   const first = tpls[str(list[0]?.t)];
@@ -461,11 +470,11 @@ export const BUILDER_PAGES = [
 export type BuilderPageInfo = { id: string; name: string; path: string; unpublished: boolean };
 
 // Addresses Studio pages can't take: the site's own routes.
-export const RESERVED_SLUGS = new Set(["clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin"]);
+export const RESERVED_SLUGS = new Set(["apps", "clrcrm", "design-system", "privacy", "terms", "api", "studio-media", "tags", "_next", "login", "admin", "files"]);
 export const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-// The page list in a state, checked: Home is always "/", every other page has a
-// unique, safe one-word address. Bad or missing entries fall back to the start list.
+// The page list in a state, checked: Home (or Kreick's Gigs) is always "/", every other page has a
+// unique, safe address of one to three words (Kreick's work pages are /work/<name>). Bad or missing entries fall back to the start list.
 export function pagesOf(state: BuilderState | null | undefined): BuilderPageInfo[] {
   const list = Array.isArray(state?.pageList) ? state!.pageList : null;
   if (!list) return BUILDER_PAGES.map((p) => ({ ...p, unpublished: false }));
@@ -475,9 +484,10 @@ export function pagesOf(state: BuilderState | null | undefined): BuilderPageInfo
     if (!ID.test(id) || out.some((x) => x.id === id)) continue;
     const name = str(p?.name).slice(0, 60) || id;
     const unpublished = p?.unpublished === true;
-    if (id === "home") { out.push({ id, name, path: "/", unpublished }); continue; }
-    const slug = str(p?.path).replace(/^\//, "");
-    if (!SLUG.test(slug) || slug.length > 60 || RESERVED_SLUGS.has(slug) || seen.has(slug)) continue;
+    // Home: ClearMark's is "home"; Kreick's front page is Gigs (any page saved at "/", the first one).
+    if (id === "home" || (str(p?.path) === "/" && !out.some((x) => x.path === "/"))) { out.push({ id, name, path: "/", unpublished }); continue; }
+    const slug = str(p?.path).replace(/^\//, ""), parts = slug.split("/");
+    if (parts.length > 3 || !parts.every((x) => SLUG.test(x)) || slug.length > 60 || RESERVED_SLUGS.has(parts[0]) || seen.has(slug)) continue;
     seen.add(slug);
     out.push({ id, name, path: "/" + slug, unpublished });
   }

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// The new CRM (clrcrm/crm): loads the crm_* tables (supabase/crm-v2.sql) and shapes them the
+// The new CRM (apps/crm): loads the crm_* tables (supabase/crm-v2.sql) and shapes them the
 // way the page (docs/prototypes/crm/crm.html) draws them. Reads and writes always use the
 // logged-in member's session, so Row Level Security decides what they can see and change.
 

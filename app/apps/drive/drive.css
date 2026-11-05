@@ -1,0 +1,148 @@
+/*
+  /apps/drive: Clearmark Drive. Builds on the Studio dark roles (studio.css: --pb-paper, --pb-surface,
+  --pb-ink, --pb-ink-2, --pb-line). Colors come only from styles/colors.css.
+*/
+
+.drive-app { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100dvh - 72px); }
+
+/* ── Sidebar ── */
+.drive-side { border-right: 1px solid var(--pb-line); padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; }
+.drive-new {
+  border: 1px solid var(--pb-line); background: var(--pb-surface); color: var(--pb-ink);
+  border-radius: 999px; padding: 10px 16px; font: inherit; font-weight: var(--font-weight-semibold); cursor: pointer; text-align: left;
+}
+.drive-new:hover { border-color: var(--tidal-azure); }
+.drive-upload { background: var(--rogue-cherry); border-color: var(--rogue-cherry); color: var(--white); }
+.drive-side nav { display: flex; flex-direction: column; gap: 2px; margin-top: 16px; }
+.drive-nav {
+  display: flex; align-items: center; gap: 10px; border: 0; background: none; color: var(--pb-ink);
+  padding: 8px 12px; border-radius: 999px; font: inherit; cursor: pointer; text-align: left;
+}
+.drive-nav:hover { background: var(--studio-hover); }
+.drive-nav.current { background: color-mix(in srgb, var(--tidal-azure) 22%, var(--pb-paper)); }
+.drive-folder-icon { width: 20px; height: 20px; flex: none; color: var(--sage-mist); }
+
+/* ── Main column ── */
+.drive-main { padding: 24px 32px 96px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.drive-top { display: flex; gap: 16px; align-items: center; }
+.drive-search {
+  flex: 1; max-width: 640px; background: var(--pb-surface); color: var(--pb-ink); border: 1px solid var(--pb-line);
+  border-radius: 999px; padding: 10px 18px; font: inherit;
+}
+.drive-views { display: flex; border: 1px solid var(--pb-line); border-radius: 999px; overflow: hidden; margin-left: auto; }
+.drive-views button { background: none; border: 0; color: var(--pb-ink); padding: 8px 14px; cursor: pointer; font-size: 16px; }
+.drive-views button.on { background: color-mix(in srgb, var(--tidal-azure) 30%, var(--pb-paper)); }
+
+.drive-crumbs { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.drive .drive-crumbs h1 { font-size: var(--text-lg-size); line-height: var(--text-lg-lh); font-weight: var(--font-weight-regular); margin: 0; }
+.drive-crumbs h1 > span { margin-left: 8px; }
+.drive-crumbs h1 > span > span[aria-hidden] { margin-right: 8px; color: var(--pb-ink-2); }
+.drive-crumbs h1 button, .drive-link { background: none; border: 0; color: var(--pb-ink-2); font: inherit; cursor: pointer; padding: 0; }
+.drive-crumbs h1 button:hover, .drive-link:hover { color: var(--pb-ink); text-decoration: underline; }
+
+.drive .drive-group { font-size: var(--text-sm-size); font-weight: var(--font-weight-semibold); color: var(--pb-ink-2); margin: 8px 0 0; }
+.drive-error { color: var(--coral-rush); display: flex; gap: 12px; align-items: center; }
+.drive-error button { background: none; border: 1px solid currentColor; color: inherit; border-radius: 999px; padding: 2px 10px; cursor: pointer; }
+.drive-empty { padding: 48px 0; text-align: center; display: flex; flex-direction: column; gap: 8px; }
+
+/* ── Grid ── */
+.drive-folders, .drive-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.drive-folders { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.drive-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.drive-folder {
+  display: flex; align-items: center; gap: 12px; padding: 12px 8px 12px 16px; background: var(--pb-surface);
+  border: 1px solid var(--pb-line); border-radius: 12px; cursor: pointer; min-width: 0;
+}
+.drive-card {
+  background: var(--pb-surface); border: 1px solid var(--pb-line); border-radius: 12px; overflow: visible;
+  cursor: pointer; display: flex; flex-direction: column; min-width: 0;
+}
+.drive-folder:hover, .drive-card:hover { border-color: var(--tidal-azure); background: var(--studio-hover); }
+.drive-thumb {
+  aspect-ratio: 4 / 3; background: var(--iron-pine); display: grid; place-items: center;
+  border-radius: 11px 11px 0 0; overflow: hidden;
+}
+.drive-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.drive-thumb .drive-folder-icon { width: 48px; height: 48px; }
+.drive-type {
+  font-family: var(--font-button); font-weight: var(--font-weight-bold); font-size: var(--text-sm-size); color: var(--white);
+  background: var(--aegean); border-radius: 6px; padding: 6px 10px; letter-spacing: 1px;
+}
+.drive-type.small { font-size: 9px; padding: 2px 4px; margin-right: 8px; }
+.drive-card-body { display: flex; align-items: center; gap: 4px; padding: 10px 6px 0 12px; }
+.drive-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.drive-meta { color: var(--pb-ink-2); font-size: var(--text-xs-size); padding: 2px 12px 12px; }
+.drive-tag { font-size: var(--text-xs-size); color: var(--glacial-cyan); }
+
+/* ── List ── */
+.drive-list { width: 100%; border-collapse: collapse; }
+.drive-list th { text-align: left; color: var(--pb-ink-2); font-weight: var(--font-weight-semibold); font-size: var(--text-xs-size); padding: 8px; border-bottom: 1px solid var(--pb-line); }
+.drive-list td { padding: 8px; border-bottom: 1px solid var(--pb-line); color: var(--pb-ink); white-space: nowrap; }
+.drive-list td:first-child { width: 60%; max-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.drive-list tbody tr { cursor: pointer; }
+.drive-list tbody tr:hover { background: var(--studio-hover); }
+.drive-row-name { display: inline-flex; align-items: center; gap: 10px; }
+
+/* ── ⋯ menu ── */
+.drive-more-wrap { position: relative; }
+.drive-more { background: none; border: 0; color: var(--pb-ink); font-size: 18px; border-radius: 999px; width: 32px; height: 32px; cursor: pointer; }
+.drive-more:hover { background: var(--studio-hover); }
+.drive-menu {
+  position: absolute; right: 0; top: 34px; z-index: 40; min-width: 190px; background: var(--charcoal);
+  border: 1px solid var(--pb-line); border-radius: 10px; padding: 6px; display: flex; flex-direction: column;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--midnight) 70%, transparent);
+}
+.drive-menu button { background: none; border: 0; color: var(--pb-ink); text-align: left; padding: 8px 12px; border-radius: 6px; font: inherit; cursor: pointer; }
+.drive-menu button:hover { background: var(--studio-hover); }
+.drive-danger { color: var(--coral-rush) !important; }
+
+/* ── Drop overlay, uploads, notices ── */
+.drive-drop {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; pointer-events: none;
+  background: color-mix(in srgb, var(--tidal-azure) 18%, transparent); border: 3px dashed var(--tidal-azure);
+}
+.drive-drop p { background: var(--tidal-azure); color: var(--white); padding: 12px 24px; border-radius: 999px; }
+.drive-uploads {
+  position: fixed; right: 24px; bottom: 24px; z-index: 50; width: min(380px, calc(100vw - 48px)); max-height: 50vh; overflow: auto;
+  background: var(--charcoal); border: 1px solid var(--pb-line); border-radius: 12px; color: var(--pb-ink);
+}
+.drive-uploads-head { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--pb-line); }
+.drive-uploads-head button, .drive-uploads li button { background: none; border: 0; color: var(--pb-ink-2); cursor: pointer; font: inherit; }
+.drive-uploads ul { list-style: none; margin: 0; padding: 8px 0; }
+.drive-uploads li { display: flex; gap: 12px; align-items: center; padding: 6px 16px; font-size: var(--text-xs-size); }
+.drive-upload-state { display: flex; gap: 8px; align-items: center; color: var(--pb-ink-2); }
+.drive-upload-state progress { width: 90px; accent-color: var(--tidal-azure); }
+.drive-notice {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 55;
+  background: var(--white); color: var(--midnight); padding: 10px 20px; border-radius: 999px;
+}
+
+/* ── Dialogs and preview ── */
+.drive-modal { position: fixed; inset: 0; z-index: 70; background: color-mix(in srgb, var(--midnight) 75%, transparent); display: grid; place-items: center; padding: 24px; }
+.drive-dialog {
+  background: var(--charcoal); border: 1px solid var(--pb-line); border-radius: 14px; padding: 24px;
+  width: min(440px, 100%); display: flex; flex-direction: column; gap: 16px; color: var(--pb-ink);
+}
+.drive .drive-dialog h2 { font-size: var(--text-md-size); margin: 0; }
+.drive-dialog input { background: var(--pb-paper); color: var(--pb-ink); border: 1px solid var(--pb-line); border-radius: 8px; padding: 10px 12px; font: inherit; }
+.drive-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.drive-dialog-actions button, .drive-preview-head button {
+  background: none; border: 1px solid var(--pb-line); color: var(--pb-ink); border-radius: 999px; padding: 8px 16px; font: inherit; cursor: pointer;
+}
+.drive-dialog-actions .primary { background: var(--tidal-azure); border-color: var(--tidal-azure); color: var(--white); }
+.drive-pick { list-style: none; margin: 0; padding: 0; max-height: 280px; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+.drive-pick button { display: flex; gap: 10px; align-items: center; width: 100%; background: none; border: 0; color: var(--pb-ink); padding: 8px; border-radius: 8px; font: inherit; cursor: pointer; text-align: left; }
+.drive-pick button:hover { background: var(--studio-hover); }
+.drive-preview { width: min(1100px, 100%); max-height: 100%; display: flex; flex-direction: column; gap: 12px; }
+.drive-preview-head { display: flex; justify-content: space-between; align-items: center; color: var(--white); gap: 12px; }
+.drive-preview-head span { display: flex; gap: 8px; }
+.drive-preview img, .drive-preview video { max-width: 100%; max-height: 80vh; object-fit: contain; align-self: center; border-radius: 8px; }
+.drive-preview iframe { width: 100%; height: 80vh; border: 0; border-radius: 8px; background: var(--white); }
+
+@media (max-width: 720px) {
+  .drive-app { grid-template-columns: 1fr; }
+  .drive-side { border-right: 0; border-bottom: 1px solid var(--pb-line); flex-direction: row; flex-wrap: wrap; }
+  .drive-side nav { flex-direction: row; flex-wrap: wrap; margin-top: 0; }
+  .drive-main { padding: 16px; }
+  .drive-list th:nth-child(3), .drive-list td:nth-child(3) { display: none; }
+}

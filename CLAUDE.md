@@ -30,6 +30,11 @@
 - Turn on Row Level Security for every Supabase table.
 - Only work on the dev Supabase project unless I say otherwise.
 
+## Putting changes live (Andrew, Oct 21, 2026)
+- Work in this folder on `main`. Commit here; never open pull requests or ask Andrew to merge.
+- Andrew types `/push-live` → run the checks and `git push origin HEAD:main`. Vercel puts it on clearmark.bz in about 2 minutes.
+- Keep instructions to Andrew short: one thing to do, in plain words.
+
 ## Current work: Studio
 - Before anything else in a new session, read `docs/project-status.md` (what's live, where things are, next moves) and `docs/studio-plan.md` (the Studio plan and build order).
 - When I say "continue Studio" or "start Studio", pick up at the next unfinished step in `docs/studio-plan.md`.

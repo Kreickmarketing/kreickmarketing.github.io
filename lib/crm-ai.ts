@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// The CRM's Claude-powered assistants (clrcrm/crm):
+// The CRM's Claude-powered assistants (apps/crm):
 // - Recap assistant: 2-4 short points at the top of a person, from their record, notes,
 //   interactions and open reminders.
 // - Research assistant: a short brief on a person's company from a web search, saved as a note.
