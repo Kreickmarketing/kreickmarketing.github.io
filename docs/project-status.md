@@ -1,4 +1,4 @@
-# Project status (updated Nov 5, 2026: Engine full screen; line breaks and bold in every Studio text box; graph measure before or after)
+# Project status (updated Nov 5, 2026: Hero picture per screen size; Engine lotus, shade and padding; CMS video backgrounds; line breaks and bold in every Studio text box)
 
 ## Live
 - ClearMark site: https://clearmark-tan.vercel.app, and www.clearmark.bz once the DNS change from Oct 14 finishes (Vercel auto-deploys `main`). Home, About, Privacy, Terms; footer. Home switches to the Studio version once it's published in Studio.
