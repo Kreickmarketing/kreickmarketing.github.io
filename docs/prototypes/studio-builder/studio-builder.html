@@ -743,7 +743,7 @@ button.lay-row { width: 100%; border: 0; background: none; color: var(--ink); te
 .src-line b { font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; }
 .src-line span { font-size: 12.5px; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .src-line .flag { color: var(--draft); font-size: 11px; }
-.src-card img { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex: none; }
+.src-card :is(img, video) { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; flex: none; }
 .src-card .grow { display: flex; flex-direction: column; min-width: 0; }
 .src-card .grow b { font-size: 13px; font-weight: 600; }
 .src-card .grow span { font-size: 11.5px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -5677,7 +5677,7 @@ function sourceItems(id) {
   if (id === "images") return `${UP ? upBox() : `<label class="upload" for="upload">+ Upload or drop images and videos here${LIVE ? "" : " (stays in this browser)"}<small>Videos: MP4 or WebM, best under 5 MB, up to 50 MB.</small><input type="file" id="upload" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm"></label>`}
       <div class="src-grid">${IMAGES.map((im) => `<figure class="src-img ${im.kind === "logo" ? "logo" : ""}${picked?.value === im.src ? " is-picked" : ""}" draggable="true" data-drag="image|${esc(im.src)}" data-pick="image|${esc(im.src)}" tabindex="0" title="${esc(im.name)}"><div class="im">${isVideo(im.src) ? `<video src="${esc(im.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(im.src)}" alt="">`}</div><figcaption>${esc(im.name)}</figcaption></figure>`).join("")}</div>`;
   if (id === "playbook") return PLAYBOOK.map((p) => `<div class="src-row src-line${picked?.value === p.text ? " is-picked" : ""}" draggable="true" data-drag="text|${esc(p.text)}" data-pick="text|${esc(p.text)}" tabindex="0"><b>${esc(p.label)}</b><span>${esc(p.text)}</span>${p.flag ? `<span class="flag">${esc(p.flag)}</span>` : ""}</div>`).join("");
-  return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0">${o.image ? `<img src="${esc(o.image)}" alt="">` : `<span class="src-noimg"></span>`}<span class="grow"><b>${esc(o.name)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
+  return OFFERS.map((o) => `<div class="src-row src-card${picked?.value === o.id ? " is-picked" : ""}" draggable="true" data-drag="offer|${o.id}" data-pick="offer|${o.id}" tabindex="0">${o.video ? `<video src="${esc(o.video)}#t=0.001" muted playsinline preload="metadata" aria-hidden="true"></video>` : o.image ? `<img src="${esc(o.image)}" alt="">` : `<span class="src-noimg"></span>`}<span class="grow"><b>${esc(o.name)}</b><span>${esc(o.price)} · ${esc(o.note)}</span></span><span class="badge ${o.status === "Ready" ? "ok" : "wait"}">${esc(o.status)}</span></div>`).join("");
 }
 const modulesInner = () => {
   const after = curSec && pageView(S.page).sections.find((x) => x.id === curSec);
