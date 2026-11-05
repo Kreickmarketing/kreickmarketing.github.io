@@ -680,7 +680,7 @@ html[data-view="style"] #top, html[data-view="style"] #proto-note, html[data-vie
 .cms-table th, .cms-table td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
 .cms-table th { font-weight: 600; color: var(--ink-2); background: var(--panel-2); white-space: nowrap; }
 .cms-table td.num { color: var(--ink-3); font-family: var(--f-mono); width: 40px; }
-.cms-table img { width: 40px; height: 28px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; }
+.cms-table :is(img, video) { width: 40px; height: 28px; object-fit: cover; border-radius: 4px; vertical-align: middle; margin-right: 8px; }
 .cms-table tr:last-child td { border-bottom: 0; }
 .slug-row { display: flex; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding-left: 12px; }
 .slug-row .mono { color: var(--ink-3); font-size: 13px; white-space: nowrap; }
@@ -893,9 +893,8 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .oc-grid { display: grid; gap: 32px; }
 .oc { position: relative; overflow: hidden; display: flex; flex-direction: column; color: #fff; background: var(--cm-midnight); min-width: 0; }
 .oc > :is(img, video) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-/* Background video (CV-01, Nov 5): plays over the still image; visitors who turn motion off keep the still. */
-@media (prefers-reduced-motion: reduce) { .oc > video { display: none; } }
-.oc > :not(img) { position: relative; z-index: 1; }
+/* Background video (CV-01, Nov 5): fills the card on its own; its first frame shows until it plays. */
+.oc > :not(img, video) { position: relative; z-index: 1; }
 .oc-top { display: flex; flex-direction: column; }
 .oc h3, .oc p { margin: 0; }
 .oc-foot { display: flex; align-items: flex-end; gap: 32px; }
@@ -4813,7 +4812,7 @@ const offerById = (oid) => OFFERS.find((o) => o.id === oid || o.slug === (LEGACY
 // Design-system offer card (Offer Card Full / Two / Three): its size per screen comes from CSS.
 const OC_PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 const OC_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>';
-const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.video ? `<video src="${esc(o.video)}" muted autoplay loop playsinline preload="metadata" aria-hidden="true"></video>` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top">${o.title ? `<h3 class="oc-t">${esc(o.title)}</h3>` : ""}${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.arrow === false ? "" : `<span class="oc-go" title="${o.link ? `Links to ${esc(o.link)}` : "No link yet: add a Button link (CBL) to this offer in CMS"}">${OC_ARROW}</span>`}</div></div></article>`;
+const ocCard = (o, i, id) => `<article class="oc" data-item="${id}:${i}">${o.video ? `<video src="${esc(o.video)}#t=0.001" muted autoplay loop playsinline preload="auto" aria-hidden="true"></video>` : o.image ? `<img src="${esc(o.image)}" alt="">` : ""}${o.status === "Draft" ? `<span class="offer-draft">Draft · not shown on the live site</span>` : ""}<div class="oc-top">${o.title ? `<h3 class="oc-t">${esc(o.title)}</h3>` : ""}${o.sub ? `<p class="oc-s">${esc(o.sub)}</p>` : ""}</div><div class="oc-foot">${o.tag ? `<span class="oc-tag">${OC_PLUS}${esc(o.tag)}</span>` : ""}<div class="oc-end">${o.price ? `<div class="oc-price"><b>${esc(o.price)}</b>${o.note ? `<small>${esc(o.note)}</small>` : ""}</div>` : ""}${o.arrow === false ? "" : `<span class="oc-go" title="${o.link ? `Links to ${esc(o.link)}` : "No link yet: add a Button link (CBL) to this offer in CMS"}">${OC_ARROW}</span>`}</div></div></article>`;
 // Arrow (every card): on the live site it links to the offer's Button link (CBL) once that's filled in.
 function ocBlock(id, max) {
   const v = P(id), items = v ? v.map(offerById).filter(Boolean) : [];
@@ -6440,8 +6439,8 @@ function renderCms() {
   if (!items.length) { $("#view-cms").innerHTML = `${head}<div class="empty-state"><b style="color:var(--ink)">No ${col === "portfolio" ? "case studies" : "products"} yet.</b><br>Press <b>+ New item</b> to add the first one.</div>`; return; }
   $("#view-cms").innerHTML = `${head}
     <div class="cms-table-wrap"><table class="cms-table"><thead><tr><th></th><th>Title ${CF("CT100")}</th><th>Second title ${CF("CT200")}</th><th>Price ${CF("CP")}</th><th>Status</th><th>${col === "products" ? "On pages" : "Tags"}</th></tr></thead><tbody>
-      ${items.map((it, n) => { const img = it.media.find((m) => m.code === "CI-01")?.url, u = col === "products" ? usedOn(it.id) : null;
-        return `<tr class="cms-row" data-cmsitem="${esc(it.id)}" tabindex="0" title="Edit"><td class="num">${n + 1}</td><td style="white-space:nowrap">${img ? `<img src="${esc(img)}" alt="">` : ""}${esc(it.ct100)}</td><td>${esc(it.ct200)}</td><td class="mono">${esc(it.cp)}</td>
+      ${items.map((it, n) => { const img = it.media.find((m) => m.code === "CI-01")?.url, vid = it.media.find((m) => m.code === "CV-01")?.url, u = col === "products" ? usedOn(it.id) : null;
+        return `<tr class="cms-row" data-cmsitem="${esc(it.id)}" tabindex="0" title="Edit"><td class="num">${n + 1}</td><td style="white-space:nowrap">${vid ? `<video src="${esc(vid)}#t=0.001" muted playsinline preload="metadata" aria-hidden="true"></video>` : img ? `<img src="${esc(img)}" alt="">` : ""}${esc(it.ct100)}</td><td>${esc(it.ct200)}</td><td class="mono">${esc(it.cp)}</td>
           <td><span class="badge ${it.status === "published" ? "ok" : "wait"}">${it.status === "published" ? "Ready" : "Draft"}</span></td><td>${u ? (u.length ? esc(u.join(", ")) : '<span class="hint">Not on a page</span>') : esc(it.tags.join(", "))}</td></tr>`; }).join("")}
     </tbody></table></div><p class="set-help" style="margin-top:12px">Click a row to edit it. <b>Ready</b> items show on the live site wherever a page uses them; <b>Draft</b> items only show here.</p>`;
 }
@@ -6467,7 +6466,7 @@ function renderCmsItem() {
   // Background (Nov 5): an image (CI-01), or a video (CV-01) with CI-01 as its still image.
   const bgv = it.media.find((m) => m.code === "CV-01"), bgVid = cmsBgVideo ?? !!bgv;
   const pickRow = (list, chosen, attr, video) => list.map((m) => { const c = chosen.find((x) => x.url === m.src);
-    return `<button type="button" class="cms-img${c ? " is-on" : ""}" ${attr}="${esc(m.src)}" title="${esc(m.name)}" aria-pressed="${!!c}">${video ? `<video src="${esc(m.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(m.src)}" alt="">`}${c ? `<span class="media-no">${esc(c.code)}</span>` : ""}</button>`; }).join("");
+    return `<button type="button" class="cms-img${c ? " is-on" : ""}" ${attr}="${esc(m.src)}" title="${esc(m.name)}" aria-pressed="${!!c}">${video ? `<video src="${esc(m.src)}#t=0.001" muted playsinline preload="metadata"></video><span class="vid-badge">▶</span>` : `<img src="${esc(m.src)}" alt="">`}${c ? `<span class="media-no">${esc(c.code)}</span>` : ""}</button>`; }).join("");
   $("#view-cms").innerHTML = `<div class="view-head"><button type="button" class="btn btn-small" data-cmsback>${cmsDirty && cmsLeaveArmed ? "Leave without saving?" : `← ${cmsName(col)}`}</button><h2>${esc(it.ct100 || "New item")}</h2>
       <button type="button" class="btn" data-cmsdiscard ${cmsDirty ? "" : "disabled"}>Discard changes</button><button type="button" class="btn btn-primary" data-cmssave>${it.id ? "Save" : "Add item"}</button></div>
     <div class="set-col">
@@ -6480,12 +6479,12 @@ function renderCmsItem() {
       <div class="set-card${off("button")}">${head("Button", "button")}${f("cb", "CB", "Button text", "", false, "e.g. Book a call")}${f("cbl", "CBL", "Button link", "https://…, mailto:… or /a-page-on-this-site", false, "https://")}</div>
       <div class="set-card${off("price")}">${head("Price", "price")}${f("cp", "CP", "Price", "", false, "e.g. $2,500+")}${f("cpt", "CPT", "Price title")}${f("cps", "CPS", "Price subtitle")}${f("cpd", "CPD", "Price description", "", true)}${f("cpdt", "CPDT", "Price dates / note", "One line each. The first line shows under the price on cards.", true, "e.g. Starting on Wednesday January 28, 2026")}</div>
       <div class="set-card">${head("Media", "media")}<div class="set-field${off("media")}"><span>Background</span><div class="seg" role="group" aria-label="Background: image or video"><button type="button" data-cmsbg="image" aria-pressed="${!bgVid}">Image</button><button type="button" data-cmsbg="video" aria-pressed="${bgVid}">Video</button></div>
-          <small>${bgVid ? "The video plays silently on a loop behind the card's words. The still image shows while it loads, and for visitors who turn motion off." : "A photo behind the card's words. Choose Video to use a video instead."}</small></div>
-        ${bgVid ? `<div class="set-field${off("media")}"><span>Background video ${CF("CV-01")}</span>${videos.length ? `<div class="cms-imgs">${videos.map((m) => `<button type="button" class="cms-img${bgv?.url === m.src ? " is-on" : ""}" data-cmsbgvid="${esc(m.src)}" title="${esc(m.name)}" aria-pressed="${bgv?.url === m.src}"><video src="${esc(m.src)}" muted preload="metadata"></video><span class="vid-badge">▶</span></button>`).join("")}</div><small>Videos only. MP4 or WebM; best under 5 MB.</small>` : `<p class="cms-empty">No videos yet. Upload one in Pages → Sources → Images &amp; video (MP4 or WebM), then pick it here.</p>`}</div>` : ""}
-        <div class="set-field${off("media")}"><span>${bgVid ? "Still image" : "Background image"} ${CF("CI-01")}</span>
+          <small>${bgVid ? "The video fills the card and plays silently on a loop behind its words. Its first frame is the picture people see before it plays (and if they've turned motion off)." : "A photo fills the card behind its words. Choose Video to use a video instead."}</small></div>
+        ${bgVid ? `<div class="set-field${off("media")}"><span>Background video ${CF("CV-01")}</span>${videos.length ? `<div class="cms-imgs">${videos.map((m) => `<button type="button" class="cms-img${bgv?.url === m.src ? " is-on" : ""}" data-cmsbgvid="${esc(m.src)}" title="${esc(m.name)}" aria-pressed="${bgv?.url === m.src}"><video src="${esc(m.src)}#t=0.001" muted playsinline preload="metadata"></video><span class="vid-badge">▶</span></button>`).join("")}</div><small>Videos only. MP4 or WebM; best under 5 MB.</small>` : `<p class="cms-empty">No videos yet. Upload one in Pages → Sources → Images &amp; video (MP4 or WebM), then pick it here.</p>`}</div>` : ""}
+        ${bgVid ? "" : `<div class="set-field${off("media")}"><span>Background image ${CF("CI-01")}</span>
           <div class="cms-imgs">${photos.map((m) => `<button type="button" class="cms-img${img?.url === m.src ? " is-on" : ""}" data-cmsimg="${esc(m.src)}" title="${esc(m.name)}"><img src="${esc(m.src)}" alt=""></button>`).join("")}<button type="button" class="cms-img cms-noimg${img ? "" : " is-on"}" data-cmsimg="" title="No image">None</button></div>
           <small>Upload more in Pages → Sources → Images &amp; video.</small></div>
-        <label class="set-field"><span>Image description (for screen readers)</span><input type="text" data-cf="alt" value="${esc(img?.alt || "")}" placeholder="What the photo shows"></label>
+        <label class="set-field"><span>Image description (for screen readers)</span><input type="text" data-cf="alt" value="${esc(img?.alt || "")}" placeholder="What the photo shows"></label>`}
         <div class="set-field"><span>More images ${CF("CI-02 …")}</span><div class="cms-imgs">${pickRow(photos, extra, "data-cmsmore", false)}</div><small>Click to add or remove. Numbered in the order you pick them.</small></div>
         <div class="set-field"><span>More videos ${CF("CV-02 …")}</span>${videos.length ? `<div class="cms-imgs">${pickRow(videos.filter((m) => m.src !== bgv?.url), vids, "data-cmsvid", true)}</div><small>Click to add or remove. MP4 or WebM; best under 5 MB.</small>` : `<p class="cms-empty">No videos yet. Upload one in Pages → Sources → Images &amp; video (MP4 or WebM).</p>`}</div></div>
       <div class="set-card"><h3>Tags</h3><div class="set-field${off("tags")}"><label for="cf-tags">Tags</label><div class="cms-row"><input type="text" id="cf-tags" data-cf="tags" value="${esc(it.tags.join(", "))}" placeholder="Hybrid course, Leadership upskilling">${vis("tags")}</div><small>Comma-separated. The first tag is the small “+” label on cards.</small></div></div>

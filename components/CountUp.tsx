@@ -9,7 +9,11 @@ import { useEffect } from "react";
 // nothing is lost if this never runs.
 export default function CountUp() {
   useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Offer card background videos: visitors who turn motion off see the first frame, paused.
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll<HTMLVideoElement>(".site .oc > video").forEach((v) => { v.removeAttribute("autoplay"); v.pause(); });
+      return;
+    }
     const num = (v: string) => parseFloat(v.replace(/[^0-9.-]/g, "")) || 0;
     const show = (el: HTMLElement, k: number) => {
       const raw = el.dataset.count ?? "", dp = (raw.split(".")[1] || "").replace(/\D/g, "").length, v = num(raw) * k;
