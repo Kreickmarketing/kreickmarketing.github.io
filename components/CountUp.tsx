@@ -9,10 +9,17 @@ import { useEffect } from "react";
 // nothing is lost if this never runs.
 export default function CountUp() {
   useEffect(() => {
+    // Hero video per screen size: a video only picks its file when the page loads, so after a resize or a
+    // tablet turned sideways, load the one that's now showing (it chooses its file again).
+    const heroMQ = ["(min-width: 1001px)", "(min-width: 701px) and (max-width: 1000px)", "(max-width: 700px)"].map((q) => matchMedia(q));
+    const heroSwap = () => document.querySelectorAll<HTMLVideoElement>(".site .hero-bg > video.hb").forEach((v) => {
+      if (getComputedStyle(v).display !== "none" && !v.currentSrc) { v.load(); if (!matchMedia("(prefers-reduced-motion: reduce)").matches) v.play().catch(() => {}); }
+    });
+    heroMQ.forEach((m) => m.addEventListener("change", heroSwap));
     // Offer card background videos: visitors who turn motion off see the first frame, paused.
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.querySelectorAll<HTMLVideoElement>(".site .oc > video").forEach((v) => { v.removeAttribute("autoplay"); v.pause(); });
-      return;
+      return () => heroMQ.forEach((m) => m.removeEventListener("change", heroSwap));
     }
     const num = (v: string) => parseFloat(v.replace(/[^0-9.-]/g, "")) || 0;
     const show = (el: HTMLElement, k: number) => {
@@ -46,6 +53,7 @@ export default function CountUp() {
     }), { threshold: 0.4 });
     cards.forEach((el) => { el.classList.add("wait"); io.observe(el); });
     return () => {
+      heroMQ.forEach((m) => m.removeEventListener("change", heroSwap));
       io.disconnect();
       frames.forEach(cancelAnimationFrame);
       counted.forEach((el) => show(el, 1));

@@ -53,9 +53,12 @@
 .site .hero-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .site .hero-bg :is(img, video) { width: 100%; height: 100%; object-fit: cover; }
 /* Hero: its own image or video per screen size (Nov 5). Tablet empty → Desktop; Phone empty → Tablet, then Desktop. */
-.site .hero-bg > :is(.hb-tab, .hb-ph) { display: none; }
-@container (max-width: 1000px) { .site .hero-bg:has(> .hb-tab) > .hb-desk { display: none; } .site .hero-bg > .hb-tab { display: block; } }
-@container (max-width: 700px) { .site .hero-bg:has(> .hb-ph) > :is(.hb-desk, .hb-tab) { display: none; } .site .hero-bg > .hb-ph { display: block; } }
+/* Each picture or video is shown only at the screen sizes it's marked for (same ranges as its <source media>). */
+.site .hero-bg > .hb { display: none; width: 100%; height: 100%; }
+.site .hero-bg > picture.hb > img { display: block; }
+@media (min-width: 1001px) { .site .hero-bg > .hb-d { display: block; } }
+@media (min-width: 701px) and (max-width: 1000px) { .site .hero-bg > .hb-t { display: block; } }
+@media (max-width: 700px) { .site .hero-bg > .hb-p { display: block; } }
 .site .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(28,32,38,0.45), rgba(28,32,38,0.05) 40%, rgba(28,32,38,0.7)); }
 .site .hero-main { display: flex; flex-direction: column; gap: 32px; max-width: 760px; }
 .site .hero h1 { font-size: 64px; line-height: 68px; letter-spacing: -3px; font-weight: 200; margin: 0; }

@@ -253,6 +253,26 @@ export function rich(v: unknown): string {
   }).join("<br>");
 }
 
+// Hero picture per screen size (Nov 5): Desktop (image), Tablet (imageTablet), Phone (imagePhone); an empty
+// one uses the next size up. Each screen size loads ONE file: every picture or video is marked with the
+// screen sizes it's for (<source media>), so the browser never downloads the others, and CSS shows only it.
+const HERO_SIZES = [["d", "(min-width: 1001px)"], ["t", "(min-width: 701px) and (max-width: 1000px)"], ["p", "(max-width: 700px)"]] as const;
+const BLANK_GIF = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAACH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+function heroMedia(P: (key: string) => unknown, crop: (key: string) => string): string {
+  const ok = (key: string) => (safeVideo(P(key)) || safeImage(P(key)) ? key : "");
+  const d = ok("image"), t = ok("imageTablet") || d, p = ok("imagePhone") || t;
+  const pick: Record<string, string> = { d, t, p };
+  const keys = [...new Set([d, t, p].filter(Boolean))];
+  return keys.map((key) => {
+    const sizes = HERO_SIZES.filter(([b]) => pick[b] === key), all = sizes.length === 3;
+    const media = sizes.map(([, m]) => m).join(", "), cls = `hb ${sizes.map(([b]) => "hb-" + b).join(" ")}`;
+    const attrs = `class="${cls}" data-slot=".${key}"${crop(key)}`, video = safeVideo(P(key)), img = safeImage(P(key));
+    if (video) return `<video ${attrs} muted autoplay loop playsinline preload="metadata" aria-hidden="true">${all ? `<source src="${esc(video)}">` : `<source src="${esc(video)}" media="${media}">`}</video>`;
+    if (all) return `<img ${attrs} src="${esc(img)}" alt="">`;
+    return `<picture class="${cls}"><source media="${media}" srcset="${esc(img)}"><img data-slot=".${key}"${crop(key)} src="${BLANK_GIF}" alt=""></picture>`;
+  }).join("");
+}
+
 // ── Drawing each template (live mode: empty spots are simply left out) ──
 function drawSection(type: string, P: (key: string) => unknown, flip: boolean, crop: (key: string) => string = () => "", link: (v: unknown) => unknown = (v) => v, offer: (ref: unknown) => OfferCard | null = () => null, noIcons = false, tabs = "", noNums = false, unitAt = ""): string {
   const text = (key: string, tag: string, cls = "") => { const v = str(P(key)); return v ? `<${tag}${cls ? ` class="${cls}"` : ""} data-slot=".${key}">${rich(v)}</${tag}>` : ""; };
@@ -285,7 +305,7 @@ function drawSection(type: string, P: (key: string) => unknown, flip: boolean, c
       const st = old && !str(old.from) && !str(old.to) && str(old.value) ? `<aside class="stat-card" data-slot=".stat"><small>${esc(str(old.kicker))}</small><b>${esc(str(old.value))}</b></aside>`
         : g ? `<aside class="hstat" data-slot=".${g.key}">${g.html}</aside>` : "";
       // Its own picture per screen size (Nov 5): Desktop (image), and optional Tablet / Phone ones.
-      const heroBg = `<div class="hero-bg">${[["image", "hb-desk"], ["imageTablet", "hb-tab"], ["imagePhone", "hb-ph"]].map(([key, cls]) => mediaTag(P(key), `class="${cls}" data-slot=".${key}"${crop(key)}`)).join("")}</div>`;
+      const heroBg = `<div class="hero-bg">${heroMedia(P, crop)}</div>`;
       return `${heroBg}<div class="hero-main">${text("headline", "h1")}${btn && href ? `<a class="cta" data-slot=".button" href="${esc(href)}"${href.startsWith("http") ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(btn)} →</a>` : ""}${tabs}</div>`
         + (q || st ? `<div class="hero-bottom">${q ? `<figure class="glass" data-slot=".quote"><b>${rich(q.name)}</b><span>${rich(q.quote)}</span></figure>` : "<div></div>"}${st}</div>` : "");
     }
