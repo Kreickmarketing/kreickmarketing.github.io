@@ -29,7 +29,7 @@
 
 ### Session Nov 5, 2026: where we stopped (all of it is live on main)
 Done and live: graph measure before/after + numbers keep their own symbol; one-box headlines and line breaks + bold in every ClearMark text box; Engine (one screen tall, Andrew's lotus image, labels on the glowing tips, 20% shade, 192px top / 288px bottom); System headline one size down; CMS Background Image | Video for offer cards (video fills the card, first frame as its picture); Hero gets its own Tablet and Phone image or video, and each screen size downloads only one file. Details: docs/studio-plan.md (Nov 5 entries).
-Andrew's to-dos (content, in Studio):
+Andrew's to-dos (content, in Studio), all four DONE by Andrew on Nov 5:
 1. Hero → Graph measure: delete "days", Place in preview, Publish.
 2. Publish the pages that use Engine and the Hero so they pick up the new look.
 3. Mailing list: paste the rewritten wording (label "Field notes", headline "Customers know / when it's you.", intro, button "Send me the notes") and a matching thank-you line; Publish.
