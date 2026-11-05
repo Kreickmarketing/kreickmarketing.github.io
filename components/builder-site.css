@@ -423,7 +423,7 @@
 }
 
 /* Engine (T.O.E., Oct 8): fan of five icons that slide outward on hover. Tablet and phone: words move to a list. */
-.site .eng { padding: 96px 0; min-height: 100vh; min-height: 100svh; justify-content: center; gap: 48px; }
+.site .eng { padding: 192px 0; min-height: 100vh; min-height: 100svh; justify-content: center; gap: 48px; }
 .site .eng .hero-bg::after { background: color-mix(in srgb, var(--midnight) 20%, transparent); }  /* Nov 5: 20% shade so the lotus stands out */
 .site .eng .hero-bg :is(img, .site video) { object-position: center bottom; }
 .site .eng-stage { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; aspect-ratio: 1280 / 480; }
@@ -449,7 +449,7 @@
 .site .eng-n5 { left: 66.797%; top: 64.583%; }
 .site .eng-n5 .eng-label { left: 71px; top: 0%; transform: translateY(-50%); width: 240px; }
 @container (max-width: 1000px) {
-  .site .eng { min-height: 0; padding: 96px 0 320px; justify-content: flex-start; gap: 48px; }
+  .site .eng { min-height: 0; padding: 192px 0 320px; justify-content: flex-start; gap: 48px; }
   .site .eng-label { display: none; }
   .site .eng-copy { padding: 0 32px; }
   .site .eng-head { font-size: 40px; line-height: 36px; letter-spacing: -2px; }

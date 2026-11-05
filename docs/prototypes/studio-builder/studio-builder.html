@@ -1052,7 +1052,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 /* Engine (T.O.E. diagram, Oct 8, canvas row "Engine"): photo background, a fan of five icons around a laptop,
    then a headline and paragraph. Nov 5: one screen tall, diagram and words centred, no hover movement. Tablet and phone aren't designed yet:
    for now the words move into a list under the diagram. */
-.eng { padding: 96px 0; min-height: var(--screen-h, 800px); justify-content: center; gap: 48px; }
+.eng { padding: 192px 0; min-height: var(--screen-h, 800px); justify-content: center; gap: 48px; }
 .eng .hero-bg::after { background: color-mix(in srgb, var(--cm-midnight) 20%, transparent); }  /* Nov 5: 20% shade so the lotus stands out */
 .eng .hero-bg :is(img, video) { object-position: center bottom; }
 .eng-stage { position: relative; width: 100%; max-width: 1280px; margin: 0 auto; aspect-ratio: 1280 / 480; }
@@ -1078,7 +1078,7 @@ body.is-resizing-v { cursor: row-resize; user-select: none; }
 .eng-n5 { left: 66.797%; top: 64.583%; }
 .eng-n5 .eng-label { left: 71px; top: 0%; transform: translateY(-50%); width: 240px; }
 @container (max-width: 1000px) {
-  .eng { min-height: 0; padding: 96px 0 320px; justify-content: flex-start; gap: 48px; }
+  .eng { min-height: 0; padding: 192px 0 320px; justify-content: flex-start; gap: 48px; }
   .eng-label { display: none; }
   .eng-copy { padding: 0 32px; }
   .eng-head { font-size: 40px; line-height: 36px; letter-spacing: -2px; }
