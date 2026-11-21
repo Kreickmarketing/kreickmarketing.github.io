@@ -21,7 +21,7 @@ export default async function MySites() {
           {sites.map((s) => (
             <li key={s.id}>
               {/* ClearMark and Kreick open the Studio builder (a full page load: it isn't a React page).
-                  Kreick publishes to its test address, new.kreickmarketing.com (Oct 22). */}
+                  Kreick publishes to www.kreickmarketing.com (Nov 21, 2026). */}
               {s.slug === "clearmark" || s.slug === "kreick"
                 ? <a href={s.slug === "kreick" ? "/apps/studio/builder?site=kreick" : "/apps/studio/builder"} className="studio-site"><SiteCard site={s} /></a>
                 : s.status === "coming"
@@ -43,14 +43,14 @@ function SiteCard({ site: s }: { site: SiteRow }) {
         {s.settings.thumbnail
           ? <Image src={s.settings.thumbnail} alt="" fill sizes="(max-width: 700px) 100vw, 360px" />
           : <span className="studio-thumb-letter" aria-hidden="true">{s.name[0]}</span>}
-        {s.status === "coming" && <span className="studio-pill studio-pill-coming">{s.slug === "kreick" ? "Test address" : "Coming"}</span>}
+        {s.status === "coming" && <span className="studio-pill studio-pill-coming">{s.slug === "kreick" ? "Live" : "Coming"}</span>}
       </div>
       <div className="studio-site-body">
         <h2>{s.name}</h2>
         <p>{s.domain ?? "No domain yet"}</p>
         <p className="studio-meta">
           {s.status === "coming"
-            ? (s.slug === "kreick" ? "Live on new.kreickmarketing.com · Framer stays on kreickmarketing.com" : "Not connected yet")
+            ? (s.slug === "kreick" ? "Live on www.kreickmarketing.com" : "Not connected yet")
             : `${pageCount} ${pageCount === 1 ? "page" : "pages"} · Edited ${shortDate(s.updated_at)}`}
         </p>
       </div>

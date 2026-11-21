@@ -4694,7 +4694,7 @@ const apiUrl = (path = "", q = "") => { q = [String(q).replace(/^\?/, ""), IS_KM
 // The live site's own address (Oct 14: clearmark.bz moved to Vercel). Page links always use it,
 // whichever address Studio was opened from.
 // Kreick is live on its test address first (Oct 22); kreickmarketing.com stays on Framer until Andrew swaps it.
-const SITE_URL = IS_KM ? "https://new.kreickmarketing.com" : "https://www.clearmark.bz";
+const SITE_URL = IS_KM ? "https://www.kreickmarketing.com" : "https://www.clearmark.bz";
 let LIVE_PAGES = LIVE && Array.isArray(window.__STUDIO_LIVE_PAGES__) ? window.__STUDIO_LIVE_PAGES__ : null;
 const pageUrl = (p) => SITE_URL + p.path;
 // Live = visitors see it (green). Work in progress = not published, or unpublished (yellow).
@@ -6711,7 +6711,7 @@ const siteRow = (slug, mark, name, sub, style) => {
 };
 $("#logo-menu").innerHTML = `<div class="side-label">Sites</div>
   ${siteRow("clearmark", "AI", "ClearMark", "", "")}
-  ${siteRow("kreick", "KM", "Kreick Marketing", "Live on new.kreickmarketing.com", "background:var(--iron-pine)")}
+  ${siteRow("kreick", "KM", "Kreick Marketing", "Live on www.kreickmarketing.com", "background:var(--iron-pine)")}
   <hr>
   <a class="side-row" href="${DASH}/templates?set=${SITE}">${svg('<rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="8" height="6" rx="1.5"/><rect x="13" y="14" width="8" height="6" rx="1.5"/>')}<span class="grow">Templates</span></a>
   <a class="side-row" href="${DASH}">${svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>')}<span class="grow">Main dashboard</span></a>

@@ -8,7 +8,7 @@ export function builderSite(v: string | null | undefined): BuilderSite {
 }
 export const builderSiteFrom = (request: Request) => builderSite(new URL(request.url).searchParams.get("site"));
 
-// Kreick goes live on a test address first (Oct 22, 2026); kreickmarketing.com stays on Framer until
-// Andrew swaps it. Every Kreick address is listed in KREICK_HOSTS, so the swap needs no code change.
-export const KREICK_URL = "https://new.kreickmarketing.com";
+// Kreick went live on the test address new.kreickmarketing.com (Oct 22, 2026), then moved from Framer to
+// www.kreickmarketing.com (Nov 21, 2026). kreickmarketing.com and new. forward to www (Vercel, next.config.ts).
+export const KREICK_URL = "https://www.kreickmarketing.com";
 export const KREICK_HOSTS = "(?:new\\.|www\\.)?kreickmarketing\\.com";

@@ -11,7 +11,13 @@ const nextConfig: NextConfig = {
   // The old CRM's lead pages were retired on Oct 14, 2026; their addresses go to the new CRM.
   async redirects() {
     const retired = ["pipeline", "database", "funnel", "clients", "clients/:path*"];
+    // Kreick Marketing moved from Framer to Studio on Nov 21, 2026: the old test address and the
+    // Framer pages that folded into the home page forward to www.kreickmarketing.com.
+    const kreick = [{ type: "host" as const, value: KREICK_HOSTS }];
+    const kreickOld = ["/gigs", "/case_studies", "/home"];
     return [
+      { source: "/:path*", has: [{ type: "host" as const, value: "new\\.kreickmarketing\\.com" }], destination: "https://www.kreickmarketing.com/:path*", permanent: true },
+      ...kreickOld.map((p) => ({ source: p, has: kreick, destination: "/", permanent: true })),
       ...retired.map((p) => ({ source: `/clrcrm/crm/${p}`, destination: "/apps/crm", permanent })),
       { source: "/clrcrm", destination: "/apps/playbook", permanent },
       { source: "/clrcrm/:path+", destination: "/apps/:path+", permanent },
@@ -35,12 +41,10 @@ const nextConfig: NextConfig = {
       fallback: [],
     };
   },
-  // The test address stays out of search engines while kreickmarketing.com is still the Framer site.
   // Craft app builds: the .wasm and .js names carry a content hash, so browsers can keep them for good
   // (FigCraft's wasm is 24 MB; this saves downloading it on every visit).
   async headers() {
     return [
-      { source: "/:path*", has: [{ type: "host", value: "new\\.kreickmarketing\\.com" }], headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       { source: "/apps/create/:craft/app/:file(.+\\.(?:wasm|js))", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
       { source: "/apps/create/:craft/app/index.html", headers: [{ key: "Cache-Control", value: "no-cache" }] },
     ];
